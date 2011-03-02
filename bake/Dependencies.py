@@ -52,9 +52,11 @@ class Dependencies:
         # instances of the class Target that have this string in their
         # source list
         self._sources = dict()
+        # the list of all items 
+        self._items = []
         # Are we currently executing the resolve method. ?
         self._resolving = False
-        # is there any target is that dirty ?
+        # is there any target that is dirty ?
         self._dirty = False
     def add_dst(self, dst, context = None):
         if isinstance(dst,list):
@@ -87,12 +89,14 @@ class Dependencies:
 
         # mark dirty target and its depending targets
         self._update_dirty(target)
+
     def dump(self,f,dot=True):
         f.write('digraph {\n')
         for target in self._targets.values():
             for src in target.src ():
                 f.write('"' + src + '" -> "' + target.dst() + '";\n')
         f.write('}')
+
     def resolve(self, targets, callback = None, n=1):
         # raise exceptions to signal errors:
         #  CycleDetected ()
@@ -189,9 +193,12 @@ class Dependencies:
         # generate a sorted list of targets, lowest-priority first
         sorted_targets = []
         for key in sorted(prio_inverted.keys()):
-            sorted_targets.extend(reversed(prio_inverted[key]))
+            sorted_targets.extend(sorted(prio_inverted[key], self._cmp))
         # convert the list of targets into a list of steps
         return sorted_targets
+
+    def _cmp(self, a, b):
+        return cmp(a.dst(), b.dst());
 
     def _is_clean(self,targets):
         for target in targets:
@@ -224,6 +231,7 @@ class Dependencies:
         finished = self._resolve_one_iteration(targets, callback)
         while not finished:
             finished = self._resolve_one_iteration(targets, callback)
+
     def _resolve_parallel(self, targets, callback, n):
         # XXX: implement parallel version
         self._resolve_serial(targets, callback)

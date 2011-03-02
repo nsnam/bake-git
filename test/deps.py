@@ -105,8 +105,11 @@ lex.yy.h -> bar.c
         self.run_one_test(deps, ['foo.o'], 
                           ['foo.h', 'foo.c', 'foo.o'])
         self.run_one_test(deps, ['main'], 
-                          ['foo.h', 'bar.h', 'lex.yy', 'foo.c', 'lex.yy.h', 
-                           'foo.o', 'bar.c', 'bar.o', 'main'])
+                          ['bar.h', 'foo.h', 'lex.yy', 'foo.c', 'lex.yy.h', 
+                           'bar.c', 'foo.o', 'bar.o', 'main'])
+        self.run_one_test(deps, ['main', 'foo.o'], 
+                          ['bar.h', 'foo.h', 'lex.yy', 'foo.c', 'lex.yy.h', 
+                           'bar.c', 'foo.o', 'bar.o', 'main'])
 
         
 if __name__ == '__main__':
