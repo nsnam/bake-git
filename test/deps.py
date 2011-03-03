@@ -17,7 +17,7 @@ class DepInfo:
         return self._edges
 
 class Test:
-    def __init__(self, deps_str):
+    def __init__(self, deps_str, failure_targets):
         # the syntax for deps_str encodes many things:
         # B depends on A: "A -> B"
         # When processing B, add new dependencies to dependency graph:
@@ -27,13 +27,14 @@ class Test:
         # }
         # B depends optionally on A: "A ?> B"
         # 
-        self._deps = bake.Dependencies ()
-        self._infos = self._parse (deps_str, self._deps)
+        self._deps = bake.Dependencies()
+        self._infos = self._parse(deps_str, self._deps)
+        self._failure = failure_targets
         self._processed = []
     def _parse(self,deps_str, deps):
-        infos = dict ()
+        infos = dict()
         reg_edge = re.compile('([^ ]+) -> (.+)')
-        reg_opt_edge = re.compile('([^ ]+) ?> (.+)')
+        reg_opt_edge = re.compile('([^ ]+) \?> (.+)')
         reg_open = re.compile('([^ ]+) {?')
         reg_close = re.compile('}?')
         current_info = None
@@ -73,20 +74,23 @@ class Test:
                 continue
         return infos
     def _dep_handler(self, target, context):
+        if target in self._failure:
+            return False
         self._processed.append(target)
         if self._infos.has_key(target):
             for src,dst,optional in self._infos[target].edges ():
                 self._deps.add_dst(src)
                 self._deps.add_dst(dst)
                 self._deps.add_dep(src,dst, optional)
+        return True
                 
     def run(self, targets):
         self._deps.resolve(targets, self._dep_handler, None)
         return self._processed
 
 class TestDependencies(unittest.TestCase):
-    def run_one_test(self, deps, targets, expected):
-        test = Test (deps)
+    def run_one_test(self, deps, targets, expected, failure = []):
+        test = Test (deps, failure)
         got = test.run(targets)
         self.assertEqual(got, expected)
     def test_simple(self):
@@ -110,6 +114,27 @@ lex.yy.h -> bar.c
         self.run_one_test(deps, ['main', 'foo.o'], 
                           ['bar.h', 'foo.h', 'lex.yy', 'foo.c', 'lex.yy.h', 
                            'bar.c', 'foo.o', 'bar.o', 'main'])
+    def test_optional(self):
+        self.run_one_test("A ?> B", targets = ['B'],
+                          expected = ['A', 'B'])
+        self.run_one_test("A ?> B", targets = ['B'],
+                          expected = ['B'],
+                          failure = ['A'])
+        self.assertRaises(bake.DependencyUnmet, self.run_one_test, 
+                          "A -> B", targets = ['B'],
+                          expected = ['B'],
+                          failure = ['A'])
+        self.run_one_test("""A ?> B
+B -> C
+""", targets = ['C'],
+                          expected = ['B', 'C'],
+                          failure = ['A'])
+        self.run_one_test("""A ?> B
+C ?> B
+""", targets = ['B'],
+                          expected = ['B'],
+                          failure = ['A', 'C'])
+
 
         
 if __name__ == '__main__':

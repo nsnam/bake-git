@@ -1,8 +1,8 @@
-# The purpose of this class is obviously to capture a set of dependencies
+# The purpose of this class is to capture a set of dependencies
 # between a set of objects. The idea is that you have a set of 'targets'
 # which depend on a set of sources. Each target can be the source of another
 # target. There might be cycles but it's a bug and we need to detect it.
-# XXX: detect cycles
+#
 # Once we have all dependencies, we need to 'resolve' them. This means
 # that we need to iterate over all targets and invoke a user-provided
 # callback on each target. The tricky thing here is that the user-provided
@@ -18,13 +18,14 @@ class CycleDetected:
         return
 
 class DependencyUnmet:
-    def __init__(self):
-        return
+    def __init__(self, str):
+        self._str = str
 
 class Target:
     def __init__(self, dst, context):
         self._dst = dst
         self._src = []
+        self._optional = dict()
         self._context = context
         self._dirty = True
     def is_dirty(self):
@@ -33,13 +34,17 @@ class Target:
         self._dirty = True
     def clean(self):
         self._dirty = False
-    def add_src(self, src):
+    def add_src(self, src, optional):
         assert src not in self._src
         self._src.append(src)
+        self._optional[src] = optional
     def dst(self):
         return self._dst
     def src(self):
         return self._src
+    def is_src_optional(self,src):
+        assert self._optional.has_key(src)
+        return self._optional[src]
     def context(self):
         return self._context
 
@@ -70,7 +75,7 @@ class Dependencies:
         # mark dirty target and its depending targets
         self._update_dirty(target)
 
-    def add_dep(self, src, dst):
+    def add_dep(self, src, dst, optional = False):
         if isinstance(src,list):
             return [self.add_dep(s,dst) for s in src]
         assert self._targets.has_key(dst)
@@ -81,7 +86,7 @@ class Dependencies:
 
         # record new dependency
         target = self._targets[dst]
-        target.add_src(src)
+        target.add_src(src, optional)
         if not self._sources.has_key(src):
             self._sources[src] = [target]
         elif target not in self._sources[src]:
@@ -214,14 +219,23 @@ class Dependencies:
     def _resolve_one_iteration(self, targets, callback):
         self._dirty = False
         queue = self._sort(targets)
-        dirty = [i for i in queue if i.is_dirty ()]
+        dirty = [i for i in queue if i.is_dirty()]
         for i in dirty:
-            i.clean ();
+            i.clean();
             assert self._is_clean(i.src())
+            success = True
             if callback is None and i.context() is not None:
-                i.context()()
+                success = i.context()()
             elif callback is not None:
-                callback (i.dst (), i.context())
+                success = callback(i.dst(), i.context())
+            if not success:
+                if not self._sources.has_key(i.dst()):
+                    raise DependencyUnmet(i.dst() + ' failed')
+                else:
+                    for j in self._sources[i.dst()]:
+                        if not j.is_src_optional(i.dst()):
+                            raise DependencyUnmet(j.dst() + ' depends upon ' + 
+                                                  i.dst() + ' which failed.')
             if self._dirty:
                 self._dirty = False
                 return False
