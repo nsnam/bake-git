@@ -34,14 +34,23 @@ class NoneModuleSource(ModuleSource):
 class BazaarModuleSource(ModuleSource):
     def __init__(self):
         ModuleSource.__init__(self)
+        self.add_attribute('url', '', 'The url to clone from',
+                           mandatory = True)
+        self.add_attribute('revision', None, 'The revision to update to after the clone.')
     @classmethod
     def name(cls):
         return 'bazaar'
     def diff(self, logger, directory):
         pass
     def download(self, logger, directory):
-        pass
+        rev_arg = []
+        if not self.attribute('revision').value is None:
+            rev_arg.extend(['-r', self.attribute('revision').value])
+        Utils.run_command(['bzr', 'clone'] + rev_arg + [self.attribute('url').value, directory],
+                          logger)
+
     def update(self, logger, directory):
+        # XXX: 
         pass
     
 class MercurialModuleSource(ModuleSource):

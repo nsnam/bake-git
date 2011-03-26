@@ -41,6 +41,8 @@ class Module:
             self._source.download(logger, dirname)
             return True
         except:
+            import Utils
+            Utils.print_backtrace()
             return False
 
     def update(self, logger, sourcedir):
@@ -49,6 +51,8 @@ class Module:
             self._source.update(logger, dirname)
             return True
         except:
+            import Utils
+            Utils.print_backtrace()
             return False
 
     def build(self, logger, sourcedir, objdir, installdir):
