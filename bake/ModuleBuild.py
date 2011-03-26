@@ -21,7 +21,7 @@ class NoneModuleBuild(ModuleBuild):
         ModuleBuild.__init__(self)
     @classmethod
     def name(cls):
-        return 'none'
+        return 'none-build'
     def build(self, logger, srcdir, blddir, installdir):
         pass
     def clean(self, logger, srcdir, blddir):

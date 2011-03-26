@@ -18,6 +18,32 @@ class ModuleSource(ModuleAttributeBase):
     def update(self, logger, directory):
         raise NotImplemented()
 
+class NoneModuleSource(ModuleSource):
+    def __init__(self):
+        ModuleSource.__init__(self)
+    @classmethod
+    def name(cls):
+        return 'none-source'
+    def diff(self, logger, directory):
+        pass
+    def download(self, logger, directory):
+        pass
+    def update(self, logger, directory):
+        pass
+
+class BazaarModuleSource(ModuleSource):
+    def __init__(self):
+        ModuleSource.__init__(self)
+    @classmethod
+    def name(cls):
+        return 'bazaar'
+    def diff(self, logger, directory):
+        pass
+    def download(self, logger, directory):
+        pass
+    def update(self, logger, directory):
+        pass
+    
 class MercurialModuleSource(ModuleSource):
     def __init__(self):
         ModuleSource.__init__(self)
