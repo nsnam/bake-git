@@ -18,8 +18,10 @@ class CycleDetected:
         return
 
 class DependencyUnmet:
-    def __init__(self, str):
-        self._str = str
+    def __init__(self, failed):
+        self._failed = failed
+    def failed(self):
+        return self._failed
 
 class Target:
     def __init__(self, dst, context):
@@ -230,12 +232,11 @@ class Dependencies:
                 success = callback(i.dst(), i.context())
             if not success:
                 if not self._sources.has_key(i.dst()):
-                    raise DependencyUnmet(i.dst() + ' failed')
+                    raise DependencyUnmet(i.dst())
                 else:
                     for j in self._sources[i.dst()]:
                         if not j.is_src_optional(i.dst()):
-                            raise DependencyUnmet(j.dst() + ' depends upon ' + 
-                                                  i.dst() + ' which failed.')
+                            raise DependencyUnmet(i.dst())
             if self._dirty:
                 self._dirty = False
                 return False
