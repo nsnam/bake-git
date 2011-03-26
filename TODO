@@ -1,0 +1,10 @@
+* implement ModuleBuild subclasses:
+  - waf
+* check build tool versions !
+* pass around -j X
+* compressed 'bake' binary
+
+* missing commands:
+  - diff in ModuleSource
+  - reset in ModuleSource
+  - shell
