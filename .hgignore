@@ -1,0 +1,4 @@
+~$
+^examples/.*/source/.*
+bakefile.xml$
+.pyc$

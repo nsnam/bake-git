@@ -1,38 +1,49 @@
- <modules>
+<modules>
 
   <module name="iproute2" version="2.6.33">
-    <source type="archive" 
-     url="http://devresources.linuxfoundation.org/dev/iproute2/download/iproute2-2.6.33.tar.bz2"/>
-    <build type="xxx"/>
+    <source type="archive">
+     <attribute name="url" value="http://devresources.linuxfoundation.org/dev/iproute2/download/iproute2-2.6.33.tar.bz2"/>
+    </source>
+    <build type="none"/>
   </module>
 
   <module name="net-next-2.6">
     <!-- url="git://git.kernel.org/pub/scm/linux/kernel/git/davem/net-next-2.6.git" -->
-    <source type="git"
-     url="file:///home/mathieu/code/ns-3-linux/net-next-2.6"
-     version="fed66381d65a35198639f564365e61a7f256bf79"/>
-    <build type="xxx"/>
+    <source type="git">
+      <attribute name="url" value="file:///home/mathieu/code/ns-3-linux/net-next-2.6"/>
+      <attribute name="revision" value="fed66381d65a35198639f564365e61a7f256bf79"/>
+    </source>
+    <build type="none"/>
   </module>
 
   <module name="ns-3-linux" version="0.1">
-    <source type="mercurial" url="http://code.nsnam.org/mathieu/ns-3-linux"/>
+    <source type="mercurial">
+      <attribute name="url" value="http://code.nsnam.org/mathieu/ns-3-linux"/>
+    </source>
     <depends_on name="net-next-2.6"/>
     <depends_on name="iproute2"/>
-    <build type="xxx"/>
+    <build type="none"/>
   </module>
 
   <module name="gdb" version="cvs">
-    <source type="cvs" root=":pserver:anoncvs:anoncvs@sourceware.org:/cvs/src" 
-            module="gdb" checkout_directory="src"/>
+    <source type="cvs">
+      <attribute name="root" value=":pserver:anoncvs:anoncvs@sourceware.org:/cvs/src"/>
+      <attribute name="module" value="gdb"/>
+      <attribute name="checkout_directory" value="src"/>
+    </source>
     <!-- <build type="autotools" blddir="srcdir"/> -->
-    <build type="autotools" blddir="any"/>
+    <build type="autotools">
+      <attribute name="blddir" value="any"/>
+    </build>
   </module>
 
   <module name="ns-3-dce" version="0.1">
-    <source type="mercurial" url="http://code.nsnam.org/mathieu/ns-3-dce"/>
+    <source type="mercurial">
+      <attribute name="url" value="http://code.nsnam.org/mathieu/ns-3-dce"/>
+    </source>
     <depends_on name="ns-3-linux" optional="True"/>
     <depends_on name="gdb" optional="True"/>
-    <build type="xxx"/>
+    <build type="none"/>
   </module>
 
 </modules>
