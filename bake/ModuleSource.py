@@ -11,11 +11,11 @@ class ModuleSource(ModuleAttributeBase):
             if subclass.name() == name:
                 return subclass()
         return None
-    def diff(self, logger, directory):
+    def diff(self, env):
         raise NotImplemented()
-    def download(self, logger, sourcedir, directory):
+    def download(self, env):
         raise NotImplemented()
-    def update(self, logger, directory):
+    def update(self, env):
         raise NotImplemented()
 
 class NoneModuleSource(ModuleSource):
@@ -24,11 +24,11 @@ class NoneModuleSource(ModuleSource):
     @classmethod
     def name(cls):
         return 'none'
-    def diff(self, logger, directory):
+    def diff(self, env):
         pass
-    def download(self, logger, sourcedir, directory):
+    def download(self, env):
         pass
-    def update(self, logger, directory):
+    def update(self, env):
         pass
 
 class InlineModuleSource(ModuleSource):
@@ -47,16 +47,15 @@ class BazaarModuleSource(ModuleSource):
     @classmethod
     def name(cls):
         return 'bazaar'
-    def diff(self, logger, directory):
+    def diff(self, env):
         pass
-    def download(self, logger, sourcedir, directory):
+    def download(self, env):
         rev_arg = []
         if not self.attribute('revision').value is None:
             rev_arg.extend(['-r', self.attribute('revision').value])
-        Utils.run_command(['bzr', 'clone'] + rev_arg + [self.attribute('url').value, directory],
-                          logger)
+        env.run(['bzr', 'clone'] + rev_arg + [self.attribute('url').value, env.srcdir])
 
-    def update(self, logger, directory):
+    def update(self, env):
         # XXX: 
         pass
     
@@ -70,16 +69,14 @@ class MercurialModuleSource(ModuleSource):
     @classmethod
     def name(cls):
         return 'mercurial'
-    def download(self, logger, sourcedir, directory):
-        Utils.run_command(['hg', 'clone', '-U', self.attribute('url').value, directory],
-                          logger)
-        Utils.run_command(['hg', 'update', '-r', self.attribute('revision').value],
-                          logger, directory = directory)
-    def update(self, logger, directory):
-        Utils.run_command(['hg', 'pull'],
-                      logger, directory = directory)
-        Utils.run_command(['hg', 'update', '-r', self.attribute('revision').value],
-                      logger, directory = directory)
+    def download(self, env):
+        env.run(['hg', 'clone', '-U', self.attribute('url').value, env.srcdir])
+        env.run(['hg', 'update', '-r', self.attribute('revision').value],
+                directory = env.srcdir)
+    def update(self, env):
+        env.run(['hg', 'pull'], directory = env.srcdir)
+        env.run(['hg', 'update', '-r', self.attribute('revision').value],
+                directory = env.srcdir)
         
 class ArchiveModuleSource(ModuleSource):
     def __init__(self):
@@ -93,7 +90,7 @@ class ArchiveModuleSource(ModuleSource):
     @classmethod
     def name(cls):
         return 'archive'
-    def _decompress(self, filename, logger, directory):
+    def _decompress(self, filename, env):
         import tempfile
         import os
         tempdir = tempfile.mkdtemp()
@@ -107,27 +104,26 @@ class ArchiveModuleSource(ModuleSource):
             ]
         for extension, command in extensions:
             if filename.endswith(extension):
-                Utils.run_command(command + [filename], logger, directory = tempdir)
+                env.run(command + [filename], directory = tempdir)
                 if self.attribute('extract_directory').value is not None:
                     actual_extract_dir = self.attribute('extract_directory').value
                 else:
                     actual_extract_dir = os.path.basename(filename)[0:-len(extension)-1]
                 # finally, rename the extraction directory to the target directory name.
-                os.rename(os.path.join(tempdir, actual_extract_dir), directory)
+                os.rename(os.path.join(tempdir, actual_extract_dir), env.srcdir)
                 return
         raise TaskError('Unknown Archive Type')
 
-    def download(self, logger, sourcedir, directory):
+    def download(self, env):
         import urllib
         import urlparse
         import os
         filename = os.path.basename(urlparse.urlparse(self.attribute('url').value).path)
-        tmpfile = os.path.join(sourcedir,filename)
-        logger.write ('downloading ' + self.attribute('url').value + ' as ' + tmpfile + '\n')
+        tmpfile = os.path.join(env.srcrepo, filename)
         urllib.urlretrieve(self.attribute('url').value, filename=tmpfile)
-        self._decompress(tmpfile, logger, directory)
+        self._decompress(tmpfile, env)
         
-    def update(self, logger, directory):
+    def update(self, env):
         # we really have nothing to do for archives. 
         pass
         
@@ -144,26 +140,26 @@ class CvsModuleSource(ModuleSource):
     @classmethod
     def name(cls):
         return 'cvs'
-    def download(self, logger, sourcedir, directory):
+    def download(self, env):
         import tempfile
         tempdir = tempfile.mkdtemp()
-        Utils.run_command(['cvs', '-d', self.attribute('root').value, 'login'],
-                      logger)
+        env.run(['cvs', '-d', self.attribute('root').value, 'login'], 
+                directory = tempdir)
         checkout_options = []
         if not self.attribute('date').value is None:
             checkout_options.extend(['-D', self.attribute('date').value])
-        Utils.run_command(['cvs', '-d', self.attribute('root').value, 'checkout'] + checkout_options +
-                          [self.attribute('module').value],
-                    logger, directory = tempdir)
+        env.run(['cvs', '-d', self.attribute('root').value, 'checkout'] + checkout_options +
+                [self.attribute('module').value],
+                directory = tempdir)
         if self.attribute('checkout_directory').value is not None:
             actual_checkout_dir = self.attribute('checkout_directory').value
         else:
             actual_checkout_dir = self.attribute('module').value
         import os
-        os.rename(os.path.join(tempdir, actual_checkout_dir), directory)
+        os.rename(os.path.join(tempdir, actual_checkout_dir), env.srcdir)
 
-    def update(self, logger, directory):
-        Utils.run_command(['cvs', 'up'], logger, directory = directory)
+    def update(self, env):
+        env.run(['cvs', 'up'], directory = env.srcdir)
 
 class GitModuleSource(ModuleSource):
     def __init__(self):
@@ -175,19 +171,20 @@ class GitModuleSource(ModuleSource):
     @classmethod
     def name(cls):
         return 'git'
-    def download(self, logger, sourcedir, directory):
+    def download(self, env):
         import tempfile
         import os
         tempdir = tempfile.mkdtemp()
-        Utils.run_command(['git', 'init'], logger, directory = tempdir)
-        Utils.run_command(['git', 'remote', 'add', 'origin', self.attribute('url').value], 
-                          logger, directory = tempdir)
-        Utils.run_command(['git', 'fetch'], logger, directory = tempdir)
-        Utils.run_command(['git', 'checkout', self.attribute('revision').value],
-                          logger, directory = tempdir)
-        os.rename(tempdir, directory)
+        env.run(['git', 'init'], directory = tempdir)
+        env.run(['git', 'remote', 'add', 'origin', self.attribute('url').value], 
+                directory = tempdir)
+        env.run(['git', 'fetch'], 
+                directory = tempdir)
+        env.run(['git', 'checkout', self.attribute('revision').value],
+                directory = tempdir)
+        os.rename(tempdir, env.srcdir)
 
-    def update(self, logger, directory):
-        Utils.run_command(['git', 'fetch'], logger, directory = directory)
-        Utils.run_command(['git', 'checkout', self.attribute('revision').value],
-                          logger, directory = directory)
+    def update(self, env):
+        env.run(['git', 'fetch'], directory = env.srcdir)
+        env.run(['git', 'checkout', self.attribute('revision').value],
+                          directory = env.srcdir)

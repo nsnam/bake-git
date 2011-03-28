@@ -5,18 +5,21 @@ from Utils import ModuleAttributeBase
 class ModuleBuild(ModuleAttributeBase):
     def __init__(self):
         ModuleAttributeBase.__init__(self)
-        self.add_attribute('objdir', 'srcdir', 
-                           'Does this module support building in objdir != srcdir ? '
-                           'Defaults to objdir == srcdir. ')
     @classmethod
     def create(cls, name):
         for subclass in ModuleBuild.__subclasses__():
             if subclass.name() == name:
-                return subclass()
+                instance = subclass()
+                return instance
         return None
-    def build(self, logger, srcdir, blddir, installdir):
+    @property
+    def supports_objdir(self):
+        # member variable is created by code in Configuration right after 
+        # object instance is created.
+        return self._supports_objdir
+    def build(self, env):
         raise NotImplemented()
-    def clean(self, logger, srcdir, blddir):
+    def clean(self, env):
         raise NotImplemented()
 
 class NoneModuleBuild(ModuleBuild):
@@ -25,9 +28,9 @@ class NoneModuleBuild(ModuleBuild):
     @classmethod
     def name(cls):
         return 'none'
-    def build(self, logger, srcdir, blddir, installdir):
+    def build(self, env):
         pass
-    def clean(self, logger, srcdir, blddir):
+    def clean(self, env):
         pass
 
 class InlineModuleBuild(ModuleBuild):
@@ -43,15 +46,15 @@ class PythonModuleBuild(ModuleBuild):
     @classmethod
     def name(cls):
         return 'python'
-    def build(self, logger, srcdir, blddir, installdir):
-        Utils.run_command(['python', os.path.join(srcdir, 'setup.py'), 'build', 
-                           '--build-base=' + blddir, 
-                           'install', '--prefix=' + installdir], 
-                          logger, directory = srcdir)
-    def clean(self, logger, srcdir, blddir):
-        Utils.run_command(['python', os.path.join(srcdir, 'setup.py'), 'clean', 
-                           '--build-base=' + blddir],
-                          logger, directory = srcdir)
+    def build(self, env):
+        env.run(['python', os.path.join(env.srcdir, 'setup.py'), 'build', 
+                  '--build-base=' + env.objdir, 
+                  'install', '--prefix=' + env.installdir], 
+                 directory = env.srcdir)
+    def clean(self, env):
+        env.run(['python', os.path.join(env.srcdir, 'setup.py'), 'clean', 
+                 '--build-base=' + env.objdir],
+                directory = env.srcdir)
 
 
 class WafModuleBuild(ModuleBuild):
@@ -71,36 +74,35 @@ class WafModuleBuild(ModuleBuild):
         else:
             waf_binary = 'waf'
         return waf_binary
-    def _env(self, blddir):
+    def _env(self, objdir):
         env = dict()
         for a,b in [['CC', 'CC'], 
                     ['CXX', 'CXX'],
                     ['CFLAGS', 'CFLAGS'],
-                    ['CFLAGS', 'CFLAGS'],
+                    ['CXXFLAGS', 'CXXFLAGS'],
                     ['LDFLAGS', 'LINKFLAGS']]:
             if self.attribute(a).value != '':
                 env[b] = self.attribute(a).value
-        env['WAFCACHE'] = blddir
-        env['WAFLOCK'] = os.path.join(blddir, '.lock-wscript')
+        env['WAFCACHE'] = objdir
+        env['WAFLOCK'] = os.path.join(objdir, '.lock-wscript')
         return env
-    def build(self, logger, srcdir, blddir, installdir):
-        Utils.run_command([self._binary(srcdir), '--srcdir=' + srcdir, '--blddir=' + blddir, 
-                           '--prefix=' + installdir, 'configure'],
-                          logger, directory = blddir,
-                          env = self._env(blddir))
-        Utils.run_command([self._binary(srcdir)],
-                          logger, directory = blddir,
-                          env = self._env(blddir))
-        Utils.run_command([self._binary(srcdir), 'install'],
-                          logger, directory = blddir,
-                          env = self._env(blddir))
+    def build(self, env):
+        env.run([self._binary(env.srcdir), '--srcdir=' + env.srcdir, '--blddir=' + env.objdir, 
+                 '--prefix=' + env.installdir, 'configure'],
+                directory = env.objdir,
+                env = self._env(env.objdir))
+        env.run([self._binary(env.srcdir)],
+                directory = env.objdir,
+                env = self._env(env.objdir))
+        env.run([self._binary(env.srcdir), 'install'],
+                directory = env.objdir,
+                env = self._env(env.objdir))
         
-    def clean(self, logger, srcdir, blddir):
-        if os.path.isfile(os.path.join(blddir, '.lock-wscript')):
-            Utils.run_command([self._binary(srcdir), 'clean'],
-                              logger, directory = blddir,
-                              env = self._env(blddir))
-
+    def clean(self, env):
+        if os.path.isfile(os.path.join(env.objdir, '.lock-wscript')):
+            env.run([self._binary(env.srcdir), 'clean'],
+                    directory = env.objdir,
+                    env = self._env(env.objdir))
 
 class Cmake(ModuleBuild):
     def __init__(self):
@@ -114,28 +116,27 @@ class Cmake(ModuleBuild):
     @classmethod
     def name(cls):
         return 'cmake'
-    def build(self, logger, srcdir, blddir, installdir):
+    def _variables(self):
         variables = []
-        if self.attribute('CC').value != '':
-            variables.append('-DCMAKE_C_COMPILER=' + self.attribute('CC').value)
-        if self.attribute('CFLAGS').value != '':
-            variables.append('-DCMAKE_CFLAGS=' + self.attribute('CFLAGS').value)
-        if self.attribute('CXX').value != '':
-            variables.append('-DCMAKE_CXX_COMPILER=' + self.attribute('CXX').value)
-        if self.attribute('CXXFLAGS').value != '':
-            variables.append('-DCMAKE_CXXFLAGS=' + self.attribute('CXXFLAGS').value)
-        if self.attribute('LDFLAGS').value != '':
-            variables.append('-DCMAKE_EXE_LINKER_FLAGS=' + self.attribute('LDFLAGS').value)
-        Utils.run_command(['cmake', srcdir, '-DCMAKE_INSTALL_PREFIX=' + installdir] + variables, 
-                          logger,
-                          directory=blddir)
-        Utils.run_command(['make'], logger, directory = blddir)
+        for a,b in [['CC', 'C_COMPILER'], 
+                    ['CXX', 'CXX_COMPILER'],
+                    ['CFLAGS', 'CFLAGS'],
+                    ['CXXFLAGS', 'CXXFLAGS'],
+                    ['LDFLAGS', 'EXE_LINKER_FLAGS']]:
+            if self.attribute(a).value != '':
+                variables.append('-DCMAKE_%s=%s' %(b, self.attribute(a).value))
+        return variables
+
+    def build(self, env):
+        env.run(['cmake', env.srcdir, '-DCMAKE_INSTALL_PREFIX=' + env.installdir] + self._variables(),
+                directory=env.objdir)
+        env.run(['make'], directory = env.objdir)
         if self.attribute('extra_targets').value != '':
-            Utils.run_command(['make'] + self.attribute('extra_targets').split(' '), 
-                              logger, directory = blddir)
-        Utils.run_command(['make', 'install'], logger, directory = blddir)
-    def clean(self, logger, srcdir, blddir):
-        pass
+            env.run(['make'] + self.attribute('extra_targets').split(' '), 
+                    directory = env.objdir)
+        env.run(['make', 'install'], directory = env.objdir)
+    def clean(self, env):
+        env.run(['make', 'clean'], directory = env.objdir)
 
 
 class Autotools(ModuleBuild):
@@ -150,33 +151,30 @@ class Autotools(ModuleBuild):
     @classmethod
     def name(cls):
         return 'autotools'
-    def build(self, logger, srcdir, blddir, installdir):
+    def build(self, env):
         if self.attribute('maintainer').value != 'no':
-            Utils.run_command(['autoreconf', '--install'], logger,
-                        directory = srcdir)
-        Utils.run_command([os.path.join(srcdir, 'configure'),
-                           '--prefix=' + installdir, 
-                           'CC=' + self.attribute('CC').value,
-                           'CXX=' + self.attribute('CXX').value,
-                           'CFLAGS=' + self.attribute('CFLAGS').value,
-                           'CXXFLAGS=' + self.attribute('CXXFLAGS').value,
-                           'LDFLAGS=' + self.attribute('LDFLAGS').value], 
-                          logger,
-                          directory = blddir)
-        Utils.run_command(['make'], logger, directory = blddir)
-        Utils.run_command(['make', 'install'], logger, directory = blddir)
+            env.run(['autoreconf', '--install'], 
+                    directory = env.srcdir)
+        env.run([os.path.join(env.srcdir, 'configure'),
+                 '--prefix=' + env.installdir, 
+                 'CC=' + self.attribute('CC').value,
+                 'CXX=' + self.attribute('CXX').value,
+                 'CFLAGS=' + self.attribute('CFLAGS').value,
+                 'CXXFLAGS=' + self.attribute('CXXFLAGS').value,
+                 'LDFLAGS=' + self.attribute('LDFLAGS').value], 
+                directory = env.objdir)
+        env.run(['make'], directory = env.objdir)
+        env.run(['make', 'install'], directory = env.objdir)
 
-    def clean(self, logger, srcdir, blddir):
-        if self.attribute('blddir').value  == 'srcdir':
-            blddir = srcdir
-        if not os.path.isfile(os.path.join(blddir,'Makefile')):
+    def clean(self, env):
+        if not os.path.isfile(os.path.join(env.objdir,'Makefile')):
             return
         if self.attribute('maintainer').value != 'no':
-            Utils.run_command(['make', '-k', 'maintainerclean'], logger, directory = blddir)
+            env.run(['make', '-k', 'maintainerclean'], directory = env.objdir)
         else:
-            Utils.run_command(['make', '-k', 'distclean'], logger, directory = blddir)
+            env.run(['make', '-k', 'distclean'], directory = env.objdir)
         try:
-            os.remove(os.path.join(blddir, 'config.cache'))
+            os.remove(os.path.join(env.objdir, 'config.cache'))
         except OSError:
             pass
             

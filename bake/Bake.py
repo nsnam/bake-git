@@ -1,4 +1,6 @@
 from Configuration import Configuration
+from BuildEnvironment import BuildEnvironment
+from ModuleLogger import ModuleLogger
 from optparse import OptionParser
 from Dependencies import Dependencies,DependencyUnmet
 from Exceptions import MetadataError
@@ -151,12 +153,15 @@ class Bake:
             sys.stderr.write('The configuration file has been changed or has moved.\n'
                              'You should consider running \'reconfigure\'.\n')
             sys.exit(1)
-        logger = sys.stdout
+        env = BuildEnvironment(ModuleLogger(), 
+                               configuration.compute_installdir(),
+                               configuration.compute_sourcedir(), 
+                               configuration.get_objdir())
         if options.one != '':
             if options.all or options.start != '' or options.after != '':
                 print 'Error: incompatible options'
                 sys.exit(1)
-            return functor(configuration, configuration.lookup(options.one), logger)
+            return functor(configuration, configuration.lookup(options.one), env)
         elif options.all:
             if options.start != '' or options.after != '':
                 print 'Error: incompatible options'
@@ -172,7 +177,7 @@ class Bake:
                 if module.name() == options.start:
                     must_process.append(0)
                 if len(must_process) != 0:
-                    return functor (configuration, module, logger)
+                    return functor (configuration, module, env)
                 else:
                     return True
             self._iterate(configuration, _iterator)
@@ -182,40 +187,35 @@ class Bake:
             must_process = [] 
             def _iterator(module):
                 if len(must_process) != 0:
-                    return functor (configuration, module, logger)
+                    return functor (configuration, module, env)
                 elif module.name() == options.after:
                     must_process.append(1)
                 return True
             self._iterate(configuration, _iterator)
         else:
             def _iterator(module):
-                return functor (configuration, module, logger)
+                return functor (configuration, module, env)
             self._iterate(configuration, _iterator)
         configuration.write()
 
     def _download(self,config,args):
-        def _do_download(configuration, module, logger):
-            return module.download(logger, configuration.compute_sourcedir())
+        def _do_download(configuration, module, env):
+            return module.download(env)
         self._do_operation(config, args, 'download', _do_download)
 
     def _update(self,config,args):
-        def _do_update(configuration, module, logger):
-            return module.update(logger, configuration.compute_sourcedir())
+        def _do_update(configuration, module, env):
+            return module.update(env)
         self._do_operation(config, args, 'update', _do_update)
 
     def _build(self,config,args):
-        def _do_build(configuration, module, logger):
-            return module.build(logger, 
-                                configuration.compute_sourcedir(),
-                                configuration.get_objdir(), 
-                                configuration.compute_installdir())
+        def _do_build(configuration, module, env):
+            return module.build(env)
         self._do_operation(config, args, 'build', _do_build)
 
     def _clean(self, config, args):
-        def _do_clean(configuration, module, logger):
-            return module.clean(logger, 
-                                configuration.compute_sourcedir(),
-                                configuration.get_objdir())
+        def _do_clean(configuration, module, env):
+            return module.clean(env)
         self._do_operation(config, args, 'clean', _do_clean)
 
 

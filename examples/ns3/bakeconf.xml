@@ -6,8 +6,7 @@
       <attribute name="module" value="gccxml"/>
       <attribute name="date" value="2009-09-21"/>
     </source>
-    <build type="cmake">
-      <attribute name="objdir" value="any"/>
+    <build type="cmake" objdir="any">
     </build>
   </module>
 
@@ -15,8 +14,7 @@
     <source type="archive">
       <attribute name="url" value="http://mesh.dl.sourceforge.net/project/pygccxml/pygccxml/pygccxml-1.0/pygccxml-1.0.0.zip"/>
     </source>
-    <build type="python">
-      <attribute name="objdir" value="any"/>
+    <build type="python" objdir="any">
     </build>
     <depends_on name="gccxml"/>
   </module>
@@ -27,8 +25,7 @@
      <attribute name="revision" value="revno:777"/>
 <!--     <attribute name="revision" value="tag:0.15.0"/> -->
     </source>
-    <build type="waf">
-      <attribute name="objdir" value="any"/>
+    <build type="waf" objdir="any">
     </build>
     <depends_on name="pygccxml" optional="True"/>
   </module>
@@ -43,11 +40,10 @@
 class NscModuleBuild(InlineModuleBuild):
     def __init__(self):
         InlineModuleBuild.__init__(self)
-    def build(self, logger, srcdir, blddir, installdir):
-        import Utils
-        Utils.run_command(['scons', '--prefix=' + installdir, 'install'], 
-                          logger, directory=srcdir)
-    def clean(self, logger, srcdir, blddir):
+    def build(self, env):
+        env.run(['scons', '--prefix=' + env.installdir, 'install'],
+                directory=env.srcdir)
+    def clean(self, env):
         # XXX
         pass
 </code>
@@ -86,8 +82,7 @@ class NscModuleBuild(InlineModuleBuild):
       <attribute name="checkout_directory" value="src"/>
     </source>
     <!-- <build type="autotools" objdir="srcdir"/> -->
-    <build type="autotools">
-      <attribute name="objdir" value="any"/>
+    <build type="autotools" objdir="any">
     </build>
   </module>
 

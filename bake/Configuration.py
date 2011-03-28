@@ -75,7 +75,7 @@ class Configuration:
         if node.get('type') == 'inline':
             code_node = node.find('code')
             if node is None:
-                sys.stderr.write('Error: no code tag in in inline module\n')
+                sys.stderr.write('Error: no code tag in inline module\n')
                 sys.exit(1)
             classname = node.get('classname')
             import codeop
@@ -112,6 +112,7 @@ class Configuration:
 
             build_node = module_node.find('build')
             build = self._create_obj_from_node(build_node, ModuleBuild)
+            build._supports_objdir = False if build_node.get('objdir', 'srcdir') == 'srcdir' else True
             self._check_mandatory_attributes(build, build_node, 'build', name)
             self._read_attributes(build, build_node, 'build', name)
 
@@ -140,6 +141,7 @@ class Configuration:
             build_node = self._create_node_from_obj(module.get_build(), 'build')
             self._write_attributes(module.get_build(), build_node)
             module_node.append(build_node)
+            build_node.attrib['objdir'] = 'any' if module.get_build().supports_objdir else 'srcdir'
             
             for dependency in module.dependencies():
                 attrs = {'name' : dependency.name() }

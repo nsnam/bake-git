@@ -31,58 +31,63 @@ class Module:
         self._build = build
         self._built_once = built_once
 
-    def download(self, logger, sourcedir):
-        if not os.path.isdir(sourcedir):
-            os.mkdir(sourcedir)
-        dirname = os.path.join(sourcedir, self._directory())
-        if os.path.isdir(dirname):
-            return True
-        try:
-            self._source.download(logger, sourcedir, dirname)
-            return True
-        except:
-            import Utils
-            Utils.print_backtrace()
-            return False
-
-    def update(self, logger, sourcedir):
-        dirname = os.path.join(sourcedir, self._directory())
-        try:
-            self._source.update(logger, dirname)
-            return True
-        except:
-            import Utils
-            Utils.print_backtrace()
-            return False
-
-    def build(self, logger, sourcedir, objdir, installdir):
-        src = os.path.join(sourcedir, self._directory())
-        if self._build.attribute('objdir').value == 'srcdir':
-            obj = src
+    def _directory(self):
+        if self._version is not None:
+            directory = self._name + '-' + self._version
         else:
-            obj = os.path.join(src, objdir)
+            directory = self._name
+        return directory
+    def download(self, env):
+        env.start_source(self._name, self._version)
+        if os.path.isdir(env.srcdir):
+            env.end_source()
+            return True
+        try:
+            self._source.download(env)
+            env.end_source()
+            return True
+        except:
+            import Utils
+            Utils.print_backtrace()
+            env.end_source()
+            return False
+
+    def update(self, env):
+        env.start_source(self._name, self._version)
+        try:
+            self._source.update(env)
+            env.end_source()
+            return True
+        except:
+            import Utils
+            Utils.print_backtrace()
+            env.end_source()
+            return False
+
+    def build(self, env):
+        env.start_build(self._name, self._version,
+                        self._build.supports_objdir)
         try:
             # delete in case this is a new build configuration
             # and there are old files around
-            if not self._built_once and os.path.isdir(obj):
-                self._build.clean(logger, src, obj)
-            if not os.path.isdir(obj):
-                os.mkdir(obj)
-            if not os.path.isdir(installdir):
-                os.mkdir(installdir)
-            self._build.build(logger, src, obj, installdir)
+            if not self._built_once and os.path.isdir(env.objdir):
+                self._build.clean(env)
+            self._build.build(env)
+            env.end_build()
             self._built_once = True
             return True
         except:
+            env.end_build()
             import Utils
             Utils.print_backtrace()
             return False
 
     def clean(self, logger, sourcedir, objdir):
-        src = os.path.join(sourcedir, self._directory())
-        obj = os.path.join(src,objdir)
+        env.start_build(self._name, self._version,
+                        self._build.supports_objdir)
         try:
-            self._build.clean(logger, src, obj)
+            self._build.clean(logger, env)
+            env.end_build()
             self._built_once = False
             return True
         except:
@@ -102,9 +107,3 @@ class Module:
         return self._version
     def dependencies(self):
         return self._dependencies
-    def _directory(self):
-        if self._version is not None:
-            directory = self._name + '-' + self._version
-        else:
-            directory = self._name
-        return directory
