@@ -6,21 +6,35 @@
      <attribute name="revision" value="revno:777"/>
 <!--     <attribute name="revision" value="tag:0.15.0"/> -->
     </source>
-    <build type="none-build"/>
+    <build type="none"/>
   </module>
 
-  <module name="nsc" version="">
+  <module name="nsc">
     <source type="mercurial">
       <attribute name="url" value="https://secure.wand.net.nz/mercurial/nsc"/>
     </source>
-    <build type="none-build"/>
+<!-- problem: scons has no generic command-line support for builddir and installdir -->
+    <build type="inline"  classname="NscModuleBuild">
+<code>
+class NscModuleBuild(InlineModuleBuild):
+    def __init__(self):
+        InlineModuleBuild.__init__(self)
+    def build(self, logger, srcdir, blddir, installdir):
+        import Utils
+        Utils.run_command(['scons', '--prefix=' + installdir, 'install'], 
+                          logger, directory=srcdir)
+    def clean(self, logger, srcdir, blddir):
+        # XXX
+        pass
+</code>
+    </build>
   </module>
 
   <module name="iproute2" version="2.6.33">
     <source type="archive">
      <attribute name="url" value="http://devresources.linuxfoundation.org/dev/iproute2/download/iproute2-2.6.33.tar.bz2"/>
     </source>
-    <build type="none-build"/>
+    <build type="none"/>
   </module>
 
   <module name="net-next-2.6">
@@ -29,7 +43,7 @@
       <attribute name="url" value="file:///home/mathieu/code/ns-3-linux/net-next-2.6"/>
       <attribute name="revision" value="fed66381d65a35198639f564365e61a7f256bf79"/>
     </source>
-    <build type="none-build"/>
+    <build type="none"/>
   </module>
 
   <module name="ns-3-linux" version="0.1">
@@ -38,7 +52,7 @@
     </source>
     <depends_on name="net-next-2.6"/>
     <depends_on name="iproute2"/>
-    <build type="none-build"/>
+    <build type="none"/>
   </module>
 
   <module name="gdb" version="cvs">
@@ -47,9 +61,9 @@
       <attribute name="module" value="gdb"/>
       <attribute name="checkout_directory" value="src"/>
     </source>
-    <!-- <build type="autotools" blddir="srcdir"/> -->
+    <!-- <build type="autotools" objdir="srcdir"/> -->
     <build type="autotools">
-      <attribute name="blddir" value="any"/>
+      <attribute name="objdir" value="any"/>
     </build>
   </module>
 
@@ -59,7 +73,8 @@
     </source>
     <depends_on name="ns-3-linux" optional="True"/>
     <depends_on name="gdb" optional="True"/>
-    <build type="none-build"/>
+    <depends_on name="nsc" optional="True"/>
+    <build type="none"/>
   </module>
 
 </modules>

@@ -3,6 +3,7 @@
 * check build tool versions !
 * pass around -j X
 * compressed 'bake' binary
+* implement 'inline' source/build module
 
 * missing commands:
   - diff in ModuleSource

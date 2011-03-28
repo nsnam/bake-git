@@ -1,6 +1,6 @@
 from Module import Module,ModuleDependency
-from ModuleSource import ModuleSource
-from ModuleBuild import ModuleBuild
+from ModuleSource import ModuleSource,InlineModuleSource
+from ModuleBuild import ModuleBuild,InlineModuleBuild
 import xml.etree.ElementTree as ET
 from Exceptions import MetadataError
 import os
@@ -57,7 +57,7 @@ class Configuration:
         # now, read the attributes from file.
         for attribute_node in top_level_node.findall('attribute'):
             attr_name = attribute_node.get('name')
-            attr_value = attribute_node.get('value')
+            attr_value = attribute_node.get('value', None)
             if attribute_base.attribute(attr_name) is None:
                 sys.stderr.write('Error: attribute "%s" is not supported by %s node of type "%s"\n' % 
                                  (attr_name, type_string, top_level_node.get('type')))
@@ -71,6 +71,32 @@ class Configuration:
                                                 'value' : attribute.value})
                 top_level_node.append(node)
 
+    def _create_obj_from_node(self, node, classBase):
+        if node.get('type') == 'inline':
+            code_node = node.find('code')
+            if node is None:
+                sys.stderr.write('Error: no code tag in in inline module\n')
+                sys.exit(1)
+            classname = node.get('classname')
+            import codeop
+            exec code_node.text in globals(), locals()
+            obj = eval(classname + '()')
+            obj.__hidden_source_code = code_node.text
+        else:
+            obj = classBase.create(node.get('type'))
+        return obj
+
+    def _create_node_from_obj(self, obj, node_string):
+        if obj.__class__.name() == 'inline':
+            node = ET.Element(node_string, {'type' : 'inline',
+                                            'classname' : obj.__class__.__name__})
+            code = ET.Element('code')
+            code.text = obj.__hidden_source_code
+            node.append(code)
+        else:
+            node = ET.Element(node_string, {'type' : obj.__class__.name()})
+        return node
+        
 
     def _read_metadata(self, et):
         # function designed to be called on two kinds of xml files.
@@ -80,12 +106,12 @@ class Configuration:
             version = module_node.get('version', None)
 
             source_node = module_node.find('source')
-            source = ModuleSource.create(source_node.get('type'))
+            source = self._create_obj_from_node(source_node, ModuleSource)
             self._check_mandatory_attributes(source, source_node, 'source', name)
             self._read_attributes(source, source_node, 'source', name)
 
             build_node = module_node.find('build')
-            build = ModuleBuild.create(build_node.get('type'))
+            build = self._create_obj_from_node(build_node, ModuleBuild)
             self._check_mandatory_attributes(build, build_node, 'build', name)
             self._read_attributes(source, source_node, 'build', name)
 
@@ -107,11 +133,11 @@ class Configuration:
                 module_attrs['version'] = module.version()
             module_node = ET.Element('module', module_attrs)
 
-            source_node = ET.Element('source', {'type' : module.get_source().__class__.name()})
+            source_node = self._create_node_from_obj(module.get_source(), 'source')
             self._write_attributes(module.get_source(), source_node)
             module_node.append(source_node)
 
-            build_node = ET.Element('build', {'type' : module.get_build().__class__.name()})
+            build_node = self._create_node_from_obj(module.get_build(), 'build')
             self._write_attributes(module.get_build(), build_node)
             module_node.append(build_node)
             

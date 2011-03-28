@@ -5,6 +5,9 @@ from Utils import ModuleAttributeBase
 class ModuleBuild(ModuleAttributeBase):
     def __init__(self):
         ModuleAttributeBase.__init__(self)
+        self.add_attribute('objdir', 'srcdir', 
+                           'Does this module support building in objdir != srcdir ? '
+                           'Defaults to objdir == srcdir. ')
     @classmethod
     def create(cls, name):
         for subclass in ModuleBuild.__subclasses__():
@@ -21,11 +24,18 @@ class NoneModuleBuild(ModuleBuild):
         ModuleBuild.__init__(self)
     @classmethod
     def name(cls):
-        return 'none-build'
+        return 'none'
     def build(self, logger, srcdir, blddir, installdir):
         pass
     def clean(self, logger, srcdir, blddir):
         pass
+
+class InlineModuleBuild(ModuleBuild):
+    def __init__(self):
+        ModuleBuild.__init__(self)
+    @classmethod
+    def name(cls):
+        return 'inline'
 
 class Cmake(ModuleBuild):
     def __init__(self):
@@ -68,9 +78,6 @@ class Autotools(ModuleBuild):
         self.add_attribute('CFLAGS',   '', 'Flags to use for C compiler')
         self.add_attribute('CXXFLAGS', '', 'Flags to use for C++ compiler')
         self.add_attribute('LDFLAGS',  '', 'Flags to use for Linker')
-        self.add_attribute('blddir',   'srcdir', 
-                           'Does this module support building in blddir != srcdir ? '
-                           'Defaults to blddir == srcdir. ')
         self.add_attribute('maintainer', 'no', 'Maintainer mode ?')
     @classmethod
     def name(cls):
@@ -79,8 +86,6 @@ class Autotools(ModuleBuild):
         if self.attribute('maintainer').value != 'no':
             Utils.run_command(['autoreconf', '--install'], logger,
                         directory = srcdir)
-        if self.attribute('blddir').value == 'srcdir':
-            blddir = srcdir
         Utils.run_command([os.path.join(srcdir, 'configure'),
                            '--prefix=' + installdir, 
                            'CC=' + self.attribute('CC').value,

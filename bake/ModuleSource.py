@@ -13,7 +13,7 @@ class ModuleSource(ModuleAttributeBase):
         return None
     def diff(self, logger, directory):
         raise NotImplemented()
-    def download(self, logger, directory):
+    def download(self, logger, sourcedir, directory):
         raise NotImplemented()
     def update(self, logger, directory):
         raise NotImplemented()
@@ -23,13 +23,20 @@ class NoneModuleSource(ModuleSource):
         ModuleSource.__init__(self)
     @classmethod
     def name(cls):
-        return 'none-source'
+        return 'none'
     def diff(self, logger, directory):
         pass
-    def download(self, logger, directory):
+    def download(self, logger, sourcedir, directory):
         pass
     def update(self, logger, directory):
         pass
+
+class InlineModuleSource(ModuleSource):
+    def __init__(self):
+        ModuleSource.__init__(self)
+    @classmethod
+    def name(cls):
+        return 'inline'
 
 class BazaarModuleSource(ModuleSource):
     def __init__(self):
@@ -42,7 +49,7 @@ class BazaarModuleSource(ModuleSource):
         return 'bazaar'
     def diff(self, logger, directory):
         pass
-    def download(self, logger, directory):
+    def download(self, logger, sourcedir, directory):
         rev_arg = []
         if not self.attribute('revision').value is None:
             rev_arg.extend(['-r', self.attribute('revision').value])
@@ -63,7 +70,7 @@ class MercurialModuleSource(ModuleSource):
     @classmethod
     def name(cls):
         return 'mercurial'
-    def download(self, logger, directory):
+    def download(self, logger, sourcedir, directory):
         Utils.run_command(['hg', 'clone', '-U', self.attribute('url').value, directory],
                           logger)
         Utils.run_command(['hg', 'update', '-r', self.attribute('revision').value],
@@ -110,14 +117,12 @@ class ArchiveModuleSource(ModuleSource):
                 return
         raise TaskError('Unknown Archive Type')
 
-    def download(self, logger, directory):
+    def download(self, logger, sourcedir, directory):
         import urllib
         import urlparse
         import os
-        import tempfile
-        tempdir = tempfile.mkdtemp()
         filename = os.path.basename(urlparse.urlparse(self.attribute('url').value).path)
-        tmpfile = os.path.join(tempdir,filename)
+        tmpfile = os.path.join(sourcedir,filename)
         logger.write ('downloading ' + self.attribute('url').value + ' as ' + tmpfile + '\n')
         urllib.urlretrieve(self.attribute('url').value, filename=tmpfile)
         self._decompress(tmpfile, logger, directory)
@@ -138,7 +143,7 @@ class CvsModuleSource(ModuleSource):
     @classmethod
     def name(cls):
         return 'cvs'
-    def download(self, logger, directory):
+    def download(self, logger, sourcedir, directory):
         import tempfile
         tempdir = tempfile.mkdtemp()
         Utils.run_command(['cvs', '-d', self.attribute('root').value, 'login'],
@@ -166,7 +171,7 @@ class GitModuleSource(ModuleSource):
     @classmethod
     def name(cls):
         return 'git'
-    def download(self, logger, directory):
+    def download(self, logger, sourcedir, directory):
         import tempfile
         import os
         tempdir = tempfile.mkdtemp()

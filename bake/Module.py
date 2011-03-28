@@ -38,7 +38,7 @@ class Module:
         if os.path.isdir(dirname):
             return True
         try:
-            self._source.download(logger, dirname)
+            self._source.download(logger, sourcedir, dirname)
             return True
         except:
             import Utils
@@ -57,7 +57,10 @@ class Module:
 
     def build(self, logger, sourcedir, objdir, installdir):
         src = os.path.join(sourcedir, self._directory())
-        obj = os.path.join(src,objdir)
+        if self._build.attribute('objdir').value == 'srcdir':
+            obj = src
+        else:
+            obj = os.path.join(src, objdir)
         try:
             # delete in case this is a new build configuration
             # and there are old files around
