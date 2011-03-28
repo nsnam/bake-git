@@ -95,7 +95,7 @@ class ArchiveModuleSource(ModuleSource):
     def _decompress(self, filename, env):
         import tempfile
         import os
-        tempdir = tempfile.mkdtemp()
+        tempdir = tempfile.mkdtemp(dir=env.srcrepo)
         extensions = [
             ['tar', ['tar', 'xf']],
             ['tar.gz', ['tar', 'zxf']],
@@ -144,7 +144,7 @@ class CvsModuleSource(ModuleSource):
         return 'cvs'
     def download(self, env):
         import tempfile
-        tempdir = tempfile.mkdtemp()
+        tempdir = tempfile.mkdtemp(dir=env.srcrepo)
         env.run(['cvs', '-d', self.attribute('root').value, 'login'], 
                 directory = tempdir)
         checkout_options = []
@@ -176,7 +176,7 @@ class GitModuleSource(ModuleSource):
     def download(self, env):
         import tempfile
         import os
-        tempdir = tempfile.mkdtemp()
+        tempdir = tempfile.mkdtemp(dir=env.srcrepo)
         env.run(['git', 'init'], directory = tempdir)
         env.run(['git', 'remote', 'add', 'origin', self.attribute('url').value], 
                 directory = tempdir)

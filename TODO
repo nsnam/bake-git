@@ -7,4 +7,4 @@
 * missing commands:
   - diff in ModuleSource
   - reset in ModuleSource
-  - source clean
+  - clean in ModuleSource
