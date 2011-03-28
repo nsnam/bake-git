@@ -1,5 +1,7 @@
 import os
 import subprocess
+import sys
+import platform
 
 class BuildEnvironment:
     def __init__(self, logger, installdir, sourcedir, objdir):
@@ -32,6 +34,46 @@ class BuildEnvironment:
         else:
             obj = os.path.join(self.srcdir, self._objdir)
         return obj
+
+    def _lib_var(self):
+        lib_var = {'Linux' : 'LD_LIBRARY_PATH',
+                    'Darwin' : 'DYLD_LIBRARY_PATH',
+                    'Windows' : 'PATH'}
+        if not lib_var.has_key(platform.system()):
+            sys.stderr('Error: Unsupported platform. Send email to mathieu.lacage@gmail.com (%s)' %
+                       platform.system())
+            sys.exit(1)
+        return lib_var[platform.system()]
+    def _lib_path(self):
+        return os.path.join(self._installdir, 'lib')
+    def _lib_sep(self):
+        lib_sep = {'Linux' : ':',
+                   'Darwin' : ':',
+                   'Windows' : ';'}
+        if not lib_sep.has_key(platform.system()):
+            sys.stderr('Error: Unsupported platform. Send email to mathieu.lacage@gmail.com (%s)' %
+                       platform.system())
+            sys.exit(1)
+        return lib_sep[platform.system()]
+        
+    def _bin_var(self):
+        return 'PATH'
+    def _bin_path(self):
+        return os.path.join(self._installdir, 'bin')
+    def _bin_sep(self):
+        return self._lib_sep()
+    def _py_var(self):
+        return 'PYTHONPATH'
+    def _py_path(self):
+        return os.path.join(self._installdir, 'lib', 
+                            'python' + '.'.join(platform.python_version_tuple()[0:2]), 'site-packages')
+    def _py_sep(self):
+        return ':'
+    def _append_path(self, d, name, value, sep):
+        if not d.has_key(name):
+            d[name] = value
+        else:
+            d[name] = d[name] + sep + value
 
     def start_source(self, name, version):
         assert self._module_supports_objdir is None
@@ -66,12 +108,28 @@ class BuildEnvironment:
         self._module_supports_objdir = None
         self._logger.clear_current_module()
 
-    def run(self, args, directory = None, env = dict()):
-        self._logger.commands.write(str(args) + ' dir=' + str(directory) + '\n')
+    def run(self, args, directory = None, env = dict(), interactive = False):
+        if not interactive:
+            env_string = ''
+            if len(env) != 0:
+                env_string = ' '.join([a + '=' + b for a,b in env.items()])
+            args_string = ' '.join(args)
+            self._logger.commands.write(env_string + ' ' + args_string + ' dir=' + str(directory) + '\n')
+            stdin = None
+            stdout = self._logger.stdout
+            stderr = self._logger.stderr
+        else:
+            stdin = sys.stdin
+            stdout = sys.stdout
+            stderr = sys.stderr            
         tmp = dict(os.environ.items() + env.items())
+        self._append_path(tmp, self._lib_var(), self._lib_path(), self._lib_sep())
+        self._append_path(tmp, self._bin_var(), self._bin_path(), self._bin_sep())
+        self._append_path(tmp, self._py_var(), self._py_path(), self._py_sep())
         popen = subprocess.Popen(args,
-                                 stdout = self._logger.stdout,
-                                 stderr = self._logger.stderr,
+                                 stdin = stdin,
+                                 stdout = stdout,
+                                 stderr = stderr,
                                  cwd = directory,
                                  env = tmp)
         retcode = popen.wait()

@@ -144,15 +144,19 @@ class Bake:
                           dest="after", default="", 
                           help="Process all modules enabled starting after the module specified.")
 
-    def _do_operation(self, config, args, operation_name, functor):
-        parser = OptionParser(usage='usage: %prog ' + operation_name + ' [options]')
-        self._options(parser)
-        (options, args_left) = parser.parse_args(args)
+    def _read_config(self, config):
         configuration = Configuration(config)
         if not configuration.read():
             sys.stderr.write('The configuration file has been changed or has moved.\n'
                              'You should consider running \'reconfigure\'.\n')
             sys.exit(1)
+        return configuration
+
+    def _do_operation(self, config, args, operation_name, functor):
+        parser = OptionParser(usage='usage: %prog ' + operation_name + ' [options]')
+        self._options(parser)
+        (options, args_left) = parser.parse_args(args)
+        configuration = self._read_config(config)
         env = BuildEnvironment(ModuleLogger(), 
                                configuration.compute_installdir(),
                                configuration.compute_sourcedir(), 
@@ -173,8 +177,9 @@ class Bake:
                 print 'Error: incompatible options'
                 sys.exit(1)
             must_process = []
+            first_module = configuration.lookup(options.start)
             def _iterator(module):
-                if module.name() == options.start:
+                if module == first_module:
                     must_process.append(0)
                 if len(must_process) != 0:
                     return functor (configuration, module, env)
@@ -185,10 +190,11 @@ class Bake:
             # this is a list because the inner function below
             # is not allowed to modify the outer function reference
             must_process = [] 
+            first_module = configuration.lookup(options.after)
             def _iterator(module):
                 if len(must_process) != 0:
                     return functor (configuration, module, env)
-                elif module.name() == options.after:
+                elif module == first_module:
                     must_process.append(1)
                 return True
             self._iterate(configuration, _iterator)
@@ -218,6 +224,15 @@ class Bake:
             return module.clean(env)
         self._do_operation(config, args, 'clean', _do_clean)
 
+    def _shell(self, config, args):
+        configuration = self._read_config(config)
+        env = BuildEnvironment(ModuleLogger(), 
+                               configuration.compute_installdir(),
+                               configuration.compute_sourcedir(), 
+                               configuration.get_objdir())
+        import os
+        env.run([os.environ['SHELL']], directory=env.installdir, interactive = True)
+
 
     def main(self, argv):
         parser = OptionParser(usage = 'usage: %prog [options] command [command options]',
@@ -243,3 +258,5 @@ class Bake:
             self._build(config=options.config_file, args=args_left[1:])
         elif args_left[0] == 'clean':
             self._clean(config=options.config_file, args=args_left[1:])
+        elif args_left[0] == 'shell':
+            self._shell(config=options.config_file, args=args_left[1:])

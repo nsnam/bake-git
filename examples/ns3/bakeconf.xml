@@ -19,16 +19,26 @@
     <depends_on name="gccxml"/>
   </module>
 
-  <module name="pybindgen">
+  <module name="pybindgen" version="dev">
     <source type="bazaar">
      <attribute name="url" value="https://launchpad.net/pybindgen"/>
-     <attribute name="revision" value="revno:777"/>
-<!--     <attribute name="revision" value="tag:0.15.0"/> -->
+     <attribute name="revision" value="revno:779"/>
     </source>
     <build type="waf" objdir="any">
+      <attribute name="extra_build_options" value="--generate-version"/>
     </build>
     <depends_on name="pygccxml" optional="True"/>
   </module>
+
+  <module name="pybindgen" version="dce">
+    <source type="bazaar">
+     <attribute name="url" value="https://launchpad.net/pybindgen"/>
+     <attribute name="revision" value="revno:764"/>
+    </source>
+    <build type="waf" objdir="any"/>
+    <depends_on name="pygccxml" optional="True"/>
+  </module>
+
 
   <module name="nsc">
     <source type="mercurial">
@@ -86,14 +96,25 @@ class NscModuleBuild(InlineModuleBuild):
     </build>
   </module>
 
-  <module name="ns-3-dce" version="0.1">
+  <module name="ns-3-dce">
     <source type="mercurial">
       <attribute name="url" value="http://code.nsnam.org/mathieu/ns-3-dce"/>
     </source>
-    <depends_on name="ns-3-linux" optional="True"/>
+<!--    <depends_on name="ns-3-linux" optional="True"/>
     <depends_on name="gdb" optional="True"/>
     <depends_on name="nsc" optional="True"/>
-    <build type="none"/>
+-->
+    <depends_on name="pybindgen" version="dce" optional="True"/>
+    <build type="waf" objdir="any"/>
+  </module>
+
+  <module name="ns-3-dev">
+    <source type="mercurial">
+      <attribute name="url" value="http://code.nsnam.org/ns-3-dev"/>
+    </source>
+<!-- <depends_on name="nsc" optional="True"/> -->
+    <depends_on name="pybindgen" version="dev" optional="True"/>
+    <build type="waf" objdir="any"/>
   </module>
 
 </modules>

@@ -56,8 +56,10 @@ class BazaarModuleSource(ModuleSource):
         env.run(['bzr', 'clone'] + rev_arg + [self.attribute('url').value, env.srcdir])
 
     def update(self, env):
-        # XXX: 
-        pass
+        rev_arg = []
+        if not self.attribute('revision').value is None:
+            rev_arg.extend(['-r', self.attribute('revision').value])
+        env.run(['bzr', 'pull'] + rev_arg + [self.attribute('url').value, env.srcdir])
     
 class MercurialModuleSource(ModuleSource):
     def __init__(self):

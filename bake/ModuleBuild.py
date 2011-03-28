@@ -15,7 +15,7 @@ class ModuleBuild(ModuleAttributeBase):
     @property
     def supports_objdir(self):
         # member variable is created by code in Configuration right after 
-        # object instance is created.
+        # object instance is created. So evil... But works.
         return self._supports_objdir
     def build(self, env):
         raise NotImplemented()
@@ -65,6 +65,8 @@ class WafModuleBuild(ModuleBuild):
         self.add_attribute('CFLAGS',   '', 'Flags to use for C compiler')
         self.add_attribute('CXXFLAGS', '', 'Flags to use for C++ compiler')
         self.add_attribute('LDFLAGS',  '', 'Flags to use for Linker')
+        self.add_attribute('extra_configure_options',  '', 'Options to pass to "waf configure"')
+        self.add_attribute('extra_build_options',  '', 'Options to pass to "waf"')
     @classmethod
     def name(cls):
         return 'waf'
@@ -87,11 +89,17 @@ class WafModuleBuild(ModuleBuild):
         env['WAFLOCK'] = os.path.join(objdir, '.lock-wscript')
         return env
     def build(self, env):
+        extra_configure_options = []
+        if self.attribute('extra_configure_options').value != '':
+            extra_configure_options = self.attribute('extra_configure_options').value.split(' ')
+        extra_build_options = []
+        if self.attribute('extra_build_options').value != '':
+            extra_build_options = self.attribute('extra_build_options').value.split(' ')
         env.run([self._binary(env.srcdir), '--srcdir=' + env.srcdir, '--blddir=' + env.objdir, 
-                 '--prefix=' + env.installdir, 'configure'],
+                 '--prefix=' + env.installdir, 'configure'] + extra_configure_options,
                 directory = env.objdir,
                 env = self._env(env.objdir))
-        env.run([self._binary(env.srcdir)],
+        env.run([self._binary(env.srcdir)] + extra_build_options,
                 directory = env.objdir,
                 env = self._env(env.objdir))
         env.run([self._binary(env.srcdir), 'install'],
@@ -136,6 +144,8 @@ class Cmake(ModuleBuild):
                     directory = env.objdir)
         env.run(['make', 'install'], directory = env.objdir)
     def clean(self, env):
+        if not os.path.isfile(os.path.join(env.objdir, 'Makefile')):
+            return
         env.run(['make', 'clean'], directory = env.objdir)
 
 

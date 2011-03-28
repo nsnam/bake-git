@@ -224,6 +224,11 @@ class Configuration:
     def disable(self, module):
         self._enabled.remove(module)
     def lookup(self, name, version = None):
+        tmp = name.split(',')
+        if len(tmp) == 2 and version == None:
+            name = tmp[0]
+            version = tmp[1]
+
         for module in self._modules:
             if module.name() == name:
                 if version is not None and module.version() == version:
