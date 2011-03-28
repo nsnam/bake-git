@@ -139,6 +139,7 @@ class CvsModuleSource(ModuleSource):
         self.add_attribute('module', '', 'Module to checkout.', mandatory = True)
         self.add_attribute('checkout_directory', None, 'Name of directory checkout defaults to. '
                            'If unspecified, defaults to the name of the module being checked out.')
+        self.add_attribute('date', None, 'Date to checkout')
 
     @classmethod
     def name(cls):
@@ -148,8 +149,11 @@ class CvsModuleSource(ModuleSource):
         tempdir = tempfile.mkdtemp()
         Utils.run_command(['cvs', '-d', self.attribute('root').value, 'login'],
                       logger)
-        Utils.run_command(['cvs', '-d', self.attribute('root').value, 'checkout', 
-                           self.attribute('module').value],
+        checkout_options = []
+        if not self.attribute('date').value is None:
+            checkout_options.extend(['-D', self.attribute('date').value])
+        Utils.run_command(['cvs', '-d', self.attribute('root').value, 'checkout'] + checkout_options +
+                          [self.attribute('module').value],
                     logger, directory = tempdir)
         if self.attribute('checkout_directory').value is not None:
             actual_checkout_dir = self.attribute('checkout_directory').value

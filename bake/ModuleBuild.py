@@ -37,6 +37,71 @@ class InlineModuleBuild(ModuleBuild):
     def name(cls):
         return 'inline'
 
+class PythonModuleBuild(ModuleBuild):
+    def __init__(self):
+        ModuleBuild.__init__(self)
+    @classmethod
+    def name(cls):
+        return 'python'
+    def build(self, logger, srcdir, blddir, installdir):
+        Utils.run_command(['python', os.path.join(srcdir, 'setup.py'), 'build', 
+                           '--build-base=' + blddir, 
+                           'install', '--prefix=' + installdir], 
+                          logger, directory = srcdir)
+    def clean(self, logger, srcdir, blddir):
+        Utils.run_command(['python', os.path.join(srcdir, 'setup.py'), 'clean', 
+                           '--build-base=' + blddir],
+                          logger, directory = srcdir)
+
+
+class WafModuleBuild(ModuleBuild):
+    def __init__(self):
+        ModuleBuild.__init__(self)
+        self.add_attribute('CC',       '', 'C compiler to use')
+        self.add_attribute('CXX',      '', 'C++ compiler to use')
+        self.add_attribute('CFLAGS',   '', 'Flags to use for C compiler')
+        self.add_attribute('CXXFLAGS', '', 'Flags to use for C++ compiler')
+        self.add_attribute('LDFLAGS',  '', 'Flags to use for Linker')
+    @classmethod
+    def name(cls):
+        return 'waf'
+    def _binary(self, srcdir):
+        if os.path.isfile(os.path.join(srcdir, 'waf')):
+            waf_binary = os.path.join(srcdir, 'waf')
+        else:
+            waf_binary = 'waf'
+        return waf_binary
+    def _env(self, blddir):
+        env = dict()
+        for a,b in [['CC', 'CC'], 
+                    ['CXX', 'CXX'],
+                    ['CFLAGS', 'CFLAGS'],
+                    ['CFLAGS', 'CFLAGS'],
+                    ['LDFLAGS', 'LINKFLAGS']]:
+            if self.attribute(a).value != '':
+                env[b] = self.attribute(a).value
+        env['WAFCACHE'] = blddir
+        env['WAFLOCK'] = os.path.join(blddir, '.lock-wscript')
+        return env
+    def build(self, logger, srcdir, blddir, installdir):
+        Utils.run_command([self._binary(srcdir), '--srcdir=' + srcdir, '--blddir=' + blddir, 
+                           '--prefix=' + installdir, 'configure'],
+                          logger, directory = blddir,
+                          env = self._env(blddir))
+        Utils.run_command([self._binary(srcdir)],
+                          logger, directory = blddir,
+                          env = self._env(blddir))
+        Utils.run_command([self._binary(srcdir), 'install'],
+                          logger, directory = blddir,
+                          env = self._env(blddir))
+        
+    def clean(self, logger, srcdir, blddir):
+        if os.path.isfile(os.path.join(blddir, '.lock-wscript')):
+            Utils.run_command([self._binary(srcdir), 'clean'],
+                              logger, directory = blddir,
+                              env = self._env(blddir))
+
+
 class Cmake(ModuleBuild):
     def __init__(self):
         ModuleBuild.__init__(self)
@@ -45,6 +110,7 @@ class Cmake(ModuleBuild):
         self.add_attribute('CFLAGS',   '', 'Flags to use for C compiler')
         self.add_attribute('CXXFLAGS', '', 'Flags to use for C++ compiler')
         self.add_attribute('LDFLAGS',  '', 'Flags to use for Linker')
+        self.add_attribute('extra_targets', '', 'Targets to make before install')
     @classmethod
     def name(cls):
         return 'cmake'
@@ -64,7 +130,9 @@ class Cmake(ModuleBuild):
                           logger,
                           directory=blddir)
         Utils.run_command(['make'], logger, directory = blddir)
-        Utils.run_command(['make', 'doc'], logger, directory = blddir)
+        if self.attribute('extra_targets').value != '':
+            Utils.run_command(['make'] + self.attribute('extra_targets').split(' '), 
+                              logger, directory = blddir)
         Utils.run_command(['make', 'install'], logger, directory = blddir)
     def clean(self, logger, srcdir, blddir):
         pass

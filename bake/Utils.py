@@ -1,12 +1,15 @@
 import subprocess
 from Exceptions import TaskError
+import os
 
-def run_command(args, logger, directory = None):
+def run_command(args, logger, directory = None, env = dict()):
     logger.write(str(args) + ' dir=' + str(directory) + '\n')
+    tmp = dict(os.environ.items() + env.items())
     popen = subprocess.Popen(args,
                              stdout = logger,
                              stderr = logger,
-                             cwd = directory)
+                             cwd = directory,
+                             env = tmp)
     retcode = popen.wait()
     if retcode != 0:
         raise TaskError('Subprocess failed with error %d: %s' % (retcode, str(args)))

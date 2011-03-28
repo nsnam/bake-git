@@ -113,7 +113,7 @@ class Configuration:
             build_node = module_node.find('build')
             build = self._create_obj_from_node(build_node, ModuleBuild)
             self._check_mandatory_attributes(build, build_node, 'build', name)
-            self._read_attributes(source, source_node, 'build', name)
+            self._read_attributes(build, build_node, 'build', name)
 
             dependencies = []
             for dep_node in module_node.findall('depends_on'):

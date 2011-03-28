@@ -1,12 +1,36 @@
 <modules>
 
+  <module name="gccxml">
+    <source type="cvs">
+      <attribute name="root" value=":pserver:anoncvs:@www.gccxml.org:/cvsroot/GCC_XML"/>
+      <attribute name="module" value="gccxml"/>
+      <attribute name="date" value="2009-09-21"/>
+    </source>
+    <build type="cmake">
+      <attribute name="objdir" value="any"/>
+    </build>
+  </module>
+
+  <module name="pygccxml" version="1.0.0">
+    <source type="archive">
+      <attribute name="url" value="http://mesh.dl.sourceforge.net/project/pygccxml/pygccxml/pygccxml-1.0/pygccxml-1.0.0.zip"/>
+    </source>
+    <build type="python">
+      <attribute name="objdir" value="any"/>
+    </build>
+    <depends_on name="gccxml"/>
+  </module>
+
   <module name="pybindgen">
     <source type="bazaar">
      <attribute name="url" value="https://launchpad.net/pybindgen"/>
      <attribute name="revision" value="revno:777"/>
 <!--     <attribute name="revision" value="tag:0.15.0"/> -->
     </source>
-    <build type="none"/>
+    <build type="waf">
+      <attribute name="objdir" value="any"/>
+    </build>
+    <depends_on name="pygccxml" optional="True"/>
   </module>
 
   <module name="nsc">
