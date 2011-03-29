@@ -28,4 +28,13 @@
       <attribute name="extra_cmake_options" value="-DBUILD_EXAMPLES=OFF -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=release -DVTK_USE_QT=ON -DVTK_USE_PARALLEL=ON -DVTK_USE_QTVTK_QTOPENGL=ON -DVTK_USE_MPI=ON"/>
     </build>
   </module>
+
+  <module name="numesis">
+    <source type="git">
+      <attribute name="url" value=""/>
+    </source>
+    <build type="cmake" objdir="any">
+      <attribute name="extra_cmake_options" value=""/>
+    </build>
+  </module>
 </modules>

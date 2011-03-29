@@ -17,6 +17,8 @@ class ModuleSource(ModuleAttributeBase):
         raise NotImplemented()
     def update(self, env):
         raise NotImplemented()
+    def check_version(self, env):
+        raise NotImplemented()
 
 class NoneModuleSource(ModuleSource):
     def __init__(self):
@@ -30,6 +32,8 @@ class NoneModuleSource(ModuleSource):
         pass
     def update(self, env):
         pass
+    def check_version(self, env):
+        return True
 
 class InlineModuleSource(ModuleSource):
     def __init__(self):
@@ -60,6 +64,9 @@ class BazaarModuleSource(ModuleSource):
         if not self.attribute('revision').value is None:
             rev_arg.extend(['-r', self.attribute('revision').value])
         env.run(['bzr', 'pull'] + rev_arg + [self.attribute('url').value, env.srcdir])
+    def check_version(self, env):
+        return env.check_program('bzr')
+
     
 class MercurialModuleSource(ModuleSource):
     def __init__(self):
@@ -79,6 +86,9 @@ class MercurialModuleSource(ModuleSource):
         env.run(['hg', 'pull'], directory = env.srcdir)
         env.run(['hg', 'update', '-r', self.attribute('revision').value],
                 directory = env.srcdir)
+    def check_version(self, env):
+        return env.check_program('hg')
+
         
 class ArchiveModuleSource(ModuleSource):
     def __init__(self):
@@ -128,6 +138,21 @@ class ArchiveModuleSource(ModuleSource):
     def update(self, env):
         # we really have nothing to do for archives. 
         pass
+
+    def check_version(self, env):
+        extensions = [
+            ['tar', 'tar'],
+            ['tar.gz', 'tar'],
+            ['tar.Z', 'tar'],
+            ['tar.bz2', 'tar'],
+            ['zip', 'unzip'],
+            ['rar', 'unrar']
+            ]
+        filename = os.path.basename(urlparse.urlparse(self.attribute('url').value).path)
+        for extension,program in extensions:
+            if filename.endswith(extension):
+                return env.check_program(program)
+        return False
         
 class CvsModuleSource(ModuleSource):
     def __init__(self):
@@ -162,6 +187,8 @@ class CvsModuleSource(ModuleSource):
 
     def update(self, env):
         env.run(['cvs', 'up'], directory = env.srcdir)
+    def check_version(self, env):
+        return env.check_program('cvs')
 
 class GitModuleSource(ModuleSource):
     def __init__(self):
@@ -190,3 +217,6 @@ class GitModuleSource(ModuleSource):
         env.run(['git', 'fetch'], directory = env.srcdir)
         env.run(['git', 'checkout', self.attribute('revision').value],
                           directory = env.srcdir)
+
+    def check_version(self, env):
+        return env.check_program('git')
