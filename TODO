@@ -1,4 +1,4 @@
-* check build tool versions !
+* check build tool versions from bakeconf.xml
 * pass around -j X
 * compressed 'bake' binary
 * add <patch> xml node in source node.

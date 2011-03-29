@@ -40,7 +40,7 @@
   </module>
 
 
-  <module name="nsc">
+  <module name="nsc" version="dev">
     <source type="mercurial">
       <attribute name="url" value="https://secure.wand.net.nz/mercurial/nsc"/>
     </source>
@@ -51,11 +51,13 @@ class NscModuleBuild(InlineModuleBuild):
     def __init__(self):
         InlineModuleBuild.__init__(self)
     def build(self, env):
-        env.run(['scons', '--prefix=' + env.installdir, 'install'],
+        env.run(['python', os.path.join(env.srcdir, 'scons.py'), '--prefix=' + env.installdir, 'install'],
                 directory=env.srcdir)
     def clean(self, env):
         # XXX
         pass
+    def check_version(self, env):
+        return True
 </code>
     </build>
   </module>
@@ -112,9 +114,11 @@ class NscModuleBuild(InlineModuleBuild):
     <source type="mercurial">
       <attribute name="url" value="http://code.nsnam.org/ns-3-dev"/>
     </source>
-<!-- <depends_on name="nsc" optional="True"/> -->
+    <depends_on name="nsc" optional="True"/>
     <depends_on name="pybindgen" version="dev" optional="True"/>
-    <build type="waf" objdir="any"/>
+    <build type="waf" objdir="any">
+      <attribute name="extra_configure_options" value="--with-nsc=$INSTALLDIR"/>
+    </build>
   </module>
 
 </modules>

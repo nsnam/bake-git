@@ -21,6 +21,8 @@ class ModuleBuild(ModuleAttributeBase):
         raise NotImplemented()
     def clean(self, env):
         raise NotImplemented()
+    def check_version(self, env):
+        raise NotImplemented()
 
 class NoneModuleBuild(ModuleBuild):
     def __init__(self):
@@ -32,6 +34,9 @@ class NoneModuleBuild(ModuleBuild):
         pass
     def clean(self, env):
         pass
+    def check_version(self, env):
+        return True
+
 
 class InlineModuleBuild(ModuleBuild):
     def __init__(self):
@@ -55,6 +60,9 @@ class PythonModuleBuild(ModuleBuild):
         env.run(['python', os.path.join(env.srcdir, 'setup.py'), 'clean', 
                  '--build-base=' + env.objdir],
                 directory = env.srcdir)
+    def check_version(self, env):
+        return True
+
 
 
 class WafModuleBuild(ModuleBuild):
@@ -91,10 +99,12 @@ class WafModuleBuild(ModuleBuild):
     def build(self, env):
         extra_configure_options = []
         if self.attribute('extra_configure_options').value != '':
-            extra_configure_options = self.attribute('extra_configure_options').value.split(' ')
+            extra_configure_options = [env.replace_variables(tmp) for tmp in
+                                       self.attribute('extra_configure_options').value.split(' ')]
         extra_build_options = []
         if self.attribute('extra_build_options').value != '':
-            extra_build_options = self.attribute('extra_build_options').value.split(' ')
+            extra_build_options = [env.replace_variables(tmp) for tmp in
+                                   self.attribute('extra_build_options').value.split(' ')]
         env.run([self._binary(env.srcdir), '--srcdir=' + env.srcdir, '--blddir=' + env.objdir, 
                  '--prefix=' + env.installdir, 'configure'] + extra_configure_options,
                 directory = env.objdir,
@@ -111,6 +121,13 @@ class WafModuleBuild(ModuleBuild):
             env.run([self._binary(env.srcdir), 'clean'],
                     directory = env.objdir,
                     env = self._env(env.objdir))
+    def check_version(self, env):
+        for path in [os.path.join(env.srcdir, 'waf'), 'waf']:
+            if env.check_program(path, version_arg = '--version',
+                                 version_regexp = '(\d+)\.(\d+)\.(\d+)',
+                                 version_required = (1,5,16)):
+                return True
+
 
 class Cmake(ModuleBuild):
     def __init__(self):
@@ -147,6 +164,16 @@ class Cmake(ModuleBuild):
         if not os.path.isfile(os.path.join(env.objdir, 'Makefile')):
             return
         env.run(['make', 'clean'], directory = env.objdir)
+    def check_version(self, env):
+        if not env.check_program('cmake', version_arg = '--version',
+                                 version_regexp = '(\d+)\.(\d+)\.(\d+)',
+                                 version_required = (2,8,2)):
+            return False
+        if not env.check_program('make', version_arg = '--version',
+                                 version_regexp = '(\d+)\.(\d+)',
+                                 version_required = (3,80)):
+            return False
+        return True
 
 
 class Autotools(ModuleBuild):
@@ -187,5 +214,15 @@ class Autotools(ModuleBuild):
             os.remove(os.path.join(env.objdir, 'config.cache'))
         except OSError:
             pass
+    def check_version(self, env):
+        if not env.check_program('autoreconf', version_arg = '--version',
+                                 version_regexp = '(\d+)\.(\d+)',
+                                 version_required = (2,66)):
+            return False
+        if not env.check_program('make', version_arg = '--version',
+                                 version_regexp = '(\d+)\.(\d+)',
+                                 version_required = (3,80)):
+            return False
+        return True
             
 

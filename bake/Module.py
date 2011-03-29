@@ -67,6 +67,9 @@ class Module:
     def build(self, env):
         env.start_build(self._name, self._version,
                         self._build.supports_objdir)
+        if not self._build.check_version(env):
+            print 'Error: could not find build tools for module ' + self.name()
+            return False
         try:
             # delete in case this is a new build configuration
             # and there are old files around
