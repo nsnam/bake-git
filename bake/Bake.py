@@ -1,5 +1,5 @@
 from Configuration import Configuration
-from BuildEnvironment import BuildEnvironment
+from ModuleEnvironment import ModuleEnvironment
 from ModuleLogger import StdoutModuleLogger,LogfileModuleLogger,LogdirModuleLogger
 from optparse import OptionParser
 from Dependencies import Dependencies,DependencyUnmet
@@ -205,7 +205,7 @@ class Bake:
         verbose = verbose if verbose >= 0 else 0
         logger.set_verbose(verbose)
 
-        env = BuildEnvironment(logger, 
+        env = ModuleEnvironment(logger, 
                                configuration.compute_installdir(),
                                configuration.compute_sourcedir(), 
                                configuration.get_objdir())
@@ -285,7 +285,7 @@ class Bake:
 
     def _shell(self, config, args):
         configuration = self._read_config(config)
-        env = BuildEnvironment(ModuleLogger(), 
+        env = ModuleEnvironment(ModuleLogger(), 
                                configuration.compute_installdir(),
                                configuration.compute_sourcedir(), 
                                configuration.get_objdir())

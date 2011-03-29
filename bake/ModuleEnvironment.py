@@ -3,7 +3,7 @@ import subprocess
 import sys
 import platform
 
-class BuildEnvironment:
+class ModuleEnvironment:
     (HIGHER, LOWER, EQUAL) = range(0,3)
 
     def __init__(self, logger, installdir, sourcedir, objdir):
