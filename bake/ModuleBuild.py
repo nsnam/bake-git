@@ -1,6 +1,7 @@
 import Utils
 import os
 from Utils import ModuleAttributeBase
+from Exceptions import NotImplemented
 
 class ModuleBuild(ModuleAttributeBase):
     def __init__(self):
@@ -17,7 +18,7 @@ class ModuleBuild(ModuleAttributeBase):
         # member variable is created by code in Configuration right after 
         # object instance is created. So evil... But works.
         return self._supports_objdir
-    def build(self, env):
+    def build(self, env, jobs):
         raise NotImplemented()
     def clean(self, env):
         raise NotImplemented()
@@ -30,7 +31,7 @@ class NoneModuleBuild(ModuleBuild):
     @classmethod
     def name(cls):
         return 'none'
-    def build(self, env):
+    def build(self, env, jobs):
         pass
     def clean(self, env):
         pass
@@ -51,7 +52,7 @@ class PythonModuleBuild(ModuleBuild):
     @classmethod
     def name(cls):
         return 'python'
-    def build(self, env):
+    def build(self, env, jobs):
         env.run(['python', os.path.join(env.srcdir, 'setup.py'), 'build', 
                   '--build-base=' + env.objdir, 
                   'install', '--prefix=' + env.installdir], 
@@ -96,7 +97,7 @@ class WafModuleBuild(ModuleBuild):
         env['WAFCACHE'] = objdir
         env['WAFLOCK'] = os.path.join(objdir, '.lock-wscript')
         return env
-    def build(self, env):
+    def build(self, env, jobs):
         extra_configure_options = []
         if self.attribute('extra_configure_options').value != '':
             extra_configure_options = [env.replace_variables(tmp) for tmp in
@@ -109,7 +110,7 @@ class WafModuleBuild(ModuleBuild):
                  '--prefix=' + env.installdir, 'configure'] + extra_configure_options,
                 directory = env.objdir,
                 env = self._env(env.objdir))
-        env.run([self._binary(env.srcdir)] + extra_build_options,
+        env.run([self._binary(env.srcdir)] + extra_build_options + ['-j', str(jobs)],
                 directory = env.objdir,
                 env = self._env(env.objdir))
         env.run([self._binary(env.srcdir), 'install'],
@@ -138,6 +139,7 @@ class Cmake(ModuleBuild):
         self.add_attribute('CXXFLAGS', '', 'Flags to use for C++ compiler')
         self.add_attribute('LDFLAGS',  '', 'Flags to use for Linker')
         self.add_attribute('extra_targets', '', 'Targets to make before install')
+        self.add_attribute('extra_cmake_options', '', 'Command-line options to pass to cmake')
     @classmethod
     def name(cls):
         return 'cmake'
@@ -152,12 +154,16 @@ class Cmake(ModuleBuild):
                 variables.append('-DCMAKE_%s=%s' %(b, self.attribute(a).value))
         return variables
 
-    def build(self, env):
-        env.run(['cmake', env.srcdir, '-DCMAKE_INSTALL_PREFIX=' + env.installdir] + self._variables(),
+    def build(self, env, jobs):
+        options = []
+        if self.attribute('extra_cmake_options').value != '':
+            options = self.attribute('extra_cmake_options').value.split(' ')
+        env.run(['cmake', env.srcdir, '-DCMAKE_INSTALL_PREFIX=' + env.installdir] + 
+                self._variables() + options,
                 directory=env.objdir)
-        env.run(['make'], directory = env.objdir)
+        env.run(['make', '-j', str(jobs)], directory = env.objdir)
         if self.attribute('extra_targets').value != '':
-            env.run(['make'] + self.attribute('extra_targets').split(' '), 
+            env.run(['make'] + self.attribute('extra_targets').value.split(' '), 
                     directory = env.objdir)
         env.run(['make', 'install'], directory = env.objdir)
     def clean(self, env):
@@ -185,22 +191,28 @@ class Autotools(ModuleBuild):
         self.add_attribute('CXXFLAGS', '', 'Flags to use for C++ compiler')
         self.add_attribute('LDFLAGS',  '', 'Flags to use for Linker')
         self.add_attribute('maintainer', 'no', 'Maintainer mode ?')
+        self.add_attribute('extra_configure_options', '', 'Command-line options to pass to configure')
     @classmethod
     def name(cls):
         return 'autotools'
-    def build(self, env):
+    def _variables(self):
+        variables = []
+        for tmp in ['CC','CXX', 'CFLAGS', 'CXXFLAGS', 'LDFLAGS']:
+            if self.attribute(tmp).value != '':
+                variables.append('%s=%s' % (tmp, self.attribute(tmp).value))
+        return variables
+    def build(self, env, jobs):
         if self.attribute('maintainer').value != 'no':
             env.run(['autoreconf', '--install'], 
                     directory = env.srcdir)
+        options = []
+        if self.attribute('extra_configure_options').value != '':
+            options = self.attribute('extra_configure_options').value.split(' ')
         env.run([os.path.join(env.srcdir, 'configure'),
-                 '--prefix=' + env.installdir, 
-                 'CC=' + self.attribute('CC').value,
-                 'CXX=' + self.attribute('CXX').value,
-                 'CFLAGS=' + self.attribute('CFLAGS').value,
-                 'CXXFLAGS=' + self.attribute('CXXFLAGS').value,
-                 'LDFLAGS=' + self.attribute('LDFLAGS').value], 
+                 '--prefix=' + env.installdir] + 
+                self._variables() + options, 
                 directory = env.objdir)
-        env.run(['make'], directory = env.objdir)
+        env.run(['make', '-j', str(jobs)], directory = env.objdir)
         env.run(['make', 'install'], directory = env.objdir)
 
     def clean(self, env):

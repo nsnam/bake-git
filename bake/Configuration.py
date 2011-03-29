@@ -29,6 +29,7 @@ class MetadataFile:
 class Configuration:
     def __init__(self, bakefile, relative_directory_root = None):
         self._enabled = []
+        self._disabled = []
         self._modules = []
         self._installdir = None
         self._objdir = None
@@ -220,9 +221,15 @@ class Configuration:
     def compute_installdir(self):
         return self._compute_path(self._installdir)
     def enable(self, module):
-        self._enabled.append(module)
+        if module in self._disabled:
+            self._disabled.remove(module)
+        else:
+            self._enabled.append(module)
     def disable(self, module):
-        self._enabled.remove(module)
+        if module in self._enabled:
+            self._enabled.remove(module)
+        else:
+            self._disabled.append(module)
     def lookup(self, name, version = None):
         tmp = name.split(',')
         if len(tmp) == 2 and version == None:
@@ -238,5 +245,7 @@ class Configuration:
         return None
     def enabled(self):
         return self._enabled
+    def disabled(self):
+        return self._disabled
     def modules(self):
         return self._modules

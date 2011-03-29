@@ -1,10 +1,6 @@
 import copy
 import os
 
-class NotImplemented:
-    def __init__(self):
-        return
-
 class ModuleDependency:
     def __init__(self, name, version = None, optional = False):
         self._name = name
@@ -64,7 +60,7 @@ class Module:
             env.end_source()
             return False
 
-    def build(self, env):
+    def build(self, env, jobs):
         env.start_build(self._name, self._version,
                         self._build.supports_objdir)
         if not self._build.check_version(env):
@@ -75,7 +71,7 @@ class Module:
             # and there are old files around
             if not self._built_once and os.path.isdir(env.objdir):
                 self._build.clean(env)
-            self._build.build(env)
+            self._build.build(env, jobs)
             env.end_build()
             self._built_once = True
             return True

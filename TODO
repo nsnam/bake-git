@@ -1,12 +1,9 @@
 * check build and source tool versions from bakeconf.xml
-* add -j X to build command
 * compressed 'bake' binary
 * add <patch> xml node in source node.
 * export env vars that need to be modified in shell from build objects
-* add configure --disable
-* add reconfigure --enable/--disable
-* add --logfile and --logdir
 * find a way to deal with per-module options that are not build-tool-dependent
+* make build depend on download. 
 
 * missing commands:
   - diff in ModuleSource

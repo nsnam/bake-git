@@ -50,8 +50,9 @@
 class NscModuleBuild(InlineModuleBuild):
     def __init__(self):
         InlineModuleBuild.__init__(self)
-    def build(self, env):
-        env.run(['python', os.path.join(env.srcdir, 'scons.py'), '--prefix=' + env.installdir, 'install'],
+    def build(self, env, jobs):
+        env.run(['python', os.path.join(env.srcdir, 'scons.py'), 
+                 '-j', str(jobs), '--prefix=' + env.installdir, 'install'],
                 directory=env.srcdir)
     def clean(self, env):
         # XXX

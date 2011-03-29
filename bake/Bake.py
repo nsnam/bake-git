@@ -1,6 +1,6 @@
 from Configuration import Configuration
 from BuildEnvironment import BuildEnvironment
-from ModuleLogger import ModuleLogger
+from ModuleLogger import StdoutModuleLogger,LogfileModuleLogger,LogdirModuleLogger
 from optparse import OptionParser
 from Dependencies import Dependencies,DependencyUnmet
 from Exceptions import MetadataError
@@ -12,6 +12,7 @@ class Bake:
 
     def _reconfigure(self,config,args):
         parser = OptionParser(usage = 'usage: %prog reconfigure [options]')
+        self._enable_disable_options(parser)
         parser.add_option("-c", "--conffile", action="store", type="string", 
                           dest="bakeconf", default="bakeconf.xml", 
                           help="The Bake metadata configuration file to use. Default: %default.")
@@ -33,6 +34,17 @@ class Bake:
                 continue
             new_config.enable(new_module)
 
+        # copy which modules are disabled into new config
+        for old_module in old_config.disabled():
+            new_module = new_config.lookup(old_module.name())
+            if new_module is None:
+                # ignore old disabled modules that do not exist in the new configuration
+                continue
+            new_config.disable(new_module)
+
+        # now, parse new enabled/disabled options
+        self._parse_enable_disable(options, configuration)
+
         # copy old variables into new config for all modules
         for old_module in old_config.modules():
             new_module = new_config.lookup(old_module.name())
@@ -48,17 +60,33 @@ class Bake:
 
         new_config.write()
 
+    def _enable_disable_options(self, parser):
+        parser.add_option("-e", "--enable", action="append", type="string", dest="enable",
+                          default=[],
+                          help="A module to enable in the Bake configuration")
+        parser.add_option("-d", "--disable", action="append", type="string", dest="disable",
+                          default=[],
+                          help="A module to disable in the Bake configuration")
+
+    def _parse_enable_disable(self, options, configuration):
+        for module_name in options.enable:
+            module = configuration.lookup(module_name)
+            if module is not None:
+                configuration.enable(module)
+        for module_name in options.disable:
+            module = configuration.lookup(module_name)
+            if module is not None:
+                configuration.disable(module)
+
     def _configure(self,config,args):
         parser = OptionParser(usage = 'usage: %prog configure [options]')
+        self._enable_disable_options(parser)
         parser.add_option("-c", "--conffile", action="store", type="string", 
                           dest="bakeconf", default="bakeconf.xml", 
                           help="The Bake metadata configuration file to use. Default: %default.")
         parser.add_option("-g", "--gui", action="store_true", 
                           dest="gui", default="False", 
                           help="Use a GUI to define the configuration.")
-        parser.add_option("-e", "--enable", action="append", type="string", dest="enable",
-                          default=[],
-                          help="A module to enable in the Bake configuration")
         parser.add_option("-s", "--set", action="append", type="string", dest="set",
                           default=[],
                           help="Format: module:name=value. A variable to set in the Bake "
@@ -80,10 +108,7 @@ class Bake:
         configuration.set_sourcedir(options.sourcedir)
         configuration.set_objdir(options.objdir)
         configuration.set_installdir(options.installdir)
-        for module_name in options.enable:
-            module = configuration.lookup(module_name)
-            if module is not None:
-                configuration.enable(module)
+        self._parse_enable_disable(options, configuration)
         for variable in options.set:
             data = variable.split(":")
             if len(data) == 1:
@@ -123,14 +148,35 @@ class Bake:
         for m in configuration.modules():
             for dependency in m.dependencies():
                 src = configuration.lookup (dependency.name(), dependency.version())
-                deps.add_dep(src, m, optional = dependency.is_optional())
+                if not src in configuration.disabled():
+                    deps.add_dep(src, m, optional = dependency.is_optional())
         try:
             deps.resolve(configuration.enabled())
         except DependencyUnmet as error:
             sys.stderr.write(error.failed().name() + ' failed\n')
             sys.exit(1)
 
-    def _options(self, parser):
+    def _read_config(self, config):
+        configuration = Configuration(config)
+        if not configuration.read():
+            sys.stderr.write('The configuration file has been changed or has moved.\n'
+                             'You should consider running \'reconfigure\'.\n')
+            sys.exit(1)
+        return configuration
+
+    def _option_parser(self, operation_name):
+        parser = OptionParser(usage='usage: %prog ' + operation_name + ' [options]')
+        parser.add_option('--logfile', help='File in which we want to store log output '
+                          'of requested operation', action="store", type="string", dest="logfile",
+                          default='')
+        parser.add_option('--logdir', help='Directory in which we want to store log output '
+                          'of requested operation. One file per module.', action="store", 
+                          type="string", dest="logdir",
+                          default='')
+        parser.add_option('-v', '--verbose', action='count', dest='verbose', default=1,
+                          help='Increase the log verbosity level')
+        parser.add_option('-q', '--quiet', action='count', dest='quiet', default=0,
+                          help='Increase the log quietness level')
         parser.add_option("-o", "--one", action="store", type="string",
                           dest="one", default="", 
                           help="Process only the module specified.")
@@ -143,24 +189,27 @@ class Bake:
         parser.add_option("--after", action="store", type="string",
                           dest="after", default="", 
                           help="Process all modules enabled starting after the module specified.")
+        return parser
 
-    def _read_config(self, config):
-        configuration = Configuration(config)
-        if not configuration.read():
-            sys.stderr.write('The configuration file has been changed or has moved.\n'
-                             'You should consider running \'reconfigure\'.\n')
-            sys.exit(1)
-        return configuration
-
-    def _do_operation(self, config, args, operation_name, functor):
-        parser = OptionParser(usage='usage: %prog ' + operation_name + ' [options]')
-        self._options(parser)
-        (options, args_left) = parser.parse_args(args)
+    def _do_operation(self, config, options, functor):
         configuration = self._read_config(config)
-        env = BuildEnvironment(ModuleLogger(), 
+        if options.logdir == '' and options.logfile == '':
+            logger = StdoutModuleLogger()
+        elif options.logdir != '':
+            assert options.logfile == ''
+            logger = LogdirModuleLogger(options.logdir)
+        else:
+            assert options.logfile != ''
+            logger = LogfileModuleLogger(options.logfile)
+        verbose = options.verbose - options.quiet
+        verbose = verbose if verbose >= 0 else 0
+        logger.set_verbose(verbose)
+
+        env = BuildEnvironment(logger, 
                                configuration.compute_installdir(),
                                configuration.compute_sourcedir(), 
                                configuration.get_objdir())
+
         if options.one != '':
             if options.all or options.start != '' or options.after != '':
                 print 'Error: incompatible options'
@@ -205,24 +254,34 @@ class Bake:
         configuration.write()
 
     def _download(self,config,args):
+        parser = self._option_parser('download')
+        (options, args_left) = parser.parse_args(args)
         def _do_download(configuration, module, env):
             return module.download(env)
-        self._do_operation(config, args, 'download', _do_download)
+        self._do_operation(config, options, _do_download)
 
     def _update(self,config,args):
+        parser = self._option_parser('update')
+        (options, args_left) = parser.parse_args(args)
         def _do_update(configuration, module, env):
             return module.update(env)
-        self._do_operation(config, args, 'update', _do_update)
+        self._do_operation(config, options, _do_update)
 
     def _build(self,config,args):
+        parser = self._option_parser('build')
+        parser.add_option('-j', '--jobs', help='Allow N jobs at once. Default is 1.',
+                          type='int', action='store', dest='jobs', default=1)
+        (options, args_left) = parser.parse_args(args)
         def _do_build(configuration, module, env):
-            return module.build(env)
-        self._do_operation(config, args, 'build', _do_build)
+            return module.build(env, options.jobs)
+        self._do_operation(config, options, _do_build)
 
     def _clean(self, config, args):
+        parser = self._option_parser('clean')
+        (options, args_left) = parser.parse_args(args)
         def _do_clean(configuration, module, env):
             return module.clean(env)
-        self._do_operation(config, args, 'clean', _do_clean)
+        self._do_operation(config, options, _do_clean)
 
     def _shell(self, config, args):
         configuration = self._read_config(config)
@@ -232,7 +291,6 @@ class Bake:
                                configuration.get_objdir())
         import os
         env.run([os.environ['SHELL']], directory=env.installdir, interactive = True)
-
 
     def main(self, argv):
         parser = OptionParser(usage = 'usage: %prog [options] command [command options]',

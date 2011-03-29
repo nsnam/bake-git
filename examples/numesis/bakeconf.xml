@@ -7,6 +7,25 @@
     </source>
     <build type="cmake" version="2.8" objdir="any">
       <attribute name="extra_targets" value="doc"/>
+      <attribute name="extra_cmake_options" value="-DBUILD_TESTING=OFF -DBUILD_WRAPPERS=OFF"/>
+    </build>
+  </module>
+
+  <module name="mpi">
+    <source type="archive">
+      <attribute name="url" value="http://www.open-mpi.org/software/ompi/v1.4/downloads/openmpi-1.4.3.tar.bz2"/>
+    </source>
+    <build type="autotools" objdir="any">
+      <attribute name="extra_configure_options" value="--with-pic"/>
+    </build>
+  </module>
+
+  <module name="vtk">
+    <source type="git">
+      <attribute name="url" value="git://vtk.org/VTK.git"/>
+    </source>
+    <build type="cmake" objdir="any">
+      <attribute name="extra_cmake_options" value="-DBUILD_EXAMPLES=OFF -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=release -DVTK_USE_QT=ON -DVTK_USE_PARALLEL=ON -DVTK_USE_QTVTK_QTOPENGL=ON -DVTK_USE_MPI=ON"/>
     </build>
   </module>
 </modules>

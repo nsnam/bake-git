@@ -9,3 +9,7 @@ class MetadataError:
         return
     def reason(self):
         return self._reason
+
+class NotImplemented:
+    def __init__(self):
+        pass
