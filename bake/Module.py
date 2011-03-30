@@ -81,6 +81,12 @@ class Module:
             Utils.print_backtrace()
             return False
 
+    def update_libpath(self, env):
+        env.start_build(self._name, self._version,
+                        self._build.supports_objdir)
+        env.add_libpaths(self._build.libpaths)
+        env.end_build()
+
     def clean(self, env):
         env.start_build(self._name, self._version,
                         self._build.supports_objdir)

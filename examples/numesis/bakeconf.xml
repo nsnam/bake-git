@@ -27,6 +27,7 @@
     </source>
     <build type="cmake" objdir="any">
       <attribute name="extra_cmake_options" value="-DBUILD_EXAMPLES=OFF -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=release -DVTK_USE_QT=ON -DVTK_USE_PARALLEL=ON -DVTK_USE_QTVTK_QTOPENGL=ON -DVTK_USE_MPI=ON"/>
+      <addlibpath location="$INSTALLDIR/lib/vtk-5.9"/>
     </build>
     <depends_on name="mpi"/>
   </module>
@@ -34,6 +35,7 @@
   <module name="numesis">
     <source type="git">
       <attribute name="url" value="git@dtk.inria.fr:num3sis/num3sis.git"/>
+      <attribute name="revision" value="refs/remotes/origin/composer"/>
     </source>
     <build type="cmake" objdir="any">
       <attribute name="extra_cmake_options" value="-DBUILD_DOCUMENTATION=ON -DBUILD_EXAMPLES=ON -DBUILD_SHARED_LIBS=ON -DBUILD_TOOLS=ON"/>

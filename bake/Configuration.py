@@ -97,8 +97,18 @@ class Configuration:
         else:
             node = ET.Element(node_string, {'type' : obj.__class__.name()})
         return node
-        
 
+    def _read_libpath(self, node, build):
+        for libpath in node.findall('addlibpath'):
+            location = libpath.get('location', None)
+            assert location != None
+            build.add_libpath(location)
+
+    def _write_libpath(self, node, build):
+        for libpath in build.libpaths:
+            libpath_node = ET.Element('addlibpath', {'location' : libpath})
+            node.append(libpath_node)
+    
     def _read_metadata(self, et):
         # function designed to be called on two kinds of xml files.
         modules = et.findall('module')
@@ -116,6 +126,7 @@ class Configuration:
             build._supports_objdir = False if build_node.get('objdir', 'srcdir') == 'srcdir' else True
             self._check_mandatory_attributes(build, build_node, 'build', name)
             self._read_attributes(build, build_node, 'build', name)
+            self._read_libpath(build_node, build)
 
             dependencies = []
             for dep_node in module_node.findall('depends_on'):
@@ -143,6 +154,7 @@ class Configuration:
             self._write_attributes(module.get_build(), build_node)
             module_node.append(build_node)
             build_node.attrib['objdir'] = 'any' if module.get_build().supports_objdir else 'srcdir'
+            self._write_libpath(build_node, module.get_build())
             
             for dependency in module.dependencies():
                 attrs = {'name' : dependency.name() }

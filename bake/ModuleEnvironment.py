@@ -14,6 +14,8 @@ class ModuleEnvironment:
         self._module_name = None
         self._module_version = None
         self._module_supports_objdir = None
+        self._libpaths = []
+
     def _module_directory(self):
         if self._module_version is not None:
             directory = self._module_name + '-' + self._module_version
@@ -130,6 +132,9 @@ class ModuleEnvironment:
         else:
             assert False
 
+    def add_libpaths(self, libpaths):
+        self._libpaths.extend([self.replace_variables(path) for path in libpaths])
+
     def replace_variables(self, string):
         import re
         tmp = string
@@ -174,6 +179,8 @@ class ModuleEnvironment:
             stdout = sys.stdout
             stderr = sys.stderr            
         tmp = dict(os.environ.items() + env.items())
+        for libpath in self._libpaths:
+            self._append_path(tmp, self._lib_var(), libpath, os.pathsep)
         self._append_path(tmp, self._lib_var(), self._lib_path(), os.pathsep)
         self._append_path(tmp, self._bin_var(), self._bin_path(), os.pathsep)
         self._append_path(tmp, self._py_var(), self._py_path(), os.pathsep)

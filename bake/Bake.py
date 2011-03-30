@@ -252,6 +252,7 @@ class Bake:
                 return functor (configuration, module, env)
             self._iterate(configuration, _iterator)
         configuration.write()
+        return env
 
     def _download(self,config,args):
         parser = self._option_parser('download')
@@ -273,7 +274,10 @@ class Bake:
                           type='int', action='store', dest='jobs', default=1)
         (options, args_left) = parser.parse_args(args)
         def _do_build(configuration, module, env):
-            return module.build(env, options.jobs)
+            retval = module.build(env, options.jobs)
+            if retval:
+                module.update_libpath(env)
+            return retval
         self._do_operation(config, options, _do_build)
 
     def _clean(self, config, args):
@@ -284,11 +288,12 @@ class Bake:
         self._do_operation(config, options, _do_clean)
 
     def _shell(self, config, args):
-        configuration = self._read_config(config)
-        env = ModuleEnvironment(ModuleLogger(), 
-                               configuration.compute_installdir(),
-                               configuration.compute_sourcedir(), 
-                               configuration.get_objdir())
+        parser = self._option_parser('build')
+        (options, args_left) = parser.parse_args(args)
+        def _do_env_update(configuration, module, env):
+            module.update_libpath(env)
+            return True
+        env = self._do_operation(config, options, _do_env_update)
         import os
         env.run([os.environ['SHELL']], directory=env.installdir, interactive = True)
 
