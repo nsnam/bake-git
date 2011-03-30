@@ -18,7 +18,7 @@ class ModuleLogger:
             self._command_file = f
             self._std_file = f
     def set_verbose(self, verbose):
-        self._verbose = verbose
+        self._verbose = verbose if verbose <= 2 else 2
     def set_current_module(self, name, version):
         raise NotImplemented()
     def clear_current_module(self):

@@ -43,7 +43,7 @@ class Bake:
             new_config.disable(new_module)
 
         # now, parse new enabled/disabled options
-        self._parse_enable_disable(options, configuration)
+        self._parse_enable_disable(options, new_config)
 
         # copy old variables into new config for all modules
         for old_module in old_config.modules():
@@ -173,7 +173,7 @@ class Bake:
                           'of requested operation. One file per module.', action="store", 
                           type="string", dest="logdir",
                           default='')
-        parser.add_option('-v', '--verbose', action='count', dest='verbose', default=1,
+        parser.add_option('-v', '--verbose', action='count', dest='verbose', default=2,
                           help='Increase the log verbosity level')
         parser.add_option('-q', '--quiet', action='count', dest='quiet', default=0,
                           help='Increase the log quietness level')

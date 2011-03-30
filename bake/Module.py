@@ -81,11 +81,11 @@ class Module:
             Utils.print_backtrace()
             return False
 
-    def clean(self, logger, sourcedir, objdir):
+    def clean(self, env):
         env.start_build(self._name, self._version,
                         self._build.supports_objdir)
         try:
-            self._build.clean(logger, env)
+            self._build.clean(env)
             env.end_build()
             self._built_once = False
             return True

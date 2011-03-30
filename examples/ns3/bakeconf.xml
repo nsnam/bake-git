@@ -1,5 +1,14 @@
 <modules>
 
+  <module name="click">
+    <source type="archive">
+      <attribute name="url" value="http://read.cs.ucla.edu/click/click-1.8.0.tar.gz"/>
+    </source>
+    <build type="autotools" objdir="any">    
+      <attribute name="extra_configure_options" value="--enable-userlevel --disable-linuxmodule --enable-nsclick --enable-wifi"/>
+    </build>
+  </module>
+
   <module name="gccxml">
     <source type="cvs">
       <attribute name="root" value=":pserver:anoncvs:@www.gccxml.org:/cvsroot/GCC_XML"/>
@@ -118,7 +127,7 @@ class NscModuleBuild(InlineModuleBuild):
     <depends_on name="nsc" optional="True"/>
     <depends_on name="pybindgen" version="dev" optional="True"/>
     <build type="waf" objdir="any">
-      <attribute name="extra_configure_options" value="--with-nsc=$INSTALLDIR"/>
+      <attribute name="extra_configure_options" value="--with-nsc=$INSTALLDIR --with-nsclick=$INSTALLDIR"/>
     </build>
   </module>
 

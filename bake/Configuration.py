@@ -165,12 +165,20 @@ class Configuration:
             metadata = ET.Element('metadata', {'filename' : self._metadata_file.filename(),
                                                'hash' : self._metadata_file.h()})
             root.append(metadata)
-            
+
+        # write enabled nodes
         for e in reversed(self._enabled):
             enable_node = ET.Element('enabled', {'name' : e.name()})
             if not e.version() is None:
                 enable_node.attrib['version'] = e.version()
             root.append(enable_node)
+
+        # write disabled nodes
+        for e in reversed(self._disabled):
+            disable_node = ET.Element('disabled', {'name' : e.name()})
+            if not e.version() is None:
+                disable_node.attrib['version'] = e.version()
+            root.append(disable_node)
 
         self._write_metadata(root)
         et = ET.ElementTree(element=root)
@@ -189,10 +197,17 @@ class Configuration:
         self._metadata_file = MetadataFile (metadata.get('filename'),
                                             h = metadata.get('hash'))
 
+        # read which modules are enabled
         modules = root.findall('enabled')
         for module in modules:
             enabled = self.lookup(module.get('name'), version=module.get('version', None))
             self.enable(enabled)
+
+        # read which modules are disabled
+        modules = root.findall('disabled')
+        for module in modules:
+            disabled = self.lookup(module.get('name'), version=module.get('version', None))
+            self.disable(disabled)
 
         return self._metadata_file.is_hash_ok() and original_bakefile == self._bakefile
 
