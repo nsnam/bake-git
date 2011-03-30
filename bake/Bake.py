@@ -257,6 +257,7 @@ class Bake:
     def _download(self,config,args):
         parser = self._option_parser('download')
         (options, args_left) = parser.parse_args(args)
+        self._check_source_version(config, options)
         def _do_download(configuration, module, env):
             return module.download(env)
         self._do_operation(config, options, _do_download)
@@ -264,15 +265,34 @@ class Bake:
     def _update(self,config,args):
         parser = self._option_parser('update')
         (options, args_left) = parser.parse_args(args)
+        self._check_source_version(config, options)
         def _do_update(configuration, module, env):
             return module.update(env)
         self._do_operation(config, options, _do_update)
+
+    def _check_build_version(self, config, options):
+        def _do_check(configuration, module, env):
+            if not module.check_build_version(env):
+                print 'Error: Could not find build tool for module %s' % module.name()
+                sys.exit(1)
+            return True
+        self._do_operation(config, options, _do_check)
+
+    def _check_source_version(self, config, options):
+        def _do_check(configuration, module, env):
+            if not module.check_source_version(env):
+                print 'Error: Could not find source tool for module %s' % module.name()
+                sys.exit(1)
+            return True
+        self._do_operation(config, options, _do_check)
+
 
     def _build(self,config,args):
         parser = self._option_parser('build')
         parser.add_option('-j', '--jobs', help='Allow N jobs at once. Default is 1.',
                           type='int', action='store', dest='jobs', default=1)
         (options, args_left) = parser.parse_args(args)
+        self._check_build_version(config, options)
         def _do_build(configuration, module, env):
             retval = module.build(env, options.jobs)
             if retval:
@@ -283,6 +303,7 @@ class Bake:
     def _clean(self, config, args):
         parser = self._option_parser('clean')
         (options, args_left) = parser.parse_args(args)
+        self._check_build_version(config, options)
         def _do_clean(configuration, module, env):
             return module.clean(env)
         self._do_operation(config, options, _do_clean)

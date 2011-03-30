@@ -44,4 +44,32 @@
     <depends_on name="vtk"/>
     <depends_on name="mpi"/>
   </module>
+
+  <module name="numesis-plugins">
+    <source type="git">
+      <attribute name="url" value="git@dtk.inria.fr:num3sis/num3sis-plugins.git"/>
+    </source>
+    <build type="cmake" objdir="any">
+      <attribute name="extra_cmake_options" value="-DBUILD_DOCUMENTATION=ON -DBUILD_SHARED_LIBS=ON"/>
+    </build>
+    <depends_on name="numesis"/>
+  </module>
+
+  <module name="numesis-scripts">
+    <source type="git">
+      <attribute name="url" value="git@dtk.inria.fr:num3sis/num3sis-scripts.git"/>
+    </source>
+    <build type="none"/>
+    <depends_on name="numesis"/>
+  </module>
+
+  <module name="numesis-plugins-private">
+    <source type="git">
+      <attribute name="url" value="git@dtk.inria.fr:num3sis/num3sis-plugins-private.git"/>
+    </source>
+    <build type="cmake" objdir="any">
+      <attribute name="extra_cmake_options" value="-DBUILD_DOCUMENTATION=ON -DBUILD_SHARED_LIBS=ON"/>
+    </build>
+    <depends_on name="numesis"/>
+  </module>
 </modules>

@@ -63,7 +63,7 @@ class BazaarModuleSource(ModuleSource):
         rev_arg = []
         if not self.attribute('revision').value is None:
             rev_arg.extend(['-r', self.attribute('revision').value])
-        env.run(['bzr', 'pull'] + rev_arg + [self.attribute('url').value, env.srcdir])
+        env.run(['bzr', 'pull'] + rev_arg + [self.attribute('url').value], directory = env.srcdir)
     def check_version(self, env):
         return env.check_program('bzr')
 

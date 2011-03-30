@@ -132,7 +132,7 @@ class WafModuleBuild(ModuleBuild):
         for path in [os.path.join(env.srcdir, 'waf'), 'waf']:
             if env.check_program(path, version_arg = '--version',
                                  version_regexp = '(\d+)\.(\d+)\.(\d+)',
-                                 version_required = (1,5,16)):
+                                 version_required = (1,5,9)):
                 return True
 
 

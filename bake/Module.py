@@ -33,6 +33,7 @@ class Module:
         else:
             directory = self._name
         return directory
+
     def download(self, env):
         env.start_source(self._name, self._version)
         if os.path.isdir(env.srcdir):
@@ -63,9 +64,6 @@ class Module:
     def build(self, env, jobs):
         env.start_build(self._name, self._version,
                         self._build.supports_objdir)
-        if not self._build.check_version(env):
-            print 'Error: could not find build tools for module ' + self.name()
-            return False
         try:
             # delete in case this is a new build configuration
             # and there are old files around
@@ -80,6 +78,20 @@ class Module:
             import Utils
             Utils.print_backtrace()
             return False
+
+    def check_build_version(self, env):
+        env.start_build(self._name, self._version,
+                        self._build.supports_objdir)
+        retval = self._build.check_version(env)
+        env.end_build()
+        return retval
+
+    def check_source_version(self, env):
+        env.start_source(self._name, self._version)
+        retval = self._source.check_version(env)
+        env.end_source()
+        return retval
+
 
     def update_libpath(self, env):
         env.start_build(self._name, self._version,
