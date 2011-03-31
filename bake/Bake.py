@@ -286,12 +286,23 @@ class Bake:
             return True
         self._do_operation(config, options, _do_check)
 
+    def _check_source_code(self, config, options):
+        # let's check that we have downloaded the matching source code
+        def _do_check(configuration, module, env):
+            if not module.is_downloaded(env):
+                print 'Error: Could not find source code for module %s. Try %s download first.' % \
+                    (module.name(), sys.argv[0])
+                sys.exit(1)
+            return True
+        self._do_operation(config, options, _do_check)
+
 
     def _build(self,config,args):
         parser = self._option_parser('build')
         parser.add_option('-j', '--jobs', help='Allow N jobs at once. Default is 1.',
                           type='int', action='store', dest='jobs', default=1)
         (options, args_left) = parser.parse_args(args)
+        self._check_source_code(config, options)
         self._check_build_version(config, options)
         def _do_build(configuration, module, env):
             retval = module.build(env, options.jobs)

@@ -3,9 +3,9 @@
 * add <patch> xml node in source node.
 * export env vars that need to be modified in shell from build objects
 * find a way to deal with per-module options that are not build-tool-dependent
-* make build depend on download. 
 
 * missing commands:
   - diff in ModuleSource
   - reset in ModuleSource
   - clean in ModuleSource
+  - query modules, deps, etc.

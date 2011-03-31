@@ -86,6 +86,12 @@ class Module:
         env.end_build()
         return retval
 
+    def is_downloaded(self, env):
+        env.start_source(self._name, self._version)
+        retval = os.path.isdir(env.srcdir)
+        env.end_source()
+        return retval
+
     def check_source_version(self, env):
         env.start_source(self._name, self._version)
         retval = self._source.check_version(env)
