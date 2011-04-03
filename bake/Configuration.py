@@ -108,6 +108,19 @@ class Configuration:
         for libpath in build.libpaths:
             libpath_node = ET.Element('addlibpath', {'location' : libpath})
             node.append(libpath_node)
+
+    def _read_installed(self, node, module):
+        installed = []
+        for installed_node in node.findall('installed'):
+            installed.append(installed_node.get('value', None))
+        module.installed = installed
+
+    def _write_installed(self, node, module):
+        print module.installed
+        for installed in module.installed:
+            installed_node = ET.Element('installed', {'value' : installed})
+            node.append(installed_node)
+
     
     def _read_metadata(self, et):
         # function designed to be called on two kinds of xml files.
@@ -135,6 +148,7 @@ class Configuration:
                                                      bool(dep_node.get('optional', ''))))
             module = Module(name, source, build, version = version, dependencies = dependencies,
                             built_once = bool(module_node.get('built_once', '')))
+            self._read_installed(module_node, module)
             self._modules.append(module)
 
     def _write_metadata(self, root):
@@ -145,6 +159,7 @@ class Configuration:
             if not module.version() is None:
                 module_attrs['version'] = module.version()
             module_node = ET.Element('module', module_attrs)
+            self._write_installed(module_node, module)
 
             source_node = self._create_node_from_obj(module.get_source(), 'source')
             self._write_attributes(module.get_source(), source_node)

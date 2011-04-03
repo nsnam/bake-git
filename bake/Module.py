@@ -26,6 +26,7 @@ class Module:
         self._source = source
         self._build = build
         self._built_once = built_once
+        self.installed = []
 
     def _directory(self):
         if self._version is not None:

@@ -1,6 +1,7 @@
 from Configuration import Configuration
 from ModuleEnvironment import ModuleEnvironment
 from ModuleLogger import StdoutModuleLogger,LogfileModuleLogger,LogdirModuleLogger
+from FilesystemMonitor import FilesystemMonitor
 from optparse import OptionParser
 from Dependencies import Dependencies,DependencyUnmet
 from Exceptions import MetadataError
@@ -135,7 +136,7 @@ class Bake:
                 sys.exit(1)
         configuration.write()
 
-    def _iterate(self, configuration, functor):
+    def _iterate(self, configuration, targets, functor):
         deps = Dependencies()
         class Wrapper:
             def __init__(self, module):
@@ -151,7 +152,7 @@ class Bake:
                 if not src in configuration.disabled():
                     deps.add_dep(src, m, optional = dependency.is_optional())
         try:
-            deps.resolve(configuration.enabled())
+            deps.resolve(targets)
         except DependencyUnmet as error:
             sys.stderr.write(error.failed().name() + ' failed\n')
             sys.exit(1)
@@ -209,18 +210,17 @@ class Bake:
                                configuration.compute_installdir(),
                                configuration.compute_sourcedir(), 
                                configuration.get_objdir())
-
+        must_disable = []
         if options.one != '':
             if options.all or options.start != '' or options.after != '':
                 print 'Error: incompatible options'
                 sys.exit(1)
-            return functor(configuration, configuration.lookup(options.one), env)
+            functor(configuration, configuration.lookup(options.one), env)
         elif options.all:
             if options.start != '' or options.after != '':
                 print 'Error: incompatible options'
                 sys.exit(1)
-            for module in configuration.modules():
-                configuration.enable(module)
+            self._iterate(configuration, _iterator, configuration.modules())
         elif options.start != '':
             if options.after != '':
                 print 'Error: incompatible options'
@@ -234,7 +234,7 @@ class Bake:
                     return functor (configuration, module, env)
                 else:
                     return True
-            self._iterate(configuration, _iterator)
+            self._iterate(configuration, _iterator, configuration.enabled())
         elif options.after != '':
             # this is a list because the inner function below
             # is not allowed to modify the outer function reference
@@ -246,11 +246,11 @@ class Bake:
                 elif module == first_module:
                     must_process.append(1)
                 return True
-            self._iterate(configuration, _iterator)
+            self._iterate(configuration, _iterator, configuration.enabled())
         else:
             def _iterator(module):
                 return functor (configuration, module, env)
-            self._iterate(configuration, _iterator)
+            self._iterate(configuration, _iterator, configuration.enabled())
         configuration.write()
         return env
 
@@ -305,7 +305,22 @@ class Bake:
         self._check_source_code(config, options)
         self._check_build_version(config, options)
         def _do_build(configuration, module, env):
+            # delete installed files
+            for installed in module.installed:
+                os.remove(installed)
+            # delete directories where files were installed if they are empty
+            for installed in module.installed:
+                dirname = os.path.dirname(installed)
+                try:
+                    os.removedirs(dirname)
+                except OSError:
+                    pass
+            # setup the monitor
+            monitor = FilesystemMonitor(env.installdir)
+            monitor.start()
+            # finally, start the build
             retval = module.build(env, options.jobs)
+            module.installed = monitor.end()
             if retval:
                 module.update_libpath(env)
             return retval
