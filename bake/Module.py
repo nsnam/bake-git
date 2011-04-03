@@ -33,6 +33,9 @@ class Module:
     @property
     def installed(self):
         return self._installed
+    @installed.setter
+    def installed(self, installed):
+        self._installed = copy.copy(installed)
 
     def _directory(self):
         if self._version is not None:

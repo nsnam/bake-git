@@ -26,9 +26,14 @@ class Bake:
         new_config.set_objdir(old_config.get_objdir())
         new_config.set_sourcedir(old_config.get_sourcedir())
 
+        # copy installed files.
+        for old_module in old_config.modules():
+            new_module = new_config.lookup(old_module.name(), old_module.version())
+            new_module.installed = old_config.installed
+
         # copy which modules are enabled into new config
         for old_module in old_config.enabled():
-            new_module = new_config.lookup(old_module.name())
+            new_module = new_config.lookup(old_module.name(), old_module.version())
             if new_module is None:
                 # ignore old enabled modules that do not exist in the new configuration
                 continue
@@ -36,7 +41,7 @@ class Bake:
 
         # copy which modules are disabled into new config
         for old_module in old_config.disabled():
-            new_module = new_config.lookup(old_module.name())
+            new_module = new_config.lookup(old_module.name(), old_module.version())
             if new_module is None:
                 # ignore old disabled modules that do not exist in the new configuration
                 continue
@@ -47,7 +52,7 @@ class Bake:
 
         # copy old variables into new config for all modules
         for old_module in old_config.modules():
-            new_module = new_config.lookup(old_module.name())
+            new_module = new_config.lookup(old_module.name(), old_module.version())
             if new_module is None:
                 # ignore old modules that do not exist in the new configuration
                 continue
@@ -133,6 +138,7 @@ class Bake:
             else:
                 print 'Error: invalid variable specification: ' + variable
                 sys.exit(1)
+        configuration.write()
 
     def _iterate(self, configuration, functor, targets):
         deps = Dependencies()
@@ -215,7 +221,9 @@ class Bake:
             if options.all or options.start != '' or options.after != '':
                 print 'Error: incompatible options'
                 sys.exit(1)
-            functor(configuration, configuration.lookup(options.one), env)
+            module = configuration.lookup(options.one)
+            functor(configuration, module, env)
+            configuration.write()
         elif options.all:
             if options.start != '' or options.after != '':
                 print 'Error: incompatible options'
@@ -251,7 +259,6 @@ class Bake:
             def _iterator(module):
                 return functor (configuration, module, env)
             self._iterate(configuration, _iterator, configuration.enabled())
-        configuration.write()
         return env
 
     def _download(self,config,args):
