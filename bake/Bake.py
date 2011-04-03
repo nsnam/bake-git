@@ -133,7 +133,6 @@ class Bake:
             else:
                 print 'Error: invalid variable specification: ' + variable
                 sys.exit(1)
-        configuration.write()
 
     def _iterate(self, configuration, functor, targets):
         deps = Dependencies()
@@ -141,7 +140,9 @@ class Bake:
             def __init__(self, module):
                 self._module = module
             def function(self):
-                return functor(self._module)
+                retval = functor(self._module)
+                configuration.write()
+                return retval
         for m in configuration.modules():
             wrapper = Wrapper(m)
             deps.add_dst(m, wrapper.function)
