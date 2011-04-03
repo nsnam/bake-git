@@ -1,7 +1,6 @@
 from Configuration import Configuration
 from ModuleEnvironment import ModuleEnvironment
 from ModuleLogger import StdoutModuleLogger,LogfileModuleLogger,LogdirModuleLogger
-from FilesystemMonitor import FilesystemMonitor
 from optparse import OptionParser
 from Dependencies import Dependencies,DependencyUnmet
 from Exceptions import MetadataError
@@ -136,7 +135,7 @@ class Bake:
                 sys.exit(1)
         configuration.write()
 
-    def _iterate(self, configuration, targets, functor):
+    def _iterate(self, configuration, functor, targets):
         deps = Dependencies()
         class Wrapper:
             def __init__(self, module):

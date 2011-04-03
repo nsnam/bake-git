@@ -1,5 +1,6 @@
 import copy
 import os
+from FilesystemMonitor import FilesystemMonitor
 
 class ModuleDependency:
     def __init__(self, name, version = None, optional = False):
