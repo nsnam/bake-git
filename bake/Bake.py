@@ -305,22 +305,7 @@ class Bake:
         self._check_source_code(config, options)
         self._check_build_version(config, options)
         def _do_build(configuration, module, env):
-            # delete installed files
-            for installed in module.installed:
-                os.remove(installed)
-            # delete directories where files were installed if they are empty
-            for installed in module.installed:
-                dirname = os.path.dirname(installed)
-                try:
-                    os.removedirs(dirname)
-                except OSError:
-                    pass
-            # setup the monitor
-            monitor = FilesystemMonitor(env.installdir)
-            monitor.start()
-            # finally, start the build
             retval = module.build(env, options.jobs)
-            module.installed = monitor.end()
             if retval:
                 module.update_libpath(env)
             return retval

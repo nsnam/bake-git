@@ -109,15 +109,14 @@ class Configuration:
             libpath_node = ET.Element('addlibpath', {'location' : libpath})
             node.append(libpath_node)
 
-    def _read_installed(self, node, module):
+    def _read_installed(self, node):
         installed = []
         for installed_node in node.findall('installed'):
             installed.append(installed_node.get('value', None))
-        module.installed = installed
+        return installed
 
-    def _write_installed(self, node, module):
-        print module.installed
-        for installed in module.installed:
+    def _write_installed(self, node, installed):
+        for installed in installed:
             installed_node = ET.Element('installed', {'value' : installed})
             node.append(installed_node)
 
@@ -128,6 +127,7 @@ class Configuration:
         for module_node in modules:
             name = module_node.get('name')
             version = module_node.get('version', None)
+            installed = self._read_installed(module_node)
 
             source_node = module_node.find('source')
             source = self._create_obj_from_node(source_node, ModuleSource)
@@ -147,8 +147,8 @@ class Configuration:
                                                      dep_node.get('version', None),
                                                      bool(dep_node.get('optional', ''))))
             module = Module(name, source, build, version = version, dependencies = dependencies,
-                            built_once = bool(module_node.get('built_once', '')))
-            self._read_installed(module_node, module)
+                            built_once = bool(module_node.get('built_once', '')),
+                            installed = installed)
             self._modules.append(module)
 
     def _write_metadata(self, root):
@@ -159,7 +159,7 @@ class Configuration:
             if not module.version() is None:
                 module_attrs['version'] = module.version()
             module_node = ET.Element('module', module_attrs)
-            self._write_installed(module_node, module)
+            self._write_installed(module_node, module.installed)
 
             source_node = self._create_node_from_obj(module.get_source(), 'source')
             self._write_attributes(module.get_source(), source_node)

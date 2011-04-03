@@ -19,14 +19,19 @@ class Module:
                  build,
                  version = None,
                  dependencies = [],
-                 built_once = False):
+                 built_once = False,
+                 installed = []):
         self._name = name
         self._version = version
         self._dependencies = copy.copy(dependencies)
         self._source = source
         self._build = build
         self._built_once = built_once
-        self.installed = []
+        self._installed = []
+
+    @property
+    def installed(self):
+        return self._installed
 
     def _directory(self):
         if self._version is not None:
@@ -63,6 +68,20 @@ class Module:
             return False
 
     def build(self, env, jobs):
+        # delete installed files
+        for installed in self._installed:
+            os.remove(installed)
+        # delete directories where files were installed if they are empty
+        for installed in self._installed:
+            dirname = os.path.dirname(installed)
+            try:
+                os.removedirs(dirname)
+            except OSError:
+                pass
+        # setup the monitor
+        monitor = FilesystemMonitor(env.installdir)
+        monitor.start()
+
         env.start_build(self._name, self._version,
                         self._build.supports_objdir)
         try:
@@ -71,10 +90,12 @@ class Module:
             if not self._built_once and os.path.isdir(env.objdir):
                 self._build.clean(env)
             self._build.build(env, jobs)
+            self._installed = monitor.end()
             env.end_build()
             self._built_once = True
             return True
         except:
+            self._installed = monitor.end()
             env.end_build()
             import Utils
             Utils.print_backtrace()
