@@ -100,7 +100,7 @@ class WafModuleBuild(ModuleBuild):
                     ['LDFLAGS', 'LINKFLAGS']]:
             if self.attribute(a).value != '':
                 env[b] = self.attribute(a).value
-        env['WAFCACHE'] = objdir
+        env['WAFCACHE'] = os.path.join(objdir, '.cache-wscript')
         env['WAFLOCK'] = os.path.join(objdir, '.lock-wscript')
         return env
     def build(self, env, jobs):
