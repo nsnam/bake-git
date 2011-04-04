@@ -85,12 +85,6 @@ class ModuleEnvironment:
         self._module_version = version
         self._module_supports_objdir = supports_objdir
         self._logger.set_current_module(name, version)
-        # ensure build directories exist
-        if supports_objdir and not os.path.isdir(self.objdir):
-            os.mkdir(self.objdir)
-        if not os.path.isdir(self.installdir):
-            os.mkdir(self.installdir)
-
 
     def end_build(self):
         self._module_name = None

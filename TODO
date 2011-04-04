@@ -3,6 +3,7 @@
 * add <patch> xml node in source node.
 * export env vars that need to be modified in shell from build objects
 * find a way to deal with per-module options that are not build-tool-dependent
+* change $INSTALLDIR to ${PREFIX} in xml
 
 * missing commands:
   - diff in ModuleSource

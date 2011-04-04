@@ -136,7 +136,7 @@ class NscModuleBuild(InlineModuleBuild):
     <depends_on name="click" optional="True"/>
     <depends_on name="openflow" optional="True"/>
     <build type="waf" objdir="any">
-      <attribute name="extra_configure_options" value="--with-nsc=$INSTALLDIR --with-nsclick=$INSTALLDIR"/>
+      <attribute name="extra_configure_options" value="--with-nsc=$INSTALLDIR --with-nsclick=$INSTALLDIR --with-openflow=$INSTALLDIR"/>
     </build>
   </module>
 

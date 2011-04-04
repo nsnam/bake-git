@@ -125,7 +125,7 @@ class WafModuleBuild(ModuleBuild):
         
     def clean(self, env):
         if os.path.isfile(os.path.join(env.objdir, '.lock-wscript')):
-            env.run([self._binary(env.srcdir), 'clean'],
+            env.run([self._binary(env.srcdir), '-k', 'clean'],
                     directory = env.objdir,
                     env = self._env(env.objdir))
     def check_version(self, env):
@@ -134,6 +134,7 @@ class WafModuleBuild(ModuleBuild):
                                  version_regexp = '(\d+)\.(\d+)\.(\d+)',
                                  version_required = (1,5,9)):
                 return True
+        return False
 
 
 class Cmake(ModuleBuild):

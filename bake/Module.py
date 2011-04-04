@@ -34,8 +34,8 @@ class Module:
     def installed(self):
         return self._installed
     @installed.setter
-    def installed(self, installed):
-        self._installed = copy.copy(installed)
+    def installed(self, value):
+        self._installed = copy.copy(value)
 
     def _directory(self):
         if self._version is not None:
@@ -71,7 +71,7 @@ class Module:
             env.end_source()
             return False
 
-    def build(self, env, jobs):
+    def uninstall(self, env):
         # delete installed files
         for installed in self._installed:
             os.remove(installed)
@@ -82,17 +82,25 @@ class Module:
                 os.removedirs(dirname)
             except OSError:
                 pass
+
+    def build(self, env, jobs):
+        self.uninstall(env)
+        # delete in case this is a new build configuration
+        # and there are old files around
+        if not self._built_once:
+            self.clean(env)
         # setup the monitor
         monitor = FilesystemMonitor(env.installdir)
         monitor.start()
 
         env.start_build(self._name, self._version,
                         self._build.supports_objdir)
+        if not os.path.isdir(env.installdir):
+            os.mkdir(env.installdir)
+        if self._build.supports_objdir and not os.path.isdir(env.objdir):
+            os.mkdir(env.objdir)
+
         try:
-            # delete in case this is a new build configuration
-            # and there are old files around
-            if not self._built_once and os.path.isdir(env.objdir):
-                self._build.clean(env)
             self._build.build(env, jobs)
             self._installed = monitor.end()
             env.end_build()
@@ -108,7 +116,10 @@ class Module:
     def check_build_version(self, env):
         env.start_build(self._name, self._version,
                         self._build.supports_objdir)
-        retval = self._build.check_version(env)
+        if not os.path.isdir(env.objdir) or not os.path.isdir(env.srcdir):
+            retval = True
+        else:
+            retval = self._build.check_version(env)
         env.end_build()
         return retval
 
@@ -134,12 +145,16 @@ class Module:
     def clean(self, env):
         env.start_build(self._name, self._version,
                         self._build.supports_objdir)
+        if not os.path.isdir(env.objdir) or not os.path.isdir(env.srcdir):
+            env.end_build()
+            return
         try:
             self._build.clean(env)
             env.end_build()
             self._built_once = False
             return True
         except:
+            env.end_build()
             import Utils
             Utils.print_backtrace()
             return False

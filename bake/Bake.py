@@ -29,7 +29,7 @@ class Bake:
         # copy installed files.
         for old_module in old_config.modules():
             new_module = new_config.lookup(old_module.name(), old_module.version())
-            new_module.installed = old_config.installed
+            new_module.installed = old_module.installed
 
         # copy which modules are enabled into new config
         for old_module in old_config.enabled():
@@ -228,6 +228,8 @@ class Bake:
             if options.start != '' or options.after != '':
                 print 'Error: incompatible options'
                 sys.exit(1)
+            def _iterator(module):
+                return functor (configuration, module, env)
             self._iterate(configuration, _iterator, configuration.modules())
         elif options.start != '':
             if options.after != '':
@@ -280,7 +282,8 @@ class Bake:
     def _check_build_version(self, config, options):
         def _do_check(configuration, module, env):
             if not module.check_build_version(env):
-                print 'Error: Could not find build tool for module %s' % module.name()
+                print 'Error: Could not find build tool for module "%s" version "%s"' % \
+                    (module.name(), str(module.version()))
                 sys.exit(1)
             return True
         self._do_operation(config, options, _do_check)
@@ -323,8 +326,17 @@ class Bake:
         (options, args_left) = parser.parse_args(args)
         self._check_build_version(config, options)
         def _do_clean(configuration, module, env):
-            return module.clean(env)
+            module.clean(env)
+            return True
         self._do_operation(config, options, _do_clean)
+
+    def _uninstall(self, config, args):
+        parser = self._option_parser('uninstall')
+        (options, args_left) = parser.parse_args(args)
+        def _do_uninstall(configuration, module, env):
+            module.uninstall(env)
+            return True
+        self._do_operation(config, options, _do_uninstall)
 
     def _shell(self, config, args):
         parser = self._option_parser('build')
@@ -362,3 +374,5 @@ class Bake:
             self._clean(config=options.config_file, args=args_left[1:])
         elif args_left[0] == 'shell':
             self._shell(config=options.config_file, args=args_left[1:])
+        elif args_left[0] == 'uninstall':
+            self._uninstall(config=options.config_file, args=args_left[1:])
