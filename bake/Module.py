@@ -83,9 +83,8 @@ class Module:
                 keys[e] = 1
             return keys.keys()
         for d in uniq(dirs):
-            dirname = os.path.dirname(installed)
             try:
-                os.removedirs(dirname)
+                os.removedirs(d)
             except OSError:
                 pass
         self._installed = []
