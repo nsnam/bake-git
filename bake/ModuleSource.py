@@ -1,6 +1,6 @@
 from Exceptions import TaskError
 import Utils
-from Utils import run_command,ModuleAttributeBase
+from Utils import ModuleAttributeBase
 
 class ModuleSource(ModuleAttributeBase):
     def __init__(self):
