@@ -71,8 +71,8 @@ class NscModuleBuild(InlineModuleBuild):
                  '-j', str(jobs), '--prefix=' + env.installdir, 'install'],
                 directory=env.srcdir)
     def clean(self, env):
-        # XXX
-        pass
+        env.run(['python', os.path.join(env.srcdir, 'scons.py'), '-c'],
+                directory=env.srcdir)
     def check_version(self, env):
         return True
 </code>
