@@ -28,7 +28,7 @@ class Module:
         self._source = source
         self._build = build
         self._built_once = built_once
-        self._installed = []
+        self._installed = installed
 
     @property
     def installed(self):
@@ -76,12 +76,19 @@ class Module:
         for installed in self._installed:
             os.remove(installed)
         # delete directories where files were installed if they are empty
-        for installed in self._installed:
+        dirs = [os.path.dirname(installed) for installed in self._installed]
+        def uniq(seq):
+            keys = {}
+            for e in seq:
+                keys[e] = 1
+            return keys.keys()
+        for d in uniq(dirs):
             dirname = os.path.dirname(installed)
             try:
                 os.removedirs(dirname)
             except OSError:
                 pass
+        self._installed = []
 
     def build(self, env, jobs):
         self.uninstall(env)

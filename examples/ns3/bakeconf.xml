@@ -1,6 +1,6 @@
 <modules>
 
-  <module name="click">
+  <module name="click" version="1.8.0">
     <source type="archive">
       <attribute name="url" value="http://read.cs.ucla.edu/click/click-1.8.0.tar.gz"/>
     </source>
@@ -16,7 +16,7 @@
     <build type="waf" objdir="any"/>
   </module>
 
-  <module name="gccxml">
+  <module name="gccxml" version="ns3">
     <source type="cvs">
       <attribute name="root" value=":pserver:anoncvs:@www.gccxml.org:/cvsroot/GCC_XML"/>
       <attribute name="module" value="gccxml"/>

@@ -29,6 +29,9 @@ class Bake:
         # copy installed files.
         for old_module in old_config.modules():
             new_module = new_config.lookup(old_module.name(), old_module.version())
+            if new_module is None:
+                # ignore old modules that do not exist in the new configuration
+                continue
             new_module.installed = old_module.installed
 
         # copy which modules are enabled into new config

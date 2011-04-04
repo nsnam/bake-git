@@ -1,6 +1,8 @@
 from Exceptions import TaskError
 import Utils
 from Utils import ModuleAttributeBase
+import os
+import urlparse
 
 class ModuleSource(ModuleAttributeBase):
     def __init__(self):

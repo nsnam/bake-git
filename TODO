@@ -4,6 +4,7 @@
 * export env vars that need to be modified in shell from build objects
 * find a way to deal with per-module options that are not build-tool-dependent
 * change $INSTALLDIR to ${PREFIX} in xml
+* make <installed value=""> tags work when mving the directory.
 
 * missing commands:
   - diff in ModuleSource
