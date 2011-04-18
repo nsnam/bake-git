@@ -85,7 +85,7 @@ class MercurialModuleSource(ModuleSource):
         env.run(['hg', 'update', '-r', self.attribute('revision').value],
                 directory = env.srcdir)
     def update(self, env):
-        env.run(['hg', 'pull'], directory = env.srcdir)
+        env.run(['hg', 'pull', self.attribute('url').value], directory = env.srcdir)
         env.run(['hg', 'update', '-r', self.attribute('revision').value],
                 directory = env.srcdir)
     def check_version(self, env):
