@@ -115,17 +115,6 @@ class NscModuleBuild(InlineModuleBuild):
     </build>
   </module>
 
-  <module name="ns-3-dce">
-    <source type="mercurial">
-      <attribute name="url" value="http://code.nsnam.org/mathieu/ns-3-dce"/>
-    </source>
-<!--    <depends_on name="ns-3-linux" optional="True"/>
-    <depends_on name="gdb" optional="True"/>
-    <depends_on name="nsc" optional="True"/>
--->
-    <depends_on name="pybindgen" version="dce" optional="True"/>
-    <build type="waf" objdir="any"/>
-  </module>
 
   <module name="ns-3-dev">
     <source type="mercurial">
@@ -139,5 +128,42 @@ class NscModuleBuild(InlineModuleBuild):
       <attribute name="extra_configure_options" value="--with-nsc=$INSTALLDIR --with-nsclick=$INSTALLDIR --with-openflow=$INSTALLDIR"/>
     </build>
   </module>
+
+  <module name="elf-loader">
+    <source type="mercurial">
+      <attribute name="url" value="http://code.nsnam.org/mathieu/elf-loader"/>
+    </source>
+    <build type="inline" classname="ElfLoaderModuleBuild" objdir="any">
+<code>
+class ElfLoaderModuleBuild(InlineModuleBuild):
+    def __init__(self):
+        InlineModuleBuild.__init__(self)
+    def build(self, env, jobs):
+        env.run(['make', '-f', os.path.join(env.srcdir, 'Makefile'), 'install',
+	        'PREFIX=%s' % env.installdir],
+                directory=env.objdir)
+    def clean(self, env):
+        env.run(['make', '-f', os.path.join(os.pardir, 'Makefile')],
+                directory=env.objdir)
+    def check_version(self, env):
+        return env.check_program('make')
+</code>
+    </build>
+  </module>
+
+  <module name="ns-3-dce">
+    <source type="mercurial">
+      <attribute name="url" value="http://code.nsnam.org/mathieu/ns-3-dce-new"/>
+    </source>
+    <depends_on name="vdl" optional="True"/>
+<!--    <depends_on name="ns-3-linux" optional="True"/>
+    <depends_on name="gdb" optional="True"/>
+    <depends_on name="nsc" optional="True"/>
+-->
+    <depends_on name="ns-3-dev" optional="True"/>
+    <build type="waf" objdir="any"/>
+  </module>
+
+
 
 </modules>
