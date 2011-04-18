@@ -39,6 +39,10 @@ class ModuleEnvironment:
             obj = os.path.join(self.srcdir, self._objdir)
         return obj
 
+    def _pkgconfig_var(self):
+        return 'PKG_CONFIG_PATH'
+    def _pkgconfig_path(self):
+        return os.path.join(self._lib_path(), 'pkgconfig')
     def _lib_var(self):
         lib_var = {'Linux' : 'LD_LIBRARY_PATH',
                     'Darwin' : 'DYLD_LIBRARY_PATH',
@@ -100,7 +104,7 @@ class ModuleEnvironment:
             if is_exe(program):
                 return program
         else:
-            for path in os.environ["PATH"].split(os.pathsep):
+            for path in os.environ["PATH"].split(os.pathsep) + [self._bin_path()]:
                 exe_file = os.path.join(path, program)
                 if is_exe(exe_file):
                     return exe_file
@@ -112,15 +116,19 @@ class ModuleEnvironment:
             for i in range(0,len(found)):
                 if int(found[i]) < int(required[i]):
                     return False
+                elif int(found[i]) > int(required[i]):
+                    return True
             return True
         elif match_type == self.LOWER:
             for i in range(0,len(found)):
                 if int(found[i]) > int(required[i]):
                     return False
+                elif int(found[i]) < int(required[i]):
+                    return True
             return True
         elif match_type == self.EQUAL:
             for i in range(0,len(found)):
-                if int(found[i]) == int(required[i]):
+                if int(found[i]) != int(required[i]):
                     return False
             return True
         else:
@@ -178,6 +186,7 @@ class ModuleEnvironment:
         self._append_path(tmp, self._lib_var(), self._lib_path(), os.pathsep)
         self._append_path(tmp, self._bin_var(), self._bin_path(), os.pathsep)
         self._append_path(tmp, self._py_var(), self._py_path(), os.pathsep)
+        self._append_path(tmp, self._pkgconfig_var(), self._pkgconfig_path(), os.pathsep)
         popen = subprocess.Popen(args,
                                  stdin = stdin,
                                  stdout = stdout,
