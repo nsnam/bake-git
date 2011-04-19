@@ -100,9 +100,11 @@ class WafModuleBuild(ModuleBuild):
                     ['LDFLAGS', 'LINKFLAGS']]:
             if self.attribute(a).value != '':
                 env[b] = self.attribute(a).value
-        env['WAFCACHE'] = os.path.join(objdir, '.cache-wscript')
-        env['WAFLOCK'] = os.path.join(objdir, '.lock-wscript')
         return env
+    def _is_1_6_x(self, env):
+        return env.check_program(self._binary(env.srcdir), version_arg = '--version',
+                                 version_regexp = '(\d+)\.(\d+)\.(\d+)',
+                                 version_required = (1,6,0))
     def build(self, env, jobs):
         extra_configure_options = []
         if self.attribute('extra_configure_options').value != '':
@@ -112,15 +114,21 @@ class WafModuleBuild(ModuleBuild):
         if self.attribute('extra_build_options').value != '':
             extra_build_options = [env.replace_variables(tmp) for tmp in
                                    self.attribute('extra_build_options').value.split(' ')]
-        env.run([self._binary(env.srcdir), '--srcdir=' + env.srcdir, '--blddir=' + env.objdir, 
-                 '--prefix=' + env.installdir, 'configure'] + extra_configure_options,
-                directory = env.objdir,
-                env = self._env(env.objdir))
+        if self._is_1_6_x(env):
+            env.run([self._binary(env.srcdir), '--top=' + env.srcdir, '--out=' + env.objdir, 
+                     '--prefix=' + env.installdir, 'configure'] + extra_configure_options,
+                    directory = env.srcdir,
+                    env = self._env(env.objdir))
+        else:
+            env.run([self._binary(env.srcdir), '--srcdir=' + env.srcdir, '--blddir=' + env.objdir, 
+                     '--prefix=' + env.installdir, 'configure'] + extra_configure_options,
+                    directory = env.srcdir,
+                    env = self._env(env.objdir))
         env.run([self._binary(env.srcdir)] + extra_build_options + ['-j', str(jobs)],
-                directory = env.objdir,
+                directory = env.srcdir,
                 env = self._env(env.objdir))
         env.run([self._binary(env.srcdir), 'install'],
-                directory = env.objdir,
+                directory = env.srcdir,
                 env = self._env(env.objdir))
         
     def clean(self, env):
