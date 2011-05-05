@@ -6,6 +6,13 @@ from Dependencies import Dependencies,DependencyUnmet
 from Exceptions import MetadataError
 import sys
 
+class MyOptionParser(OptionParser):
+    def format_description(self, formatter):
+        import os
+        import sys
+        return self.description % os.path.basename(sys.argv[0])
+        
+
 class Bake:
     def __init__(self):
         pass
@@ -352,9 +359,19 @@ class Bake:
         env.run([os.environ['SHELL']], directory=env.installdir, interactive = True)
 
     def main(self, argv):
-        parser = OptionParser(usage = 'usage: %prog [options] command [command options]',
-                              description = "where command is one of: configure, reconfigure, "
-                              "download, update, build, or clean.")
+        parser = MyOptionParser(usage = 'usage: %prog [options] command [command options]',
+                                description = """Where command is one of:
+  configure   : Setup the build configuration (source, build, install directory,
+                and per-module build options) from the module descriptions
+  reconfigure : Update the build configuration from a newer module description
+  download    : Download all modules enabled during configure
+  update      : Update the source tree of all modules enabled during configure
+  build       : Build all modules enabled during configure
+  clean       : Cleanup the source tree of all modules built previously
+
+To get more help about each command, try:
+  %s command --help
+""")
         parser.add_option("-f", "--file", action="store", type="string", 
                           dest="config_file", default="bakefile.xml", 
                           help="The Bake file to use. Default: %default.")
