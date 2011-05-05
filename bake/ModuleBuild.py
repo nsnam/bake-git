@@ -100,6 +100,7 @@ class WafModuleBuild(ModuleBuild):
                     ['LDFLAGS', 'LINKFLAGS']]:
             if self.attribute(a).value != '':
                 env[b] = self.attribute(a).value
+        env['WAFLOCK'] = '.lock-%s' % os.path.basename(objdir)
         return env
     def _is_1_6_x(self, env):
         return env.check_program(self._binary(env.srcdir), version_arg = '--version',
@@ -132,9 +133,10 @@ class WafModuleBuild(ModuleBuild):
                 env = self._env(env.objdir))
         
     def clean(self, env):
-        if os.path.isfile(os.path.join(env.objdir, '.lock-wscript')):
+        wlockfile = '.lock-%s' % os.path.basename(objdir)
+        if os.path.isfile(os.path.join(env.srcdir, wlockfile)):
             env.run([self._binary(env.srcdir), '-k', 'clean'],
-                    directory = env.objdir,
+                    directory = env.srcdir,
                     env = self._env(env.objdir))
     def check_version(self, env):
         for path in [os.path.join(env.srcdir, 'waf'), 'waf']:
