@@ -74,7 +74,10 @@ class Module:
     def uninstall(self, env):
         # delete installed files
         for installed in self._installed:
-            os.remove(installed)
+            try:
+                os.remove(installed)
+            except OSError:
+                pass
         # delete directories where files were installed if they are empty
         dirs = [os.path.dirname(installed) for installed in self._installed]
         def uniq(seq):
