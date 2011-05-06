@@ -133,7 +133,7 @@ class WafModuleBuild(ModuleBuild):
                 env = self._env(env.objdir))
         
     def clean(self, env):
-        wlockfile = '.lock-%s' % os.path.basename(objdir)
+        wlockfile = '.lock-%s' % os.path.basename(env.objdir)
         if os.path.isfile(os.path.join(env.srcdir, wlockfile)):
             env.run([self._binary(env.srcdir), '-k', 'clean'],
                     directory = env.srcdir,
