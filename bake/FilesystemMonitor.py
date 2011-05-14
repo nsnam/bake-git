@@ -1,5 +1,9 @@
 import os
 
+# The idea is that we want to implement a version of this class
+# that uses the OS native FS monitoring API. Someday, will do this
+# but this code works well anywhere.
+
 class FilesystemMonitor:
     def __init__(self, dirname):
         self._files = None
