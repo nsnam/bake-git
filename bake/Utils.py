@@ -34,6 +34,11 @@ class ModuleAttribute:
 class ModuleAttributeBase(object):
     def __init__(self):
         self._attributes = dict()
+        self._children = []
+    def children(self):
+        return self._children
+    def add_child(self, child, name):
+        self._children.append([child, name])
     def add_attribute(self, name, value, help, mandatory = False):
         assert not self._attributes.has_key(name)
         self._attributes[name] = ModuleAttribute(name, value, help, mandatory)

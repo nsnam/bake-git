@@ -58,7 +58,9 @@ class LogdirModuleLogger(ModuleLogger):
         self._dirname = dirname
         self._file = None
     def set_current_module(self, name):
-        filename = name
+        # XXX: we should be checking for other reserved characters
+        import re
+        filename = re.sub('/', '_', name)
         assert self._file is None
         self._file = open(os.path.join(self._dirname, filename + '.log'), 'w')
         self._update_file(self._file)

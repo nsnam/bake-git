@@ -7,6 +7,7 @@ class ModuleBuild(ModuleAttributeBase):
     def __init__(self):
         ModuleAttributeBase.__init__(self)
         self._libpaths = []
+        self.add_attribute('objdir', 'no', 'Module supports objdir != srcdir.')
     @classmethod
     def create(cls, name):
         for subclass in ModuleBuild.__subclasses__():
@@ -21,9 +22,7 @@ class ModuleBuild(ModuleAttributeBase):
         self._libpaths.append(path)
     @property
     def supports_objdir(self):
-        # member variable is created by code in Configuration right after 
-        # object instance is created. So evil... But works.
-        return self._supports_objdir
+        return self.attribute('objdir').value == 'yes'
     def build(self, env, jobs):
         raise NotImplemented()
     def clean(self, env):

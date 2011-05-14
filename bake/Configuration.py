@@ -47,32 +47,48 @@ class Configuration:
         et = ET.parse(filename)
         self._read_metadata(et)
 
-    def _check_mandatory_attributes(self, attribute_base, top_level_node, type_string, module_string):
-        attributes_present = [child.get('name') for child in top_level_node.findall('attribute')]
+    def _check_mandatory_attributes(self, attribute_base, node, type_string, module_string):
+        # get list of names in <attribute name="" value=""> tags
+        attributes_present = [child.get('name') for child in node.findall('attribute')]
+        # get list of names in <type_string name="value"> attributes
+        attributes_present = attributes_present + node.attrib.keys()
         for attribute in attribute_base.attributes():
             if attribute.is_mandatory and not attribute.name in attributes_present:
-                sys.stderr.write('Error: mandatory attribute "%s" is missing from module "%s" in node "%s"\n' % (attribute.name, module_string, type_string))
+                sys.stderr.write('Error: mandatory attribute "%s" is missing from '
+                                 'module "%s" in node "%s"\n' % (attribute.name, 
+                                                                 module_string, 
+                                                                 type_string))
                 sys.exit(1)
 
-    def _read_attributes(self, attribute_base, top_level_node, type_string, module_string):
-        # now, read the attributes from file.
-        for attribute_node in top_level_node.findall('attribute'):
+    def _read_attributes(self, obj, node, type_string, module_string):
+        # read <type_string><attribute name="" value=""></type_string> tags
+        for attribute_node in node.findall('attribute'):
             attr_name = attribute_node.get('name')
             attr_value = attribute_node.get('value', None)
-            if attribute_base.attribute(attr_name) is None:
+            if obj.attribute(attr_name) is None:
                 sys.stderr.write('Error: attribute "%s" is not supported by %s node of type "%s"\n' % 
-                                 (attr_name, type_string, top_level_node.get('type')))
+                                 (attr_name, type_string, node.get('type')))
                 sys.exit(1)
-            attribute_base.attribute(attr_name).value = attr_value
+            obj.attribute(attr_name).value = attr_value
+        # as a fallback, read <type_string name="value"> attributes
+        # note: this will not generate errors upon invalid attribute names
+        # because certain kinds of <foo name="value"/> XML attributes are
+        # not handled as bake attributes.
+        for attr_name in node.attrib.keys():
+            if not obj.attribute(attr_name) is None:
+                obj.attribute(attr_name).value = node.get(attr_name)
 
-    def _write_attributes(self, attribute_base, top_level_node):
+    def _write_attributes(self, attribute_base, obj_node):
+        # generate <attribute name="" value=""/> tags
         for attribute in attribute_base.attributes():
             if not attribute.value is None:
-                node = ET.Element('attribute', {'name' : attribute.name,
-                                                'value' : attribute.value})
-                top_level_node.append(node)
+                attribute_node = ET.Element('attribute', {'name' : attribute.name,
+                                                          'value' : attribute.value})
+                obj_node.append(attribute_node)
 
-    def _create_obj_from_node(self, node, classBase):
+    def _create_obj_from_node(self, node, classBase, node_string, module_name):
+        # read <node_string type=""> tag: handle type="inline" specially by
+        # looking up a child node <code></code>
         if node.get('type') == 'inline':
             code_node = node.find('code')
             if node is None:
@@ -85,6 +101,15 @@ class Configuration:
             obj.__hidden_source_code = code_node.text
         else:
             obj = classBase.create(node.get('type'))
+
+        self._check_mandatory_attributes(obj, node, node_string, module_name)
+        self._read_attributes(obj, node, node_string, module_name)
+        # if <type_string> has <child> nodes, look them up.
+        for child_node in node.findall('child'):
+            child_name = child_node.get('name')
+            child = self._create_obj_from_node(child_node, classBase, 'child', module_name)
+            obj.add_child(child, child_name)
+
         return obj
 
     def _create_node_from_obj(self, obj, node_string):
@@ -96,6 +121,14 @@ class Configuration:
             node.append(code)
         else:
             node = ET.Element(node_string, {'type' : obj.__class__.name()})
+
+        self._write_attributes(obj, node)
+
+        for child, child_name in obj.children():
+            child_node = self._create_node_from_obj(child, 'child')
+            child_node.attrib['name'] = child_name
+            node.append(child_node)
+
         return node
 
     def _read_libpath(self, node, build):
@@ -129,15 +162,10 @@ class Configuration:
             installed = self._read_installed(module_node)
 
             source_node = module_node.find('source')
-            source = self._create_obj_from_node(source_node, ModuleSource)
-            self._check_mandatory_attributes(source, source_node, 'source', name)
-            self._read_attributes(source, source_node, 'source', name)
+            source = self._create_obj_from_node(source_node, ModuleSource, 'source', name)
 
             build_node = module_node.find('build')
-            build = self._create_obj_from_node(build_node, ModuleBuild)
-            build._supports_objdir = False if build_node.get('objdir', 'srcdir') == 'srcdir' else True
-            self._check_mandatory_attributes(build, build_node, 'build', name)
-            self._read_attributes(build, build_node, 'build', name)
+            build = self._create_obj_from_node(build_node, ModuleBuild, 'build', name)
             self._read_libpath(build_node, build)
 
             dependencies = []
@@ -158,13 +186,10 @@ class Configuration:
             self._write_installed(module_node, module.installed)
 
             source_node = self._create_node_from_obj(module.get_source(), 'source')
-            self._write_attributes(module.get_source(), source_node)
             module_node.append(source_node)
 
             build_node = self._create_node_from_obj(module.get_build(), 'build')
-            self._write_attributes(module.get_build(), build_node)
             module_node.append(build_node)
-            build_node.attrib['objdir'] = 'any' if module.get_build().supports_objdir else 'srcdir'
             self._write_libpath(build_node, module.get_build())
             
             for dependency in module.dependencies():

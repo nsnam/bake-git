@@ -5,6 +5,7 @@
 * find a way to deal with per-module options that are not build-tool-dependent
 * change $INSTALLDIR to ${PREFIX} in xml
 * make <installed value=""> tags work when mving the directory.
+* check that module names do not contain reserved characters for paths.
 
 * missing commands:
   - diff in ModuleSource

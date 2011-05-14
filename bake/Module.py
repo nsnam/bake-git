@@ -35,31 +35,44 @@ class Module:
     def _directory(self):
         return self._name
 
-    def download(self, env):
-        env.start_source(self._name)
+    def _do_download(self, env, source, name):
+        env.start_source(name)
         if os.path.isdir(env.srcdir):
             env.end_source()
-            return True
+        else:
+            try:
+                source.download(env)
+            finally:
+                env.end_source()
+        for child, child_name in source.children():
+            self._do_download(env, child, os.path.join(name, child_name))
+
+    def download(self, env):
         try:
-            self._source.download(env)
-            env.end_source()
+            self._do_download(env, self._source, self._name)
             return True
         except:
             import Utils
             Utils.print_backtrace()
-            env.end_source()
             return False
 
-    def update(self, env):
-        env.start_source(self._name)
+
+    def _do_update(self, env, source, name):
+        env.start_source(name)
         try:
-            self._source.update(env)
+            source.update(env)
+        finally:
             env.end_source()
+        for child, child_name in source.children():
+            self._do_update(env, child, os.path.join(name, child_name))
+
+    def update(self, env):
+        try:
+            self._do_update(env, self._source, self._name)
             return True
         except:
             import Utils
             Utils.print_backtrace()
-            env.end_source()
             return False
 
     def uninstall(self, env):
