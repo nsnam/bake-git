@@ -178,7 +178,7 @@ class Configuration:
             self._modules.append(module)
 
     def _write_metadata(self, root):
-        for module in reversed(self._modules):
+        for module in self._modules:
             module_attrs = {'name' : module.name()}
             if module.is_built_once():
                 module_attrs['built_once'] = 'True'
@@ -213,12 +213,12 @@ class Configuration:
             root.append(metadata)
 
         # write enabled nodes
-        for e in reversed(self._enabled):
+        for e in self._enabled:
             enable_node = ET.Element('enabled', {'name' : e.name()})
             root.append(enable_node)
 
         # write disabled nodes
-        for e in reversed(self._disabled):
+        for e in self._disabled:
             disable_node = ET.Element('disabled', {'name' : e.name()})
             root.append(disable_node)
 

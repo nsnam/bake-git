@@ -178,7 +178,8 @@ class Bake:
         if not configuration.read():
             sys.stderr.write('The configuration file has been changed or has moved.\n'
                              'You should consider running \'reconfigure\'.\n')
-            sys.exit(1)
+            self._reconfigure(config, [])
+            configuration = Configuration(config)
         return configuration
 
     def _option_parser(self, operation_name):
@@ -358,6 +359,44 @@ class Bake:
         import os
         env.run([os.environ['SHELL']], directory=env.installdir, interactive = True)
 
+    def _query(self, config, args):
+        parser = OptionParser(usage='usage: %prog query [options]')
+        parser.add_option('--all', action='store_true', dest='all', default=False,
+                          help='Display all known information about current configuration')
+        parser.add_option('--modules', action='store_true', dest='modules', default=False,
+                          help='Display information about existing modules')
+        parser.add_option('--enabled-modules', action='store_true', dest='enabled_modules', 
+                          default=False, help='Display information about existing enabled modules')
+        (options, args_left) = parser.parse_args(args)
+        configuration = self._read_config(config)
+        if options.all:
+            options.modules = True
+        if options.modules:
+            enabled = []
+            def _iterator(module):
+                enabled.append(module)
+                return True
+            self._iterate(configuration, _iterator, configuration.enabled())
+            for module in configuration.modules():
+                if module in configuration.enabled():
+                    prefix = '++'
+                elif module in enabled:
+                    prefix = '+ '
+                elif module in configuration.disabled():
+                    prefix = '--'
+                else:
+                    prefix = '. '
+                print '%s %s' % (prefix, module.name())
+        elif options.enabled_modules:
+            enabled = []
+            def _iterator(module):
+                enabled.append(module)
+                return True
+            self._iterate(configuration, _iterator, configuration.enabled())
+            for module in enabled:
+                print module.name()
+            
+
     def main(self, argv):
         parser = MyOptionParser(usage = 'usage: %prog [options] command [command options]',
                                 description = """Where command is one of:
@@ -368,6 +407,8 @@ class Bake:
   update      : Update the source tree of all modules enabled during configure
   build       : Build all modules enabled during configure
   clean       : Cleanup the source tree of all modules built previously
+  shell       : Start a shell and setup relevant environment variables
+  uninstall   : Remove all files that were installed during build
 
 To get more help about each command, try:
   %s command --help
@@ -380,19 +421,16 @@ To get more help about each command, try:
         if len(args_left) == 0:
             parser.print_help()
             sys.exit(1)
-        if args_left[0] == 'configure':
-            self._configure(config=options.config_file, args=args_left[1:])
-        if args_left[0] == 'reconfigure':
-            self._reconfigure(config=options.config_file, args=args_left[1:])
-        elif args_left[0] == 'download':
-            self._download(config=options.config_file, args=args_left[1:])
-        elif args_left[0] == 'update':
-            self._update(config=options.config_file, args=args_left[1:])
-        elif args_left[0] == 'build':
-            self._build(config=options.config_file, args=args_left[1:])
-        elif args_left[0] == 'clean':
-            self._clean(config=options.config_file, args=args_left[1:])
-        elif args_left[0] == 'shell':
-            self._shell(config=options.config_file, args=args_left[1:])
-        elif args_left[0] == 'uninstall':
-            self._uninstall(config=options.config_file, args=args_left[1:])
+        ops = [ ['configure', self._configure],
+                ['reconfigure', self._reconfigure],
+                ['download', self._download],
+                ['update', self._update],
+                ['build', self._build],
+                ['clean', self._clean],
+                ['shell', self._shell],
+                ['uninstall', self._uninstall],
+                ['query', self._query],
+               ]
+        for name, function in ops:
+            if args_left[0] == name:
+                function(config=options.config_file, args=args_left[1:])
