@@ -112,7 +112,7 @@ class Bake:
                           follow_optional = False)
             for module in enabled:
                 if not module in enabled_optional:
-                    configuration.disable(module.name())
+                    configuration.disable(module)
 
     def _configure(self,config,args):
         parser = OptionParser(usage = 'usage: %prog configure [options]')
