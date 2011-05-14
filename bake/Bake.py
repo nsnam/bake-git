@@ -367,6 +367,10 @@ class Bake:
 
     def _query(self, config, args):
         parser = OptionParser(usage='usage: %prog query [options]')
+        parser.add_option("-c", "--conffile", action="store", type="string", 
+                          dest="bakeconf", default="bakeconf.xml", 
+                          help="The Bake metadata configuration file to use if a Bake file is "
+                          "not specified. Default: %default.")
         parser.add_option('--all', action='store_true', dest='all', default=False,
                           help='Display all known information about current configuration')
         parser.add_option('--modules', action='store_true', dest='modules', default=False,
@@ -374,7 +378,12 @@ class Bake:
         parser.add_option('--enabled-modules', action='store_true', dest='enabled_modules', 
                           default=False, help='Display information about existing enabled modules')
         (options, args_left) = parser.parse_args(args)
-        configuration = self._read_config(config)
+        import os
+        if os.path.isfile(config):
+            configuration = self._read_config(config)
+        else:
+            configuration = Configuration(config)
+            configuration.read_metadata(options.bakeconf)
         if options.all:
             options.modules = True
         if options.modules:
