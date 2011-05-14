@@ -377,6 +377,8 @@ class Bake:
                           help='Display information about existing modules')
         parser.add_option('--enabled-modules', action='store_true', dest='enabled_modules', 
                           default=False, help='Display information about existing enabled modules')
+        parser.add_option('--directories', action='store_true', dest='directories', default=False,
+                          help='Display information about which directories have been configured')
         (options, args_left) = parser.parse_args(args)
         import os
         if os.path.isfile(config):
@@ -386,7 +388,17 @@ class Bake:
             configuration.read_metadata(options.bakeconf)
         if options.all:
             options.modules = True
+            options.directories = True
+        if options.directories:
+            print 'installdir   : ' + configuration.compute_installdir()
+            print 'sourcedir    : ' + configuration.compute_sourcedir()
+            print 'objdir       : ' + configuration.get_objdir()
         if options.modules:
+            print """Modules:
+    ++: explicitely enabled
+    + : enabled to satify dependency
+    --: explicitely disabled
+    - : not explicitely disabled"""
             enabled = []
             def _iterator(module):
                 enabled.append(module)
@@ -400,7 +412,7 @@ class Bake:
                 elif module in configuration.disabled():
                     prefix = '--'
                 else:
-                    prefix = '. '
+                    prefix = '- '
                 print '%s %s' % (prefix, module.name())
         elif options.enabled_modules:
             enabled = []
@@ -424,6 +436,7 @@ class Bake:
   clean       : Cleanup the source tree of all modules built previously
   shell       : Start a shell and setup relevant environment variables
   uninstall   : Remove all files that were installed during build
+  query       : Report on build configuration
 
 To get more help about each command, try:
   %s command --help
