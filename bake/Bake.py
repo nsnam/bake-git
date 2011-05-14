@@ -92,6 +92,27 @@ class Bake:
             module = configuration.lookup(module_name)
             if module is not None:
                 configuration.disable(module)
+        if options.enable_all:
+            for module in configuration.modules():
+                configuration.enable(module)
+        if options.enable_minimal:
+            enabled = []
+            def _enabled_iterator(module):
+                enabled.append(module)
+                return True
+            self._iterate(configuration, _enabled_iterator, 
+                          configuration.enabled(), 
+                          follow_optional = True)
+            enabled_optional = []
+            def _enabled_optional_iterator(module):
+                enabled_optional.append(module)
+                return True
+            self._iterate(configuration, _enabled_optional_iterator, 
+                          configuration.enabled(),
+                          follow_optional = False)
+            for module in enabled:
+                if not module in enabled_optional:
+                    configuration.disable(module.name())
 
     def _configure(self,config,args):
         parser = OptionParser(usage = 'usage: %prog configure [options]')
@@ -117,6 +138,15 @@ class Bake:
         parser.add_option("-i", "--installdir", action="store", type="string",
                           dest="installdir", default="build",
                           help="The directory where all modules will be installed.")
+        parser.add_option("-p", "--predefined", action="store", type="string",
+                          dest="predefined", default=None,
+                          help="A predefined configuration to apply")
+        parser.add_option("-m", "--enable-minimal", action="store_true",
+                          dest="enable_minimal", default=None,
+                          help="Disable all non-mandatory dependencies.")
+        parser.add_option("-a", "--enable-all", action="store_true",
+                          dest="enable_all", default=None,
+                          help="Enable all modules.")
         (options, args_left) = parser.parse_args(args)
         configuration = Configuration(config)
         configuration.read_metadata(options.bakeconf)
@@ -150,7 +180,7 @@ class Bake:
                 sys.exit(1)
         configuration.write()
 
-    def _iterate(self, configuration, functor, targets):
+    def _iterate(self, configuration, functor, targets, follow_optional=True):
         deps = Dependencies()
         class Wrapper:
             def __init__(self, module):
@@ -166,7 +196,9 @@ class Bake:
             for dependency in m.dependencies():
                 src = configuration.lookup (dependency.name())
                 if not src in configuration.disabled():
-                    deps.add_dep(src, m, optional = dependency.is_optional())
+                    if follow_optional or not dependency.is_optional():
+                        deps.add_dep(src, m, optional = dependency.is_optional())
+                        
         try:
             deps.resolve(targets)
         except DependencyUnmet as error:
