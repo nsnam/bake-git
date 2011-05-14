@@ -1,7 +1,7 @@
 
 <modules>
 
-  <module name="click" version="1.8.0">
+  <module name="click-1.8.0">
     <source type="archive">
       <attribute name="url" value="http://read.cs.ucla.edu/click/click-1.8.0.tar.gz"/>
     </source>
@@ -10,14 +10,14 @@
     </build>
   </module>
 
-  <module name="openflow" version="ns3">
+  <module name="openflow-ns3">
     <source type="mercurial">
       <attribute name="url" value="http://code.nsnam.org/bhurd/openflow"/>
     </source>
     <build type="waf" objdir="any"/>
   </module>
 
-  <module name="gccxml" version="ns3">
+  <module name="gccxml-ns3">
     <source type="cvs">
       <attribute name="root" value=":pserver:anoncvs:@www.gccxml.org:/cvsroot/GCC_XML"/>
       <attribute name="module" value="gccxml"/>
@@ -27,7 +27,7 @@
     </build>
   </module>
 
-  <module name="pygccxml" version="1.0.0">
+  <module name="pygccxml-1.0.0">
     <source type="archive">
       <attribute name="url" value="http://mesh.dl.sourceforge.net/project/pygccxml/pygccxml/pygccxml-1.0/pygccxml-1.0.0.zip"/>
     </source>
@@ -36,7 +36,7 @@
     <depends_on name="gccxml"/>
   </module>
 
-  <module name="pybindgen" version="dev">
+  <module name="pybindgen">
     <source type="bazaar">
      <attribute name="url" value="https://launchpad.net/pybindgen"/>
      <attribute name="revision" value="revno:779"/>
@@ -47,17 +47,7 @@
     <depends_on name="pygccxml" optional="True"/>
   </module>
 
-  <module name="pybindgen" version="dce">
-    <source type="bazaar">
-     <attribute name="url" value="https://launchpad.net/pybindgen"/>
-     <attribute name="revision" value="revno:764"/>
-    </source>
-    <build type="waf" objdir="any"/>
-    <depends_on name="pygccxml" optional="True"/>
-  </module>
-
-
-  <module name="nsc" version="dev">
+  <module name="nsc">
     <source type="mercurial">
       <attribute name="url" value="https://secure.wand.net.nz/mercurial/nsc"/>
     </source>
@@ -80,7 +70,7 @@ class NscModuleBuild(InlineModuleBuild):
     </build>
   </module>
 
-  <module name="iproute2" version="2.6.33">
+  <module name="iproute2">
     <source type="archive">
      <attribute name="url" value="http://devresources.linuxfoundation.org/dev/iproute2/download/iproute2-2.6.33.tar.bz2"/>
     </source>
@@ -105,7 +95,7 @@ class NscModuleBuild(InlineModuleBuild):
     <build type="none"/>
   </module>
 
-  <module name="gdb" version="cvs">
+  <module name="gdb-cvs">
     <source type="cvs">
       <attribute name="root" value=":pserver:anoncvs:anoncvs@sourceware.org:/cvs/src"/>
       <attribute name="module" value="gdb"/>
@@ -122,7 +112,7 @@ class NscModuleBuild(InlineModuleBuild):
       <attribute name="url" value="http://code.nsnam.org/ns-3-dev"/>
     </source>
     <depends_on name="nsc" optional="True"/>
-    <depends_on name="pybindgen" version="dev" optional="True"/>
+    <depends_on name="pybindgen" optional="True"/>
     <depends_on name="click" optional="True"/>
     <depends_on name="openflow" optional="True"/>
     <build type="waf" objdir="any">
@@ -175,7 +165,7 @@ class ElfLoaderModuleBuild(InlineModuleBuild):
 
   <module name="ns-3-dce">
     <source type="mercurial">
-      <attribute name="url" value="http://code.nsnam.org/mathieu/ns-3-dce-new"/>
+      <attribute name="url" value="http://code.nsnam.org/mathieu/ns-3-dce"/>
     </source>
     <depends_on name="elf-loader" optional="True"/>
     <depends_on name="readversiondef"/>

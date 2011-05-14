@@ -35,7 +35,7 @@ class Bake:
 
         # copy installed files.
         for old_module in old_config.modules():
-            new_module = new_config.lookup(old_module.name(), old_module.version())
+            new_module = new_config.lookup(old_module.name())
             if new_module is None:
                 # ignore old modules that do not exist in the new configuration
                 continue
@@ -43,7 +43,7 @@ class Bake:
 
         # copy which modules are enabled into new config
         for old_module in old_config.enabled():
-            new_module = new_config.lookup(old_module.name(), old_module.version())
+            new_module = new_config.lookup(old_module.name())
             if new_module is None:
                 # ignore old enabled modules that do not exist in the new configuration
                 continue
@@ -51,7 +51,7 @@ class Bake:
 
         # copy which modules are disabled into new config
         for old_module in old_config.disabled():
-            new_module = new_config.lookup(old_module.name(), old_module.version())
+            new_module = new_config.lookup(old_module.name())
             if new_module is None:
                 # ignore old disabled modules that do not exist in the new configuration
                 continue
@@ -62,7 +62,7 @@ class Bake:
 
         # copy old variables into new config for all modules
         for old_module in old_config.modules():
-            new_module = new_config.lookup(old_module.name(), old_module.version())
+            new_module = new_config.lookup(old_module.name())
             if new_module is None:
                 # ignore old modules that do not exist in the new configuration
                 continue
@@ -164,7 +164,7 @@ class Bake:
             deps.add_dst(m, wrapper.function)
         for m in configuration.modules():
             for dependency in m.dependencies():
-                src = configuration.lookup (dependency.name(), dependency.version())
+                src = configuration.lookup (dependency.name())
                 if not src in configuration.disabled():
                     deps.add_dep(src, m, optional = dependency.is_optional())
         try:
@@ -292,8 +292,8 @@ class Bake:
     def _check_build_version(self, config, options):
         def _do_check(configuration, module, env):
             if not module.check_build_version(env):
-                print 'Error: Could not find build tool for module "%s" version "%s"' % \
-                    (module.name(), str(module.version()))
+                print 'Error: Could not find build tool for module "%s"' % \
+                    module.name()
                 sys.exit(1)
             return True
         self._do_operation(config, options, _do_check)

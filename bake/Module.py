@@ -3,14 +3,11 @@ import os
 from FilesystemMonitor import FilesystemMonitor
 
 class ModuleDependency:
-    def __init__(self, name, version = None, optional = False):
+    def __init__(self, name, optional = False):
         self._name = name
-        self._version = version
         self._optional = optional
     def name(self):
         return self._name
-    def version(self):
-        return self._version
     def is_optional(self):
         return self._optional
 
@@ -18,12 +15,10 @@ class Module:
     def __init__(self, name, 
                  source,
                  build,
-                 version = None,
                  dependencies = [],
                  built_once = False,
                  installed = []):
         self._name = name
-        self._version = version
         self._dependencies = copy.copy(dependencies)
         self._source = source
         self._build = build
@@ -38,14 +33,10 @@ class Module:
         self._installed = copy.copy(value)
 
     def _directory(self):
-        if self._version is not None:
-            directory = self._name + '-' + self._version
-        else:
-            directory = self._name
-        return directory
+        return self._name
 
     def download(self, env):
-        env.start_source(self._name, self._version)
+        env.start_source(self._name)
         if os.path.isdir(env.srcdir):
             env.end_source()
             return True
@@ -60,7 +51,7 @@ class Module:
             return False
 
     def update(self, env):
-        env.start_source(self._name, self._version)
+        env.start_source(self._name)
         try:
             self._source.update(env)
             env.end_source()
@@ -102,7 +93,7 @@ class Module:
         monitor = FilesystemMonitor(env.installdir)
         monitor.start()
 
-        env.start_build(self._name, self._version,
+        env.start_build(self._name, 
                         self._build.supports_objdir)
         if not os.path.isdir(env.installdir):
             os.mkdir(env.installdir)
@@ -123,7 +114,7 @@ class Module:
             return False
 
     def check_build_version(self, env):
-        env.start_build(self._name, self._version,
+        env.start_build(self._name, 
                         self._build.supports_objdir)
         if not os.path.isdir(env.objdir) or not os.path.isdir(env.srcdir):
             retval = True
@@ -133,26 +124,26 @@ class Module:
         return retval
 
     def is_downloaded(self, env):
-        env.start_source(self._name, self._version)
+        env.start_source(self._name)
         retval = os.path.isdir(env.srcdir)
         env.end_source()
         return retval
 
     def check_source_version(self, env):
-        env.start_source(self._name, self._version)
+        env.start_source(self._name)
         retval = self._source.check_version(env)
         env.end_source()
         return retval
 
 
     def update_libpath(self, env):
-        env.start_build(self._name, self._version,
+        env.start_build(self._name, 
                         self._build.supports_objdir)
         env.add_libpaths(self._build.libpaths)
         env.end_build()
 
     def clean(self, env):
-        env.start_build(self._name, self._version,
+        env.start_build(self._name, 
                         self._build.supports_objdir)
         if not os.path.isdir(env.objdir) or not os.path.isdir(env.srcdir):
             env.end_build()
@@ -176,7 +167,5 @@ class Module:
         return self._build
     def name(self):
         return self._name
-    def version(self):
-        return self._version
     def dependencies(self):
         return self._dependencies

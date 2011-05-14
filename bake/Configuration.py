@@ -126,7 +126,6 @@ class Configuration:
         modules = et.findall('module')
         for module_node in modules:
             name = module_node.get('name')
-            version = module_node.get('version', None)
             installed = self._read_installed(module_node)
 
             source_node = module_node.find('source')
@@ -144,9 +143,8 @@ class Configuration:
             dependencies = []
             for dep_node in module_node.findall('depends_on'):
                 dependencies.append(ModuleDependency(dep_node.get('name'), 
-                                                     dep_node.get('version', None),
                                                      bool(dep_node.get('optional', ''))))
-            module = Module(name, source, build, version = version, dependencies = dependencies,
+            module = Module(name, source, build, dependencies = dependencies,
                             built_once = bool(module_node.get('built_once', '')),
                             installed = installed)
             self._modules.append(module)
@@ -156,8 +154,6 @@ class Configuration:
             module_attrs = {'name' : module.name()}
             if module.is_built_once():
                 module_attrs['built_once'] = 'True'
-            if not module.version() is None:
-                module_attrs['version'] = module.version()
             module_node = ET.Element('module', module_attrs)
             self._write_installed(module_node, module.installed)
 
@@ -173,8 +169,6 @@ class Configuration:
             
             for dependency in module.dependencies():
                 attrs = {'name' : dependency.name() }
-                if dependency.version() is not None:
-                    attrs['version'] = dependency.version()
                 if dependency.is_optional():
                     attrs['optional'] = 'True'
                 dep_node = ET.Element('depends_on', attrs)
@@ -196,15 +190,11 @@ class Configuration:
         # write enabled nodes
         for e in reversed(self._enabled):
             enable_node = ET.Element('enabled', {'name' : e.name()})
-            if not e.version() is None:
-                enable_node.attrib['version'] = e.version()
             root.append(enable_node)
 
         # write disabled nodes
         for e in reversed(self._disabled):
             disable_node = ET.Element('disabled', {'name' : e.name()})
-            if not e.version() is None:
-                disable_node.attrib['version'] = e.version()
             root.append(disable_node)
 
         self._write_metadata(root)
@@ -227,13 +217,13 @@ class Configuration:
         # read which modules are enabled
         modules = root.findall('enabled')
         for module in modules:
-            enabled = self.lookup(module.get('name'), version=module.get('version', None))
+            enabled = self.lookup(module.get('name'))
             self.enable(enabled)
 
         # read which modules are disabled
         modules = root.findall('disabled')
         for module in modules:
-            disabled = self.lookup(module.get('name'), version=module.get('version', None))
+            disabled = self.lookup(module.get('name'))
             self.disable(disabled)
 
         return self._metadata_file.is_hash_ok() and original_bakefile == self._bakefile
@@ -272,18 +262,10 @@ class Configuration:
             self._enabled.remove(module)
         else:
             self._disabled.append(module)
-    def lookup(self, name, version = None):
-        tmp = name.split(',')
-        if len(tmp) == 2 and version == None:
-            name = tmp[0]
-            version = tmp[1]
-
+    def lookup(self, name):
         for module in self._modules:
             if module.name() == name:
-                if version is not None and module.version() == version:
-                    return module
-                elif version is None:
-                    return module
+                return module
         return None
     def enabled(self):
         return self._enabled

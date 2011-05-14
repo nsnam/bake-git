@@ -12,16 +12,12 @@ class ModuleEnvironment:
         self._sourcedir = sourcedir
         self._objdir = objdir
         self._module_name = None
-        self._module_version = None
         self._module_supports_objdir = None
         self._libpaths = []
 
     def _module_directory(self):
-        if self._module_version is not None:
-            directory = self._module_name + '-' + self._module_version
-        else:
-            directory = self._module_name
-        return directory
+        return self._module_name
+
     @property
     def installdir(self):
         return self._installdir
@@ -69,10 +65,9 @@ class ModuleEnvironment:
         else:
             d[name] = d[name] + sep + value
 
-    def start_source(self, name, version):
+    def start_source(self, name):
         assert self._module_supports_objdir is None
         self._module_name = name
-        self._module_version = version
         self._logger.set_current_module(name, version)
         # ensure source directory exists
         if not os.path.isdir(self._sourcedir):
@@ -80,19 +75,16 @@ class ModuleEnvironment:
 
     def end_source(self):
         self._module_name = None
-        self._module_version = None
         self._logger.clear_current_module()
 
-    def start_build(self, name, version, supports_objdir):
+    def start_build(self, name, supports_objdir):
         assert self._module_supports_objdir is None
         self._module_name = name
-        self._module_version = version
         self._module_supports_objdir = supports_objdir
         self._logger.set_current_module(name, version)
 
     def end_build(self):
         self._module_name = None
-        self._module_version = None
         self._module_supports_objdir = None
         self._logger.clear_current_module()
 
