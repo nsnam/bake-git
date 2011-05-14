@@ -177,9 +177,15 @@ class Bake:
         configuration = Configuration(config)
         if not configuration.read():
             sys.stderr.write('The configuration file has been changed or has moved.\n'
-                             'You should consider running \'reconfigure\'.\n')
+                             'Running \'reconfigure\'. You should consider running it\n'
+                             'yourself to tweak some parameters if needed.')
             self._reconfigure(config, [])
             configuration = Configuration(config)
+            if not configuration.read():
+                sys.stderr.write('Oops. \'reconfigure\' did not succeed. You should consider\n'
+                                 'deleting your bakefile and running \'configure\' again.')
+                sys.exit(1)
+
         return configuration
 
     def _option_parser(self, operation_name):
