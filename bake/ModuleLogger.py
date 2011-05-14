@@ -19,7 +19,7 @@ class ModuleLogger:
             self._std_file = f
     def set_verbose(self, verbose):
         self._verbose = verbose if verbose <= 2 else 2
-    def set_current_module(self, name, version):
+    def set_current_module(self, name):
         raise NotImplemented()
     def clear_current_module(self):
         raise NotImplemented()
@@ -37,7 +37,7 @@ class StdoutModuleLogger(ModuleLogger):
     def __init__(self):
         ModuleLogger.__init__(self)
         self._update_file(sys.stdout)
-    def set_current_module(self, name, version):
+    def set_current_module(self, name):
         self._update_file(sys.stdout)
     def clear_current_module(self):
         pass
@@ -46,7 +46,7 @@ class LogfileModuleLogger(ModuleLogger):
     def __init__(self, filename):
         ModuleLogger.__init__(self)
         self._file = open(filename, 'w')
-    def set_current_module(self, name, version):
+    def set_current_module(self, name):
         self._update_file(self._file)
     def clear_current_module(self):
         pass
@@ -57,11 +57,8 @@ class LogdirModuleLogger(ModuleLogger):
             os.mkdir(dirname)
         self._dirname = dirname
         self._file = None
-    def set_current_module(self, name, version):
-        if version is None:
-            filename = name
-        else:
-            filename = name + '-' + version
+    def set_current_module(self, name):
+        filename = name
         assert self._file is None
         self._file = open(os.path.join(self._dirname, filename + '.log'), 'w')
         self._update_file(self._file)
