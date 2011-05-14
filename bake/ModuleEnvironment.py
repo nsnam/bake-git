@@ -68,7 +68,7 @@ class ModuleEnvironment:
     def start_source(self, name):
         assert self._module_supports_objdir is None
         self._module_name = name
-        self._logger.set_current_module(name, version)
+        self._logger.set_current_module(name)
         # ensure source directory exists
         if not os.path.isdir(self._sourcedir):
             os.mkdir(self._sourcedir)
@@ -81,7 +81,7 @@ class ModuleEnvironment:
         assert self._module_supports_objdir is None
         self._module_name = name
         self._module_supports_objdir = supports_objdir
-        self._logger.set_current_module(name, version)
+        self._logger.set_current_module(name)
 
     def end_build(self):
         self._module_name = None
