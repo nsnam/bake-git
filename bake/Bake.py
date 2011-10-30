@@ -17,6 +17,9 @@ class Bake:
     def __init__(self):
         pass
 
+    def _error(self, string):
+        raise Exception('Error: %s' % string)
+
     def _reconfigure(self,config,args):
         parser = OptionParser(usage = 'usage: %prog reconfigure [options]')
         self._enable_disable_options(parser)
@@ -82,16 +85,50 @@ class Bake:
         parser.add_option("-d", "--disable", action="append", type="string", dest="disable",
                           default=[],
                           help="A module to disable in the Bake configuration")
+        parser.add_option("-a", "--enable-all", action="store_true",
+                          dest="enable_all", default=None,
+                          help="Enable all modules.")
+        parser.add_option("-m", "--enable-minimal", action="store_true",
+                          dest="enable_minimal", default=None,
+                          help="Disable all non-mandatory dependencies.")
 
+    def _enable(self, enable, configuration):
+        for module_name in enable:
+            module = configuration.lookup(module_name)
+            if not module:
+                self._error('Module "%s" not found' % module_name)
+            configuration.enable(module)
+    def _disable(self, disable, configuration):
+        for module_name in disable:
+            module = configuration.lookup(module_name)
+            if not module:
+                self._error('Module "%s" not found' % module_name)
+            configuration.disable(module)
+    def _variables_process(self, items, configuration, is_append):
+        for module_name, name, value in items:
+            if module_name:
+                module = configuration.lookup(module_name)
+                if not module:
+                    self._error('Module "%s" not found' % module_name)
+                if not module.get_build().attribute(name):
+                    self._error('Module "%s" has no attribute "%s"' % (module_name, name))
+                if is_append:
+                    module.get_build().attribute(name).value = module.get_build().attribute(name) + \
+                        ' ' + value
+                else:
+                    module.get_build().attribute(name).value = value
+            else:
+                for module in configuration.modules():
+                    if module.get_build().attribute(name):
+                        if is_append:
+                            module.get_build().attribute(name).value = \
+                                module.get_build().attribute(name).value + ' ' + value
+                        else:
+                            module.get_build().attribute(name).value = value
+        
     def _parse_enable_disable(self, options, configuration):
-        for module_name in options.enable:
-            module = configuration.lookup(module_name)
-            if module is not None:
-                configuration.enable(module)
-        for module_name in options.disable:
-            module = configuration.lookup(module_name)
-            if module is not None:
-                configuration.disable(module)
+        self._enable(options.enable, configuration)
+        self._disable(options.disable, configuration)
         if options.enable_all:
             for module in configuration.modules():
                 configuration.enable(module)
@@ -114,6 +151,31 @@ class Bake:
                 if not module in enabled_optional:
                     configuration.disable(module)
 
+    def _parse_variable(self, string):
+        retval = []
+        data = string.split(":")
+        if len(data) == 1:
+            name, value = variable.split("=")
+            found = False
+            
+            for module in configuration.modules():
+                if module.get_build().attribute(name):
+                    retval.append((module, name, value))
+            if not retval:
+                print 'Error: no module contains variable %s' % name
+        elif len(data) == 2:
+            name, value = data[1].split("=")
+            module = configuration.lookup(module_name)
+            if not module:
+                self._error('non-existing module %s in variable specification %s' % \
+                                (module_name, variable))
+            if not module.get_build().attribute(name):
+                self._error('non-existing variable %s in module %s' % (name, module_name))
+            retval.append((module, name, value))
+        else:
+            self._error('invalid variable specification: "%s"' % variable)
+        return retval
+        
     def _configure(self,config,args):
         parser = OptionParser(usage = 'usage: %prog configure [options]')
         self._enable_disable_options(parser)
@@ -126,6 +188,9 @@ class Bake:
         parser.add_option("-s", "--set", action="append", type="string", dest="set",
                           default=[],
                           help="Format: module:name=value. A variable to set in the Bake "
+                          "configuration for the matching module.")
+        parser.add_option("--append", action="append", type="string", dest="append", default=[],
+                          help="Format: module:name=value. A variable to append to in the Bake "
                           "configuration for the matching module.")
         parser.add_option("--objdir", action="store", type="string",
                           dest="objdir", default="objdir",
@@ -141,43 +206,45 @@ class Bake:
         parser.add_option("-p", "--predefined", action="store", type="string",
                           dest="predefined", default=None,
                           help="A predefined configuration to apply")
-        parser.add_option("-m", "--enable-minimal", action="store_true",
-                          dest="enable_minimal", default=None,
-                          help="Disable all non-mandatory dependencies.")
-        parser.add_option("-a", "--enable-all", action="store_true",
-                          dest="enable_all", default=None,
-                          help="Enable all modules.")
         (options, args_left) = parser.parse_args(args)
         configuration = Configuration(config)
         configuration.read_metadata(options.bakeconf)
         configuration.set_sourcedir(options.sourcedir)
         configuration.set_objdir(options.objdir)
         configuration.set_installdir(options.installdir)
+        if options.predefined:
+            data = options.predefined.split(':')
+            requested = None
+            if len(data) == 1:
+                predefined = configuration.read_predefined(options.bakeconf)
+                requested = data[0]
+            elif len(data) == 2:
+                predefined = configuration.read_predefined(data[0])
+                requested = data[1]
+            else:
+                self._error('Invalid --predefined content: "%s"' % predefined)
+            found = False
+            for predef in predefined:
+                if predef.name == requested:
+                    found = True
+                    self._enable(predef.enable, configuration)
+                    self._disable(predef.disable, configuration)
+                    self._variables_process(predef.variables_set, configuration, is_append = False)
+                    self._variables_process(predef.variables_append, configuration, is_append = True)
+                    break
+            if not found:
+                self._error('--predefined: "%s" not found.' % requested)
+                    
         self._parse_enable_disable(options, configuration)
         for variable in options.set:
-            data = variable.split(":")
-            if len(data) == 1:
-                name, value = variable.split("=")
-                found = False
-                for module in configuration.modules():
-                    if not module.get_build().attribute(name) is None:
-                        found = True
-                        module.get_build().attribute(name).value = value
-                if not found:
-                    print 'Error: no module contains variable %s' % name
-            elif len(data) == 2:
-                name, value = data[1].split("=")
-                module = configuration.lookup(module_name)
-                if module is None:
-                    print 'Error: non-existing module %s in variable specification %s' % (module_name, variable)
-                    sys.exit(1)
-                if module.get_build().attribute(name) is None:
-                    print 'Error: non-existing variable %s in module %s' % (name, module_name)
-                    sys.exit(1)
+            matches = self._parse_variable(variable)
+            for module, name, value in matches:
                 module.get_build().attribute(name).value = value
-            else:
-                print 'Error: invalid variable specification: ' + variable
-                sys.exit(1)
+        for variable in options.append:
+            matches = self._parse_variable(variable)
+            for module, name, value in matches:
+                current_value = module.get_build().attribute(name).value
+                module.get_build().attribute(name).value = current_value + ' ' + value
         configuration.write()
 
     def _iterate(self, configuration, functor, targets, follow_optional=True):
@@ -202,21 +269,19 @@ class Bake:
         try:
             deps.resolve(targets)
         except DependencyUnmet as error:
-            sys.stderr.write(error.failed().name() + ' failed\n')
-            sys.exit(1)
+            self._error('%s failed' % error.failed().name())
 
     def _read_config(self, config):
         configuration = Configuration(config)
         if not configuration.read():
             sys.stderr.write('The configuration file has been changed or has moved.\n'
                              'Running \'reconfigure\'. You should consider running it\n'
-                             'yourself to tweak some parameters if needed.')
+                             'yourself to tweak some parameters if needed.\n')
             self._reconfigure(config, [])
             configuration = Configuration(config)
             if not configuration.read():
-                sys.stderr.write('Oops. \'reconfigure\' did not succeed. You should consider\n'
-                                 'deleting your bakefile and running \'configure\' again.')
-                sys.exit(1)
+                self._error('Oops. \'reconfigure\' did not succeed. You should consider\n'
+                            'deleting your bakefile and running \'configure\' again.')
 
         return configuration
 
@@ -268,22 +333,19 @@ class Bake:
         must_disable = []
         if options.one != '':
             if options.all or options.start != '' or options.after != '':
-                print 'Error: incompatible options'
-                sys.exit(1)
+                self._error('incompatible options')
             module = configuration.lookup(options.one)
             functor(configuration, module, env)
             configuration.write()
         elif options.all:
             if options.start != '' or options.after != '':
-                print 'Error: incompatible options'
-                sys.exit(1)
+                self._error('incompatible options')
             def _iterator(module):
                 return functor (configuration, module, env)
             self._iterate(configuration, _iterator, configuration.modules())
         elif options.start != '':
             if options.after != '':
-                print 'Error: incompatible options'
-                sys.exit(1)
+                self._error('incompatible options')
             must_process = []
             first_module = configuration.lookup(options.start)
             def _iterator(module):
@@ -331,17 +393,14 @@ class Bake:
     def _check_build_version(self, config, options):
         def _do_check(configuration, module, env):
             if not module.check_build_version(env):
-                print 'Error: Could not find build tool for module "%s"' % \
-                    module.name()
-                sys.exit(1)
+                self._error('Could not find build tool for module "%s"' % module.name())
             return True
         self._do_operation(config, options, _do_check)
 
     def _check_source_version(self, config, options):
         def _do_check(configuration, module, env):
             if not module.check_source_version(env):
-                print 'Error: Could not find source tool for module %s' % module.name()
-                sys.exit(1)
+                self._error('Could not find source tool for module %s' % module.name())
             return True
         self._do_operation(config, options, _do_check)
 
@@ -349,9 +408,8 @@ class Bake:
         # let's check that we have downloaded the matching source code
         def _do_check(configuration, module, env):
             if not module.is_downloaded(env):
-                print 'Error: Could not find source code for module %s. Try %s download first.' % \
-                    (module.name(), sys.argv[0])
-                sys.exit(1)
+                self._error('Could not find source code for module %s. Try %s download first.' % \
+                                (module.name(), sys.argv[0]))
             return True
         self._do_operation(config, options, _do_check)
 
@@ -403,7 +461,7 @@ class Bake:
                           dest="bakeconf", default="bakeconf.xml", 
                           help="The Bake metadata configuration file to use if a Bake file is "
                           "not specified. Default: %default.")
-        parser.add_option('--all', action='store_true', dest='all', default=False,
+        parser.add_option('-a', '--all', action='store_true', dest='all', default=False,
                           help='Display all known information about current configuration')
         parser.add_option('--modules', action='store_true', dest='modules', default=False,
                           help='Display information about existing modules')
@@ -476,6 +534,9 @@ To get more help about each command, try:
         parser.add_option("-f", "--file", action="store", type="string", 
                           dest="config_file", default="bakefile.xml", 
                           help="The Bake file to use. Default: %default.")
+        parser.add_option("--debug", action="store_true", 
+                          dest="debug", default=False, 
+                          help="Should we enable extra Bake debugging output ?")
         parser.disable_interspersed_args()
         (options, args_left) = parser.parse_args(argv[1:])
         if len(args_left) == 0:
@@ -493,4 +554,11 @@ To get more help about each command, try:
                ]
         for name, function in ops:
             if args_left[0] == name:
-                function(config=options.config_file, args=args_left[1:])
+                if options.debug:
+                    function(config=options.config_file, args=args_left[1:])
+                else:
+                    try:
+                        function(config=options.config_file, args=args_left[1:])
+                    except Exception as e:
+                        print e.message
+                        sys.exit(1)

@@ -26,6 +26,15 @@ class MetadataFile:
     def is_hash_ok(self):
         return self.h() == self._h
 
+class PredefinedConfiguration:
+    def __init__(self, name, enable, disable, variables_set, variables_append):
+        self.name = name
+        self.enable = enable
+        self.disable = disable
+        self.variables_set = variables_set
+        self.variables_append = variables_append
+        
+
 class Configuration:
     def __init__(self, bakefile, relative_directory_root = None):
         self._enabled = []
@@ -46,6 +55,48 @@ class Configuration:
         self._metadata_file = MetadataFile(filename)
         et = ET.parse(filename)
         self._read_metadata(et)
+    def read_predefined(self, filename):
+        et = ET.parse(filename)
+        predefined = []
+        for pred_node in et.getroot().findall('predefined'):
+            name = pred_node.get('name', None)
+            if not name:
+                self._error('<predefined> must define a "name" attribute.')
+            enable = []
+            for enable_node in pred_node.findall('enable'):
+                enable_name = enable_node.get('name', None)
+                if not enable_name:
+                    self._error('<enable> must define a "name" attribute.')
+                enable.append(enable_name)
+            disable = []
+            for disable_node in pred_node.findall('disable'):
+                disable_name = disable_node.get('name', None)
+                if not disable_name:
+                    self._error('<disable> must define a "name" attribute.')
+                disable.append(disable_name)
+            variables_set = []
+            for set_node in pred_node.findall('set'):
+                set_name = set_node.get('name', None)
+                set_value = set_node.get('value', None)
+                set_module = set_node.get('module', None)
+                if not set_name or not set_value:
+                    self._error('<set> must define a "name" and a "value" attribute.')
+                variables_set.append((set_module, set_name, set_value))
+            variables_append = []
+            for append_node in pred_node.findall('append'):
+                append_name = append_node.get('name', None)
+                append_value = append_node.get('value', None)
+                append_module = append_node.get('module', None)
+                if not append_name or not append_value:
+                    self._error('<append> must define a "name" and a "value" attribute.')
+                variables_append.append((append_module, append_name, append_value))
+            predefined.append(PredefinedConfiguration(name, enable, disable, 
+                                                      variables_set,
+                                                      variables_append))
+        return predefined
+
+    def _error(self, string):
+        raise Exception(string)
 
     def _check_mandatory_attributes(self, attribute_base, node, type_string, module_string):
         # get list of names in <attribute name="" value=""> tags
@@ -156,7 +207,7 @@ class Configuration:
     
     def _read_metadata(self, et):
         # function designed to be called on two kinds of xml files.
-        modules = et.findall('module')
+        modules = et.findall('modules/module')
         for module_node in modules:
             name = module_node.get('name')
             installed = self._read_installed(module_node)
@@ -178,6 +229,8 @@ class Configuration:
             self._modules.append(module)
 
     def _write_metadata(self, root):
+        modules_node = ET.Element('modules')
+        root.append(modules_node)
         for module in self._modules:
             module_attrs = {'name' : module.name()}
             if module.is_built_once():
@@ -198,7 +251,7 @@ class Configuration:
                     attrs['optional'] = 'True'
                 dep_node = ET.Element('depends_on', attrs)
                 module_node.append(dep_node)
-            root.append(module_node)
+            modules_node.append(module_node)
 
     def write(self):
         root = ET.Element('configuration', 
