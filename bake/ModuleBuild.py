@@ -79,8 +79,8 @@ class WafModuleBuild(ModuleBuild):
         self.add_attribute('CFLAGS',   '', 'Flags to use for C compiler')
         self.add_attribute('CXXFLAGS', '', 'Flags to use for C++ compiler')
         self.add_attribute('LDFLAGS',  '', 'Flags to use for Linker')
-        self.add_attribute('extra_configure_options',  '', 'Options to pass to "waf configure"')
-        self.add_attribute('extra_build_options',  '', 'Options to pass to "waf"')
+        self.add_attribute('configure_arguments',  '', 'Arguments to pass to "waf configure"')
+        self.add_attribute('build_arguments',  '', 'Arguments to pass to "waf"')
     @classmethod
     def name(cls):
         return 'waf'
@@ -107,13 +107,13 @@ class WafModuleBuild(ModuleBuild):
                                  version_required = (1,6,0))
     def build(self, env, jobs):
         extra_configure_options = []
-        if self.attribute('extra_configure_options').value != '':
+        if self.attribute('configure_arguments').value != '':
             extra_configure_options = [env.replace_variables(tmp) for tmp in
-                                       self.attribute('extra_configure_options').value.split(' ')]
+                                       self.attribute('configure_arguments').value.split(' ')]
         extra_build_options = []
-        if self.attribute('extra_build_options').value != '':
+        if self.attribute('build_arguments').value != '':
             extra_build_options = [env.replace_variables(tmp) for tmp in
-                                   self.attribute('extra_build_options').value.split(' ')]
+                                   self.attribute('build_arguments').value.split(' ')]
         if self._is_1_6_x(env):
             env.run([self._binary(env.srcdir), '--top=' + env.srcdir, '--out=' + env.objdir, 
                      '--prefix=' + env.installdir, 'configure'] + extra_configure_options,
@@ -154,8 +154,8 @@ class Cmake(ModuleBuild):
         self.add_attribute('CFLAGS',   '', 'Flags to use for C compiler')
         self.add_attribute('CXXFLAGS', '', 'Flags to use for C++ compiler')
         self.add_attribute('LDFLAGS',  '', 'Flags to use for Linker')
-        self.add_attribute('extra_targets', '', 'Targets to make before install')
-        self.add_attribute('extra_cmake_options', '', 'Command-line options to pass to cmake')
+        self.add_attribute('build_targets', '', 'Targets to make before install')
+        self.add_attribute('cmake_arguments', '', 'Command-line arguments to pass to cmake')
     @classmethod
     def name(cls):
         return 'cmake'
@@ -172,14 +172,14 @@ class Cmake(ModuleBuild):
 
     def build(self, env, jobs):
         options = []
-        if self.attribute('extra_cmake_options').value != '':
-            options = self.attribute('extra_cmake_options').value.split(' ')
+        if self.attribute('cmake_arguments').value != '':
+            options = self.attribute('cmake_arguments').value.split(' ')
         env.run(['cmake', env.srcdir, '-DCMAKE_INSTALL_PREFIX=' + env.installdir] + 
                 self._variables() + options,
                 directory=env.objdir)
         env.run(['make', '-j', str(jobs)], directory = env.objdir)
-        if self.attribute('extra_targets').value != '':
-            env.run(['make'] + self.attribute('extra_targets').value.split(' '), 
+        if self.attribute('build_targets').value != '':
+            env.run(['make'] + self.attribute('build_targets').value.split(' '), 
                     directory = env.objdir)
         env.run(['make', 'install'], directory = env.objdir)
     def clean(self, env):
@@ -207,7 +207,7 @@ class Autotools(ModuleBuild):
         self.add_attribute('CXXFLAGS', '', 'Flags to use for C++ compiler')
         self.add_attribute('LDFLAGS',  '', 'Flags to use for Linker')
         self.add_attribute('maintainer', 'no', 'Maintainer mode ?')
-        self.add_attribute('extra_configure_options', '', 'Command-line options to pass to configure')
+        self.add_attribute('configure_arguments', '', 'Command-line arguments to pass to configure')
     @classmethod
     def name(cls):
         return 'autotools'
@@ -222,8 +222,8 @@ class Autotools(ModuleBuild):
             env.run(['autoreconf', '--install'], 
                     directory = env.srcdir)
         options = []
-        if self.attribute('extra_configure_options').value != '':
-            options = self.attribute('extra_configure_options').value.split(' ')
+        if self.attribute('configure_arguments').value != '':
+            options = self.attribute('configure_arguments').value.split(' ')
         env.run([os.path.join(env.srcdir, 'configure'),
                  '--prefix=' + env.installdir] + 
                 self._variables() + options, 

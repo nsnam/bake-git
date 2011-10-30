@@ -113,8 +113,8 @@ class Bake:
                 if not module.get_build().attribute(name):
                     self._error('Module "%s" has no attribute "%s"' % (module_name, name))
                 if is_append:
-                    module.get_build().attribute(name).value = module.get_build().attribute(name) + \
-                        ' ' + value
+                    module.get_build().attribute(name).value = \
+                        module.get_build().attribute(name).value + ' ' + value
                 else:
                     module.get_build().attribute(name).value = value
             else:
