@@ -6,7 +6,7 @@
 	<attribute name="url" value="http://read.cs.ucla.edu/click/click-1.8.0.tar.gz"/>
       </source>
       <build type="autotools" objdir="yes">
-	<attribute name="extra_configure_options" value="--enable-userlevel --disable-linuxmodule --enable-nsclick --enable-wifi"/>
+	<attribute name="configure_arguments" value="--enable-userlevel --disable-linuxmodule --enable-nsclick --enable-wifi"/>
       </build>
     </module>
 
@@ -42,7 +42,7 @@
 	<attribute name="revision" value="revno:779"/>
       </source>
       <build type="waf" objdir="yes">
-	<attribute name="extra_build_options" value="--generate-version"/>
+	<attribute name="build_arguments" value="--generate-version"/>
       </build>
       <depends_on name="pygccxml" optional="True"/>
     </module>
@@ -77,7 +77,7 @@
       <depends_on name="click-1.8.0" optional="True"/>
       <depends_on name="openflow-ns3" optional="True"/>
       <build type="waf" objdir="yes">
-	<attribute name="extra_configure_options" value="--with-nsc=$INSTALLDIR --with-nsclick=$INSTALLDIR --with-openflow=$INSTALLDIR"/>
+	<attribute name="configure_arguments" value="--with-nsc=$INSTALLDIR --with-nsclick=$INSTALLDIR --with-openflow=$INSTALLDIR"/>
       </build>
     </module>
 
@@ -87,16 +87,19 @@
     <enable name="ns-3-dev"/>
     <append name="CFLAGS" value="-g -O3"/>
     <append name="CXXFLAGS" value="-g -O3"/>
+    <append module="ns-3-dev" name="configure_arguments" value="--enable-examples --enable-tests"/>
   </predefined>
   <predefined name="dbg">
     <enable name="ns-3-dev"/>
     <append name="CFLAGS" value="-g -O0"/>
     <append name="CXXFLAGS" value="-g -O0"/>
+    <append module="ns-3-dev" name="configure_arguments" value="--enable-examples --enable-tests"/>
   </predefined>
   <predefined name="coverage">
     <enable name="ns-3-dev"/>
     <append name="CFLAGS" value="-fprofile-arcs -ftest-coverage "/>
     <append name="CXXFLAGS" value="-fprofile-arcs -ftest-coverage "/>
     <append name="LDFLAGS" value="-lgcov"/>
+    <append module="ns-3-dev" name="configure_arguments" value="--enable-examples --enable-tests"/>
   </predefined>
 </configuration>
