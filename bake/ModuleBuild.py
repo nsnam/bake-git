@@ -9,8 +9,11 @@ class ModuleBuild(ModuleAttributeBase):
         self._libpaths = []
         self.add_attribute('objdir', 'no', 'Module supports objdir != srcdir.')
     @classmethod
+    def subclasses(self):
+        return ModuleBuild.__subclasses__()
+    @classmethod
     def create(cls, name):
-        for subclass in ModuleBuild.__subclasses__():
+        for subclass in ModuleBuild.subclasses():
             if subclass.name() == name:
                 instance = subclass()
                 return instance

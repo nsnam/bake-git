@@ -8,8 +8,11 @@ class ModuleSource(ModuleAttributeBase):
     def __init__(self):
         ModuleAttributeBase.__init__(self)
     @classmethod
+    def subclasses(self):
+        return ModuleSource.__subclasses__()
+    @classmethod
     def create(cls, name):
-        for subclass in ModuleSource.__subclasses__():
+        for subclass in ModuleSource.subclasses():
             if subclass.name() == name:
                 return subclass()
         return None

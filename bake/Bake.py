@@ -455,18 +455,68 @@ class Bake:
         import os
         env.run([os.environ['SHELL']], directory=env.installdir, interactive = True)
 
-    def _query(self, config, args):
-        parser = OptionParser(usage='usage: %prog query [options]')
+    def _show_one_builtin(self, builtin, string, variables):
+        import textwrap
+        if builtin.name() != 'none':
+            print '%s %s' % (string, builtin.name())
+            if variables:
+                for attribute in builtin().attributes():
+                    print '    %s=%s' % (attribute.name, attribute.value)
+                    lines = ['      %s' % line for line in textwrap.wrap(attribute.help)]
+                    print '\n'.join(lines)
+
+    def _show_builtin(self, config, args):
+        from ModuleSource import ModuleSource
+        from ModuleBuild import ModuleBuild
+        parser = OptionParser(usage='usage: %prog show [options]')
+        parser.add_option('-a', '--all', action='store_true', dest='all', default=False,
+                          help='Display all known information about builtin source and build commands')
+        parser.add_option('--source', action='store_true', dest='source', default=False,
+                          help='Display information about builtin source commands')
+        parser.add_option('--build', action='store_true', dest='build', default=False,
+                          help='Display information about builtin build commands')
+        parser.add_option('--variables', action='store_true', dest='variables', default=False,
+                          help='Display variables for builtin commands')
+        (options, args_left) = parser.parse_args(args)
+        if options.all:
+            options.source = True
+            options.build = True
+            options.variables = True
+        if options.source:
+            for source in ModuleSource.subclasses():
+                self._show_one_builtin(source, 'source', options.variables)
+        if options.build:
+            for build in ModuleBuild.subclasses():
+                self._show_one_builtin(build, 'build', options.variables)
+
+    def _show_variables(self, module):
+        source = module.get_source()
+        if source.attributes():
+            print '  source %s' % source.name()
+            for attribute in source.attributes():
+                print '    %s=%s' % (attribute.name, attribute.value)
+        build = module.get_build()
+        if build.attributes():
+            print '  build %s' % build.name()
+            for attribute in build.attributes():
+                print '    %s=%s' % (attribute.name, attribute.value)
+
+    def _show(self, config, args):
+        parser = OptionParser(usage='usage: %prog show [options]')
         parser.add_option("-c", "--conffile", action="store", type="string", 
-                          dest="bakeconf", default="bakeconf.xml", 
+                          dest="bakeconf", default="bakeconf.xml",
                           help="The Bake metadata configuration file to use if a Bake file is "
                           "not specified. Default: %default.")
         parser.add_option('-a', '--all', action='store_true', dest='all', default=False,
                           help='Display all known information about current configuration')
-        parser.add_option('--modules', action='store_true', dest='modules', default=False,
-                          help='Display information about existing modules')
-        parser.add_option('--enabled-modules', action='store_true', dest='enabled_modules', 
+        parser.add_option('--enabled', action='store_true', dest='enabled',
                           default=False, help='Display information about existing enabled modules')
+        parser.add_option('--disabled', action='store_true', dest='disabled',
+                          default=False, help='Display information about existing disabled modules')
+        parser.add_option('--variables', action='store_true', dest='variables', default=False, 
+                          help='Display information on the variables set for the modules selected')
+        parser.add_option('--predefined', action='store_true', dest='predefined', default=False, 
+                          help='Display information on the items predefined')
         parser.add_option('--directories', action='store_true', dest='directories', default=False,
                           help='Display information about which directories have been configured')
         (options, args_left) = parser.parse_args(args)
@@ -477,56 +527,48 @@ class Bake:
             configuration = Configuration(config)
             configuration.read_metadata(options.bakeconf)
         if options.all:
-            options.modules = True
+            options.enabled = True
+            options.disabled = True
             options.directories = True
+            options.variables = True
+            options.predefined = True
         if options.directories:
             print 'installdir   : ' + configuration.compute_installdir()
             print 'sourcedir    : ' + configuration.compute_sourcedir()
             print 'objdir       : ' + configuration.get_objdir()
-        if options.modules:
-            print """Modules:
-    ++: explicitely enabled
-    + : enabled to satify dependency
-    --: explicitely disabled
-    - : not explicitely disabled"""
-            enabled = []
-            def _iterator(module):
-                enabled.append(module)
-                return True
-            self._iterate(configuration, _iterator, configuration.enabled())
-            for module in configuration.modules():
-                if module in configuration.enabled():
-                    prefix = '++'
-                elif module in enabled:
-                    prefix = '+ '
-                elif module in configuration.disabled():
-                    prefix = '--'
-                else:
-                    prefix = '- '
-                print '%s %s' % (prefix, module.name())
-        elif options.enabled_modules:
-            enabled = []
-            def _iterator(module):
-                enabled.append(module)
-                return True
-            self._iterate(configuration, _iterator, configuration.enabled())
+
+        enabled = []
+        def _iterator(module):
+            enabled.append(module)
+            return True
+        self._iterate(configuration, _iterator, configuration.enabled())
+        disabled = filter(lambda module: not module in enabled, configuration.modules())
+
+        if options.enabled:
             for module in enabled:
-                print module.name()
-            
+                print 'module: %s (enabled)' % module.name()
+                if options.variables:
+                    self._show_variables(module)
+        if options.disabled:
+            for module in disabled:
+                print 'module: %s (disabled)' % module.name()
+                if options.variables:
+                    self._show_variables(module)
 
     def main(self, argv):
         parser = MyOptionParser(usage = 'usage: %prog [options] command [command options]',
                                 description = """Where command is one of:
-  configure   : Setup the build configuration (source, build, install directory,
-                and per-module build options) from the module descriptions
-  reconfigure : Update the build configuration from a newer module description
-  download    : Download all modules enabled during configure
-  update      : Update the source tree of all modules enabled during configure
-  build       : Build all modules enabled during configure
-  clean       : Cleanup the source tree of all modules built previously
-  shell       : Start a shell and setup relevant environment variables
-  uninstall   : Remove all files that were installed during build
-  query       : Report on build configuration
+  configure    : Setup the build configuration (source, build, install directory,
+                 and per-module build options) from the module descriptions
+  reconfigure  : Update the build configuration from a newer module description
+  download     : Download all modules enabled during configure
+  update       : Update the source tree of all modules enabled during configure
+  build        : Build all modules enabled during configure
+  clean        : Cleanup the source tree of all modules built previously
+  shell        : Start a shell and setup relevant environment variables
+  uninstall    : Remove all files that were installed during build
+  show         : Report on build configuration
+  show-builtin : Report on builtin source and build commands
 
 To get more help about each command, try:
   %s command --help
@@ -550,7 +592,8 @@ To get more help about each command, try:
                 ['clean', self._clean],
                 ['shell', self._shell],
                 ['uninstall', self._uninstall],
-                ['query', self._query],
+                ['show', self._show],
+                ['show-builtin', self._show_builtin]
                ]
         for name, function in ops:
             if args_left[0] == name:
