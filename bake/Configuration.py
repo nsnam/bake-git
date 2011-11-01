@@ -27,12 +27,14 @@ class MetadataFile:
         return self.h() == self._h
 
 class PredefinedConfiguration:
-    def __init__(self, name, enable, disable, variables_set, variables_append):
+    def __init__(self, name, enable, disable, variables_set, variables_append,
+                 directories):
         self.name = name
         self.enable = enable
         self.disable = disable
         self.variables_set = variables_set
         self.variables_append = variables_append
+        self.directories = directories
         
 
 class Configuration:
@@ -52,6 +54,8 @@ class Configuration:
             self._relative_directory_root = relative_directory_root
 
     def read_metadata(self, filename):
+        if not os.path.exists(filename):
+            self._error('Could not find "%s"' % filename)
         self._metadata_file = MetadataFile(filename)
         et = ET.parse(filename)
         self._read_metadata(et)
@@ -90,9 +94,21 @@ class Configuration:
                 if not append_name or not append_value:
                     self._error('<append> must define a "name" and a "value" attribute.')
                 variables_append.append((append_module, append_name, append_value))
+            directories = {}
+            for config_node in pred_node.findall('configuration'):
+                objdir = config_node.get('objdir', None)
+                installdir = config_node.get('installdir', None)
+                sourcedir = config_node.get('sourcedir', None)
+                if objdir:
+                    directories['objdir'] = objdir
+                if installdir:
+                    directories['installdir'] = installdir
+                if sourcedir:
+                    directories['sourcedir'] = sourcedir
             predefined.append(PredefinedConfiguration(name, enable, disable, 
                                                       variables_set,
-                                                      variables_append))
+                                                      variables_append, 
+                                                      directories))
         return predefined
 
     def _error(self, string):

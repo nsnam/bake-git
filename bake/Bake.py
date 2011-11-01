@@ -223,17 +223,25 @@ class Bake:
                 requested = data[1]
             else:
                 self._error('Invalid --predefined content: "%s"' % predefined)
-            found = False
-            for predef in predefined:
-                if predef.name == requested:
-                    found = True
-                    self._enable(predef.enable, configuration)
-                    self._disable(predef.disable, configuration)
-                    self._variables_process(predef.variables_set, configuration, is_append = False)
-                    self._variables_process(predef.variables_append, configuration, is_append = True)
-                    break
-            if not found:
-                self._error('--predefined: "%s" not found.' % requested)
+            for p in requested.split(','):
+                found = False
+                for predef in predefined:
+                    if predef.name == p:
+                        found = True
+                        self._enable(predef.enable, configuration)
+                        self._disable(predef.disable, configuration)
+                        self._variables_process(predef.variables_set, configuration, is_append = False)
+                        self._variables_process(predef.variables_append, configuration, is_append = True)
+                        directories = predef.directories
+                        if 'sourcedir' in directories:
+                            configuration.set_sourcedir(directories['sourcedir'])
+                        if 'objdir' in directories:
+                            configuration.set_objdir(directories['objdir'])
+                        if 'installdir' in directories:
+                            configuration.set_installdir(directories['installdir'])
+                        break
+                if not found:
+                    self._error('--predefined: "%s" not found.' % p)
                     
         self._parse_enable_disable(options, configuration)
         for variable in options.set:

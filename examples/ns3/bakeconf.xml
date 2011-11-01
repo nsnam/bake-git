@@ -39,7 +39,7 @@
     <module name="pybindgen">
       <source type="bazaar">
 	<attribute name="url" value="https://launchpad.net/pybindgen"/>
-	<attribute name="revision" value="revno:779"/>
+	<attribute name="revision" value="revno:795"/>
       </source>
       <build type="waf" objdir="yes">
 	<attribute name="build_arguments" value="--generate-version"/>
@@ -83,23 +83,27 @@
 
   </modules>
 
-  <predefined name="opt">
+  <predefined name="ns3">
     <enable name="ns-3-dev"/>
+    <append module="ns-3-dev" name="configure_arguments" value="--enable-examples --enable-tests"/>
+  </predefined>
+  <predefined name="nopython">
+    <disable name="pybindgen"/>
+  </predefined>
+  <predefined name="opt">
+    <configuration objdir="opt"/>
     <append name="CFLAGS" value="-g -O3"/>
     <append name="CXXFLAGS" value="-g -O3"/>
-    <append module="ns-3-dev" name="configure_arguments" value="--enable-examples --enable-tests"/>
   </predefined>
   <predefined name="dbg">
-    <enable name="ns-3-dev"/>
+    <configuration objdir="dbg"/>
     <append name="CFLAGS" value="-g -O0"/>
     <append name="CXXFLAGS" value="-g -O0"/>
-    <append module="ns-3-dev" name="configure_arguments" value="--enable-examples --enable-tests"/>
   </predefined>
-  <predefined name="coverage">
-    <enable name="ns-3-dev"/>
+  <predefined name="cov">
+    <configuration objdir="cov"/>
     <append name="CFLAGS" value="-fprofile-arcs -ftest-coverage "/>
     <append name="CXXFLAGS" value="-fprofile-arcs -ftest-coverage "/>
     <append name="LDFLAGS" value="-lgcov"/>
-    <append module="ns-3-dev" name="configure_arguments" value="--enable-examples --enable-tests"/>
   </predefined>
 </configuration>
