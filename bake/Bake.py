@@ -215,11 +215,11 @@ class Bake:
         if options.predefined:
             data = options.predefined.split(':')
             requested = None
+            predefined = configuration.read_predefined(options.bakeconf)
             if len(data) == 1:
-                predefined = configuration.read_predefined(options.bakeconf)
                 requested = data[0]
             elif len(data) == 2:
-                predefined = configuration.read_predefined(data[0])
+                predefined += configuration.read_predefined(data[0])
                 requested = data[1]
             else:
                 self._error('Invalid --predefined content: "%s"' % predefined)
