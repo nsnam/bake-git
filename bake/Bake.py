@@ -21,6 +21,8 @@ class Bake:
         raise Exception('Error: %s' % string)
 
     def _reconfigure(self,config,args):
+        """Handles the reconfigure command line option."""
+        
         parser = OptionParser(usage = 'usage: %prog reconfigure [options]')
         self._enable_disable_options(parser)
         parser.add_option("-c", "--conffile", action="store", type="string", 
@@ -74,11 +76,13 @@ class Bake:
             for old_attribute in old_build.attributes():
                 if new_build.attribute(old_attribute.value) is None:
                     continue
-                new_build.attribute(old_variable.name).value = old_attribute.value
+                new_build.attribute(old_attribute.name).value = old_attribute.value
 
         new_config.write()
 
     def _enable_disable_options(self, parser):
+        """ Allows the parser to recognize --enable and --disable options."""
+
         parser.add_option("-e", "--enable", action="append", type="string", dest="enable",
                           default=[],
                           help="A module to enable in the Bake configuration")
@@ -93,17 +97,23 @@ class Bake:
                           help="Disable all non-mandatory dependencies.")
 
     def _enable(self, enable, configuration):
+        """ Handles the --enable option, setting defined modules as enable."""
+        
         for module_name in enable:
             module = configuration.lookup(module_name)
             if not module:
                 self._error('Module "%s" not found' % module_name)
             configuration.enable(module)
+
     def _disable(self, disable, configuration):
+        """ Handles the --disable option, setting the defined modules as disable."""
+
         for module_name in disable:
             module = configuration.lookup(module_name)
             if not module:
                 self._error('Module "%s" not found' % module_name)
             configuration.disable(module)
+
     def _variables_process(self, items, configuration, is_append):
         for module_name, name, value in items:
             if module_name:
@@ -127,16 +137,26 @@ class Bake:
                             module.get_build().attribute(name).value = value
         
     def _parse_enable_disable(self, options, configuration):
+        """ Identify the enabled and disabled options passed as parameters in the configuration."""
+        
+        # enables/disables the explicit enable/disable modules passed as argument
         self._enable(options.enable, configuration)
         self._disable(options.disable, configuration)
+        
+        # if the option -a is used, meaning all the modules should be enabled
         if options.enable_all:
             for module in configuration.modules():
                 configuration.enable(module)
+                
+        # if the option -m is used, meaning the minimum configuration should be used
+        # it disables all the non mandatory dependencies
         if options.enable_minimal:
             enabled = []
             def _enabled_iterator(module):
+                """ Assigns the module as enabled."""    
                 enabled.append(module)
                 return True
+            
             self._iterate(configuration, _enabled_iterator, 
                           configuration.enabled(), 
                           follow_optional = True)
@@ -151,32 +171,39 @@ class Bake:
                 if not module in enabled_optional:
                     configuration.disable(module)
 
-    def _parse_variable(self, string):
+    def _parse_variable(self, string, configuration):
+        """ Verifies if the module and requested attribute exists """
+        
         retval = []
         data = string.split(":")
+        
+        # if it is an set for all the modules that contains such variable
         if len(data) == 1:
-            name, value = variable.split("=")
-            found = False
-            
+            name, value = string.split("=")
             for module in configuration.modules():
                 if module.get_build().attribute(name):
                     retval.append((module, name, value))
             if not retval:
-                print 'Error: no module contains variable %s' % name
+                print ('Error: no module contains variable %s' % name)
+        # if it is a set for a module in specific
         elif len(data) == 2:
             name, value = data[1].split("=")
-            module = configuration.lookup(module_name)
+            module = configuration.lookup(data[0])
             if not module:
                 self._error('non-existing module %s in variable specification %s' % \
-                                (module_name, variable))
+                                (name, string))
             if not module.get_build().attribute(name):
-                self._error('non-existing variable %s in module %s' % (name, module_name))
+                self._error('non-existing variable %s in module %s' % (name, module._name))
             retval.append((module, name, value))
+        # if the variable is set incorrectly 
         else:
-            self._error('invalid variable specification: "%s"' % variable)
+            self._error('invalid variable specification: "%s"' % string)
         return retval
         
     def _configure(self,config,args):
+        """ Handles the configuration option for %prog """
+        
+        # set the options the parser should recognize for the configuration
         parser = OptionParser(usage = 'usage: %prog configure [options]')
         self._enable_disable_options(parser)
         parser.add_option("-c", "--conffile", action="store", type="string", 
@@ -206,12 +233,16 @@ class Bake:
         parser.add_option("-p", "--predefined", action="store", type="string",
                           dest="predefined", default=None,
                           help="A predefined configuration to apply")
+        
+        # sets the configuration values
         (options, args_left) = parser.parse_args(args)
         configuration = Configuration(config)
         configuration.read_metadata(options.bakeconf)
         configuration.set_sourcedir(options.sourcedir)
         configuration.set_objdir(options.objdir)
         configuration.set_installdir(options.installdir)
+        
+        # if used the predefined settings, reads the predefined configuration
         if options.predefined:
             data = options.predefined.split(':')
             requested = None
@@ -244,18 +275,26 @@ class Bake:
                     self._error('--predefined: "%s" not found.' % p)
                     
         self._parse_enable_disable(options, configuration)
+        
+        # handles the set command line option, to overwrite the specific 
+        # module setting with the new specified value
         for variable in options.set:
-            matches = self._parse_variable(variable)
+            matches = self._parse_variable(variable, configuration)
             for module, name, value in matches:
                 module.get_build().attribute(name).value = value
+
+        # handles the append command line option, to add the new 
+        # value to the module setting
         for variable in options.append:
-            matches = self._parse_variable(variable)
+            matches = self._parse_variable(variable, configuration)
             for module, name, value in matches:
                 current_value = module.get_build().attribute(name).value
                 module.get_build().attribute(name).value = current_value + ' ' + value
         configuration.write()
 
     def _iterate(self, configuration, functor, targets, follow_optional=True):
+        """Iterates over the configuration modules applying the functor function and solve reminding dependencies."""
+        
         deps = Dependencies()
         class Wrapper:
             def __init__(self, module):
@@ -264,13 +303,18 @@ class Bake:
                 retval = functor(self._module)
                 configuration.write()
                 return retval
+        # for all the modules apply the functor function
         for m in configuration.modules():
             wrapper = Wrapper(m)
             deps.add_dst(m, wrapper.function)
+        # Review the dependencies of all the configured modules
         for m in configuration.modules():
             for dependency in m.dependencies():
                 src = configuration.lookup (dependency.name())
                 if not src in configuration.disabled():
+                    # if it is set to add even the optional modules, or the 
+                    # dependency is not optional, add the module it depends on 
+                    # as a dependency 
                     if follow_optional or not dependency.is_optional():
                         deps.add_dep(src, m, optional = dependency.is_optional())
                         
@@ -294,6 +338,8 @@ class Bake:
         return configuration
 
     def _option_parser(self, operation_name):
+        """Adds genneric options to the options parser. Receives the name of the present option as parameter."""
+        
         parser = OptionParser(usage='usage: %prog ' + operation_name + ' [options]')
         parser.add_option('--logfile', help='File in which we want to store log output '
                           'of requested operation', action="store", type="string", dest="logfile",
@@ -321,6 +367,8 @@ class Bake:
         return parser
 
     def _do_operation(self, config, options, functor):
+        """Applies the function passed as parameter, over the options. """
+        
         configuration = self._read_config(config)
         if options.logdir == '' and options.logfile == '':
             logger = StdoutModuleLogger()
@@ -383,6 +431,8 @@ class Bake:
         return env
 
     def _download(self,config,args):
+        """Handles the download command line option."""
+
         parser = self._option_parser('download')
         (options, args_left) = parser.parse_args(args)
         self._check_source_version(config, options)
@@ -391,6 +441,8 @@ class Bake:
         self._do_operation(config, options, _do_download)
 
     def _update(self,config,args):
+        """Handles the update command line option."""
+
         parser = self._option_parser('update')
         (options, args_left) = parser.parse_args(args)
         self._check_source_version(config, options)
@@ -510,6 +562,8 @@ class Bake:
                 print '    %s=%s' % (attribute.name, attribute.value)
 
     def _show(self, config, args):
+        """Handles the show command line option."""
+        
         parser = OptionParser(usage='usage: %prog show [options]')
         parser.add_option("-c", "--conffile", action="store", type="string", 
                           dest="bakeconf", default="bakeconf.xml",

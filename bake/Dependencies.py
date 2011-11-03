@@ -65,7 +65,11 @@ class Dependencies:
         self._resolving = False
         # is there any target that is dirty ?
         self._dirty = False
+        
     def add_dst(self, dst, context = None):
+        """Add the dependence"""
+        
+        # if the module passed as parameter, dst, is in fact a list of modules
         if isinstance(dst,list):
             return [self.add_dst(d,context) for d in dst]
         # the dependency is already recorded. nothing to do.
@@ -78,6 +82,9 @@ class Dependencies:
         self._update_dirty(target)
 
     def add_dep(self, src, dst, optional = False):
+        """Registers a dependency regarding one module to another."""
+        
+        # if the dependence is in fact for a list of dependencies
         if isinstance(src,list):
             return [self.add_dep(s,dst) for s in src]
         assert self._targets.has_key(dst)
@@ -118,6 +125,8 @@ class Dependencies:
         self._resolving = False
 
     def _update_dirty(self,target):
+        """Registers dependency added modules for later treatment."""
+        
         if self._resolving:
             depending = self._depend_on([target])
             for i in depending:

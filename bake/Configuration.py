@@ -8,21 +8,20 @@ import sys
 
 class MetadataFile:
     def __init__(self, filename, h=''):
-        import os
         self._filename = os.path.realpath(filename)
         self._h = h
     def filename(self):
         return self._filename
     def h(self):
-         import hashlib
-         m = hashlib.md5()
-         try:
-             f = open(self._filename)
-             m.update(f.read())
-             f.close()
-             return m.hexdigest()
-         except:
-             return ''
+        import hashlib
+        m = hashlib.md5()
+        try:
+            f = open(self._filename)
+            m.update(f.read())
+            f.close()
+            return m.hexdigest()
+        except:
+            return ''
     def is_hash_ok(self):
         return self.h() == self._h
 
@@ -59,7 +58,10 @@ class Configuration:
         self._metadata_file = MetadataFile(filename)
         et = ET.parse(filename)
         self._read_metadata(et)
+        
     def read_predefined(self, filename):
+        """ Creates the list of predefined entries defined in the XML config file"""
+        
         et = ET.parse(filename)
         predefined = []
         for pred_node in et.getroot().findall('predefined'):
@@ -180,6 +182,10 @@ class Configuration:
         return obj
 
     def _create_node_from_obj(self, obj, node_string):
+        """Generates the XML node based on the XML object passed as parameter"""
+
+        # inline is when one uses Python as build configuration to create a 
+        # small build script    
         if obj.__class__.name() == 'inline':
             node = ET.Element(node_string, {'type' : 'inline',
                                             'classname' : obj.__class__.__name__})
@@ -222,6 +228,8 @@ class Configuration:
 
     
     def _read_metadata(self, et):
+        """ Reads the elements from the xml configuration files and add it to the internal list of modules."""
+
         # function designed to be called on two kinds of xml files.
         modules = et.findall('modules/module')
         for module_node in modules:
@@ -245,6 +253,8 @@ class Configuration:
             self._modules.append(module)
 
     def _write_metadata(self, root):
+        """ Saves modules data to the XML configuration file. """
+        
         modules_node = ET.Element('modules')
         root.append(modules_node)
         for module in self._modules:
@@ -261,6 +271,8 @@ class Configuration:
             module_node.append(build_node)
             self._write_libpath(build_node, module.get_build())
             
+            # handles the dependencies for the module and register them 
+            # into module node
             for dependency in module.dependencies():
                 attrs = {'name' : dependency.name() }
                 if dependency.is_optional():
@@ -270,6 +282,8 @@ class Configuration:
             modules_node.append(module_node)
 
     def write(self):
+        """ Creates the target configuration XML file."""
+        
         root = ET.Element('configuration', 
                           {'installdir' : self._installdir,
                            'sourcedir' : self._sourcedir,
@@ -291,11 +305,14 @@ class Configuration:
             disable_node = ET.Element('disabled', {'name' : e.name()})
             root.append(disable_node)
 
+        # add modules information
         self._write_metadata(root)
         et = ET.ElementTree(element=root)
         et.write(self._bakefile)
 
     def read(self):
+        """ Reads the XML customized configuration file. """
+        
         et = ET.parse(self._bakefile)
         self._read_metadata(et)
         root = et.getroot()
@@ -324,46 +341,69 @@ class Configuration:
 
     def set_installdir(self, installdir):
         self._installdir = installdir
+
     def get_installdir(self):
         return self._installdir
+
     def set_objdir(self, objdir):
         self._objdir = objdir
+
     def get_objdir(self):
         return self._objdir
+
     def set_sourcedir(self, sourcedir):
         self._sourcedir = sourcedir
+
     def get_sourcedir(self):
         return self._sourcedir
+
     def get_relative_directory_root(self):
         return self._relative_directory_root
+
     def _compute_path(self, p):
+        """Returns the full path"""
+        
         if os.path.isabs(p):
             return p
         else:
             tmp = os.path.join(os.path.dirname(self._bakefile), self._relative_directory_root, p)
             return os.path.normpath(tmp)
+
     def compute_sourcedir(self):
         return self._compute_path(self._sourcedir)
+
     def compute_installdir(self):
         return self._compute_path(self._installdir)
+
     def enable(self, module):
+        """ Set the module as enabled, but if it is disabled, simply removes it from the disabled list. """
+        
         if module in self._disabled:
             self._disabled.remove(module)
         else:
             self._enabled.append(module)
+ 
     def disable(self, module):
+        """ Set the module as disabled, but if it is enabled, simply removes it from the enabled list. """
+        
         if module in self._enabled:
             self._enabled.remove(module)
         else:
             self._disabled.append(module)
+
     def lookup(self, name):
+        """ Finds the module in the modules list. """
+        
         for module in self._modules:
             if module.name() == name:
                 return module
         return None
+
     def enabled(self):
         return self._enabled
+
     def disabled(self):
         return self._disabled
+
     def modules(self):
         return self._modules
