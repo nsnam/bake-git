@@ -229,6 +229,8 @@ class Dependencies:
     # False. Otherwise, the function completes and returns True.
     def _resolve_one_iteration(self, targets, callback):
         self._dirty = False
+        
+        # sort in a way that the nodes that have no dependencies are first
         queue = self._sort(targets)
         dirty = [i for i in queue if i.is_dirty()]
         for i in dirty:

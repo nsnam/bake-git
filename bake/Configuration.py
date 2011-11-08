@@ -264,6 +264,8 @@ class Configuration:
             module_node = ET.Element('module', module_attrs)
             self._write_installed(module_node, module.installed)
 
+            # registers the values, possible changed ones, from the source and
+            # build XML tags of each module
             source_node = self._create_node_from_obj(module.get_source(), 'source')
             module_node.append(source_node)
 

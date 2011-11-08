@@ -89,13 +89,19 @@ class ModuleEnvironment:
         self._logger.clear_current_module()
 
     def _program_location(self, program):
+        """Finds where the executable is located in the user's path."""
+        
+        # function to verify if the program exists on the given path 
+        # and if it is executable
         def is_exe(path):
             return os.path.exists(path) and os.access(path, os.X_OK)
         path, name = os.path.split(program)
+        # if the path for the executable was passed as part of its name
         if path:
             if is_exe(program):
                 return program
         else:
+            # for all the directories in the path search for the executable
             for path in os.environ["PATH"].split(os.pathsep) + [self._bin_path()]:
                 exe_file = os.path.join(path, program)
                 if is_exe(exe_file):
@@ -103,6 +109,12 @@ class ModuleEnvironment:
         return None
 
     def _check_version(self, found, required, match_type):
+        """Checks the version of the required executable."""
+        
+        # I guess we should change here to accept different sizes
+        # e.g. Version 4.2 is required, but 4.2.1 is already bigger so it is OK
+        # the only change to make is to get the smaller length to control the 
+        # for, and if different decide in accordance to if it is HIGHER or LOWER 
         assert len(found) == len(required)
         if match_type == self.HIGHER:
             for i in range(0,len(found)):
@@ -140,12 +152,16 @@ class ModuleEnvironment:
     def check_program(self, program, version_arg = None,
                       version_regexp = None, version_required = None,
                       match_type=HIGHER):
+        """Checks if the program, with the desired version, exists in the system."""
+        
         if self._program_location(program) is None:
             return False
         if version_arg is None and version_regexp is None and version_required is None:
             return True
         else:
-            assert not (version_arg is None or version_regexp is None or version_required is None)
+#            This assert as it was avoided the checking of the version of the executable
+#            assert not (version_arg is None or version_regexp is None or version_required is None)
+            assert not (version_arg is None and version_regexp is None and version_required is None)
             popen = subprocess.Popen([self._program_location(program), version_arg],
                                      stdout = subprocess.PIPE,
                                      stderr = subprocess.STDOUT)
@@ -159,6 +175,8 @@ class ModuleEnvironment:
                     return self._check_version(found, version_required, match_type)
 
     def run(self, args, directory = None, env = dict(), interactive = False):
+        """Executes a system program adding the libraries and over the correct directories."""
+        
         if not interactive:
             env_string = ''
             if len(env) != 0:
@@ -173,6 +191,8 @@ class ModuleEnvironment:
             stdout = sys.stdout
             stderr = sys.stderr            
         tmp = dict(os.environ.items() + env.items())
+        
+        # adds the libpath 
         for libpath in self._libpaths:
             self._append_path(tmp, self._lib_var(), libpath, os.pathsep)
         self._append_path(tmp, self._lib_var(), self._lib_path(), os.pathsep)

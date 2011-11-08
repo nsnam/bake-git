@@ -234,7 +234,7 @@ class Bake:
                           dest="predefined", default=None,
                           help="A predefined configuration to apply")
         
-        # sets the configuration values
+        # sets the configuration values got from the line command
         (options, args_left) = parser.parse_args(args)
         configuration = Configuration(config)
         configuration.read_metadata(options.bakeconf)
@@ -274,6 +274,8 @@ class Bake:
                 if not found:
                     self._error('--predefined: "%s" not found.' % p)
                     
+        # Registers the modules are that enabled/disabled 
+        # handles the -a, -m, --disable, --enable tags            
         self._parse_enable_disable(options, configuration)
         
         # handles the set command line option, to overwrite the specific 
@@ -303,7 +305,7 @@ class Bake:
                 retval = functor(self._module)
                 configuration.write()
                 return retval
-        # for all the modules apply the functor function
+        # for all the modules saves the configuration
         for m in configuration.modules():
             wrapper = Wrapper(m)
             deps.add_dst(m, wrapper.function)
@@ -311,6 +313,13 @@ class Bake:
         for m in configuration.modules():
             for dependency in m.dependencies():
                 src = configuration.lookup (dependency.name())
+                
+                # verifies if the dependency really exists in the configuration
+                # if not we could have a problem of a corrupt, or badly 
+                # configured xml file, e.g. misspelled module name  
+                if src is None:
+                    self._error('Dependency "%s" not found' % dependency.name())
+                
                 if not src in configuration.disabled():
                     # if it is set to add even the optional modules, or the 
                     # dependency is not optional, add the module it depends on 
@@ -367,7 +376,7 @@ class Bake:
         return parser
 
     def _do_operation(self, config, options, functor):
-        """Applies the function passed as parameter, over the options. """
+        """Applies the function, passed as parameter, over the options. """
         
         configuration = self._read_config(config)
         if options.logdir == '' and options.logfile == '':
@@ -458,6 +467,8 @@ class Bake:
         self._do_operation(config, options, _do_check)
 
     def _check_source_version(self, config, options):
+        """Checks if the source can be handled by the programs in the machine."""
+         
         def _do_check(configuration, module, env):
             if not module.check_source_version(env):
                 self._error('Could not find source tool for module %s' % module.name())

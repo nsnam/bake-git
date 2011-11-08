@@ -12,6 +12,10 @@ class ModuleSource(ModuleAttributeBase):
         return ModuleSource.__subclasses__()
     @classmethod
     def create(cls, name):
+        """Instantiates the class that is called by the requested name."""
+        
+        # Runs over all the Classes and instantiates the one that has the name
+        # equals to the name passed as parameter
         for subclass in ModuleSource.subclasses():
             if subclass.name() == name:
                 return subclass()
@@ -48,6 +52,8 @@ class InlineModuleSource(ModuleSource):
         return 'inline'
 
 class BazaarModuleSource(ModuleSource):
+    """Handles the modules that have the sources stored in a bazaar repository."""
+    
     def __init__(self):
         ModuleSource.__init__(self)
         self.add_attribute('url', '', 'The url to clone from',
@@ -74,6 +80,8 @@ class BazaarModuleSource(ModuleSource):
 
     
 class MercurialModuleSource(ModuleSource):
+    """Handles the modules that have the sources stored in a mercurial repository."""
+    
     def __init__(self):
         ModuleSource.__init__(self)
         self.add_attribute('url', '', 'The url to clone from',
@@ -96,6 +104,8 @@ class MercurialModuleSource(ModuleSource):
 
         
 class ArchiveModuleSource(ModuleSource):
+    """Handles the modules that have the sources as a single tarball like file."""
+    
     def __init__(self):
         ModuleSource.__init__(self)
         self.add_attribute('url', None, 'The url to clone from',
@@ -108,6 +118,8 @@ class ArchiveModuleSource(ModuleSource):
     def name(cls):
         return 'archive'
     def _decompress(self, filename, env):
+        """Uses the appropriate tool to uncompress the sources."""
+        
         import tempfile
         import os
         tempdir = tempfile.mkdtemp(dir=env.srcrepo)
@@ -119,6 +131,8 @@ class ArchiveModuleSource(ModuleSource):
             ['zip', ['unzip']],
             ['rar', ['unrar', 'e']]
             ]
+        
+        # finds the right tool
         for extension, command in extensions:
             if filename.endswith(extension):
                 env.run(command + [filename], directory = tempdir)
@@ -132,6 +146,8 @@ class ArchiveModuleSource(ModuleSource):
         raise TaskError('Unknown Archive Type')
 
     def download(self, env):
+        """Downloads the specific file."""
+        
         import urllib
         import urlparse
         import os
@@ -145,6 +161,8 @@ class ArchiveModuleSource(ModuleSource):
         pass
 
     def check_version(self, env):
+        """Verifies if the right program exists in the system to handle the given compressed source file."""
+        
         extensions = [
             ['tar', 'tar'],
             ['tar.gz', 'tar'],
@@ -160,6 +178,8 @@ class ArchiveModuleSource(ModuleSource):
         return False
         
 class CvsModuleSource(ModuleSource):
+    """Handles the modules that have the sources stored in a CVS repository."""
+    
     def __init__(self):
         ModuleSource.__init__(self)
         self.add_attribute('root', '', 'Repository root specification to checkout from.',
@@ -196,6 +216,8 @@ class CvsModuleSource(ModuleSource):
         return env.check_program('cvs')
 
 class GitModuleSource(ModuleSource):
+    """Handles the modules that have the sources stored in a git repository."""
+    
     def __init__(self):
         ModuleSource.__init__(self)
         self.add_attribute('url', '', 'Url to clone the source tree from.',
