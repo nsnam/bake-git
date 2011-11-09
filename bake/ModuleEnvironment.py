@@ -3,6 +3,8 @@ import subprocess
 import sys
 import platform
 
+from bake.Exceptions import TaskError 
+
 class ModuleEnvironment:
     (HIGHER, LOWER, EQUAL) = range(0,3)
 
