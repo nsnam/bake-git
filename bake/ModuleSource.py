@@ -141,9 +141,14 @@ class ArchiveModuleSource(ModuleSource):
                 else:
                     actual_extract_dir = os.path.basename(filename)[0:-len(extension)-1]
                 # finally, rename the extraction directory to the target directory name.
-                os.rename(os.path.join(tempdir, actual_extract_dir), env.srcdir)
+                try:
+                    os.rename(os.path.join(tempdir, actual_extract_dir), env.srcdir)
+                except (OSError, IOError) as e:
+                    raise TaskError('Rename problem for module: %s, from: %s, to: %s, Error: %s' 
+                                    % (env._module_name,os.path.join(tempdir, actual_extract_dir),env.srcdir, e))
+
                 return
-        raise TaskError('Unknown Archive Type')
+        raise TaskError('Unknown Archive Type: %s, for module: %s' %(filename, env._module_name))
 
     def download(self, env):
         """Downloads the specific file."""
@@ -153,7 +158,11 @@ class ArchiveModuleSource(ModuleSource):
         import os
         filename = os.path.basename(urlparse.urlparse(self.attribute('url').value).path)
         tmpfile = os.path.join(env.srcrepo, filename)
-        urllib.urlretrieve(self.attribute('url').value, filename=tmpfile)
+        try:
+            urllib.urlretrieve(self.attribute('url').value, filename=tmpfile)
+        except IOError as e:
+            raise TaskError('Download problem for module: %s, URL: %s, Error: %s' % (env._module_name, self.attribute('url').value, e))
+            
         self._decompress(tmpfile, env)
         
     def update(self, env):
@@ -171,7 +180,11 @@ class ArchiveModuleSource(ModuleSource):
             ['zip', 'unzip'],
             ['rar', 'unrar']
             ]
-        filename = os.path.basename(urlparse.urlparse(self.attribute('url').value).path)
+        try:
+            filename = os.path.basename(urlparse.urlparse(self.attribute('url').value).path)
+        except AttributeError as e:
+            return False
+
         for extension,program in extensions:
             if filename.endswith(extension):
                 return env.check_program(program)

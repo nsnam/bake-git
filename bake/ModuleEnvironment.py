@@ -183,7 +183,11 @@ class ModuleEnvironment:
             env_string = ''
             if len(env) != 0:
                 env_string = ' '.join([a + '=' + b for a,b in env.items()])
-            args_string = ' '.join(args)
+            try:
+                args_string = ' '.join(args)
+            except TypeError as e:
+                raise TaskError('Wrong argument type: %s, expected string, error: %s' % (str(args), e))
+               
             self._logger.commands.write(env_string + ' ' + args_string + ' dir=' + str(directory) + '\n')
             stdin = None
             stdout = self._logger.stdout
