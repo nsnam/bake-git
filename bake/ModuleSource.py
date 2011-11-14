@@ -3,6 +3,7 @@ import Utils
 from Utils import ModuleAttributeBase
 import os
 import urlparse
+from datetime import date
 
 class ModuleSource(ModuleAttributeBase):
     def __init__(self):
@@ -206,8 +207,14 @@ class CvsModuleSource(ModuleSource):
     def name(cls):
         return 'cvs'
     def download(self, env):
+        """ Downloads the CVS code from a specific date. """
+        
         import tempfile
-        tempdir = tempfile.mkdtemp(dir=env.srcrepo)
+        try:
+            tempdir = tempfile.mkdtemp(dir=env.srcrepo)
+        except OSError as e:
+            raise TaskError('Could not create temporary directory %s, Error: %s' % (env.srcrepo, e))
+
         env.run(['cvs', '-d', self.attribute('root').value, 'login'], 
                 directory = tempdir)
         checkout_options = []
@@ -221,10 +228,25 @@ class CvsModuleSource(ModuleSource):
         else:
             actual_checkout_dir = self.attribute('module').value
         import os
-        os.rename(os.path.join(tempdir, actual_checkout_dir), env.srcdir)
+        try:
+            os.rename(os.path.join(tempdir, actual_checkout_dir), env.srcdir)
+        except AttributeError as e:
+            raise TaskError('Atribute type error expected String, Error: %s' % e)
+        
 
     def update(self, env):
-        env.run(['cvs', 'up'], directory = env.srcdir)
+        """Updates the code for the date specified, or for the today's code. """
+        
+        # just update does not work, it has to give a date for the update
+        # either a date is provided, or takes today as date
+        update_options = []
+        if not self.attribute('date').value is None:
+            update_options.extend(['-D', self.attribute('date').value])
+        else:
+            update_options.extend(['-D', str(date.today())]) 
+        
+        env.run(['cvs', 'up']+update_options, directory = env.srcdir)
+        
     def check_version(self, env):
         return env.check_program('cvs')
 

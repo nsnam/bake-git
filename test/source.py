@@ -448,6 +448,262 @@ class TestModuleSource(unittest.TestCase):
         # last clean up
         self.executeCommand(["rm", "-rf", "pybindgen"], "/tmp")
 
+    def test_cvs(self):
+        """Tests the CvsModuleSourceclass. """
+        
+        # checks if can create the class 
+        cvs = ModuleSource.create("cvs")
+        self.assertNotEqual(cvs, None)
+        self.assertEqual(cvs.name(), "cvs")
+       
+        # Verifies if cvs is installed
+        testResult = cvs.check_version(self._env)
+        self.assertTrue(testResult)
+
+        cvs.attribute("root").value = ":pserver:anoncvs:@www.gccxml.org:/cvsroot/GCC_XML"
+        cvs.attribute("module").value="gccxml"
+        cvs.attribute("date").value="2009-09-21"
+        
+        self._env._module_name="gccxml"
+        self._logger.set_current_module(self._env._module_name)
+
+        ##### Normal Flow test
+        #clean up the environment, just to be safe
+        self.executeCommand(["/bin/rm", "-rf", "gccxml"], "/tmp")
+        testResult = cvs.download(self._env)
+
+        # None means everything was OK, since there were no exceptions
+        self.assertEqual(testResult, None)
+        
+        # will use the README file to see if the update works
+        testStatus = commands.getoutput('cd /tmp/gccxml; cvs status CMakeLists.txt')
+        lastVersion = re.compile('\d+.\d+').search(testStatus).group().replace(".","")
+
+        #after the test, clean the environment
+        self.executeCommand(["rm", "-rf", "gccxml"], "/tmp")
+      
+        # download a specific version
+        cvs.attribute("date").value="2007-09-21"
+        testResult = cvs.download(self._env)       
+        self.assertEqual(testResult, None)
+        
+        # verify that the version is the correct one
+        testStatus = commands.getoutput('cd /tmp/gccxml; cvs status CMakeLists.txt')
+        version = re.compile('\d+.\d+').search(testStatus).group().replace(".","")
+        self.assertEqual(version, "18")
+
+        # makes an update of the version to a latter version
+        cvs.attribute("date").value="2008-09-21"
+        testResult = cvs.update(self._env)       
+        self.assertEqual(testResult, None)
+        
+        # verify that the version is bigger than the previous one
+        testStatus = commands.getoutput('cd /tmp/gccxml; cvs status CMakeLists.txt')
+        version2 = re.compile('\d+.\d+').search(testStatus).group().replace(".","")
+        self.assertTrue((float(version) < float(version2)))
+        
+        # Verify if it updates to today's version
+        cvs.attribute("date").value=None
+        testResult = cvs.update(self._env)       
+        self.assertEqual(testResult, None)
+        testStatus = commands.getoutput('cd /tmp/gccxml; cvs status CMakeLists.txt')
+        version3 = re.compile('\d+.\d+').search(testStatus).group().replace(".","")
+        self.assertTrue(float(version2) < float(version3))
+
+        self.executeCommand(["rm", "-rf", "gccxml"], "/tmp")
+          
+        # Wrong repository
+        cvs.attribute("root").value = ":pserver:anoncvs:@non.Existent.server.com:/cvsroot/GCC_XML"
+        cvs.attribute("date").value="2008-09-21"
+        self._logger.set_current_module(self._env._module_name)
+        
+        try:
+            testResult = cvs.download(self._env)
+            self.fail("There was no problem with a non existent repository. ")
+        except TaskError as e:
+            self.assertNotEqual(e._reason, None)    
+            self.assertEqual(testResult, None)
+             
+        self.executeCommand(["rm", "-rf", "gccxml"], "/tmp")
+
+        # try to download to a non existent directory        
+        testStatus = commands.getoutput('rm -rf /tmp/testDir')
+        self._env._sourcedir = "/tmp/testDir"
+        testResult = None
+        try:
+            testResult = cvs.download(self._env)
+            self.fail("There was no problem, target directory does not exist and it managed to finish the operation. ")
+        except TaskError as e:
+            self.assertNotEqual(e._reason, None)    
+            self.assertEqual(testResult, None)
+        
+        # try to download to a directory where the user has no permission    
+        testStatus = commands.getoutput('mkdir /tmp/testDir;chmod 000 /tmp/testDir')
+        try:
+            testResult = cvs.download(self._env)
+            self.fail("There was no problem, user has no permission on the target directory and it managed to finish the operation. ")
+        except TaskError as e:
+            self.assertNotEqual(e._reason, None)    
+            self.assertEqual(testResult, None)
+
+        testStatus = commands.getoutput('chmod 755 /tmp/testDir; rm -rf /tmp/testDir')
+ 
+        # returns to the original state
+        cvs.attribute("root").value = ":pserver:anoncvs:@www.gccxml.org:/cvsroot/GCC_XML"
+        self._env._sourcedir = "/tmp"
+               
+        # Invalid argument, it is int and should be string
+        cvs.attribute("checkout_directory").value = -60
+        try:
+            testResult = cvs.download(self._env)
+            self.fail("The version is inexistent, but there is no error. ")
+        except TaskError as e:
+            self.assertNotEqual(e._reason, None)    
+            self.assertEqual(testResult, None)
+
+        # can't go for an inexistent version 
+        cvs.attribute("checkout_directory").value = "/tmp"
+        cvs.attribute("date").value="5000-09-21"
+        try:
+            testResult = cvs.download(self._env)
+            self.fail("The version is inexistent, but there is no error. ")
+        except TaskError as e:
+            self.assertNotEqual(e._reason, None)    
+            self.assertEqual(testResult, None)
+
+        # last clean up
+        self.executeCommand(["rm", "-rf", "gccxml"], "/tmp")
+        
+    def test_git(self):
+        """Tests the GitModuleSource. """
+        
+        # checks if can create the class 
+        git = ModuleSource.create("git")
+        self.assertNotEqual(git, None)
+        self.assertEqual(git.name(), "git")
+       
+        # Verifies if git is installed
+        testResult = git.check_version(self._env)
+        self.assertTrue(testResult)
+
+        git.attribute("url").value = "git://github.com/git/hello-world.git"
+        git.attribute("revision").value = "78cfc43c2827b9e48e6586a3523ff845a6378889"
+        
+        self._env._module_name="hello-world"
+        self._logger.set_current_module(self._env._module_name)
+
+        ##### Normal Flow test
+        #clean up the environment, just to be safe
+        self.executeCommand(["/bin/rm", "-rf", "hello-world"], "/tmp")
+        testResult = git.download(self._env)
+
+        # None means everything was OK, since there were no exceptions
+        self.assertEqual(testResult, None)
+        
+        # will use the README file to see if the update works
+        testStatus = commands.getoutput('cd /tmp/hello-world; git log')
+        lastVersion = re.compile(' +\w+').search(testStatus).group().replace(" ","")
+        self.assertEqual(lastVersion, "3fa7c46d11b11d61f1cbadc6888be5d0eae21969")
+
+        #after the test, clean the environment
+        self.executeCommand(["rm", "-rf", "hello-world"], "/tmp")
+      
+        # download a specific version
+        git.attribute("revision").value="3fa7c46d11b11d61f1cbadc6888be5d0eae21969"
+        testResult = git.download(self._env)       
+        self.assertEqual(testResult, None)
+        
+        # verify that the version is the correct one
+        testStatus = commands.getoutput('cd /tmp/gccxml; cvs status CMakeLists.txt')
+        version = re.compile(' +\w+').search(testStatus).group().replace(" ","")
+        self.assertEqual(version, "3fa7c46d11b11d61f1cbadc6888be5d0eae21969")
+         
+#         Verify if it updates to today's version
+#        git.attribute("revision").value='master'
+#        testResult = git.update(self._env)       
+#        self.assertEqual(testResult, None)
+#        testStatus = commands.getoutput('cd /tmp/gccxml; cvs status CMakeLists.txt')
+#        version3 = re.compile('\d+.\d+').search(testStatus).group().replace(".","")
+#        self.assertTrue(float(version2) < float(version3))
+#
+#        self.executeCommand(["rm", "-rf", "gccxml"], "/tmp")
+#          
+#         Wrong repository
+#        cvs.attribute("root").value = ":pserver:anoncvs:@non.Existent.server.com:/cvsroot/GCC_XML"
+#        cvs.attribute("date").value="2008-09-21"
+#        self._logger.set_current_module(self._env._module_name)
+#        
+#        try:
+#            testResult = cvs.download(self._env)
+#            self.fail("There was no problem with a non existent repository. ")
+#        except TaskError as e:
+#            self.assertNotEqual(e._reason, None)    
+#            self.assertEqual(testResult, None)
+#             
+#        self.executeCommand(["rm", "-rf", "gccxml"], "/tmp")
+#
+#         try to download to a non existent directory        
+#        testStatus = commands.getoutput('rm -rf /tmp/testDir')
+#        self._env._sourcedir = "/tmp/testDir"
+#        testResult = None
+#        try:
+#            testResult = cvs.download(self._env)
+#            self.fail("There was no problem, target directory does not exist and it managed to finish the operation. ")
+#        except TaskError as e:
+#            self.assertNotEqual(e._reason, None)    
+#            self.assertEqual(testResult, None)
+#        
+#         try to download to a directory where the user has no permission    
+#        testStatus = commands.getoutput('mkdir /tmp/testDir;chmod 000 /tmp/testDir')
+#        try:
+#            testResult = cvs.download(self._env)
+#            self.fail("There was no problem, user has no permission on the target directory and it managed to finish the operation. ")
+#        except TaskError as e:
+#            self.assertNotEqual(e._reason, None)    
+#            self.assertEqual(testResult, None)
+#
+#        testStatus = commands.getoutput('chmod 755 /tmp/testDir; rm -rf /tmp/testDir')
+# 
+#         returns to the original state
+#        cvs.attribute("root").value = ":pserver:anoncvs:@www.gccxml.org:/cvsroot/GCC_XML"
+#        self._env._sourcedir = "/tmp"
+#               
+#         Invalid argument, it is int and should be string
+#        cvs.attribute("checkout_directory").value = -60
+#        try:
+#            testResult = cvs.download(self._env)
+#            self.fail("The version is inexistent, but there is no error. ")
+#        except TaskError as e:
+#            self.assertNotEqual(e._reason, None)    
+#            self.assertEqual(testResult, None)
+#
+#         can't go for an inexistent version 
+#        cvs.attribute("checkout_directory").value = "/tmp"
+#        cvs.attribute("date").value="5000-09-21"
+#        try:
+#            testResult = cvs.download(self._env)
+#            self.fail("The version is inexistent, but there is no error. ")
+#        except TaskError as e:
+#            self.assertNotEqual(e._reason, None)    
+#            self.assertEqual(testResult, None)
+
+        # last clean up
+        self.executeCommand(["rm", "-rf", "gccxml"], "/tmp")
+   
+# I guess there is a bug in the move of the os library.... I need to see this
+# further later        
+#        cvs.attribute("root").value = ":pserver:anoncvs:@www.gccxml.org:/cvsroot/GCC_XML"
+#        testStatus = commands.getoutput('mkdir /tmp/gccxml;chmod 000 /tmp/gccxml')    
+#        try:
+#            testResult = cvs.download(self._env)
+#            self.fail("There was no problem and the user has no permission over the directory. ")
+#        except TaskError as e:
+#            self.assertNotEqual(e._reason, None)    
+#            self.assertEqual(testResult, None)
+#            
+#        testStatus = commands.getoutput('chmod 755 /tmp/gccxml')    
+#        self.executeCommand(["rm", "-rf", "gccxml"], "/tmp")
+
 
 # TODO: 
 #    Tests for CvsModuleSource
