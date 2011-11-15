@@ -111,6 +111,7 @@ class TestModuleSource(unittest.TestCase):
 
         # Searches for a valid file into an inexistent repository
         archive.attribute("url").value = "http://non.existent.host.com/click-1.8.0.tar.gz"
+        testResult = None
         try:
             testResult = archive.download(self._env)
             self.fail("There was no problem, and the server does not exist. ")
@@ -121,6 +122,7 @@ class TestModuleSource(unittest.TestCase):
         # Try to download to a directory that the user has no permission
         archive.attribute("url").value = "http://read.cs.ucla.edu/click/click-1.8.0.tar.gz"
         testStatus = commands.getoutput('touch /tmp/click-1.8.0;chmod 000 /tmp/click-1.8.0')    
+        testResult = None
         try:
             testResult = archive.download(self._env)
             self.fail("There was no problem, the user has no permission over the target directory. ")
@@ -133,6 +135,7 @@ class TestModuleSource(unittest.TestCase):
         # try to download to a non existent directory        
         testStatus = commands.getoutput('rm -rf /tmp/testDir')
         self._env._sourcedir = "/tmp/testDir"
+        testResult = None
         try:
             testResult = archive.download(self._env)
             self.fail("There was no problem, target directory does not exist and it managed to finish the operation. ")
@@ -141,6 +144,7 @@ class TestModuleSource(unittest.TestCase):
             self.assertEqual(testResult, None)
             
         testStatus = commands.getoutput('mkdir /tmp/testDir;chmod 000 /tmp/testDir')
+        testResult = None
         try:
             testResult = archive.download(self._env)
             self.fail("There was no problem, user has no permission on the target directory and it managed to finish the operation. ")
@@ -152,6 +156,7 @@ class TestModuleSource(unittest.TestCase):
  
         # no protocol download url gives you an error
         archive.attribute("url").value = "read.cs.ucla.edu/click/click-1.8.0.tar.gz"
+        testResult = None
         try:
             testResult = archive.download(self._env)
             self.fail("There was no problem, the user didn't add the protocol for the url. ")
@@ -246,6 +251,7 @@ class TestModuleSource(unittest.TestCase):
         self._env._module_name="bake"
         self._logger.set_current_module(self._env._module_name)
         
+        testResult = None
         try:
             testResult = mercurial.download(self._env)
             self.fail("There was no problem not passing the protocol. ")
@@ -256,6 +262,7 @@ class TestModuleSource(unittest.TestCase):
         self.executeCommand(["rm", "-rf", "bake"], "/tmp")
         testStatus = commands.getoutput('mkdir /tmp/bake;chmod 000 /tmp/bake')    
         mercurial.attribute("url").value = "http://code.nsnam.org/daniel/bake"
+        testResult = None
         try:
             testResult = mercurial.download(self._env)
             self.fail("There was no problem and the user has no permission over the directory. ")
@@ -275,6 +282,7 @@ class TestModuleSource(unittest.TestCase):
         testStatus = commands.getoutput('rm -rf /tmp/testDir')
           
         testStatus = commands.getoutput('mkdir /tmp/testDir;chmod 000 /tmp/testDir')
+        testResult = None
         try:
             testResult = mercurial.download(self._env)
             self.fail("There was no problem, user has no permission on the target directory and it managed to finish the operation. ")
@@ -289,6 +297,7 @@ class TestModuleSource(unittest.TestCase):
         # that permits negative revisions, such as -34, for example, 
         # however bigger than the tip version gives an error
         mercurial.attribute("revision").value = "9999999"
+        testResult = None
         try:
             testResult = mercurial.download(self._env)
             self.fail("The version is inexistent, but there is no error. ")
@@ -355,6 +364,7 @@ class TestModuleSource(unittest.TestCase):
         bazaar.attribute("url").value = "http://code.nsnam.org/daniel/bake"
         self._logger.set_current_module(self._env._module_name)
         
+        testResult = None
         try:
             testResult = bazaar.download(self._env)
             self.fail("There was no problem not passing the protocol. ")
@@ -367,6 +377,7 @@ class TestModuleSource(unittest.TestCase):
         bazaar.attribute("revision").value = None
         self._logger.set_current_module(self._env._module_name)
         
+        testResult = None
         try:
             testResult = bazaar.download(self._env)
             self.fail("There was no problem not passing the protocol. ")
@@ -378,6 +389,7 @@ class TestModuleSource(unittest.TestCase):
         
         testStatus = commands.getoutput('mkdir /tmp/pybindgen;chmod 000 /tmp/pybindgen')    
         bazaar.attribute("url").value = "https://launchpad.net/pybindgen"
+        testResult = None
         try:
             testResult = bazaar.download(self._env)
             self.fail("There was no problem and the user has no permission over the directory. ")
@@ -391,6 +403,7 @@ class TestModuleSource(unittest.TestCase):
         # try to download to a non existent directory        
         testStatus = commands.getoutput('rm -rf /tmp/testDir')
         self._env._sourcedir = "/tmp/testDir"
+        testResult = None
         try:
             testResult = bazaar.download(self._env)
             self.fail("There was no problem, target directory does not exist and it managed to finish the operation. ")
@@ -400,6 +413,7 @@ class TestModuleSource(unittest.TestCase):
         
         # try to download to a directory where the user has no permission    
         testStatus = commands.getoutput('mkdir /tmp/testDir;chmod 000 /tmp/testDir')
+        testResult = None
         try:
             testResult = bazaar.download(self._env)
             self.fail("There was no problem, user has no permission on the target directory and it managed to finish the operation. ")
@@ -415,6 +429,7 @@ class TestModuleSource(unittest.TestCase):
 
         # Try to get an unavailable version
         bazaar.attribute("revision").value = str(int(lastVersion) + 1)
+        testResult = None
         try:
             testResult = bazaar.download(self._env)
             self.fail("The version is inexistent, but there is no error. ")
@@ -429,6 +444,7 @@ class TestModuleSource(unittest.TestCase):
                     
         # Invalid argument, it is int and should be string
         bazaar.attribute("revision").value = -60
+        testResult = None
         try:
             testResult = bazaar.download(self._env)
             self.fail("The version is inexistent, but there is no error. ")
@@ -438,6 +454,7 @@ class TestModuleSource(unittest.TestCase):
 
         # can not go for a negative version
         bazaar.attribute("revision").value = str(-60)
+        testResult = None
         try:
             testResult = bazaar.download(self._env)
             self.fail("The version is inexistent, but there is no error. ")
@@ -517,6 +534,7 @@ class TestModuleSource(unittest.TestCase):
         cvs.attribute("date").value="2008-09-21"
         self._logger.set_current_module(self._env._module_name)
         
+        testResult = None
         try:
             testResult = cvs.download(self._env)
             self.fail("There was no problem with a non existent repository. ")
@@ -539,6 +557,7 @@ class TestModuleSource(unittest.TestCase):
         
         # try to download to a directory where the user has no permission    
         testStatus = commands.getoutput('mkdir /tmp/testDir;chmod 000 /tmp/testDir')
+        testResult = None
         try:
             testResult = cvs.download(self._env)
             self.fail("There was no problem, user has no permission on the target directory and it managed to finish the operation. ")
@@ -554,6 +573,7 @@ class TestModuleSource(unittest.TestCase):
                
         # Invalid argument, it is int and should be string
         cvs.attribute("checkout_directory").value = -60
+        testResult = None
         try:
             testResult = cvs.download(self._env)
             self.fail("The version is inexistent, but there is no error. ")
@@ -564,6 +584,7 @@ class TestModuleSource(unittest.TestCase):
         # can't go for an inexistent version 
         cvs.attribute("checkout_directory").value = "/tmp"
         cvs.attribute("date").value="5000-09-21"
+        testResult = None
         try:
             testResult = cvs.download(self._env)
             self.fail("The version is inexistent, but there is no error. ")
@@ -591,7 +612,7 @@ class TestModuleSource(unittest.TestCase):
         
         self._env._module_name="hello-world"
         self._logger.set_current_module(self._env._module_name)
-
+        
         ##### Normal Flow test
         #clean up the environment, just to be safe
         self.executeCommand(["/bin/rm", "-rf", "hello-world"], "/tmp")
@@ -603,7 +624,7 @@ class TestModuleSource(unittest.TestCase):
         # will use the README file to see if the update works
         testStatus = commands.getoutput('cd /tmp/hello-world; git log')
         lastVersion = re.compile(' +\w+').search(testStatus).group().replace(" ","")
-        self.assertEqual(lastVersion, "3fa7c46d11b11d61f1cbadc6888be5d0eae21969")
+        self.assertEqual(lastVersion, "78cfc43c2827b9e48e6586a3523ff845a6378889")
 
         #after the test, clean the environment
         self.executeCommand(["rm", "-rf", "hello-world"], "/tmp")
@@ -614,81 +635,87 @@ class TestModuleSource(unittest.TestCase):
         self.assertEqual(testResult, None)
         
         # verify that the version is the correct one
-        testStatus = commands.getoutput('cd /tmp/gccxml; cvs status CMakeLists.txt')
+        testStatus = commands.getoutput('cd /tmp/hello-world; git log')
         version = re.compile(' +\w+').search(testStatus).group().replace(" ","")
         self.assertEqual(version, "3fa7c46d11b11d61f1cbadc6888be5d0eae21969")
          
-#         Verify if it updates to today's version
-#        git.attribute("revision").value='master'
-#        testResult = git.update(self._env)       
-#        self.assertEqual(testResult, None)
-#        testStatus = commands.getoutput('cd /tmp/gccxml; cvs status CMakeLists.txt')
-#        version3 = re.compile('\d+.\d+').search(testStatus).group().replace(".","")
-#        self.assertTrue(float(version2) < float(version3))
-#
-#        self.executeCommand(["rm", "-rf", "gccxml"], "/tmp")
-#          
-#         Wrong repository
-#        cvs.attribute("root").value = ":pserver:anoncvs:@non.Existent.server.com:/cvsroot/GCC_XML"
-#        cvs.attribute("date").value="2008-09-21"
-#        self._logger.set_current_module(self._env._module_name)
-#        
-#        try:
-#            testResult = cvs.download(self._env)
-#            self.fail("There was no problem with a non existent repository. ")
-#        except TaskError as e:
-#            self.assertNotEqual(e._reason, None)    
-#            self.assertEqual(testResult, None)
-#             
-#        self.executeCommand(["rm", "-rf", "gccxml"], "/tmp")
-#
-#         try to download to a non existent directory        
-#        testStatus = commands.getoutput('rm -rf /tmp/testDir')
-#        self._env._sourcedir = "/tmp/testDir"
-#        testResult = None
-#        try:
-#            testResult = cvs.download(self._env)
-#            self.fail("There was no problem, target directory does not exist and it managed to finish the operation. ")
-#        except TaskError as e:
-#            self.assertNotEqual(e._reason, None)    
-#            self.assertEqual(testResult, None)
-#        
-#         try to download to a directory where the user has no permission    
-#        testStatus = commands.getoutput('mkdir /tmp/testDir;chmod 000 /tmp/testDir')
-#        try:
-#            testResult = cvs.download(self._env)
-#            self.fail("There was no problem, user has no permission on the target directory and it managed to finish the operation. ")
-#        except TaskError as e:
-#            self.assertNotEqual(e._reason, None)    
-#            self.assertEqual(testResult, None)
-#
-#        testStatus = commands.getoutput('chmod 755 /tmp/testDir; rm -rf /tmp/testDir')
-# 
-#         returns to the original state
-#        cvs.attribute("root").value = ":pserver:anoncvs:@www.gccxml.org:/cvsroot/GCC_XML"
-#        self._env._sourcedir = "/tmp"
-#               
-#         Invalid argument, it is int and should be string
-#        cvs.attribute("checkout_directory").value = -60
-#        try:
-#            testResult = cvs.download(self._env)
-#            self.fail("The version is inexistent, but there is no error. ")
-#        except TaskError as e:
-#            self.assertNotEqual(e._reason, None)    
-#            self.assertEqual(testResult, None)
-#
-#         can't go for an inexistent version 
-#        cvs.attribute("checkout_directory").value = "/tmp"
-#        cvs.attribute("date").value="5000-09-21"
-#        try:
-#            testResult = cvs.download(self._env)
-#            self.fail("The version is inexistent, but there is no error. ")
-#        except TaskError as e:
-#            self.assertNotEqual(e._reason, None)    
-#            self.assertEqual(testResult, None)
-
-        # last clean up
         self.executeCommand(["rm", "-rf", "gccxml"], "/tmp")
+         
+        #Wrong repository
+        git.attribute("url").value = "git://inexistant.server.com/git/hello-world.git"
+        git.attribute("revision").value = "78cfc43c2827b9e48e6586a3523ff845a6378889"
+        self._logger.set_current_module(self._env._module_name)
+        
+        testResult = None
+        try:
+            testResult = git.download(self._env)
+            self.fail("There was no problem with a non existent repository. ")
+        except TaskError as e:
+            self.assertNotEqual(e._reason, None)    
+            self.assertEqual(testResult, None)
+             
+        self.executeCommand(["rm", "-rf", "gccxml"], "/tmp")
+
+        # no protocol
+        git.attribute("url").value = "github.com/git/hello-world.git"
+        self._logger.set_current_module(self._env._module_name)
+        
+        testResult = None
+        try:
+            testResult = git.download(self._env)
+            self.fail("There was no problem without protocol. ")
+        except TaskError as e:
+            self.assertNotEqual(e._reason, None)    
+            self.assertEqual(testResult, None)
+             
+        git.attribute("url").value = "git://github.com/git/hello-world.git"
+        self.executeCommand(["rm", "-rf", "gccxml"], "/tmp")
+
+        # try to download to a non existent directory        
+        testStatus = commands.getoutput('rm -rf /tmp/testDir')
+        self._env._sourcedir = "/tmp/testDir"
+        testResult = None
+        try:
+            testResult = git.download(self._env)
+            self.fail("There was no problem, target directory does not exist and it managed to finish the operation. ")
+        except TaskError as e:
+            self.assertNotEqual(e._reason, None)    
+            self.assertEqual(testResult, None)
+        
+        # try to download to a directory where the user has no permission    
+        testStatus = commands.getoutput('mkdir /tmp/testDir;chmod 000 /tmp/testDir')
+        testResult = None
+        try:
+            testResult = git.download(self._env)
+            self.fail("There was no problem, user has no permission on the target directory and it managed to finish the operation. ")
+        except TaskError as e:
+            self.assertNotEqual(e._reason, None)    
+            self.assertEqual(testResult, None)
+
+        testStatus = commands.getoutput('chmod 755 /tmp/testDir; rm -rf /tmp/testDir')
+ 
+        # Invalid argument, it is int and should be string
+        self._env._sourcedir = -60
+        testResult = None
+        try:
+            testResult = git.download(self._env)
+            self.fail("The version is inexistent, but there is no error. ")
+        except TaskError as e:
+            self.assertNotEqual(e._reason, None)    
+            self.assertEqual(testResult, None)
+
+        # returns to the original state
+        self._env._sourcedir = "/tmp"
+
+        # can't go for an inexistent version 
+        git.attribute("revision").value = "1000000000000000000000000000000000000000"  
+        testResult = None
+        try:
+            testResult = git.download(self._env)
+            self.fail("The version is inexistent, but there is no error. ")
+        except TaskError as e:
+            self.assertNotEqual(e._reason, None)    
+            self.assertEqual(testResult, None)
    
 # I guess there is a bug in the move of the os library.... I need to see this
 # further later        

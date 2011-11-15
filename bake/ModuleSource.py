@@ -265,7 +265,13 @@ class GitModuleSource(ModuleSource):
     def download(self, env):
         import tempfile
         import os
-        tempdir = tempfile.mkdtemp(dir=env.srcrepo)
+        try:
+            tempdir = tempfile.mkdtemp(dir=env.srcrepo)
+        except AttributeError as e1:
+            raise TaskError('Atribute type error, expected String, Error: %s' % e1)
+        except OSError as e2:
+            raise TaskError('Could not create temporary file, Error: %s' % e2)
+            
         env.run(['git', 'init'], directory = tempdir)
         env.run(['git', 'remote', 'add', 'origin', self.attribute('url').value], 
                 directory = tempdir)
