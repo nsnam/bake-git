@@ -332,8 +332,8 @@ class Bake:
         except DependencyUnmet as error:
             self._error('%s failed' % error.failed().name())
 
-    def _read_config(self, config):
-        configuration = Configuration(config)
+    def _read_config(self, config, directory=None):
+        configuration = Configuration(config, directory)
         if not configuration.read():
             sys.stderr.write('The configuration file has been changed or has moved.\n'
                              'Running \'reconfigure\'. You should consider running it\n'
@@ -375,10 +375,10 @@ class Bake:
                           help="Process all modules enabled starting after the module specified.")
         return parser
 
-    def _do_operation(self, config, options, functor):
+    def _do_operation(self, config, options, functor, directory=None):
         """Applies the function, passed as parameter, over the options. """
         
-        configuration = self._read_config(config)
+        configuration = self._read_config(config,directory)
         if options.logdir == '' and options.logfile == '':
             logger = StdoutModuleLogger()
         elif options.logdir != '':
@@ -475,14 +475,14 @@ class Bake:
             return True
         self._do_operation(config, options, _do_check)
 
-    def _check_source_code(self, config, options):
+    def _check_source_code(self, config, options, directory=None):
         # let's check that we have downloaded the matching source code
         def _do_check(configuration, module, env):
             if not module.is_downloaded(env):
                 self._error('Could not find source code for module %s. Try %s download first.' % \
                                 (module.name(), sys.argv[0]))
             return True
-        self._do_operation(config, options, _do_check)
+        self._do_operation(config, options, _do_check, directory)
 
 
     def _build(self,config,args):

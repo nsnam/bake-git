@@ -129,10 +129,14 @@ class Module:
     def check_build_version(self, env):
         env.start_build(self._name, 
                         self._build.supports_objdir)
-        if not os.path.isdir(env.objdir) or not os.path.isdir(env.srcdir):
-            retval = True
-        else:
-            retval = self._build.check_version(env)
+        
+        # this if does not make any sense to me. If you do not have the object
+        # dir  the build version is automatically true ?  Even worse if you do
+        # NOT have the src dir it is true also????? Does not make any sense!!!
+#        if not os.path.isdir(env.objdir) or not os.path.isdir(env.srcdir):
+#            retval = True
+#        else:
+        retval = self._build.check_version(env)
         env.end_build()
         return retval
 

@@ -2,6 +2,8 @@ import Utils
 import os
 from Utils import ModuleAttributeBase
 from Exceptions import NotImplemented
+from bake.Exceptions import TaskError 
+
 
 class ModuleBuild(ModuleAttributeBase):
     def __init__(self):
@@ -55,12 +57,16 @@ class InlineModuleBuild(ModuleBuild):
         return 'inline'
 
 class PythonModuleBuild(ModuleBuild):
+    """ Performs the build for python based projects."""
+    
     def __init__(self):
         ModuleBuild.__init__(self)
     @classmethod
     def name(cls):
         return 'python'
     def build(self, env, jobs):
+        
+        # TODO: Add the options, there is no space for the configure_arguments
         env.run(['python', os.path.join(env.srcdir, 'setup.py'), 'build', 
                   '--build-base=' + env.objdir, 
                   'install', '--prefix=' + env.installdir], 
@@ -70,11 +76,18 @@ class PythonModuleBuild(ModuleBuild):
                  '--build-base=' + env.objdir],
                 directory = env.srcdir)
     def check_version(self, env):
+        """Verifies only if python exists in the machine. """
+        
+        try: 
+            env.run(['python', '--version'])
+        except TaskError as e:
+            return False
+            
         return True
 
-
-
 class WafModuleBuild(ModuleBuild):
+    """ Performs the build for Waf based projects."""
+
     def __init__(self):
         ModuleBuild.__init__(self)
         self.add_attribute('CC',       '', 'C compiler to use')

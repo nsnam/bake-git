@@ -25,7 +25,11 @@ class ModuleEnvironment:
         return self._installdir
     @property
     def srcdir(self):
-        return os.path.join(self._sourcedir, self._module_directory())
+        try:
+            return os.path.join(self._sourcedir, self._module_directory())
+        except AttributeError as e:
+            raise TaskError('Missing configuration: sourcedir= %s, module_directory= %s, Error: %s' % (self._sourcedir,self._module_directory(), e))
+        
     @property
     def srcrepo(self):
         return self._sourcedir
@@ -34,7 +38,10 @@ class ModuleEnvironment:
         if not self._module_supports_objdir:
             obj = self.srcdir
         else:
-            obj = os.path.join(self.srcdir, self._objdir)
+            try:
+                obj = os.path.join(self.srcdir, self._objdir)
+            except AttributeError as e:
+                raise TaskError('Missing configuration: sourcedir= %s, objdir= %s, Error: %s' % (self._sourcedir,self._module_directory(), e))
         return obj
 
     def _pkgconfig_var(self):

@@ -2,7 +2,8 @@ from Module import Module,ModuleDependency
 from ModuleSource import ModuleSource,InlineModuleSource
 from ModuleBuild import ModuleBuild,InlineModuleBuild
 import xml.etree.ElementTree as ET
-from Exceptions import MetadataError
+from bake.Exceptions import MetadataError
+from bake.Exceptions import TaskError 
 import os
 import sys
 
@@ -23,6 +24,8 @@ class MetadataFile:
         except:
             return ''
     def is_hash_ok(self):
+        """Verifies if the hash of the configuration file is OK, to avoid manual and transmission changes."""
+        
         return self.h() == self._h
 
 class PredefinedConfiguration:
@@ -310,12 +313,19 @@ class Configuration:
         # add modules information
         self._write_metadata(root)
         et = ET.ElementTree(element=root)
-        et.write(self._bakefile)
+        
+        try:
+            et.write(self._bakefile)
+        except IOError as e:
+            raise TaskError('Problems writing the file, error: %s' % e)
 
     def read(self):
         """ Reads the XML customized configuration file. """
-        
-        et = ET.parse(self._bakefile)
+        try:
+            et = ET.parse(self._bakefile)
+        except IOError as e:
+            raise TaskError('Problems reading the file, error: %s' % e)
+
         self._read_metadata(et)
         root = et.getroot()
         self._installdir = root.get('installdir')

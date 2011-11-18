@@ -17,13 +17,6 @@
       <build type="waf" objdir="yes"/>
     </module>
 
-    <module name="ns-3-dce">
-      <source type="mercurial">
-	<attribute name="url" value="http://code.nsnam.org/furbani/ns-3-dce"/>
-      </source>
-      <build type="waf" objdir="yes"/>
-    </module>
-
     <module name="gccxml-ns3">
       <source type="cvs">
 	<attribute name="root" value=":pserver:anoncvs:@www.gccxml.org:/cvsroot/GCC_XML"/>
