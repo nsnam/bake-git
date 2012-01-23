@@ -286,33 +286,35 @@ class Configuration:
                 module_node.append(dep_node)
             modules_node.append(module_node)
 
+    def defineXml(self):
+        root = ET.Element('configuration', {'installdir':self._installdir, 
+                'sourcedir':self._sourcedir, 
+                'objdir':self._objdir, 
+                'relative_directory_root':self._relative_directory_root, 
+                'bakefile':self._bakefile})
+        if not self._metadata_file is None:
+            metadata = ET.Element('metadata', {'filename':self._metadata_file.filename(), 
+                    'hash':self._metadata_file.h()})
+            root.append(metadata)
+    # write enabled nodes
+        for e in self._enabled:
+            enable_node = ET.Element('enabled', {'name':e.name()})
+            root.append(enable_node)
+        
+    # write disabled nodes
+        for e in self._disabled:
+            disable_node = ET.Element('disabled', {'name':e.name()})
+            root.append(disable_node)
+        
+    # add modules information
+        self._write_metadata(root)
+        et = ET.ElementTree(element=root)
+        return et
+
     def write(self):
         """ Creates the target configuration XML file."""
         
-        root = ET.Element('configuration', 
-                          {'installdir' : self._installdir,
-                           'sourcedir' : self._sourcedir,
-                           'objdir' : self._objdir,
-                           'relative_directory_root' : self._relative_directory_root,
-                           'bakefile' : self._bakefile})
-        if not self._metadata_file is None:
-            metadata = ET.Element('metadata', {'filename' : self._metadata_file.filename(),
-                                               'hash' : self._metadata_file.h()})
-            root.append(metadata)
-
-        # write enabled nodes
-        for e in self._enabled:
-            enable_node = ET.Element('enabled', {'name' : e.name()})
-            root.append(enable_node)
-
-        # write disabled nodes
-        for e in self._disabled:
-            disable_node = ET.Element('disabled', {'name' : e.name()})
-            root.append(disable_node)
-
-        # add modules information
-        self._write_metadata(root)
-        et = ET.ElementTree(element=root)
+        et = self.defineXml()
         
         try:
             et.write(self._bakefile)

@@ -103,6 +103,7 @@ class MercurialModuleSource(ModuleSource):
     def check_version(self, env):
         return env.check_program('hg')
 
+import shutil
         
 class ArchiveModuleSource(ModuleSource):
     """Handles the modules that have the sources as a single tarball like file."""
@@ -144,7 +145,8 @@ class ArchiveModuleSource(ModuleSource):
                 # finally, rename the extraction directory to the target directory name.
                 try:
                     os.rename(os.path.join(tempdir, actual_extract_dir), env.srcdir)
-                    os.remove(tempdir)
+#                    os.remove(tempdir)
+                    shutil.rmtree(tempdir) # delete directory
                 except (OSError, IOError) as e:
                     raise TaskError('Rename problem for module: %s, from: %s, to: %s, Error: %s' 
                                     % (env._module_name,os.path.join(tempdir, actual_extract_dir),env.srcdir, e))
