@@ -33,7 +33,7 @@ class TestModuleSource(unittest.TestCase):
             print (inst)     # the exception instance
             self.fail("Could not execute command %s over directory %s failed" % (command, dir))
 
-    def test_generalFailures(self):
+    def Disable_test_generalFailures(self):
         """Tests Some general failures that could happen in the Module Source. """
         
         #Verifies the return of the creation of a non existent module
@@ -183,7 +183,7 @@ class TestModuleSource(unittest.TestCase):
 #        testStatus = commands.getoutput('chmod 755 /tmp/click-1.8.0; rm -rf /tmp/click-1.8.0')
 
 
-    def test_mercurial(self):
+    def Disable_test_mercurial(self):
         """Tests the MercurialModuleSource class. """
         
         # it first needs to be able to create the class otherwise will not be
@@ -308,7 +308,7 @@ class TestModuleSource(unittest.TestCase):
         # last clean up
         self.executeCommand(["rm", "-rf", "bake"], "/tmp")
 
-    def test_bazaar(self):
+    def Disable_test_bazaar(self):
         """Tests the BazaarModuleSource class. """
         
         # checks if can create the class 
@@ -498,6 +498,7 @@ class TestModuleSource(unittest.TestCase):
 
         #after the test, clean the environment
         self.executeCommand(["rm", "-rf", "gccxml"], "/tmp")
+        
       
         # download a specific version
         cvs.attribute("date").value="2007-09-21"
@@ -595,7 +596,7 @@ class TestModuleSource(unittest.TestCase):
         # last clean up
         self.executeCommand(["rm", "-rf", "gccxml"], "/tmp")
         
-    def test_git(self):
+    def Disable_test_git(self):
         """Tests the GitModuleSource. """
         
         # checks if can create the class 

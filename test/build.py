@@ -190,11 +190,6 @@ class TestBuild (unittest.TestCase):
         created = re.compile('\d+').search(testStatus).group()
         self.assertNotEqual(created, "0")
         
-        
-        
-        
-        
-        
         # TODO: 
         # test if the object dir is equal to the source dir, for the open flow 
         # case it is not allowed but I am not sure for everyone else 
@@ -297,6 +292,65 @@ class TestBuild (unittest.TestCase):
         # testResult = waf._is_1_6_x(self._env)
         # self.assertFalse(testResult)
           
+    def test_CmakeModule(self):
+        """Tests the WafModuleBuild Class from ModuleBuild. """
+
+        cmake = ModuleBuild.create("cmake")
+        self.assertNotEqual(cmake, None)
+        self.assertEqual(cmake.name(), "cmake")
+
+        # Environment settings        
+        cvs = ModuleSource.create("cvs")
+        testResult = cvs.check_version(self._env)
+        self.assertTrue(testResult)
+        cvs.attribute("root").value = ":pserver:anoncvs:@www.gccxml.org:/cvsroot/GCC_XML"
+        cvs.attribute("module").value="gccxml"
+        cvs.attribute("date").value="2009-09-21"
+       
+        self._env._module_name="gccxml"
+        self._logger.set_current_module(self._env._module_name)
+#        bazaar.attribute("revision").value = "revno:795"
+
+        testStatus = commands.getoutput('mkdir /tmp/source')
+        testResult = cvs.download(self._env)
+        self.assertEqual(testResult, None)
+
+        #check that has the cmake version required is installed in the machine
+        testResult = cmake.check_version(self._env)
+        self.assertTrue(testResult)
+        
+        # Expected case test
+
+        self._env.objdir = self._env.srcdir+"/object"
+        testStatus = commands.getoutput('rm -rf /tmp/source/gccxml/object')
+        testResult = cmake.build(self._env, "1")
+        self.assertEqual(testResult, None)
+        testStatus = commands.getoutput('ls /tmp/source/gccxml/object|wc')
+        created = re.compile('\d+').search(testStatus).group()
+        self.assertNotEqual(created, "0")
+
+        # call the clean to remove the build
+        # TODO:  Find a solution for the remaining directories
+        #    - It is strange because the waf does not remove the directories, 
+        # just the object files.... Should this  be like that??!?!        
+        testResult = cmake.clean(self._env)
+        self.assertEqual(testResult, None)
+        testStatus = commands.getoutput('ls /tmp/source/gccxml/object/GCC/gcc/CMakeFiles/backend.dir/*.o|wc')
+        created = re.compile('\d+').search(testStatus).group()
+        self.assertEqual(created, "0")
+        
+        # TODO: neighter the --generate-version appears but I couldn't also 
+        # find a configuration argument for pybindgen :(
+        # Call with extra options
+        cmake.attribute("CFLAGS").value = "-g"
+#        waf.attribute("configure_arguments").value = "--enable-examples --enable-tests"
+        cmake.attribute("build_arguments").value = "--generate-version"
+        
+        testResult = cmake.build(self._env, "1")
+        self.assertEqual(testResult, None)
+        testStatus = commands.getoutput('ls -l /tmp/source/openflow-ns3/object|wc')
+        created = re.compile('\d+').search(testStatus).group()
+        self.assertNotEqual(created, "0")
 
 # main call for the tests        
 if __name__ == '__main__':

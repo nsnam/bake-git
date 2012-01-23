@@ -334,7 +334,8 @@ class Configuration:
         self._relative_directory_root = root.get('relative_directory_root')
         original_bakefile = root.get('bakefile')
         metadata = root.find('metadata')
-        self._metadata_file = MetadataFile (metadata.get('filename'),
+        if metadata : 
+            self._metadata_file = MetadataFile (metadata.get('filename'),
                                             h = metadata.get('hash'))
 
         # read which modules are enabled
@@ -349,7 +350,10 @@ class Configuration:
             disabled = self.lookup(module.get('name'))
             self.disable(disabled)
 
-        return self._metadata_file.is_hash_ok() and original_bakefile == self._bakefile
+        if metadata: 
+            return self._metadata_file.is_hash_ok() and original_bakefile == self._bakefile
+        else :
+            return True
 
     def set_installdir(self, installdir):
         self._installdir = installdir

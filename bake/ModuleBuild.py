@@ -2,7 +2,7 @@ import Utils
 import os
 from Utils import ModuleAttributeBase
 from Exceptions import NotImplemented
-from bake.Exceptions import TaskError 
+from Exceptions import TaskError 
 
 
 class ModuleBuild(ModuleAttributeBase):
@@ -190,6 +190,21 @@ class Cmake(ModuleBuild):
         options = []
         if self.attribute('cmake_arguments').value != '':
             options = self.attribute('cmake_arguments').value.split(' ')
+        
+        # if the object directory does not exist, it should create it, to
+        # avoid build error, since the cmake does not create the directory
+        # it also makes it orthogonal to waf, that creates the target object dir
+        try:
+            env.run(['mkdir', env.objdir],
+                    directory=env.srcdir)
+        except TaskError as e:
+            # assume that if an error is thrown is because the directory already 
+            # exist, otherwise re-propagates the error
+            if not "error 1" in e._reason :
+                raise TaskError(e._reason)
+
+            directory=env.objdir
+
         env.run(['cmake', env.srcdir, '-DCMAKE_INSTALL_PREFIX=' + env.installdir] + 
                 self._variables() + options,
                 directory=env.objdir)
