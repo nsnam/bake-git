@@ -36,7 +36,7 @@
 
     <module name="pygccxml">
       <source type="archive">
-	<attribute name="url" value="http://mesh.dl.sourceforge.net/project/pygccxml/pygccxml/pygccxml-1.0/pygccxml-1.0.0.zip"/>
+	<attribute name="url" value="http://downloads.sourceforge.net/project/pygccxml/pygccxml/pygccxml-1.0/pygccxml-1.0.0.zip"/>
       </source>
       <build type="python" objdir="yes">
       </build>
