@@ -231,9 +231,10 @@ class CvsModuleSource(ModuleSource):
         else:
             actual_checkout_dir = self.attribute('module').value
         import os
+        import shutil
         try:
             os.rename(os.path.join(tempdir, actual_checkout_dir), env.srcdir)
-            os.remove(tempdir)
+            shutil.rmtree(tempdir)
         except AttributeError as e:
             raise TaskError('Atribute type error expected String, Error: %s' % e)
         
