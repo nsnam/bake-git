@@ -1,5 +1,6 @@
 import Utils
 import os
+import re;
 from Utils import ModuleAttributeBase
 from Exceptions import NotImplemented
 from Exceptions import TaskError 
@@ -55,6 +56,16 @@ class InlineModuleBuild(ModuleBuild):
     @classmethod
     def name(cls):
         return 'inline'
+    
+    @classmethod
+    def className(self, code): 
+        if code :
+            myre = re.compile(".*class (?P<class_name>[a-zA-Z0-9_-]*)\(.*")
+            m = myre.match(code)
+            if m :
+                return m.groupdict()['class_name']
+        
+        return self.__class__.__name__
 
 class PythonModuleBuild(ModuleBuild):
     """ Performs the build for python based projects."""

@@ -439,6 +439,14 @@ class Bake:
             self._iterate(configuration, _iterator, configuration.enabled())
         return env
 
+    def _install(self,config,args):
+        """Handles the install command line option."""
+
+        returnValue =  self._download(config,args);
+        if not returnValue:
+            return self._build(config, args)
+        
+
     def _download(self,config,args):
         """Handles the download command line option."""
 
@@ -631,6 +639,7 @@ class Bake:
     def main(self, argv):
         parser = MyOptionParser(usage = 'usage: %prog [options] command [command options]',
                                 description = """Where command is one of:
+  install      : Downloads the configured modules AND makes the build in one step
   configure    : Setup the build configuration (source, build, install directory,
                  and per-module build options) from the module descriptions
   reconfigure  : Update the build configuration from a newer module description
@@ -657,7 +666,8 @@ To get more help about each command, try:
         if len(args_left) == 0:
             parser.print_help()
             sys.exit(1)
-        ops = [ ['configure', self._configure],
+        ops = [ ['install', self._install],
+                ['configure', self._configure],
                 ['reconfigure', self._reconfigure],
                 ['download', self._download],
                 ['update', self._update],

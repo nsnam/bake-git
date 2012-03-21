@@ -163,7 +163,7 @@ class Configuration:
         # looking up a child node <code></code>
         if node.get('type') == 'inline':
             code_node = node.find('code')
-            if node is None:
+            if code_node is None:
                 sys.stderr.write('Error: no code tag in inline module\n')
                 sys.exit(1)
             classname = node.get('classname')
