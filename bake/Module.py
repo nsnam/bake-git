@@ -1,6 +1,7 @@
 import copy
 import os
 from FilesystemMonitor import FilesystemMonitor
+from Exceptions import TaskError
 
 class ModuleDependency:
     def __init__(self, name, optional = False):
@@ -50,10 +51,18 @@ class Module:
     def download(self, env):
         try:
             self._do_download(env, self._source, self._name)
+            print(" Download " + self._name + " - OK ")
             return True
+        except TaskError as e:
+            print(e.reason)
+            if env.debug :
+                import Utils
+                Utils.print_backtrace()           
+            return False
         except:
-            import Utils
-            Utils.print_backtrace()
+            if env.debug :
+                import Utils
+                Utils.print_backtrace()
             return False
 
 
@@ -69,10 +78,18 @@ class Module:
     def update(self, env):
         try:
             self._do_update(env, self._source, self._name)
+            print(" Update " + self._name + " - OK ")
             return True
+        except TaskError as e:
+            print(e.reason)
+            if env.debug :
+                import Utils
+                Utils.print_backtrace()           
+            return False
         except:
-            import Utils
-            Utils.print_backtrace()
+            if env.debug :
+                import Utils
+                Utils.print_backtrace()
             return False
 
     def uninstall(self, env):
@@ -118,12 +135,20 @@ class Module:
             self._installed = monitor.end()
             env.end_build()
             self._built_once = True
+            print(" Build " + self._name + " - OK ")
             return True
+        except TaskError as e:
+            print(e.reason)
+            if env.debug :
+                import Utils
+                Utils.print_backtrace()           
+            return False
         except:
             self._installed = monitor.end()
             env.end_build()
-            import Utils
-            Utils.print_backtrace()
+            if env.debug :
+                import Utils
+                Utils.print_backtrace()
             return False
 
     def check_build_version(self, env):
@@ -169,11 +194,19 @@ class Module:
             self._build.clean(env)
             env.end_build()
             self._built_once = False
+            print(" Clean " + self._name + " - OK ")
             return True
+        except TaskError as e:
+            print(e.reason)
+            if env.debug :
+                import Utils
+                Utils.print_backtrace()           
+            return False
         except:
             env.end_build()
-            import Utils
-            Utils.print_backtrace()
+            if env.debug :
+                import Utils
+                Utils.print_backtrace()
             return False
 
     def is_built_once(self):

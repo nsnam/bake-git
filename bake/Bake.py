@@ -14,6 +14,8 @@ class MyOptionParser(OptionParser):
         
 
 class Bake:
+    main_options = ""
+    
     def __init__(self):
         pass
 
@@ -233,7 +235,7 @@ class Bake:
         parser.add_option("-p", "--predefined", action="store", type="string",
                           dest="predefined", default=None,
                           help="A predefined configuration to apply")
-        
+
         # sets the configuration values got from the line command
         (options, args_left) = parser.parse_args(args)
         configuration = Configuration(config)
@@ -357,7 +359,7 @@ class Bake:
                           'of requested operation. One file per module.', action="store", 
                           type="string", dest="logdir",
                           default='')
-        parser.add_option('-v', '--verbose', action='count', dest='verbose', default=2,
+        parser.add_option('-v', '--verbose', action='count', dest='verbose', default=0,
                           help='Increase the log verbosity level')
         parser.add_option('-q', '--quiet', action='count', dest='quiet', default=0,
                           help='Increase the log quietness level')
@@ -391,10 +393,11 @@ class Bake:
         verbose = verbose if verbose >= 0 else 0
         logger.set_verbose(verbose)
 
+        global main_options
         env = ModuleEnvironment(logger, 
                                configuration.compute_installdir(),
                                configuration.compute_sourcedir(), 
-                               configuration.get_objdir())
+                               configuration.get_objdir(), main_options.debug)
         must_disable = []
         if options.one != '':
             if options.all or options.start != '' or options.after != '':
@@ -635,7 +638,8 @@ class Bake:
                 print 'module: %s (disabled)' % module.name()
                 if options.variables:
                     self._show_variables(module)
-
+    options=""
+    
     def main(self, argv):
         parser = MyOptionParser(usage = 'usage: %prog [options] command [command options]',
                                 description = """Where command is one of:
@@ -663,6 +667,10 @@ To get more help about each command, try:
                           help="Should we enable extra Bake debugging output ?")
         parser.disable_interspersed_args()
         (options, args_left) = parser.parse_args(argv[1:])
+        
+        global main_options
+        main_options = options
+
         if len(args_left) == 0:
             parser.print_help()
             sys.exit(1)
@@ -678,7 +686,8 @@ To get more help about each command, try:
                 ['show', self._show],
                 ['show-builtin', self._show_builtin]
                ]
-        for name, function in ops:
+        
+        for name, function in ops: 
             if args_left[0] == name:
                 if options.debug:
                     function(config=options.config_file, args=args_left[1:])

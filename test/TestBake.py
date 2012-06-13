@@ -36,7 +36,7 @@ class TestBake(unittest.TestCase):
         testStatus = commands.getoutput('rm -rf /tmp/source')
 
    
-    def DISABLE_test_check_source_code(self):
+    def test_check_source_code(self):
         """Tests the _check_source_code method of Class Bake. """
 
         # Environment settings        

@@ -183,6 +183,7 @@ class Cmake(ModuleBuild):
         self.add_attribute('LDFLAGS',  '', 'Flags to use for Linker')
         self.add_attribute('build_targets', '', 'Targets to make before install')
         self.add_attribute('cmake_arguments', '', 'Command-line arguments to pass to cmake')
+        self.add_attribute('configure_arguments', '', 'Command-line arguments to pass to cmake')
     @classmethod
     def name(cls):
         return 'cmake'

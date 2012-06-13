@@ -8,7 +8,7 @@ from Exceptions import TaskError
 class ModuleEnvironment:
     (HIGHER, LOWER, EQUAL) = range(0,3)
 
-    def __init__(self, logger, installdir, sourcedir, objdir):
+    def __init__(self, logger, installdir, sourcedir, objdir, debug=False):
         self._logger = logger
         self._installdir = installdir
         self._sourcedir = sourcedir
@@ -16,6 +16,7 @@ class ModuleEnvironment:
         self._module_name = None
         self._module_supports_objdir = None
         self._libpaths = []
+        self._debug = debug
 
     def _module_directory(self):
         return self._module_name
@@ -23,6 +24,11 @@ class ModuleEnvironment:
     @property
     def installdir(self):
         return self._installdir
+    
+    @property
+    def debug(self):
+        return self._debug
+    
     @property
     def srcdir(self):
         try:
