@@ -336,7 +336,7 @@ class Configuration:
         self._relative_directory_root = root.get('relative_directory_root')
         original_bakefile = root.get('bakefile')
         metadata = root.find('metadata')
-        if metadata : 
+        if metadata is not None: 
             self._metadata_file = MetadataFile (metadata.get('filename'),
                                             h = metadata.get('hash'))
 
@@ -352,7 +352,7 @@ class Configuration:
             disabled = self.lookup(module.get('name'))
             self.disable(disabled)
 
-        if metadata: 
+        if metadata  is not None: 
             return self._metadata_file.is_hash_ok() and original_bakefile == self._bakefile
         else :
             return True

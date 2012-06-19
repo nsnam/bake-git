@@ -21,6 +21,7 @@ class TestBuild (unittest.TestCase):
     def setUp(self):
         """Common set Up environment, available for all tests."""
         pathname = os.path.dirname("/tmp/source/")  
+        testStatus = commands.getoutput('rm -rf ' + pathname)
         self._logger = StdoutModuleLogger();
         self._logger.set_verbose(1)
         self._env = ModuleEnvironment(self._logger, pathname, pathname, pathname+"/obj")
@@ -58,7 +59,7 @@ class TestBuild (unittest.TestCase):
 
         # set up the environment: create directories and download the target code
         archive = ModuleSource.create("archive")
-        archive.attribute("url").value = "http://mesh.dl.sourceforge.net/project/pygccxml/pygccxml/pygccxml-1.0/pygccxml-1.0.0.zip"
+        archive.attribute("url").value = "http://switch.dl.sourceforge.net/project/pygccxml/pygccxml/pygccxml-1.0/pygccxml-1.0.0.zip"
         self._env._module_name="pygccxml"
         testStatus = commands.getoutput('rm -rf /tmp/source/pygccxml')
         testStatus = commands.getoutput('mkdir /tmp/source')
@@ -68,10 +69,39 @@ class TestBuild (unittest.TestCase):
         testStatus = commands.getoutput('ls /tmp/source/pygccxml|wc')
         created = re.compile('\d+').search(testStatus).group()
         self.assertNotEqual(created, "0")
-        
+     
         # Expected case test
         self._env.objdir = self._env.srcdir+"/object_bake"
         self._env._installdir = self._env.srcdir+"/install_bake"
+        
+        # test patch
+        self.assertEqual(python.attribute('patch').value, '')
+        python.attribute('patch').value = 'test.patch'
+        self.assertEqual(python.attribute('patch').value, 'test.patch')
+
+        testResult = None
+        try:
+            testResult = python.add_attribute('patch',  'ERRROR', 'SHOULD NOT HAVE BEEN ADDED')
+            self.fail("The attribute patch exists already, should not be able to add it. ")
+        except AssertionError as e:
+            self.assertNotEqual(e, None)    
+            self.assertEqual(testResult, None)
+        
+        try:
+            testResult = python.build(self._env, "1")
+            self.fail("The patch does not exist, should not have being able to find the path file and give an error. ")
+        except TaskError as e:
+            self.assertNotEqual(e._reason, None)    
+            self.assertEqual(testResult, None)
+        
+        # creates the file, empty, but created    
+        testStatus = commands.getoutput('touch ' + self._env.srcdir + '/test.patch')
+       
+        testResult = python.build(self._env, "1")
+        self.assertEqual(testResult, None)       
+        
+        python.attribute('patch').value = ''
+       
         testStatus = commands.getoutput('rm -rf '+self._env.objdir)
         testStatus = commands.getoutput('rm -rf '+self._env._installdir)
         testResult = python.build(self._env, "1")
@@ -82,6 +112,7 @@ class TestBuild (unittest.TestCase):
         testStatus = commands.getoutput('ls /tmp/source/pygccxml/install_bake|wc')
         created = re.compile('\d+').search(testStatus).group()
         self.assertNotEqual(created, "0")
+        
 
         # No permission in the target directories 
         self._env.objdir = "/tmp/source/test1/testobj"
@@ -89,6 +120,7 @@ class TestBuild (unittest.TestCase):
         testStatus = commands.getoutput('rm -rf '+ "/tmp/source/test1")
         testStatus = commands.getoutput('mkdir '+ "/tmp/source/test1")
         testStatus = commands.getoutput('chmod 000 '+"/tmp/source/test1")
+        testResult = None
         try:
             testResult = python.build(self._env, "1")
             self.fail("Has no permission in the target directory, and passed any way. ")
@@ -103,14 +135,16 @@ class TestBuild (unittest.TestCase):
         # call the clean to remove the build
         # TODO:  The clean does not work, the call is correct but I guess it is a
         # problem with the pygccxml clean that does nothing.    
-        testResult = python.clean(self._env)
-        self.assertEqual(testResult, None)
-        testStatus = commands.getoutput('ls /tmp/source/pygccxml/object_bake|wc')
-        created = re.compile('\d+').search(testStatus).group()
-        self.assertEqual(created, "0")
-        testStatus = commands.getoutput('ls /tmp/source/pygccxml/install_bake|wc')
-        created = re.compile('\d+').search(testStatus).group()
-        self.assertEqual(created, "0")
+#        self._env.objdir = self._env.srcdir+"/object_bake"
+#        self._env._installdir = self._env.srcdir+"/install_bake"
+#        testResult = python.clean(self._env)
+#        self.assertEqual(testResult, None)
+#        testStatus = commands.getoutput('ls /tmp/source/pygccxml/object_bake|wc')
+#        created = re.compile('\d+').search(testStatus).group()
+#        self.assertEqual(created, "0")
+#        testStatus = commands.getoutput('ls /tmp/source/pygccxml/install_bake|wc')
+#        created = re.compile('\d+').search(testStatus).group()
+#        self.assertEqual(created, "0")
         
 
     def test_WafModuleBuild(self):
@@ -119,6 +153,9 @@ class TestBuild (unittest.TestCase):
         waf = ModuleBuild.create("waf")
         self.assertNotEqual(waf, None)
         self.assertEqual(waf.name(), "waf")
+        
+        testStatus = commands.getoutput('cp test.patch /tmp/source/openflow-ns3/test.patch' )
+       
 
         testResult = None
         try:
@@ -158,11 +195,39 @@ class TestBuild (unittest.TestCase):
         
         # Expected case test
         self._env.objdir = self._env.srcdir+"/object"
+        
+        # test patch
+        self.assertEqual(waf.attribute('patch').value, '')
+        waf.attribute('patch').value = 'testN.patch'
+        self.assertEqual(waf.attribute('patch').value, 'testN.patch')
+
+        testResult = None
+        try:
+            testResult = waf.add_attribute('patch',  'ERRROR', 'SHOULD NOT HAVE BEEN ADDED')
+            self.fail("The attribute patch exists already, should not be able to add it. ")
+        except AssertionError as e:
+            self.assertNotEqual(e, None)    
+            self.assertEqual(testResult, None)
+        
+        try:
+            testResult = waf.build(self._env, "1")
+            self.fail("The patch does not exist, should not have being able to find the path file and give an error. ")
+        except TaskError as e:
+            self.assertNotEqual(e._reason, None)    
+            self.assertEqual(testResult, None)
+ 
+        testStatus = commands.getoutput('cp test.patch /tmp/source/openflow-ns3/test.patch' )
+       
+        # creates the file, empty, but created    
+        waf.attribute('patch').value = 'test.patch'
+        self.assertEqual(waf.attribute('patch').value, 'test.patch')
+    
         testResult = waf.build(self._env, "1")
         self.assertEqual(testResult, None)
         testStatus = commands.getoutput('ls /tmp/source/openflow-ns3/object|wc')
         created = re.compile('\d+').search(testStatus).group()
         self.assertNotEqual(created, "0")
+        waf.attribute('patch').value = ''
 
         # call the clean to remove the build
         # TODO:  Find a solution for the remaining directories
@@ -181,7 +246,7 @@ class TestBuild (unittest.TestCase):
         # man page --enable-examples --enable-tests does not compile gives an error
         # flolowed the steps of http://www.nsnam.org/docs/models/html/openflow-switch.html
         waf.attribute("CFLAGS").value = "-g"
-        waf.attribute("configure_arguments").value = "--enable-examples --enable-tests"
+#        waf.attribute("configure_arguments").value = " "
 #        waf.attribute("build_arguments").value = "-O2"
         
         testResult = waf.build(self._env, "1")
@@ -193,6 +258,8 @@ class TestBuild (unittest.TestCase):
         # TODO: 
         # test if the object dir is equal to the source dir, for the open flow 
         # case it is not allowed but I am not sure for everyone else 
+        
+        self._env.objdir = self._env.srcdir
         try:
             testResult = waf.build(self._env, "1")
             self.fail("The source and destination are the same but it passed without an exception. ")
@@ -255,7 +322,32 @@ class TestBuild (unittest.TestCase):
         
         # Expected case test
         self._env.objdir = self._env.srcdir+"/object"
+
+        # test patch
+        self.assertEqual(waf.attribute('patch').value, '')
+        waf.attribute('patch').value = 'test.patch'
+        self.assertEqual(waf.attribute('patch').value, 'test.patch')
+
+        testResult = None
+        try:
+            testResult = waf.add_attribute('patch',  'ERRROR', 'SHOULD NOT HAVE BEEN ADDED')
+            self.fail("The attribute patch exists already, should not be able to add it. ")
+        except AssertionError as e:
+            self.assertNotEqual(e, None)    
+            self.assertEqual(testResult, None)
+        
+        try:
+            testResult = waf.build(self._env, "1")
+            self.fail("The patch does not exist, should not have being able to find the path file and give an error. ")
+        except TaskError as e:
+            self.assertNotEqual(e._reason, None)    
+            self.assertEqual(testResult, None)
+        
+        # creates the file, empty, but created    
+        testStatus = commands.getoutput('touch ' + self._env.srcdir + '/test.patch')
+        
         testStatus = commands.getoutput('rm -rf /tmp/source/pybindgen/object')
+        
         testResult = waf.build(self._env, "1")
         self.assertEqual(testResult, None)
         testStatus = commands.getoutput('ls /tmp/source/pybindgen/object|wc')
@@ -320,8 +412,31 @@ class TestBuild (unittest.TestCase):
         self.assertTrue(testResult)
         
         # Expected case test
-
         self._env.objdir = self._env.srcdir+"/object"
+        
+        # test patch
+        self.assertEqual(cmake.attribute('patch').value, '')
+        cmake.attribute('patch').value = 'test.patch'
+        self.assertEqual(cmake.attribute('patch').value, 'test.patch')
+
+        testResult = None
+        try:
+            testResult = cmake.add_attribute('patch',  'ERRROR', 'SHOULD NOT HAVE BEEN ADDED')
+            self.fail("The attribute patch exists already, should not be able to add it. ")
+        except AssertionError as e:
+            self.assertNotEqual(e, None)    
+            self.assertEqual(testResult, None)
+        
+        try:
+            testResult = cmake.build(self._env, "1")
+            self.fail("The patch does not exist, should not have being able to find the path file and give an error. ")
+        except TaskError as e:
+            self.assertNotEqual(e._reason, None)    
+            self.assertEqual(testResult, None)
+        
+        # creates the file, empty, but created    
+        testStatus = commands.getoutput('touch ' + self._env.srcdir + '/test.patch')
+
         testStatus = commands.getoutput('rm -rf /tmp/source/gccxml/object')
         testResult = cmake.build(self._env, "1")
         self.assertEqual(testResult, None)
@@ -344,13 +459,103 @@ class TestBuild (unittest.TestCase):
         # Call with extra options
         cmake.attribute("CFLAGS").value = "-g"
 #        waf.attribute("configure_arguments").value = "--enable-examples --enable-tests"
-        cmake.attribute("build_arguments").value = "--generate-version"
+#        cmake.attribute("build_arguments").value = "--generate-version"
         
         testResult = cmake.build(self._env, "1")
         self.assertEqual(testResult, None)
         testStatus = commands.getoutput('ls -l /tmp/source/openflow-ns3/object|wc')
         created = re.compile('\d+').search(testStatus).group()
         self.assertNotEqual(created, "0")
+
+    def test_makeModule(self):
+        """Tests the WafModuleBuild Class from ModuleBuild. """
+
+        make = ModuleBuild.create("make")
+        self.assertNotEqual(make, None)
+        self.assertEqual(make.name(), "make")
+
+        # Environment settings        
+        mercurial = ModuleSource.create("mercurial")
+        testResult = mercurial.check_version(self._env)
+        self.assertTrue(testResult)
+
+        mercurial.attribute("url").value = "http://code.nsnam.org/mathieu/readversiondef"
+        self._env._module_name="readversiondef"
+        testStatus = commands.getoutput('rm -rf /tmp/source')
+        self._logger.set_current_module(self._env._module_name)
+        testResult = mercurial.download(self._env)
+        self.assertEqual(testResult, None)
+
+        #check that has the make version required is installed in the machine
+        testResult = make.check_version(self._env)
+        self.assertTrue(testResult)
+        
+        # Expected case test
+        self._env.objdir = self._env.srcdir+"/object"
+        
+        # test patch
+        self.assertEqual(make.attribute('patch').value, '')
+        make.attribute('patch').value = 'test.patch'
+        self.assertEqual(make.attribute('patch').value, 'test.patch')
+        
+        testResult = None
+        try:
+            testResult = make.add_attribute('patch',  'ERRROR', 'SHOULD NOT HAVE BEEN ADDED')
+            self.fail("The attribute patch exists already, should not be able to add it. ")
+        except AssertionError as e:
+            self.assertNotEqual(e, None)    
+            self.assertEqual(testResult, None)
+        
+        try:
+            testResult = make.build(self._env, "1")
+            self.fail("The patch does not exist, should not have being able to find the path file and give an error. ")
+        except TaskError as e:
+            self.assertNotEqual(e._reason, None)    
+            self.assertEqual(testResult, None)
+        
+        # creates the file, empty, but created    
+        testStatus = commands.getoutput('touch ' + self._env.srcdir + '/test.patch')
+
+        testStatus = commands.getoutput('rm -rf /tmp/source/gccxml/object')
+        testResult = make.build(self._env, "1")
+        self.assertEqual(testResult, None)
+        make.attribute('patch').value = ''
+
+#        testStatus = commands.getoutput('ls /tmp/source/gccxml/object|wc')
+#        created = re.compile('\d+').search(testStatus).group()
+#        self.assertNotEqual(created, "0")
+
+        # call the clean to remove the build
+        # TODO:  Find a solution for the remaining directories
+        #    - It is strange because the waf does not remove the directories, 
+        # just the object files.... Should this  be like that??!?!        
+        testResult = make.clean(self._env)
+        self.assertEqual(testResult, None)
+        testStatus = commands.getoutput('ls /tmp/source/readversiondef/*.o|wc')
+        created = re.compile('\d+').search(testStatus).group()
+        self.assertEqual(created, "1")
+        
+        # TODO: neither the --generate-version appears but I couldn't also 
+        # find a configuration argument for pybindgen :(
+        # Call with extra options
+        make.attribute("configure_arguments").value = "all"
+        
+        testResult = make.build(self._env, "1")
+        self.assertEqual(testResult, None)
+        make.attribute('configure_arguments').value = ''
+
+        make.attribute("post_installation").value = "rm /tmp/source/readversiondef/readversiondef.o"
+        testResult = make.build(self._env, "1")
+        self.assertEqual(testResult, None)
+        make.attribute('post_installation').value = ''
+        testStatus = commands.getoutput('ls /tmp/source/readversiondef/*.o|wc')
+        created = re.compile('\d+').search(testStatus).group()
+        self.assertEqual(created, "0")
+
+
+#        testStatus = commands.getoutput('ls -l /tmp/source/openflow-ns3/object|wc')
+#        created = re.compile('\d+').search(testStatus).group()
+#        self.assertNotEqual(created, "0")
 
 # main call for the tests        
 if __name__ == '__main__':

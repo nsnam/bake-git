@@ -1,5 +1,6 @@
 import Utils
 import os
+import commands
 import re;
 from Utils import ModuleAttributeBase
 from Exceptions import NotImplemented
@@ -11,6 +12,8 @@ class ModuleBuild(ModuleAttributeBase):
         ModuleAttributeBase.__init__(self)
         self._libpaths = []
         self.add_attribute('objdir', 'no', 'Module supports objdir != srcdir.')
+        self.add_attribute('patch', '', 'code to patch before build')
+
     @classmethod
     def subclasses(self):
         return ModuleBuild.__subclasses__()
@@ -35,6 +38,22 @@ class ModuleBuild(ModuleAttributeBase):
         raise NotImplemented()
     def check_version(self, env):
         raise NotImplemented()
+
+    # applies a patch if available
+    def threatPatch(self, env):
+        hasPatch = env.check_program('patch')
+        if hasPatch == False:
+            raise TaskError('Path tool is not present and it is required for applying: %s, in: %s' % (self.attribute('patch').value, env._module_name))
+        try:
+            env._logger.commands.write('cd ' + env.srcdir + '; patch -p1 < ' + self.attribute('patch').value + '\n')
+            status = commands.getstatusoutput('cd ' + env.srcdir + '; patch -p1 < ' + self.attribute('patch').value) #                env.run(['patch ', '-p1', ' < ', self.attribute('patch').value],
+    #                    directory=env.srcdir)
+        except:
+            raise TaskError('Patch error: %s, in: %s' % (self.attribute('patch').value, env._module_name))
+    # if there were an error
+        if status[0] != 0:
+            raise TaskError('Patch error %s: %s, in: %s' % (status[0], self.attribute('patch').value, env._module_name))
+
 
 class NoneModuleBuild(ModuleBuild):
     def __init__(self):
@@ -72,20 +91,28 @@ class PythonModuleBuild(ModuleBuild):
     
     def __init__(self):
         ModuleBuild.__init__(self)
+        self.add_attribute('post_installation', '', 'Command to run after the installation')
     @classmethod
     def name(cls):
         return 'python'
     def build(self, env, jobs):
         
+        if self.attribute('patch').value != '':
+            self.threatPatch(env)
+       
         # TODO: Add the options, there is no space for the configure_arguments
-        env.run(['python', os.path.join(env.srcdir, 'setup.py'), 'build', 
-                  '--build-base=' + env.objdir, 
-                  'install', '--prefix=' + env.installdir], 
-                 directory = env.srcdir)
+        env.run(['python', os.path.join(env.srcdir, 'setup.py'), 'build',
+                  '--build-base=' + env.objdir,
+                  'install', '--prefix=' + env.installdir],
+                 directory=env.srcdir)
+        
+        if self.attribute('post_installation').value != '':
+            env.run([self.attribute('post_installation').value], directory=env.objdir)
+
     def clean(self, env):
-        env.run(['python', os.path.join(env.srcdir, 'setup.py'), 'clean', 
+        env.run(['python', os.path.join(env.srcdir, 'setup.py'), 'clean',
                  '--build-base=' + env.objdir],
-                directory = env.srcdir)
+                directory=env.srcdir)
     def check_version(self, env):
         """Verifies only if python exists in the machine. """
         
@@ -101,13 +128,15 @@ class WafModuleBuild(ModuleBuild):
 
     def __init__(self):
         ModuleBuild.__init__(self)
-        self.add_attribute('CC',       '', 'C compiler to use')
-        self.add_attribute('CXX',      '', 'C++ compiler to use')
-        self.add_attribute('CFLAGS',   '', 'Flags to use for C compiler')
+        self.add_attribute('CC', '', 'C compiler to use')
+        self.add_attribute('CXX', '', 'C++ compiler to use')
+        self.add_attribute('CFLAGS', '', 'Flags to use for C compiler')
         self.add_attribute('CXXFLAGS', '', 'Flags to use for C++ compiler')
-        self.add_attribute('LDFLAGS',  '', 'Flags to use for Linker')
-        self.add_attribute('configure_arguments',  '', 'Arguments to pass to "waf configure"')
-        self.add_attribute('build_arguments',  '', 'Arguments to pass to "waf"')
+        self.add_attribute('LDFLAGS', '', 'Flags to use for Linker')
+        self.add_attribute('configure_arguments', '', 'Arguments to pass to "waf configure"')
+        self.add_attribute('build_arguments', '', 'Arguments to pass to "waf"')
+        self.add_attribute('post_installation', '', 'Command to run after the installation')
+
     @classmethod
     def name(cls):
         return 'waf'
@@ -119,7 +148,7 @@ class WafModuleBuild(ModuleBuild):
         return waf_binary
     def _env(self, objdir):
         env = dict()
-        for a,b in [['CC', 'CC'], 
+        for a, b in [['CC', 'CC'],
                     ['CXX', 'CXX'],
                     ['CFLAGS', 'CFLAGS'],
                     ['CXXFLAGS', 'CXXFLAGS'],
@@ -129,46 +158,54 @@ class WafModuleBuild(ModuleBuild):
         env['WAFLOCK'] = '.lock-%s' % os.path.basename(objdir)
         return env
     def _is_1_6_x(self, env):
-        return env.check_program(self._binary(env.srcdir), version_arg = '--version',
-                                 version_regexp = '(\d+)\.(\d+)\.(\d+)',
-                                 version_required = (1,6,0))
+        return env.check_program(self._binary(env.srcdir), version_arg='--version',
+                                 version_regexp='(\d+)\.(\d+)\.(\d+)',
+                                 version_required=(1, 6, 0))
+        
     def build(self, env, jobs):
+        
+        if self.attribute('patch').value != '':
+            self.threatPatch(env)
+               
+        
         extra_configure_options = []
         if self.attribute('configure_arguments').value != '':
             extra_configure_options = [env.replace_variables(tmp) for tmp in
                                        self.attribute('configure_arguments').value.split(' ')]
+            if self._is_1_6_x(env):
+                env.run([self._binary(env.srcdir)] + extra_configure_options,
+                        directory=env.srcdir,
+                        env=self._env(env.objdir))
+            else:
+                env.run([self._binary(env.srcdir)] + extra_configure_options,
+                        directory=env.srcdir,
+                        env=self._env(env.objdir))
+
         extra_build_options = []
         if self.attribute('build_arguments').value != '':
             extra_build_options = [env.replace_variables(tmp) for tmp in
                                    self.attribute('build_arguments').value.split(' ')]
-        if self._is_1_6_x(env):
-            env.run([self._binary(env.srcdir), '--top=' + env.srcdir, '--out=' + env.objdir, 
-                     '--prefix=' + env.installdir, 'configure'] + extra_configure_options,
-                    directory = env.srcdir,
-                    env = self._env(env.objdir))
-        else:
-            env.run([self._binary(env.srcdir), '--srcdir=' + env.srcdir, '--blddir=' + env.objdir, 
-                     '--prefix=' + env.installdir, 'configure'] + extra_configure_options,
-                    directory = env.srcdir,
-                    env = self._env(env.objdir))
         env.run([self._binary(env.srcdir)] + extra_build_options + ['-j', str(jobs)],
-                directory = env.srcdir,
-                env = self._env(env.objdir))
+                directory=env.srcdir,
+                env=self._env(env.objdir))
         env.run([self._binary(env.srcdir), 'install'],
-                directory = env.srcdir,
-                env = self._env(env.objdir))
+                directory=env.srcdir,
+                env=self._env(env.objdir))
+        
+        if self.attribute('post_installation').value != '':
+            env.run([self.attribute('post_installation').value], directory=env.objdir)
         
     def clean(self, env):
         wlockfile = '.lock-%s' % os.path.basename(env.objdir)
         if os.path.isfile(os.path.join(env.srcdir, wlockfile)):
             env.run([self._binary(env.srcdir), '-k', 'clean'],
-                    directory = env.srcdir,
-                    env = self._env(env.objdir))
+                    directory=env.srcdir,
+                    env=self._env(env.objdir))
     def check_version(self, env):
         for path in [os.path.join(env.srcdir, 'waf'), 'waf']:
-            if env.check_program(path, version_arg = '--version',
-                                 version_regexp = '(\d+)\.(\d+)\.(\d+)',
-                                 version_required = (1,5,9)):
+            if env.check_program(path, version_arg='--version',
+                                 version_regexp='(\d+)\.(\d+)\.(\d+)',
+                                 version_required=(1, 5, 9)):
                 return True
         return False
 
@@ -176,29 +213,34 @@ class WafModuleBuild(ModuleBuild):
 class Cmake(ModuleBuild):
     def __init__(self):
         ModuleBuild.__init__(self)
-        self.add_attribute('CC',       '', 'C compiler to use')
-        self.add_attribute('CXX',      '', 'C++ compiler to use')
-        self.add_attribute('CFLAGS',   '', 'Flags to use for C compiler')
+        self.add_attribute('CC', '', 'C compiler to use')
+        self.add_attribute('CXX', '', 'C++ compiler to use')
+        self.add_attribute('CFLAGS', '', 'Flags to use for C compiler')
         self.add_attribute('CXXFLAGS', '', 'Flags to use for C++ compiler')
-        self.add_attribute('LDFLAGS',  '', 'Flags to use for Linker')
-        self.add_attribute('build_targets', '', 'Targets to make before install')
+        self.add_attribute('LDFLAGS', '', 'Flags to use for Linker')
+        self.add_attribute('build_arguments', '', 'Targets to make before install')
         self.add_attribute('cmake_arguments', '', 'Command-line arguments to pass to cmake')
         self.add_attribute('configure_arguments', '', 'Command-line arguments to pass to cmake')
+        self.add_attribute('post_installation', '', 'Command to run after the installation')
+
     @classmethod
     def name(cls):
         return 'cmake'
     def _variables(self):
         variables = []
-        for a,b in [['CC', 'C_COMPILER'], 
+        for a, b in [['CC', 'C_COMPILER'],
                     ['CXX', 'CXX_COMPILER'],
                     ['CFLAGS', 'CFLAGS'],
                     ['CXXFLAGS', 'CXXFLAGS'],
                     ['LDFLAGS', 'EXE_LINKER_FLAGS']]:
             if self.attribute(a).value != '':
-                variables.append('-DCMAKE_%s=%s' %(b, self.attribute(a).value))
+                variables.append('-DCMAKE_%s=%s' % (b, self.attribute(a).value))
         return variables
 
     def build(self, env, jobs):
+        if self.attribute('patch').value != '':
+            self.threatPatch(env)
+
         options = []
         if self.attribute('cmake_arguments').value != '':
             options = self.attribute('cmake_arguments').value.split(' ')
@@ -215,28 +257,106 @@ class Cmake(ModuleBuild):
             if not "error 1" in e._reason :
                 raise TaskError(e._reason)
 
-            directory=env.objdir
-
         env.run(['cmake', env.srcdir, '-DCMAKE_INSTALL_PREFIX=' + env.installdir] + 
                 self._variables() + options,
                 directory=env.objdir)
-        env.run(['make', '-j', str(jobs)], directory = env.objdir)
-        if self.attribute('build_targets').value != '':
-            env.run(['make'] + self.attribute('build_targets').value.split(' '), 
-                    directory = env.objdir)
-        env.run(['make', 'install'], directory = env.objdir)
+        env.run(['make', '-j', str(jobs)], directory=env.objdir)
+        if self.attribute('build_arguments').value != '':
+            env.run(['make'] + self.attribute('build_arguments').value.split(' '),
+                    directory=env.objdir)
+        env.run(['make', 'install'], directory=env.objdir)
+        
+        if self.attribute('post_installation').value != '':
+            env.run([self.attribute('post_installation').value], directory=env.objdir)
+
     def clean(self, env):
         if not os.path.isfile(os.path.join(env.objdir, 'Makefile')):
             return
-        env.run(['make', 'clean'], directory = env.objdir)
+        env.run(['make', 'clean'], directory=env.objdir)
     def check_version(self, env):
-        if not env.check_program('cmake', version_arg = '--version',
-                                 version_regexp = '(\d+)\.(\d+)\.(\d+)',
-                                 version_required = (2,8,2)):
+        if not env.check_program('cmake', version_arg='--version',
+                                 version_regexp='(\d+)\.(\d+)\.(\d+)',
+                                 version_required=(2, 8, 2)):
             return False
-        if not env.check_program('make', version_arg = '--version',
-                                 version_regexp = '(\d+)\.(\d+)',
-                                 version_required = (3,80)):
+        if not env.check_program('make', version_arg='--version',
+                                 version_regexp='(\d+)\.(\d+)',
+                                 version_required=(3, 80)):
+            return False
+        return True
+
+# Class to handle the make build tool
+class Make(ModuleBuild):
+    def __init__(self):
+        ModuleBuild.__init__(self)
+        self.add_attribute('LDFLAGS', '', 'Flags to use for Linker')
+        self.add_attribute('build_arguments', '', 'Targets to make before install')
+        self.add_attribute('make_arguments', '', 'Command-line arguments to pass to make')
+        self.add_attribute('configure_arguments', '', 'Command-line arguments to pass to make')
+        self.add_attribute('post_installation', '', 'UNIX Command to run after the installation')
+        
+    @classmethod
+    def name(cls):
+        return 'make'
+    def _variables(self):
+        variables = []
+#        for a, b in [['LDFLAGS']]:
+#            if self.attribute(a).value != '':
+#                variables.append('-DCMAKE_%s=%s' % (b, self.attribute(a).value))
+        return variables
+
+    def build(self, env, jobs):
+        if self.attribute('patch').value != '':
+            self.threatPatch(env)
+
+        # if the object directory does not exist, it should create it, to
+        # avoid build error, since the make does not create the directory
+        # it also makes it orthogonal to waf, that creates the target object dir
+        try:
+            env.run(['mkdir', env.objdir],
+                    directory=env.srcdir)
+        except TaskError as e:
+            # assume that if an error is thrown is because the directory already 
+            # exist, otherwise re-propagates the error
+            if not "error 1" in e._reason :
+                raise TaskError(e._reason)
+
+        # Configures make, if there is a configuration argument that was passed as parameter
+        options = []      
+        if self.attribute('configure_arguments').value != '':
+            options = self.attribute('configure_arguments').value.split(' ')
+            env.run(['make']+options,  directory=env.srcdir)
+        
+        options = []      
+        if self.attribute('make_arguments').value != '':
+            options = self.attribute('make_arguments').value.split(' ')
+        
+        if not options: 
+            env.run(['make', '-j', str(jobs)], directory=env.srcdir)
+        else:
+            env.run(['make', '-j', str(jobs)]+ options, directory=env.srcdir)
+           
+        if self.attribute('build_arguments').value != '':
+            env.run(['make'] + self.attribute('build_arguments').value.split(' '),
+                    directory=env.srcdir)
+        try:
+            env.run(['make', 'install'], directory=env.srcdir)
+        except TaskError as e:
+            env._logger.commands.write(' > No make install! ' + '\n')
+
+        options = []      
+        if self.attribute('post_installation').value != '':
+            options = self.attribute('post_installation').value.split(' ')
+            env.run(options, directory=env.srcdir)
+
+    def clean(self, env):
+        if not os.path.isfile(os.path.join(env.objdir, 'Makefile')):
+            return
+        env.run(['make', 'clean'], directory=env.objdir)
+        
+    def check_version(self, env):
+        if not env.check_program('make', version_arg='--version',
+                                 version_regexp='(\d+)\.(\d+)',
+                                 version_required=(3, 80)):
             return False
         return True
 
@@ -244,55 +364,62 @@ class Cmake(ModuleBuild):
 class Autotools(ModuleBuild):
     def __init__(self):
         ModuleBuild.__init__(self)
-        self.add_attribute('CC',       '', 'C compiler to use')
-        self.add_attribute('CXX',      '', 'C++ compiler to use')
-        self.add_attribute('CFLAGS',   '', 'Flags to use for C compiler')
+        self.add_attribute('CC', '', 'C compiler to use')
+        self.add_attribute('CXX', '', 'C++ compiler to use')
+        self.add_attribute('CFLAGS', '', 'Flags to use for C compiler')
         self.add_attribute('CXXFLAGS', '', 'Flags to use for C++ compiler')
-        self.add_attribute('LDFLAGS',  '', 'Flags to use for Linker')
+        self.add_attribute('LDFLAGS', '', 'Flags to use for Linker')
         self.add_attribute('maintainer', 'no', 'Maintainer mode ?')
         self.add_attribute('configure_arguments', '', 'Command-line arguments to pass to configure')
+        self.add_attribute('post_installation', '', 'Command to run after the installation')
     @classmethod
     def name(cls):
         return 'autotools'
     def _variables(self):
         variables = []
-        for tmp in ['CC','CXX', 'CFLAGS', 'CXXFLAGS', 'LDFLAGS']:
+        for tmp in ['CC', 'CXX', 'CFLAGS', 'CXXFLAGS', 'LDFLAGS']:
             if self.attribute(tmp).value != '':
                 variables.append('%s=%s' % (tmp, self.attribute(tmp).value))
         return variables
     def build(self, env, jobs):
+        if self.attribute('patch').value != '':
+            self.threatPatch(env)
+
         if self.attribute('maintainer').value != 'no':
-            env.run(['autoreconf', '--install'], 
-                    directory = env.srcdir)
+            env.run(['autoreconf', '--install'],
+                    directory=env.srcdir)
         options = []
         if self.attribute('configure_arguments').value != '':
             options = self.attribute('configure_arguments').value.split(' ')
-        env.run([os.path.join(env.srcdir, 'configure'),
+            env.run([os.path.join(env.srcdir),
                  '--prefix=' + env.installdir] + 
-                self._variables() + options, 
-                directory = env.objdir)
-        env.run(['make', '-j', str(jobs)], directory = env.objdir)
-        env.run(['make', 'install'], directory = env.objdir)
+                self._variables() + options,
+                directory=env.objdir)
+        env.run(['make', '-j', str(jobs)], directory=env.objdir)
+        env.run(['make', 'install'], directory=env.objdir)
+    
+        if self.attribute('post_installation').value != '':
+            env.run([self.attribute('post_installation').value], directory=env.objdir)
 
     def clean(self, env):
-        if not os.path.isfile(os.path.join(env.objdir,'Makefile')):
+        if not os.path.isfile(os.path.join(env.objdir, 'Makefile')):
             return
         if self.attribute('maintainer').value != 'no':
-            env.run(['make', '-k', 'maintainerclean'], directory = env.objdir)
+            env.run(['make', '-k', 'maintainerclean'], directory=env.objdir)
         else:
-            env.run(['make', '-k', 'distclean'], directory = env.objdir)
+            env.run(['make', '-k', 'distclean'], directory=env.objdir)
         try:
             os.remove(os.path.join(env.objdir, 'config.cache'))
         except OSError:
             pass
     def check_version(self, env):
-        if not env.check_program('autoreconf', version_arg = '--version',
-                                 version_regexp = '(\d+)\.(\d+)',
-                                 version_required = (2,66)):
+        if not env.check_program('autoreconf', version_arg='--version',
+                                 version_regexp='(\d+)\.(\d+)',
+                                 version_required=(2, 66)):
             return False
-        if not env.check_program('make', version_arg = '--version',
-                                 version_regexp = '(\d+)\.(\d+)',
-                                 version_required = (3,80)):
+        if not env.check_program('make', version_arg='--version',
+                                 version_regexp='(\d+)\.(\d+)',
+                                 version_required=(3, 80)):
             return False
         return True
             

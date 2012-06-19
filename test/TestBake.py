@@ -54,12 +54,17 @@ class TestBake(unittest.TestCase):
         testResult = mercurial.download(self._env)
 
         bake = Bake()
-        config = "bakefile.xml"
+        config = "bakefile.xml" #bakefile.xml"
         args = []
         parser = bake._option_parser('build')
         parser.add_option('-j', '--jobs', help='Allow N jobs at once. Default is 1.',
                           type='int', action='store', dest='jobs', default=1)
+        parser.add_option("--debug", action="store_true", 
+                          dest="debug", default=False, 
+                          help="Should we enable extra Bake debugging output ?")
         (options, args_left) = parser.parse_args(args)
+#        bake.setMainOptions(options)
+        Bake.main_options = options
         
         # Tests typical case, the module is there
         testResult = bake._check_source_code(config, options);
@@ -107,14 +112,20 @@ class TestBake(unittest.TestCase):
         testResult = mercurial.download(self._env)
 
         bake = Bake()
-        config = "bakefile.xml"
+        config = "bakefile.xml" #bakefile.xml"
         args = []
         parser = bake._option_parser('build')
         parser.add_option('-j', '--jobs', help='Allow N jobs at once. Default is 1.',
                           type='int', action='store', dest='jobs', default=1)
+        parser.add_option("--debug", action="store_true", 
+                          dest="debug", default=False, 
+                          help="Should we enable extra Bake debugging output ?")
         (options, args_left) = parser.parse_args(args)
-
+#        bake.setMainOptions(options)
+        Bake.main_options = options
+        
         # Tests typical case, the module is there and the object directory is not
+        self._env._installdir = self._env.srcdir+"/install_bake"
         testResult = bake._check_build_version(config, options);
         self.assertEqual(testResult, None)
  

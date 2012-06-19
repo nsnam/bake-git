@@ -393,11 +393,10 @@ class Bake:
         verbose = verbose if verbose >= 0 else 0
         logger.set_verbose(verbose)
 
-        global main_options
         env = ModuleEnvironment(logger, 
                                configuration.compute_installdir(),
                                configuration.compute_sourcedir(), 
-                               configuration.get_objdir(), main_options.debug)
+                               configuration.get_objdir(), Bake.main_options.debug)
         must_disable = []
         if options.one != '':
             if options.all or options.start != '' or options.after != '':
@@ -640,6 +639,11 @@ class Bake:
                     self._show_variables(module)
     options=""
     
+
+#    def setMainOptions(self, options):
+#        global main_options
+#        main_options = options
+
     def main(self, argv):
         parser = MyOptionParser(usage = 'usage: %prog [options] command [command options]',
                                 description = """Where command is one of:
@@ -668,8 +672,7 @@ To get more help about each command, try:
         parser.disable_interspersed_args()
         (options, args_left) = parser.parse_args(argv[1:])
         
-        global main_options
-        main_options = options
+        Bake.main_options = options
 
         if len(args_left) == 0:
             parser.print_help()

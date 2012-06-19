@@ -50,8 +50,9 @@ class Module:
 
     def download(self, env):
         try:
+            print(" >> Downloading " + self._name )
             self._do_download(env, self._source, self._name)
-            print(" Download " + self._name + " - OK ")
+            print(" >> Download " + self._name + " - OK ")
             return True
         except TaskError as e:
             print(e.reason)
@@ -131,11 +132,12 @@ class Module:
             os.mkdir(env.objdir)
 
         try:
+            print(" >> Building " + self._name )
             self._build.build(env, jobs)
             self._installed = monitor.end()
             env.end_build()
             self._built_once = True
-            print(" Build " + self._name + " - OK ")
+            print(" >> Built " + self._name + " - OK ")
             return True
         except TaskError as e:
             print(e.reason)
