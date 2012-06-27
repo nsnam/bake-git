@@ -1,7 +1,8 @@
 import Utils
 import os
 import commands
-import re;
+import re
+import sys
 from Utils import ModuleAttributeBase
 from Exceptions import NotImplemented
 from Exceptions import TaskError 
@@ -13,6 +14,7 @@ class ModuleBuild(ModuleAttributeBase):
         self._libpaths = []
         self.add_attribute('objdir', 'no', 'Module supports objdir != srcdir.')
         self.add_attribute('patch', '', 'code to patch before build')
+#        self.add_attribute('condition_to_build', '', 'Condition that, if existent, should be true for allowing the instalation')
 
     @classmethod
     def subclasses(self):
@@ -52,7 +54,10 @@ class ModuleBuild(ModuleAttributeBase):
             raise TaskError('Patch error: %s, in: %s' % (self.attribute('patch').value, env._module_name))
     # if there were an error
         if status[0] != 0:
-            raise TaskError('Patch error %s: %s, in: %s' % (status[0], self.attribute('patch').value, env._module_name))
+            if status[0] == 256:
+                env._logger.commands.write(' > Patch problem: Ignoring patch, probably it was already applied!\n')
+            else:
+                raise TaskError('Patch error %s: %s, in: %s' % (status[0], self.attribute('patch').value, env._module_name))
 
 
 class NoneModuleBuild(ModuleBuild):
@@ -155,7 +160,7 @@ class WafModuleBuild(ModuleBuild):
                     ['LDFLAGS', 'LINKFLAGS']]:
             if self.attribute(a).value != '':
                 env[b] = self.attribute(a).value
-        env['WAFLOCK'] = '.lock-%s' % os.path.basename(objdir)
+#        env['WAFLOCK'] = '.lock-waf_%s_build'%sys.platform #'.lock-%s' % os.path.basename(objdir)
         return env
     def _is_1_6_x(self, env):
         return env.check_program(self._binary(env.srcdir), version_arg='--version',
@@ -193,7 +198,12 @@ class WafModuleBuild(ModuleBuild):
                 env=self._env(env.objdir))
         
         if self.attribute('post_installation').value != '':
-            env.run([self.attribute('post_installation').value], directory=env.objdir)
+            try:
+#    #          env.run([self.attribute('post_installation').value], directory=env.objdir)
+                var = commands.getoutput("cd "+env.objdir+";"+self.attribute('post_installation').value)
+                print(var)
+            except Exception as e:
+                print ("   > Error executing post installation : " + e )
         
     def clean(self, env):
         wlockfile = '.lock-%s' % os.path.basename(env.objdir)
@@ -341,7 +351,7 @@ class Make(ModuleBuild):
         try:
             env.run(['make', 'install'], directory=env.srcdir)
         except TaskError as e:
-            env._logger.commands.write(' > No make install! ' + '\n')
+            env._logger.commands.write(' > No make install, or lack of permission \n')
 
         options = []      
         if self.attribute('post_installation').value != '':

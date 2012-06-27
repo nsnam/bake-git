@@ -1,0 +1,38 @@
+<configuration>
+  <modules>
+
+    <module name="dce-ns3">
+      <source type="mercurial">
+	<attribute name="url" value="http://code.nsnam.org/furbani/ns-3-dce"/>
+      </source>
+       <depends_on name="readversiondef" optional="False"/>
+       <depends_on name="ns-3-dev-dce" optional="False"/>
+      <build type="waf" objdir="yes">
+	<attribute name="configure_arguments" value="configure --prefix=`pwd`/../build --verbose"/>
+	<attribute name="post_installation" value="BASEDCE=`pwd`/..;DCE_PATH=$BASEDCE/build/bin_dce:$BASEDCE/build/bin:$BASE/build/bin;DCE_ROOT=$HOME/dce_root:$BASEDCE/build;LD_LIBRARY_PATH=$SAVE_LDLP:`pwd`/../build/lib:`pwd`/build/bin:`pwd`/../build/lib:`pwd`/../../ns-3-dev-dce/build;../build/bin/ns3test-dce --verbose"/>
+      </build>
+    </module>
+
+    <module name="readversiondef">
+      <source type="mercurial">
+	<attribute name="url" value="http://code.nsnam.org/mathieu/readversiondef"/>
+      </source>
+      <build type="make" objdir="yes">
+	<attribute name="make_arguments" value="install PREFIX=`pwd`/../build"/>
+      </build>
+    </module>
+     
+    <module name="ns-3-dev-dce">
+      <source type="mercurial">
+	<attribute name="url" value="http://code.nsnam.org/ns-3-dev"/>
+	<attribute name="revision" value="49dadc40be43"/>
+      </source>
+      <build type="waf" objdir="yes">
+	<attribute name="patch" value="../dce-ns3/utils/packet-socket-upgrade-exp.patch"/>
+	<attribute name="configure_arguments" value="configure --prefix=`pwd`/../build --enable-tests"/>
+      </build>
+    </module>
+
+  </modules>
+
+</configuration>
