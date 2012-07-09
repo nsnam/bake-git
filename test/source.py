@@ -33,14 +33,14 @@ class TestModuleSource(unittest.TestCase):
             print (inst)     # the exception instance
             self.fail("Could not execute command %s over directory %s failed" % (command, dir))
 
-    def test_generalFailures(self):
+    def D_test_generalFailures(self):
         """Tests Some general failures that could happen in the Module Source. """
         
         #Verifies the return of the creation of a non existent module
         module = ModuleSource.create("NonExistentModule")
         self.assertEqual(module, None)
 
-    def test_archiveModuleSource(self):
+    def D_test_archiveModuleSource(self):
         """Tests the ArchiveModuleSource class. """
         
         # it first needs to be able to create the class otherwise will not be
@@ -183,8 +183,108 @@ class TestModuleSource(unittest.TestCase):
 #
 #        testStatus = commands.getoutput('chmod 755 /tmp/click-1.8.0; rm -rf /tmp/click-1.8.0')
 
+    def test_SystemDependencySource(self):
+        """Tests the SelfInstallerModule class. """
+        
+        # it first needs to be able to create the class otherwise will not be
+        # able to do anything else
+        installer = ModuleSource.create("system_dependency")
+        self.assertNotEqual(installer, None)
+        self.assertEqual(installer.name(), "system_dependency")
+        
+        # Verifies if the system has the right tools installed, if not does not
+        # even worth continuing
+        
+        # Verify if the installer, for this architecture exists
+        testResult = installer.check_version(self._env)
+        self.assertTrue(testResult)    
+       
+        self._env._module_name="testModule"
+        self._logger.set_current_module(self._env._module_name)
+        
+        # Unknown file type
+        installer.attribute("dependency_test").value = "NonExistentSoftForTest"
+        installer.attribute('more_information').value = "Message test for inexistent module"
+        installer.attribute("try_to_install").value=True
+        testResult = None
+        try :
+            testResult = installer.download(self._env)
+        except TaskError as e:
+            self.assertNotEqual(e._reason, None)    
+            self.assertEqual(testResult, None)
+            print(e._reason)
+            
+        self.assertNotEqual(installer.dependencyMessage, None)
+        tmpMsg = installer.dependencyMessage;
+        
+        installer.attribute("dependency_test").value = "gcc"
+        installer.attribute('more_information').value = "You miss gcc download it from your linux distribution website"
+        testResult = None
+        try :
+            testResult = installer.download(self._env)
+        except TaskError as e:
+            self.assertNotEqual(e._reason, None)    
+            self.assertEqual(testResult, None)
+            print(e._reason)
+            
+        self.assertTrue(testResult)
+        self.assertEqual(tmpMsg, installer.dependencyMessage)
+      
+      
+        #try to install a non existent module
+        installer.attribute("dependency_test").value = "erlang"
+        installer.attribute('more_information').value = "You miss erlang, download it from your linux distribution website"
+        testResult = None
+        try :
+            testResult = installer.download(self._env)
+        except TaskError as e:
+            self.assertNotEqual(e._reason, None)    
+            self.assertEqual(testResult, None)
+            print(e._reason)
 
-    def test_mercurial(self):
+        self.assertTrue(testResult)
+        self.assertEqual(tmpMsg, installer.dependencyMessage)
+  
+        # remove the just installed module      
+        testResult = None
+        try :
+            testResult = installer.remove(self._env)
+        except TaskError as e:
+            self.assertNotEqual(e._reason, None)    
+            self.assertEqual(testResult, None)
+            print(e._reason)
+
+        self.assertTrue(testResult)
+        self.assertEqual(tmpMsg, installer.dependencyMessage)
+        
+        print(installer.dependencyMessage)
+
+        installer.attribute('name_yum').value = "erlang"
+        installer.attribute('name_apt-get').value = "erlang"
+        testResult = None
+        try :
+            testResult = installer.download(self._env)
+        except TaskError as e:
+            self.assertNotEqual(e._reason, None)    
+            self.assertEqual(testResult, None)
+            print(e._reason)
+
+        self.assertTrue(testResult)
+        self.assertEqual(tmpMsg, installer.dependencyMessage)
+
+        # remove the just installed module      
+        testResult = None
+        try :
+            testResult = installer.remove(self._env)
+        except TaskError as e:
+            self.assertNotEqual(e._reason, None)    
+            self.assertEqual(testResult, None)
+            print(e._reason)
+
+        self.assertTrue(testResult)
+        self.assertEqual(tmpMsg, installer.dependencyMessage)
+
+    def D_test_mercurial(self):
         """Tests the MercurialModuleSource class. """
         
         # it first needs to be able to create the class otherwise will not be
@@ -309,7 +409,7 @@ class TestModuleSource(unittest.TestCase):
         # last clean up
         self.executeCommand(["rm", "-rf", "bake"], "/tmp")
 
-    def test_bazaar(self):
+    def D_test_bazaar(self):
         """Tests the BazaarModuleSource class. """
         
         # checks if can create the class 
@@ -466,7 +566,7 @@ class TestModuleSource(unittest.TestCase):
         # last clean up
         self.executeCommand(["rm", "-rf", "pybindgen"], "/tmp")
 
-    def test_cvs(self):
+    def D_test_cvs(self):
         """Tests the CvsModuleSourceclass. """
         
         # checks if can create the class 
@@ -597,7 +697,7 @@ class TestModuleSource(unittest.TestCase):
         # last clean up
         self.executeCommand(["rm", "-rf", "gccxml"], "/tmp")
         
-    def test_git(self):
+    def D_test_git(self):
         """Tests the GitModuleSource. """
         
         # checks if can create the class 

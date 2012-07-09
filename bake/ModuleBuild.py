@@ -303,6 +303,7 @@ class Make(ModuleBuild):
         self.add_attribute('make_arguments', '', 'Command-line arguments to pass to make')
         self.add_attribute('configure_arguments', '', 'Command-line arguments to pass to make')
         self.add_attribute('post_installation', '', 'UNIX Command to run after the installation')
+        self.add_attribute('pre_installation', '', 'UNIX Command to run before the installation')
         
     @classmethod
     def name(cls):
@@ -336,6 +337,13 @@ class Make(ModuleBuild):
             options = self.attribute('configure_arguments').value.split(' ')
             env.run(['make']+options,  directory=env.srcdir)
         
+        if self.attribute('pre_installation').value != '':
+            try:
+                var = commands.getoutput("cd "+env.srcdir+";"+self.attribute('pre_installation').value)
+                print(var)
+            except Exception as e:
+                print ("   > Error executing pre installation : " + e )
+
         options = []      
         if self.attribute('make_arguments').value != '':
             options = self.attribute('make_arguments').value.split(' ')
@@ -359,9 +367,16 @@ class Make(ModuleBuild):
             env.run(options, directory=env.srcdir)
 
     def clean(self, env):
+        if self.attribute('pre_installation').value != '':
+            try:
+                var = commands.getoutput("cd "+env.srcdir+";"+self.attribute('pre_installation').value)
+                print(var)
+            except Exception as e:
+                print ("   > Error executing pre installation : " + e )
+
         if not os.path.isfile(os.path.join(env.objdir, 'Makefile')):
             return
-        env.run(['make', 'clean'], directory=env.objdir)
+        env.run(['make', '-i', 'clean'], directory=env.objdir)
         
     def check_version(self, env):
         if not env.check_program('make', version_arg='--version',

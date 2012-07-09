@@ -55,12 +55,14 @@ class Module:
             print(" >> Download " + self._name + " - OK ")
             return True
         except TaskError as e:
+            print(" >> Download " + self._name + " - Problem ")
             print(e.reason)
             if env.debug :
                 import Utils
                 Utils.print_backtrace()           
             return False
         except:
+            print(" >> Download " + self._name + " - Problem ")
             if env.debug :
                 import Utils
                 Utils.print_backtrace()
