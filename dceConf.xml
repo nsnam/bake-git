@@ -4,6 +4,7 @@
     <module name="dce-ns3">
       <source type="mercurial">
 	<attribute name="url" value="http://code.nsnam.org/furbani/ns-3-dce"/>
+ 	<attribute name="module_directory" value="dce"/>
       </source>
        <depends_on name="readversiondef" optional="False"/>
        <depends_on name="ns-3-dev-dce" optional="False"/>
@@ -14,7 +15,7 @@
     </module>
 
     <module name="dce-linux">
-      <source type="mercurial" sourcedir="dce1">
+      <source type="mercurial">
 	<attribute name="url" value="http://code.nsnam.org/furbani/ns-3-dce"/>
  	<attribute name="module_directory" value="dce"/>
      </source>
@@ -46,7 +47,7 @@
 	<attribute name="revision" value="49dadc40be43"/>
       </source>
       <build type="waf" objdir="yes">
-	<attribute name="patch" value="../dce/utils/packet-socket-upgrade-exp.patch"/>
+	<attribute name="patch" value="$SRCDIR/../dce/utils/packet-socket-upgrade-exp.patch"/>
 	<attribute name="configure_arguments" value="configure --prefix=`pwd`/../build --enable-tests"/>
       </build>
     </module>
