@@ -207,16 +207,16 @@ class Configuration:
 
         return node
 
-    def _read_libpath(self, node, build):
-        for libpath in node.findall('addlibpath'):
-            location = libpath.get('location', None)
-            assert location != None
-            build.add_libpath(location)
-
-    def _write_libpath(self, node, build):
-        for libpath in build.libpaths:
-            libpath_node = ET.Element('addlibpath', {'location' : libpath})
-            node.append(libpath_node)
+#    def _read_libpath(self, node, build):
+#        for libpath in node.findall('addlibpath'):
+#            location = libpath.get('location', None)
+#            assert location != None
+#            build.add_libpath(location)
+#
+#    def _write_libpath(self, node, build):
+#        for libpath in build.libpaths:
+#            libpath_node = ET.Element('addlibpath', {'location' : libpath})
+#            node.append(libpath_node)
 
     def _read_installed(self, node):
         installed = []
@@ -244,7 +244,7 @@ class Configuration:
 
             build_node = module_node.find('build')
             build = self._create_obj_from_node(build_node, ModuleBuild, 'build', name)
-            self._read_libpath(build_node, build)
+#            self._read_libpath(build_node, build)
 
             dependencies = []
             for dep_node in module_node.findall('depends_on'):
@@ -274,7 +274,7 @@ class Configuration:
 
             build_node = self._create_node_from_obj(module.get_build(), 'build')
             module_node.append(build_node)
-            self._write_libpath(build_node, module.get_build())
+#            self._write_libpath(build_node, module.get_build())
             
             # handles the dependencies for the module and register them 
             # into module node

@@ -39,7 +39,7 @@ class TestBuild (unittest.TestCase):
     def test_ModuleBuild(self):
         """Tests the WafModuleBuild Class from ModuleBuild. """
 
-        build = ModuleBuild.create("non_Existing_Build_Tool")
+        build = ModuleBuild.create("non_Existing_BuilTool")
         self.assertEqual(build  , None)
 
    
@@ -61,6 +61,7 @@ class TestBuild (unittest.TestCase):
         archive = ModuleSource.create("archive")
         archive.attribute("url").value = "http://switch.dl.sourceforge.net/project/pygccxml/pygccxml/pygccxml-1.0/pygccxml-1.0.0.zip"
         self._env._module_name="pygccxml"
+        self._env._module_dir="pygccxml"
         testStatus = commands.getoutput('rm -rf /tmp/source/pygccxml')
         testStatus = commands.getoutput('mkdir /tmp/source')
         self._logger.set_current_module(self._env._module_name)
@@ -76,8 +77,8 @@ class TestBuild (unittest.TestCase):
         
         # test patch
         self.assertEqual(python.attribute('patch').value, '')
-        python.attribute('patch').value = 'test.patch'
-        self.assertEqual(python.attribute('patch').value, 'test.patch')
+        python.attribute('patch').value = self._env.srcdir + '/test.patch'
+        self.assertEqual(python.attribute('patch').value, self._env.srcdir + '/test.patch')
 
         testResult = None
         try:
@@ -172,6 +173,7 @@ class TestBuild (unittest.TestCase):
 
         mercurial.attribute("url").value = "http://code.nsnam.org/bhurd/openflow"
         self._env._module_name="openflow-ns3"
+        self._env._module_dir="openflow-ns3"
         testStatus = commands.getoutput('rm -rf /tmp/source')
         self._logger.set_current_module(self._env._module_name)
         testResult = mercurial.download(self._env)
@@ -198,8 +200,8 @@ class TestBuild (unittest.TestCase):
         
         # test patch
         self.assertEqual(waf.attribute('patch').value, '')
-        waf.attribute('patch').value = 'testN.patch'
-        self.assertEqual(waf.attribute('patch').value, 'testN.patch')
+        waf.attribute('patch').value = self._env.srcdir + '/test.patch'
+        self.assertEqual(waf.attribute('patch').value, self._env.srcdir + '/test.patch')
 
         testResult = None
         try:
@@ -219,10 +221,11 @@ class TestBuild (unittest.TestCase):
         testStatus = commands.getoutput('cp test.patch /tmp/source/openflow-ns3/test.patch' )
        
         # creates the file, empty, but created    
-        waf.attribute('patch').value = 'test.patch'
-        self.assertEqual(waf.attribute('patch').value, 'test.patch')
-    
+        waf.attribute('patch').value = '/tmp/source/openflow-ns3/test.patch'
+        self.assertEqual(waf.attribute('patch').value, '/tmp/source/openflow-ns3/test.patch')
+        waf.attribute('configure_arguments').value = 'configure'
         testResult = waf.build(self._env, "1")
+        
         self.assertEqual(testResult, None)
         testStatus = commands.getoutput('ls /tmp/source/openflow-ns3/object|wc')
         created = re.compile('\d+').search(testStatus).group()
@@ -230,14 +233,10 @@ class TestBuild (unittest.TestCase):
         waf.attribute('patch').value = ''
 
         # call the clean to remove the build
-        # TODO:  Find a solution for the remaining directories
-        #    - It is strange because the waf does not remove the directories, 
-        # just the object files.... Should this  be like that??!?!        
         testResult = waf.clean(self._env)
         self.assertEqual(testResult, None)
-        testStatus = commands.getoutput('ls /tmp/source/openflow-ns3/object/default/lib|wc')
-        created = re.compile('\d+').search(testStatus).group()
-        self.assertEqual(created, "0")
+        testStatus = os.path.exists('/tmp/source/openflow-ns3/object')
+        self.assertFalse(testStatus)
         
         # Call with extra options
         # TODO: find a solution either use another packet, like pybindgen, that
@@ -247,25 +246,24 @@ class TestBuild (unittest.TestCase):
         # flolowed the steps of http://www.nsnam.org/docs/models/html/openflow-switch.html
         waf.attribute("CFLAGS").value = "-g"
 #        waf.attribute("configure_arguments").value = " "
-#        waf.attribute("build_arguments").value = "-O2"
+#        waf.attribute("builarguments").value = "-O2"
         
         testResult = waf.build(self._env, "1")
         self.assertEqual(testResult, None)
-        testStatus = commands.getoutput('ls -l /tmp/source/openflow-ns3/object|wc')
-        created = re.compile('\d+').search(testStatus).group()
-        self.assertNotEqual(created, "0")
+        testStatus = os.path.exists('/tmp/source/openflow-ns3/object')
+        self.assertFalse(testStatus)
         
         # TODO: 
         # test if the object dir is equal to the source dir, for the open flow 
         # case it is not allowed but I am not sure for everyone else 
         
-        self._env.objdir = self._env.srcdir
-        try:
-            testResult = waf.build(self._env, "1")
-            self.fail("The source and destination are the same but it passed without an exception. ")
-        except TaskError as e:
-            self.assertNotEqual(e._reason, None)    
-            self.assertEqual(testResult, None)
+#        self._env.objdir = self._env.srcdir
+#        try:
+#            testResult = waf.build(self._env, "1")
+#            self.fail("The source and destination are the same but it passed without an exception. ")
+#        except TaskError as e:
+#            self.assertNotEqual(e._reason, None)    
+#            self.assertEqual(testResult, None)
         
         # TODO: 
         # non existing path
@@ -279,6 +277,7 @@ class TestBuild (unittest.TestCase):
         waf = ModuleBuild.create("waf")
         self.assertNotEqual(waf, None)
         self.assertEqual(waf.name(), "waf")
+        waf.attribute("configure_arguments").value = "configure"
 
         testResult = None
         try:
@@ -295,10 +294,12 @@ class TestBuild (unittest.TestCase):
         
         bazaar.attribute("url").value = "https://launchpad.net/pybindgen"
         self._env._module_name="pybindgen"
+        self._env._module_dir="pybindgen"
         self._logger.set_current_module(self._env._module_name)
 #        bazaar.attribute("revision").value = "revno:795"
 
         self._env._module_name="pybindgen"
+        self._env._module_dir="pybindgen"
         testStatus = commands.getoutput('mkdir /tmp/source')
         self._logger.set_current_module(self._env._module_name)
         testResult = bazaar.download(self._env)
@@ -325,8 +326,8 @@ class TestBuild (unittest.TestCase):
 
         # test patch
         self.assertEqual(waf.attribute('patch').value, '')
-        waf.attribute('patch').value = 'test.patch'
-        self.assertEqual(waf.attribute('patch').value, 'test.patch')
+        waf.attribute('patch').value = self._env.srcdir + '/test.patch'
+        self.assertEqual(waf.attribute('patch').value, self._env.srcdir + '/test.patch')
 
         testResult = None
         try:
@@ -347,12 +348,14 @@ class TestBuild (unittest.TestCase):
         testStatus = commands.getoutput('touch ' + self._env.srcdir + '/test.patch')
         
         testStatus = commands.getoutput('rm -rf /tmp/source/pybindgen/object')
-        
-        testResult = waf.build(self._env, "1")
+        try:
+            testResult = waf.build(self._env, "1")
+        except TaskError as e:
+            self.assertTrue(e._reason.startswith('Could not install'))
+             
         self.assertEqual(testResult, None)
-        testStatus = commands.getoutput('ls /tmp/source/pybindgen/object|wc')
-        created = re.compile('\d+').search(testStatus).group()
-        self.assertNotEqual(created, "0")
+        testStatus = os.path.exists('/tmp/source/pybindgen/object')
+        self.assertFalse(testStatus)
 
         # call the clean to remove the build
         # TODO:  Find a solution for the remaining directories
@@ -360,22 +363,23 @@ class TestBuild (unittest.TestCase):
         # just the object files.... Should this  be like that??!?!        
         testResult = waf.clean(self._env)
         self.assertEqual(testResult, None)
-        testStatus = commands.getoutput('ls /tmp/source/pybindgen/object/default/tests|wc')
-        created = re.compile('\d+').search(testStatus).group()
-        self.assertEqual(created, "0")
+        testStatus = os.path.exists('/tmp/source/pybindgen/object/default/tests')
+        self.assertFalse(testStatus)
         
         # TODO: neighter the --generate-version appears but I couldn't also 
         # find a configuration argument for pybindgen :(
         # Call with extra options
         waf.attribute("CFLAGS").value = "-g"
-#        waf.attribute("configure_arguments").value = "--enable-examples --enable-tests"
+        waf.attribute("configure_arguments").value = "configure"
         waf.attribute("build_arguments").value = "--generate-version"
         
-        testResult = waf.build(self._env, "1")
+        try:
+            testResult = waf.build(self._env, "1")
+        except TaskError as e:
+            self.assertTrue(e._reason.startswith('Could not install'))
         self.assertEqual(testResult, None)
-        testStatus = commands.getoutput('ls -l /tmp/source/openflow-ns3/object|wc')
-        created = re.compile('\d+').search(testStatus).group()
-        self.assertNotEqual(created, "0")
+        testStatus = os.path.exists('/tmp/source/openflow-ns3/object')
+        self.assertFalse(testStatus)
         
         
         # TODO: 
@@ -400,6 +404,7 @@ class TestBuild (unittest.TestCase):
         cvs.attribute("date").value="2009-09-21"
        
         self._env._module_name="gccxml"
+        self._env._module_dir="gccxml"
         self._logger.set_current_module(self._env._module_name)
 #        bazaar.attribute("revision").value = "revno:795"
 
@@ -416,8 +421,8 @@ class TestBuild (unittest.TestCase):
         
         # test patch
         self.assertEqual(cmake.attribute('patch').value, '')
-        cmake.attribute('patch').value = 'test.patch'
-        self.assertEqual(cmake.attribute('patch').value, 'test.patch')
+        cmake.attribute('patch').value = self._env.srcdir + '/test.patch'
+        self.assertEqual(cmake.attribute('patch').value, self._env.srcdir + '/test.patch')
 
         testResult = None
         try:
@@ -459,7 +464,7 @@ class TestBuild (unittest.TestCase):
         # Call with extra options
         cmake.attribute("CFLAGS").value = "-g"
 #        waf.attribute("configure_arguments").value = "--enable-examples --enable-tests"
-#        cmake.attribute("build_arguments").value = "--generate-version"
+#        cmake.attribute("builarguments").value = "--generate-version"
         
         testResult = cmake.build(self._env, "1")
         self.assertEqual(testResult, None)
@@ -481,6 +486,7 @@ class TestBuild (unittest.TestCase):
 
         mercurial.attribute("url").value = "http://code.nsnam.org/mathieu/readversiondef"
         self._env._module_name="readversiondef"
+        self._env._module_dir="readversiondef"
         testStatus = commands.getoutput('rm -rf /tmp/source')
         self._logger.set_current_module(self._env._module_name)
         testResult = mercurial.download(self._env)
@@ -495,8 +501,8 @@ class TestBuild (unittest.TestCase):
         
         # test patch
         self.assertEqual(make.attribute('patch').value, '')
-        make.attribute('patch').value = 'test.patch'
-        self.assertEqual(make.attribute('patch').value, 'test.patch')
+        make.attribute('patch').value = self._env.srcdir + '/test.patch'
+        self.assertEqual(make.attribute('patch').value, self._env.srcdir + '/test.patch')
         
         testResult = None
         try:
@@ -552,6 +558,95 @@ class TestBuild (unittest.TestCase):
         created = re.compile('\d+').search(testStatus).group()
         self.assertEqual(created, "0")
 
+    def test_genneralBuildArguments(self):
+        """Tests the genneral arguments passed to the Build. """
+
+        waf = ModuleBuild.create("waf")
+        self.assertNotEqual(waf, None)
+        self.assertEqual(waf.name(), "waf")
+        waf.attribute("configure_arguments").value = "configure"
+        self._env._module_name="pybindgen"
+        
+#        # Environment settings        
+#        bazaar = ModuleSource.create("bazaar")
+#        testResult = bazaar.check_version(self._env)
+#        self.assertTrue(testResult)
+#        
+#        bazaar.attribute("url").value = "https://launchpad.net/pybindgen"
+#        self._env._module_dir="pybindgen"
+#        self._logger.set_current_module(self._env._module_name)
+#        testResult = bazaar.download(self._env)
+#        self.assertEqual(testResult, None)
+
+        
+        waf.attribute("v_PATH").value = "test_Path_added_value"
+        waf.threatParamVariables(self._env)
+        self.assertTrue(len(self._env._libpaths) == 1)
+        self.assertTrue(len(self._env._binpaths) == 1)
+        self.assertTrue(self._env._libpaths.__contains__("test_Path_added_value"))
+        self.assertTrue(self._env._binpaths.__contains__("test_Path_added_value"))
+ 
+        waf.attribute("v_PATH").value = "secondTest;thirdValue"
+        waf.threatParamVariables(self._env)
+        self.assertTrue(len(self._env._libpaths) == 3)
+        self.assertTrue(len(self._env._binpaths) == 3)
+        self.assertTrue(self._env._libpaths.__contains__("test_Path_added_value"))
+        self.assertTrue(self._env._binpaths.__contains__("test_Path_added_value"))
+        self.assertTrue(self._env._libpaths.__contains__("secondTest"))
+        self.assertTrue(self._env._binpaths.__contains__("secondTest"))
+        self.assertTrue(self._env._libpaths.__contains__("thirdValue"))
+        self.assertTrue(self._env._binpaths.__contains__("thirdValue"))
+        
+        waf.attribute("v_PATH").value = ""
+        waf.attribute("v_LD_LIBRARY").value = "test_ld_Path_added_value"
+        waf.threatParamVariables(self._env)
+        self.assertTrue(len(self._env._libpaths) == 4)
+        self.assertTrue(len(self._env._binpaths) == 3)
+        self.assertTrue(self._env._libpaths.__contains__("test_ld_Path_added_value"))
+ 
+        waf.attribute("v_LD_LIBRARY").value = "secondTestLD;thirdValueLD"
+        waf.threatParamVariables(self._env)
+        self.assertTrue(len(self._env._libpaths) == 6)
+        self.assertTrue(len(self._env._binpaths) == 3)
+        self.assertTrue(self._env._libpaths.__contains__("test_Path_added_value"))
+        self.assertTrue(self._env._libpaths.__contains__("secondTest"))
+        self.assertTrue(self._env._libpaths.__contains__("thirdValue"))
+        self.assertTrue(self._env._libpaths.__contains__("test_ld_Path_added_value"))
+        self.assertTrue(self._env._libpaths.__contains__("secondTestLD"))
+        self.assertTrue(self._env._libpaths.__contains__("thirdValueLD"))
+        
+        # try to add repeated values
+        waf.attribute("v_LD_LIBRARY").value = "secondTestLD;thirdValueLD"
+        waf.threatParamVariables(self._env)
+        self.assertTrue(len(self._env._libpaths) == 6)
+        self.assertTrue(len(self._env._binpaths) == 3)
+
+        waf.attribute("v_PATH").value = ""
+        waf.attribute("v_LD_LIBRARY").value = ""
+        
+        self.assertTrue(len(self._env._pkgpaths) == 0)
+        waf.attribute("v_PKG_CONFIG").value = "test_pkg_added_value"
+        waf.threatParamVariables(self._env)
+        self.assertTrue(len(self._env._pkgpaths) == 1)
+        self.assertTrue(len(self._env._binpaths) == 3)
+        self.assertTrue(len(self._env._libpaths) == 6)
+        self.assertTrue(self._env._pkgpaths.__contains__("test_pkg_added_value"))
+ 
+        waf.attribute("v_PKG_CONFIG").value = "secondTestPkg;thirdValuePkg"
+        waf.threatParamVariables(self._env)
+        self.assertTrue(len(self._env._pkgpaths) == 3)
+        self.assertTrue(len(self._env._libpaths) == 6)
+        self.assertTrue(len(self._env._binpaths) == 3)
+        self.assertTrue(self._env._pkgpaths.__contains__("test_pkg_added_value"))
+        self.assertTrue(self._env._pkgpaths.__contains__("secondTestPkg"))
+        self.assertTrue(self._env._pkgpaths.__contains__("thirdValuePkg"))
+
+        # try to add repeated values
+        waf.attribute("v_PKG_CONFIG").value = "secondTestPkg;thirdValuePkg"
+        waf.threatParamVariables(self._env)
+        self.assertTrue(len(self._env._pkgpaths) == 3)
+        self.assertTrue(len(self._env._libpaths) == 6)
+        self.assertTrue(len(self._env._binpaths) == 3)
 
 #        testStatus = commands.getoutput('ls -l /tmp/source/openflow-ns3/object|wc')
 #        created = re.compile('\d+').search(testStatus).group()

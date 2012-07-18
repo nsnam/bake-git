@@ -37,7 +37,12 @@ class Module:
         return self._name
 
     def _do_download(self, env, source, name):
-        env.start_source(name)
+        srcDirTmp = name
+        if source.attribute('module_directory').value :
+            srcDirTmp = source.attribute('module_directory').value
+            
+        env.start_source(name, srcDirTmp)
+        
         if os.path.isdir(env.srcdir):
             env.end_source()
         else:
@@ -70,7 +75,12 @@ class Module:
 
 
     def _do_update(self, env, source, name):
-        env.start_source(name)
+        srcDirTmp = name
+        if source.attribute('module_directory').value :
+            srcDirTmp = source.attribute('module_directory').value
+            
+        env.start_source(name, srcDirTmp)
+        
         try:
             source.update(env)
         finally:
@@ -117,6 +127,7 @@ class Module:
         self._installed = []
 
     def build(self, env, jobs):
+        
         self.uninstall(env)
         # delete in case this is a new build configuration
         # and there are old files around
@@ -126,7 +137,11 @@ class Module:
         monitor = FilesystemMonitor(env.installdir)
         monitor.start()
 
-        env.start_build(self._name, 
+        srcDirTmp = self._name
+        if self._source.attribute('module_directory').value :
+            srcDirTmp = self._source.attribute('module_directory').value
+            
+        env.start_build(self._name, srcDirTmp,
                         self._build.supports_objdir)
         if not os.path.isdir(env.installdir):
             os.mkdir(env.installdir)
@@ -135,6 +150,7 @@ class Module:
 
         try:
             print(" >> Building " + self._name )
+            self._build.threatParamVariables(env)
             self._build.build(env, jobs)
             self._installed = monitor.end()
             env.end_build()
@@ -156,7 +172,11 @@ class Module:
             return False
 
     def check_build_version(self, env):
-        env.start_build(self._name, 
+        srcDirTmp = self._name
+        if self._source.attribute('module_directory').value :
+            srcDirTmp = self._source.attribute('module_directory').value
+            
+        env.start_build(self._name, srcDirTmp,
                         self._build.supports_objdir)
         
         # this if does not make any sense to me. If you do not have the object
@@ -170,26 +190,41 @@ class Module:
         return retval
 
     def is_downloaded(self, env):
-        env.start_source(self._name)
+        srcDirTmp = self._name
+        if self._source.attribute('module_directory').value :
+            srcDirTmp = self._source.attribute('module_directory').value
+
+        env.start_source(self._name,srcDirTmp)
         retval = os.path.isdir(env.srcdir)
         env.end_source()
         return retval
 
     def check_source_version(self, env):
-        env.start_source(self._name)
+        srcDirTmp = self._name
+        if self._source.attribute('module_directory').value :
+            srcDirTmp = self._source.attribute('module_directory').value
+
+        env.start_source(self._name, srcDirTmp)
         retval = self._source.check_version(env)
         env.end_source()
         return retval
 
 
     def update_libpath(self, env):
-        env.start_build(self._name, 
+        srcDirTmp = self._name
+        if self._source.attribute('module_directory').value :
+            srcDirTmp = self._source.attribute('module_directory').value
+            
+        env.start_build(self._name, srcDirTmp,
                         self._build.supports_objdir)
-        env.add_libpaths(self._build.libpaths)
         env.end_build()
 
     def clean(self, env):
-        env.start_build(self._name, 
+        srcDirTmp = self._name
+        if self._source.attribute('module_directory').value :
+            srcDirTmp = self._source.attribute('module_directory').value
+
+        env.start_build(self._name, srcDirTmp,
                         self._build.supports_objdir)
         if not os.path.isdir(env.objdir) or not os.path.isdir(env.srcdir):
             env.end_build()

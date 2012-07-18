@@ -11,14 +11,18 @@ from Exceptions import TaskError
 class ModuleBuild(ModuleAttributeBase):
     def __init__(self):
         ModuleAttributeBase.__init__(self)
-        self._libpaths = []
+#        self._libpaths = []
         self.add_attribute('objdir', 'no', 'Module supports objdir != srcdir.')
         self.add_attribute('patch', '', 'code to patch before build')
+        self.add_attribute('v_PATH', '', 'Directory, or directories separated by a \";\", to append to PATH environment variable')
+        self.add_attribute('v_LD_LIBRARY', '', 'Directory, or directories separated by a \";\", to append LD_LIBRARY environment variable')
+        self.add_attribute('v_PKG_CONFIG', '', 'Directory, or directories separated by a \";\", to append to PKG_CONFIG environment variable')
 #        self.add_attribute('condition_to_build', '', 'Condition that, if existent, should be true for allowing the instalation')
 
     @classmethod
     def subclasses(self):
         return ModuleBuild.__subclasses__()
+
     @classmethod
     def create(cls, name):
         for subclass in ModuleBuild.subclasses():
@@ -26,11 +30,7 @@ class ModuleBuild(ModuleAttributeBase):
                 instance = subclass()
                 return instance
         return None
-    @property
-    def libpaths(self):
-        return self._libpaths
-    def add_libpath(self, path):
-        self._libpaths.append(path)
+
     @property
     def supports_objdir(self):
         return self.attribute('objdir').value == 'yes'
@@ -46,6 +46,10 @@ class ModuleBuild(ModuleAttributeBase):
         hasPatch = env.check_program('patch')
         if hasPatch == False:
             raise TaskError('Path tool is not present and it is required for applying: %s, in: %s' % (self.attribute('patch').value, env._module_name))
+
+        if not env.exist_file(self.attribute('patch').value) :
+            raise TaskError('Path file is not present! missing file: %s, in: %s' % (self.attribute('patch').value, env._module_name))
+
         try:
             env._logger.commands.write('cd ' + env.srcdir + '; patch -p1 < ' + self.attribute('patch').value + '\n')
             status = commands.getstatusoutput('cd ' + env.srcdir + '; patch -p1 < ' + self.attribute('patch').value) #                env.run(['patch ', '-p1', ' < ', self.attribute('patch').value],
@@ -55,9 +59,26 @@ class ModuleBuild(ModuleAttributeBase):
     # if there were an error
         if status[0] != 0:
             if status[0] == 256:
-                env._logger.commands.write(' > Patch problem: Ignoring patch, probably it was already applied!\n')
+                env._logger.commands.write(' > Patch problem: Ignoring patch, either the patch file does not exist or it was already applied!\n')
             else:
                 raise TaskError('Patch error %s: %s, in: %s' % (status[0], self.attribute('patch').value, env._module_name))
+
+    # Threats the parameter variables
+    def threatParamVariables(self, env):
+
+        elements = []
+        if self.attribute('v_PATH').value != '':
+            elements = self.attribute('v_PATH').value.split(";")
+            env.add_libpaths(elements)
+            env.add_binpaths(elements)
+            
+        if self.attribute('v_LD_LIBRARY').value != '':
+            elements = self.attribute('v_LD_LIBRARY').value.split(";")
+            env.add_libpaths(elements)
+
+        if self.attribute('v_PKG_CONFIG').value != '':
+            elements = self.attribute('v_PKG_CONFIG').value.split(";")
+            env.add_pkgpaths(elements)
 
 
 class NoneModuleBuild(ModuleBuild):
@@ -193,9 +214,12 @@ class WafModuleBuild(ModuleBuild):
         env.run([self._binary(env.srcdir)] + extra_build_options + ['-j', str(jobs)],
                 directory=env.srcdir,
                 env=self._env(env.objdir))
-        env.run([self._binary(env.srcdir), 'install'],
+        try :
+            env.run([self._binary(env.srcdir), 'install'],
                 directory=env.srcdir,
                 env=self._env(env.objdir))
+        except TaskError as e:
+            raise TaskError('Could not install, probably you have no permission to install  %s: Try to run bake with sudo. Original message: %s' % (env._module_name, e._reason))
         
         if self.attribute('post_installation').value != '':
             try:

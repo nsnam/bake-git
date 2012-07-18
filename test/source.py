@@ -33,14 +33,14 @@ class TestModuleSource(unittest.TestCase):
             print (inst)     # the exception instance
             self.fail("Could not execute command %s over directory %s failed" % (command, dir))
 
-    def D_test_generalFailures(self):
+    def test_generalFailures(self):
         """Tests Some general failures that could happen in the Module Source. """
         
         #Verifies the return of the creation of a non existent module
         module = ModuleSource.create("NonExistentModule")
         self.assertEqual(module, None)
 
-    def D_test_archiveModuleSource(self):
+    def test_archiveModuleSource(self):
         """Tests the ArchiveModuleSource class. """
         
         # it first needs to be able to create the class otherwise will not be
@@ -284,7 +284,7 @@ class TestModuleSource(unittest.TestCase):
         self.assertTrue(testResult)
         self.assertEqual(tmpMsg, installer.dependencyMessage)
 
-    def D_test_mercurial(self):
+    def test_mercurial(self):
         """Tests the MercurialModuleSource class. """
         
         # it first needs to be able to create the class otherwise will not be
@@ -409,7 +409,7 @@ class TestModuleSource(unittest.TestCase):
         # last clean up
         self.executeCommand(["rm", "-rf", "bake"], "/tmp")
 
-    def D_test_bazaar(self):
+    def test_bazaar(self):
         """Tests the BazaarModuleSource class. """
         
         # checks if can create the class 
@@ -566,7 +566,7 @@ class TestModuleSource(unittest.TestCase):
         # last clean up
         self.executeCommand(["rm", "-rf", "pybindgen"], "/tmp")
 
-    def D_test_cvs(self):
+    def test_cvs(self):
         """Tests the CvsModuleSourceclass. """
         
         # checks if can create the class 
@@ -697,7 +697,7 @@ class TestModuleSource(unittest.TestCase):
         # last clean up
         self.executeCommand(["rm", "-rf", "gccxml"], "/tmp")
         
-    def D_test_git(self):
+    def test_git(self):
         """Tests the GitModuleSource. """
         
         # checks if can create the class 

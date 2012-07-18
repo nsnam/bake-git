@@ -4,6 +4,7 @@ import sys
 import platform
 
 from Exceptions import TaskError 
+from sets import Set
 
 class ModuleEnvironment:
     (HIGHER, LOWER, EQUAL) = range(0,3)
@@ -14,12 +15,17 @@ class ModuleEnvironment:
         self._sourcedir = sourcedir
         self._objdir = objdir
         self._module_name = None
+        self._module_dir = None
         self._module_supports_objdir = None
-        self._libpaths = []
+        self._libpaths = Set([])
+        self._binpaths = Set([])
+        self._pkgpaths =  Set([])
         self._debug = debug
 
     def _module_directory(self):
-        return self._module_name
+        if not self._module_dir :
+            return self._module_name
+        return self._module_dir
 
     @property
     def installdir(self):
@@ -52,14 +58,16 @@ class ModuleEnvironment:
 
     def _pkgconfig_var(self):
         return 'PKG_CONFIG_PATH'
+    
     def _pkgconfig_path(self):
         return os.path.join(self._lib_path(), 'pkgconfig')
+    
     def _lib_var(self):
         lib_var = {'Linux' : 'LD_LIBRARY_PATH',
                     'Darwin' : 'DYLD_LIBRARY_PATH',
                     'Windows' : 'PATH'}
         if not lib_var.has_key(platform.system()):
-            sys.stderr('Error: Unsupported platform. Send email to mathieu.lacage@gmail.com (%s)' %
+            sys.stderr('Error: Unsupported platform. Send email to bake_support@inria.fr (%s)' %
                        platform.system())
             sys.exit(1)
         return lib_var[platform.system()]
@@ -80,9 +88,10 @@ class ModuleEnvironment:
         else:
             d[name] = d[name] + sep + value
 
-    def start_source(self, name):
+    def start_source(self, name, dir):
         assert self._module_supports_objdir is None
         self._module_name = name
+        self._module_dir = dir
         self._logger.set_current_module(name)
         # ensure source directory exists
         if not os.path.isdir(self._sourcedir):
@@ -90,18 +99,25 @@ class ModuleEnvironment:
 
     def end_source(self):
         self._module_name = None
+        self._module_dir = None
         self._logger.clear_current_module()
 
-    def start_build(self, name, supports_objdir):
+    def start_build(self, name, dir, supports_objdir):
         assert self._module_supports_objdir is None
         self._module_name = name
+        self._module_dir = dir
         self._module_supports_objdir = supports_objdir
         self._logger.set_current_module(name)
 
     def end_build(self):
         self._module_name = None
+        self._module_dir = None
         self._module_supports_objdir = None
         self._logger.clear_current_module()
+    
+    def exist_file(self, file):
+        """Finds if the file exists in the path."""
+        return os.path.exists(file)
 
     def _program_location(self, program):
         """Finds where the executable is located in the user's path."""
@@ -154,7 +170,16 @@ class ModuleEnvironment:
             assert False
 
     def add_libpaths(self, libpaths):
-        self._libpaths.extend([self.replace_variables(path) for path in libpaths])
+        for element in libpaths :
+            self._libpaths.add(self.replace_variables(element))
+        
+    def add_binpaths(self, libpaths):
+        for element in libpaths :
+            self._binpaths.add(self.replace_variables(element))
+        
+    def add_pkgpaths(self, libpaths):
+        for element in libpaths :
+            self._pkgpaths.add(self.replace_variables(element))
 
     def replace_variables(self, string):
         import re
@@ -214,10 +239,22 @@ class ModuleEnvironment:
         # adds the libpath 
         for libpath in self._libpaths:
             self._append_path(tmp, self._lib_var(), libpath, os.pathsep)
+            print(self._lib_var() + " " + libpath + " ")          
         self._append_path(tmp, self._lib_var(), self._lib_path(), os.pathsep)
+        
+        for libpath in self._binpaths:
+            self._append_path(tmp, self._bin_var(), libpath, os.pathsep)          
+            print(self._bin_var() + " " + libpath + " ")          
         self._append_path(tmp, self._bin_var(), self._bin_path(), os.pathsep)
-        self._append_path(tmp, self._py_var(), self._py_path(), os.pathsep)
+        
+        for libpath in self._pkgpaths:
+            self._append_path(tmp, self._pkgconfig_var(), libpath, os.pathsep)
+            print(self._pkgconfig_var() + " " + libpath + " ")          
         self._append_path(tmp, self._pkgconfig_var(), self._pkgconfig_path(), os.pathsep)
+
+        self._append_path(tmp, self._py_var(), self._py_path(), os.pathsep)
+        
+
         popen = subprocess.Popen(args,
                                  stdin = stdin,
                                  stdout = stdout,

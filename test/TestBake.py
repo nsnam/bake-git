@@ -49,6 +49,7 @@ class TestBake(unittest.TestCase):
 
         mercurial.attribute("url").value = "http://code.nsnam.org/bhurd/openflow"
         self._env._module_name="openflow-ns3"
+        self._env._module_dir="openflow-ns3"
         testStatus = commands.getoutput('rm -rf /tmp/source')
         self._logger.set_current_module(self._env._module_name)
         testResult = mercurial.download(self._env)
@@ -107,6 +108,7 @@ class TestBake(unittest.TestCase):
 
         mercurial.attribute("url").value = "http://code.nsnam.org/bhurd/openflow"
         self._env._module_name="openflow-ns3"
+        self._env._module_dir="openflow-ns3"
         testStatus = commands.getoutput('rm -rf /tmp/source')
         self._logger.set_current_module(self._env._module_name)
         testResult = mercurial.download(self._env)

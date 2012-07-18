@@ -8,6 +8,7 @@ from datetime import date
 class ModuleSource(ModuleAttributeBase):
     def __init__(self):
         ModuleAttributeBase.__init__(self)
+        self.add_attribute('module_directory', '', 'Source module directory', mandatory=False)
     @classmethod
     def subclasses(self):
         return ModuleSource.__subclasses__()
@@ -162,7 +163,7 @@ class ArchiveModuleSource(ModuleSource):
         import os
          
         url_local = self.attribute('url').value
-        
+       
         filename = os.path.basename(urlparse.urlparse(url_local).path)
         tmpfile = os.path.join(env.srcrepo, filename)
         try:
