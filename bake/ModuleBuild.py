@@ -47,6 +47,7 @@ class ModuleBuild(ModuleAttributeBase):
         if hasPatch == False:
             raise TaskError('Path tool is not present and it is required for applying: %s, in: %s' % (self.attribute('patch').value, env._module_name))
 
+        self.attribute('patch').value = env.replace_variables(self.attribute('patch').value)      
         if not env.exist_file(self.attribute('patch').value) :
             raise TaskError('Path file is not present! missing file: %s, in: %s' % (self.attribute('patch').value, env._module_name))
 
