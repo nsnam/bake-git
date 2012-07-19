@@ -8,9 +8,9 @@
       </source>
        <depends_on name="readversiondef" optional="False"/>
        <depends_on name="ns-3-dev-dce" optional="False"/>
-      <build type="waf" objdir="yes" sourcedir="dce">
+      <build type="waf" objdir="build">
 	<attribute name="configure_arguments" value="configure --prefix=`pwd`/../build --verbose"/>
-	<attribute name="post_installation" value="BASEDCE=`pwd`/..;DCE_PATH=$BASEDCE/build/bin_dce:$BASEDCE/build/bin:$BASE/build/bin;DCE_ROOT=$HOME/dce_root:$BASEDCE/build;LD_LIBRARY_PATH=$SAVE_LDLP:`pwd`/../build/lib:`pwd`/build/bin:`pwd`/../build/lib:`pwd`/../../ns-3-dev-dce/build;../build/bin/ns3test-dce --verbose"/>
+	<attribute name="post_installation" value="BASEDCE=$SRCDIR;DCE_PATH=$BASEDCE/build/bin_dce:$BASEDCE/build/bin;DCE_ROOT=$BASEDCE/build;LD_LIBRARY_PATH=$OBJDIR/../build/lib:`pwd`/build/bin:$SRCDIR/../ns-3-dev-dce/build;$OBJDIR/../build/bin/ns3test-dce --verbose"/>
       </build>
     </module>
 
@@ -25,7 +25,7 @@
 
       <build type="waf" objdir="yes" sourcedir="dce">
 	<attribute name="configure_arguments" value="configure --prefix=`pwd`/../build --enable-kernel-stack=`pwd`/../ns-3-linux --verbose"/>
-	<attribute name="post_installation" value="BASEDCE=`pwd`/..;DCE_PATH=$BASEDCE/build/bin_dce:$BASEDCE/build/bin:$BASE/build/bin;DCE_ROOT=$HOME/dce_root:$BASEDCE/build;LD_LIBRARY_PATH=$SAVE_LDLP:`pwd`/../build/lib:`pwd`/build/bin:`pwd`/../build/lib:`pwd`/../../ns-3-dev-dce/build;../build/bin/ns3test-dce --verbose"/>
+	<attribute name="post_installation" value="BASEDCE=$SRCDIR;DCE_PATH=$BASEDCE/build/bin_dce:$BASEDCE/build/bin;DCE_ROOT=$BASEDCE/build;LD_LIBRARY_PATH=$OBJDIR/../build/lib:`pwd`/build/bin:$SRCDIR/../ns-3-dev-dce/build;$OBJDIR/../build/bin/ns3test-dce --verbose"/>
         <attribute name="v_PATH" value="$OBJDIR/../../readversiondef;`pwd`;`pwd`/../build/bin" />
         <attribute name="v_LD_LIBRARY" value="$OBJDIR/..;`pwd`;`pwd`/../ns-3-dev-dce/build" />
         <attribute name="v_PKG_CONFIG" value="`pwd`/../ns-3-dev-dce/build/lib/pkgconfig;$OBJDIR/../../ns-3-dev-dce/build/lib/pkgconfig" />
