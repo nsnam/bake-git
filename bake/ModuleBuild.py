@@ -40,6 +40,15 @@ class ModuleBuild(ModuleAttributeBase):
         raise NotImplemented()
     def check_version(self, env):
         raise NotImplemented()
+    
+    def perform_post_installation(self, env):
+        if self.attribute('post_installation').value != '':
+            try:
+                print (env.replace_variables(self.attribute('post_installation').value))
+                var = commands.getoutput(env.replace_variables(self.attribute('post_installation').value))
+                print(var)
+            except Exception as e:
+                print ("   > Error executing post installation : " + e )
 
     # applies a patch if available
     def threatPatch(self, env):
@@ -134,7 +143,7 @@ class PythonModuleBuild(ModuleBuild):
                  directory=env.srcdir)
         
         if self.attribute('post_installation').value != '':
-            env.run([self.attribute('post_installation').value], directory=env.objdir)
+            self.perform_post_installation(env)
 
     def clean(self, env):
         env.run(['python', os.path.join(env.srcdir, 'setup.py'), 'clean',
@@ -221,14 +230,10 @@ class WafModuleBuild(ModuleBuild):
                 env=self._env(env.objdir))
         except TaskError as e:
             raise TaskError('Could not install, probably you have no permission to install  %s: Try to run bake with sudo. Original message: %s' % (env._module_name, e._reason))
-        
+ 
         if self.attribute('post_installation').value != '':
-            try:
-#    #          env.run([self.attribute('post_installation').value], directory=env.objdir)
-                var = commands.getoutput("cd "+env.objdir+";"+self.attribute('post_installation').value)
-                print(var)
-            except Exception as e:
-                print ("   > Error executing post installation : " + e )
+            self.perform_post_installation(env)
+       
         
     def clean(self, env):
         wlockfile = '.lock-%s' % os.path.basename(env.objdir)
@@ -302,7 +307,7 @@ class Cmake(ModuleBuild):
         env.run(['make', 'install'], directory=env.objdir)
         
         if self.attribute('post_installation').value != '':
-            env.run([self.attribute('post_installation').value], directory=env.objdir)
+            self.perform_post_installation(env)
 
     def clean(self, env):
         if not os.path.isfile(os.path.join(env.objdir, 'Makefile')):
@@ -386,10 +391,8 @@ class Make(ModuleBuild):
         except TaskError as e:
             env._logger.commands.write(' > No make install, or lack of permission \n')
 
-        options = []      
         if self.attribute('post_installation').value != '':
-            options = self.attribute('post_installation').value.split(' ')
-            env.run(options, directory=env.srcdir)
+            self.perform_post_installation(env)
 
     def clean(self, env):
         if self.attribute('pre_installation').value != '':
@@ -449,7 +452,7 @@ class Autotools(ModuleBuild):
         env.run(['make', 'install'], directory=env.objdir)
     
         if self.attribute('post_installation').value != '':
-            env.run([self.attribute('post_installation').value], directory=env.objdir)
+            self.perform_post_installation(env)
 
     def clean(self, env):
         if not os.path.isfile(os.path.join(env.objdir, 'Makefile')):
