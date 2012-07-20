@@ -17,6 +17,8 @@ class ModuleBuild(ModuleAttributeBase):
         self.add_attribute('v_PATH', '', 'Directory, or directories separated by a \";\", to append to PATH environment variable')
         self.add_attribute('v_LD_LIBRARY', '', 'Directory, or directories separated by a \";\", to append LD_LIBRARY environment variable')
         self.add_attribute('v_PKG_CONFIG', '', 'Directory, or directories separated by a \";\", to append to PKG_CONFIG environment variable')
+        self.add_attribute('post_installation', '', 'UNIX Command to run after the installation')
+        self.add_attribute('pre_installation', '', 'UNIX Command to run before the installation')
 #        self.add_attribute('condition_to_build', '', 'Condition that, if existent, should be true for allowing the instalation')
 
     @classmethod
@@ -40,6 +42,20 @@ class ModuleBuild(ModuleAttributeBase):
         raise NotImplemented()
     def check_version(self, env):
         raise NotImplemented()
+    
+    def perform_pre_installation(self, env):
+        if self.attribute('pre_installation').value != '':
+            commandList = self.attribute('pre_installation').value.split(' or ')
+                        
+            for comandToExecute in commandList :
+                try:
+                    resultStatus = commands.getstatusoutput(comandToExecute)
+                    if(resultStatus[0] == 0) :
+                        return True
+                except Exception as e:
+                    print ("   > Error executing pre installation : " + e )
+
+        return False
     
     def perform_post_installation(self, env):
         if self.attribute('post_installation').value != '':
@@ -127,7 +143,6 @@ class PythonModuleBuild(ModuleBuild):
     
     def __init__(self):
         ModuleBuild.__init__(self)
-        self.add_attribute('post_installation', '', 'Command to run after the installation')
     @classmethod
     def name(cls):
         return 'python'
@@ -141,9 +156,6 @@ class PythonModuleBuild(ModuleBuild):
                   '--build-base=' + env.objdir,
                   'install', '--prefix=' + env.installdir],
                  directory=env.srcdir)
-        
-        if self.attribute('post_installation').value != '':
-            self.perform_post_installation(env)
 
     def clean(self, env):
         env.run(['python', os.path.join(env.srcdir, 'setup.py'), 'clean',
@@ -171,7 +183,6 @@ class WafModuleBuild(ModuleBuild):
         self.add_attribute('LDFLAGS', '', 'Flags to use for Linker')
         self.add_attribute('configure_arguments', '', 'Arguments to pass to "waf configure"')
         self.add_attribute('build_arguments', '', 'Arguments to pass to "waf"')
-        self.add_attribute('post_installation', '', 'Command to run after the installation')
 
     @classmethod
     def name(cls):
@@ -230,9 +241,6 @@ class WafModuleBuild(ModuleBuild):
                 env=self._env(env.objdir))
         except TaskError as e:
             raise TaskError('Could not install, probably you have no permission to install  %s: Try to run bake with sudo. Original message: %s' % (env._module_name, e._reason))
- 
-        if self.attribute('post_installation').value != '':
-            self.perform_post_installation(env)
        
         
     def clean(self, env):
@@ -261,7 +269,6 @@ class Cmake(ModuleBuild):
         self.add_attribute('build_arguments', '', 'Targets to make before install')
         self.add_attribute('cmake_arguments', '', 'Command-line arguments to pass to cmake')
         self.add_attribute('configure_arguments', '', 'Command-line arguments to pass to cmake')
-        self.add_attribute('post_installation', '', 'Command to run after the installation')
 
     @classmethod
     def name(cls):
@@ -305,9 +312,6 @@ class Cmake(ModuleBuild):
             env.run(['make'] + self.attribute('build_arguments').value.split(' '),
                     directory=env.objdir)
         env.run(['make', 'install'], directory=env.objdir)
-        
-        if self.attribute('post_installation').value != '':
-            self.perform_post_installation(env)
 
     def clean(self, env):
         if not os.path.isfile(os.path.join(env.objdir, 'Makefile')):
@@ -332,8 +336,6 @@ class Make(ModuleBuild):
         self.add_attribute('build_arguments', '', 'Targets to make before install')
         self.add_attribute('make_arguments', '', 'Command-line arguments to pass to make')
         self.add_attribute('configure_arguments', '', 'Command-line arguments to pass to make')
-        self.add_attribute('post_installation', '', 'UNIX Command to run after the installation')
-        self.add_attribute('pre_installation', '', 'UNIX Command to run before the installation')
         
     @classmethod
     def name(cls):
@@ -367,13 +369,6 @@ class Make(ModuleBuild):
             options = self.attribute('configure_arguments').value.split(' ')
             env.run(['make']+options,  directory=env.srcdir)
         
-        if self.attribute('pre_installation').value != '':
-            try:
-                var = commands.getoutput("cd "+env.srcdir+";"+self.attribute('pre_installation').value)
-                print(var)
-            except Exception as e:
-                print ("   > Error executing pre installation : " + e )
-
         options = []      
         if self.attribute('make_arguments').value != '':
             options = self.attribute('make_arguments').value.split(' ')
@@ -391,17 +386,7 @@ class Make(ModuleBuild):
         except TaskError as e:
             env._logger.commands.write(' > No make install, or lack of permission \n')
 
-        if self.attribute('post_installation').value != '':
-            self.perform_post_installation(env)
-
     def clean(self, env):
-        if self.attribute('pre_installation').value != '':
-            try:
-                var = commands.getoutput("cd "+env.srcdir+";"+self.attribute('pre_installation').value)
-                print(var)
-            except Exception as e:
-                print ("   > Error executing pre installation : " + e )
-
         if not os.path.isfile(os.path.join(env.objdir, 'Makefile')):
             return
         env.run(['make', '-i', 'clean'], directory=env.objdir)
@@ -424,7 +409,6 @@ class Autotools(ModuleBuild):
         self.add_attribute('LDFLAGS', '', 'Flags to use for Linker')
         self.add_attribute('maintainer', 'no', 'Maintainer mode ?')
         self.add_attribute('configure_arguments', '', 'Command-line arguments to pass to configure')
-        self.add_attribute('post_installation', '', 'Command to run after the installation')
     @classmethod
     def name(cls):
         return 'autotools'
@@ -450,9 +434,6 @@ class Autotools(ModuleBuild):
                 directory=env.objdir)
         env.run(['make', '-j', str(jobs)], directory=env.objdir)
         env.run(['make', 'install'], directory=env.objdir)
-    
-        if self.attribute('post_installation').value != '':
-            self.perform_post_installation(env)
 
     def clean(self, env):
         if not os.path.isfile(os.path.join(env.objdir, 'Makefile')):

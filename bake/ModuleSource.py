@@ -4,6 +4,7 @@ from Utils import ModuleAttributeBase
 import os
 import urlparse
 from datetime import date
+from sets import Set
 
 class ModuleSource(ModuleAttributeBase):
     def __init__(self):
@@ -267,6 +268,49 @@ class SystemDependency(ModuleSource):
        
         return True
 
+    def checkDependencyExpression(self, env, valueToTest):
+        """Verifies if the preconditions exist or not."""
+        
+        # if there is no test to do, return true
+        if(not valueToTest):
+            return True
+        
+        import re  
+           
+        stringToChange = valueToTest
+        
+        ### Clean expression
+        # elements to ignore
+        lib_var = {r'\b(or)\b', r'\b(not)\b', r'\b(and)\b',r'\b(if)\b'}
+        
+        stringToChange = re.sub(r'(\(|\))',' ',stringToChange)
+        for element in lib_var :
+            stringToChange = re.sub(element,'',stringToChange) 
+        
+        stringToChange = re.sub(' +',' ', stringToChange)
+        
+        # split the command names
+        if re.search(' ', stringToChange):
+            elementsToChange = stringToChange.split()
+        else :
+            elementsToChange = [stringToChange]
+        
+        # add the call to the function that verifies if the program exist
+        elementsSet = Set([])
+        for element in elementsToChange:
+            elementsSet.add(element) 
+        
+        stringToChange = valueToTest
+        for element in elementsSet :
+            if element :
+                stringToChange = re.sub(element,'env.check_program(\''+element+'\')',stringToChange) 
+                
+        # Evaluate if all the programs exist
+        returnValue = eval(stringToChange)
+        
+        return returnValue
+        
+
     def download(self, env):
         """Downloads the specific file."""
         
@@ -274,7 +318,7 @@ class SystemDependency(ModuleSource):
         import re
 
         # tests if the dependency exists or not        
-        dependencyExists = env.check_program(self.attribute('dependency_test').value)
+        dependencyExists = self.checkDependencyExpression(env,self.attribute('dependency_test').value) 
         
         # if the dependency exists there is nothing else to do
         if(dependencyExists) :

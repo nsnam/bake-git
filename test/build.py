@@ -36,14 +36,14 @@ class TestBuild (unittest.TestCase):
         testStatus = commands.getoutput('rm -f '+ pathname +'/bakefile.xml')
         testStatus = commands.getoutput('rm -rf /tmp/source')
 
-    def test_ModuleBuild(self):
+    def DD_test_ModuleBuild(self):
         """Tests the WafModuleBuild Class from ModuleBuild. """
 
         build = ModuleBuild.create("non_Existing_BuilTool")
         self.assertEqual(build  , None)
 
    
-    def test_PythonModuleBuild(self):
+    def DD_test_PythonModuleBuild(self):
         """Tests the WafModuleBuild Class from ModuleBuild. """
 
         # creating python build module test
@@ -148,7 +148,7 @@ class TestBuild (unittest.TestCase):
 #        self.assertEqual(created, "0")
         
 
-    def test_WafModuleBuild(self):
+    def DD_test_WafModuleBuild(self):
         """Tests the WafModuleBuild Class from ModuleBuild. """
 
         waf = ModuleBuild.create("waf")
@@ -271,7 +271,7 @@ class TestBuild (unittest.TestCase):
         # testResult = waf._is_1_6_x(self._env)
         # self.assertFalse(testResult)
 
-    def test_WafModuleBuildPybind(self):
+    def DD_test_WafModuleBuildPybind(self):
         """Tests the WafModuleBuild Class from ModuleBuild. """
 
         waf = ModuleBuild.create("waf")
@@ -388,7 +388,7 @@ class TestBuild (unittest.TestCase):
         # testResult = waf._is_1_6_x(self._env)
         # self.assertFalse(testResult)
           
-    def test_CmakeModule(self):
+    def DD_test_CmakeModule(self):
         """Tests the WafModuleBuild Class from ModuleBuild. """
 
         cmake = ModuleBuild.create("cmake")
@@ -472,7 +472,7 @@ class TestBuild (unittest.TestCase):
         created = re.compile('\d+').search(testStatus).group()
         self.assertNotEqual(created, "0")
 
-    def test_makeModule(self):
+    def DD_test_makeModule(self):
         """Tests the WafModuleBuild Class from ModuleBuild. """
 
         make = ModuleBuild.create("make")
@@ -558,7 +558,7 @@ class TestBuild (unittest.TestCase):
         created = re.compile('\d+').search(testStatus).group()
         self.assertEqual(created, "0")
 
-    def test_genneralBuildArguments(self):
+    def DD_test_genneralBuildArguments(self):
         """Tests the genneral arguments passed to the Build. """
 
         waf = ModuleBuild.create("waf")
@@ -647,6 +647,38 @@ class TestBuild (unittest.TestCase):
         self.assertTrue(len(self._env._pkgpaths) == 3)
         self.assertTrue(len(self._env._libpaths) == 6)
         self.assertTrue(len(self._env._binpaths) == 3)
+        
+    def test_preInstallation(self):
+        """Tests pre instalation command call. """
+
+        waf = ModuleBuild.create("waf")
+        self.assertNotEqual(waf, None)
+        self.assertEqual(waf.name(), "waf")
+
+        waf.attribute("pre_installation").value = "ls"
+        testResult = waf.perform_pre_installation(self._env)
+        self.assertTrue(testResult)    
+
+        waf.attribute("pre_installation").value = "ls or mm567"
+        testResult = waf.perform_pre_installation(self._env)
+        self.assertTrue(testResult)    
+
+        waf.attribute("pre_installation").value = "mm567 or ls"
+        testResult = waf.perform_pre_installation(self._env)
+        self.assertTrue(testResult)    
+
+        waf.attribute("pre_installation").value = "mm567 or mm567"
+        testResult = waf.perform_pre_installation(self._env)
+        self.assertFalse(testResult)  
+          
+        waf.attribute("pre_installation").value = "mm567 or mm567 or ls"
+        testResult = waf.perform_pre_installation(self._env)
+        self.assertTrue(testResult)    
+        
+        waf.attribute("pre_installation").value = "mm576 or VARTT=/;ls $VARTT"
+        testResult = waf.perform_pre_installation(self._env)
+        self.assertTrue(testResult)    
+  
 
 #        testStatus = commands.getoutput('ls -l /tmp/source/openflow-ns3/object|wc')
 #        created = re.compile('\d+').search(testStatus).group()
