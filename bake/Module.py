@@ -26,6 +26,7 @@ class Module:
         self._built_once = built_once
         self._installed = installed
 
+
     @property
     def installed(self):
         return self._installed
@@ -54,6 +55,12 @@ class Module:
             self._do_download(env, child, os.path.join(name, child_name))
 
     def download(self, env):
+        if self._build.attribute('supported_os').value :
+            if not self._build.check_os(self._build.attribute('supported_os').value) : 
+                import platform
+                osName = platform.system().lower()
+                print('    Downloading but this module works only on %s platoform(s), %s not supported for %s' % (self._build.attribute('supported_os').value, osName, env._module_name))
+            
         try:
             print(" >> Downloading " + self._name )
             self._do_download(env, self._source, self._name)
@@ -148,17 +155,24 @@ class Module:
         if self._build.supports_objdir and not os.path.isdir(env.objdir):
             os.mkdir(env.objdir)
 
+
+        if self._build.attribute('supported_os').value :
+            if not self._build.check_os(self._build.attribute('supported_os').value) : 
+                import platform
+                osName = platform.system().lower()
+                raise TaskError('This installation model works only on %s platoform(s), %s not supported for %s' % (self._build.attribute('supported_os').value, osName, env._module_name))
+
         try:
             print(" >> Building " + self._name )
-            if self.attribute('pre_installation').value != '':
-                self.perform_pre_installation(env)
+            if self._build.attribute('pre_installation').value != '':
+                self._build.perform_pre_installation(env)
             self._build.threatParamVariables(env)
             self._build.build(env, jobs)
             self._installed = monitor.end()
             env.end_build()
             self._built_once = True
-            if self.attribute('post_installation').value != '':
-                self.perform_post_installation(env)
+            if self._build.attribute('post_installation').value != '':
+                self._build.perform_post_installation(env)
             print(" >> Built " + self._name + " - OK ")
             return True
         except TaskError as e:
@@ -195,6 +209,9 @@ class Module:
 
     def is_downloaded(self, env):
         srcDirTmp = self._name
+        if self._source.name() is 'system_dependency' :
+            return True
+        
         if self._source.attribute('module_directory').value :
             srcDirTmp = self._source.attribute('module_directory').value
 

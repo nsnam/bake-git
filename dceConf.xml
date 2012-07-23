@@ -71,21 +71,6 @@
       </build>
     </module>
 
-  </modules>
-
-  <module name="ns-3-dev">
-      <source type="mercurial">
-	<attribute name="url" value="http://code.nsnam.org/ns-3-dev"/>
-      </source>
-      <depends_on name="nsc" optional="True"/>
-      <depends_on name="pybindgen" optional="True"/>
-      <depends_on name="click-1.8.0" optional="True"/>
-      <depends_on name="openflow-ns3" optional="True"/>
-      <build type="waf" objdir="yes">
-	<attribute name="configure_arguments" value="configure --prefix=`pwd`/../build --enable-tests --with-nsc=$INSTALLDIR --with-nsclick=$INSTALLDIR --with-openflow=$INSTALLDIR"/>
-      </build>
-  </module>
-
     <module name="click-1.8.0">
       <source type="archive">
 	<attribute name="url" value="http://read.cs.ucla.edu/click/click-1.8.0.tar.gz"/>
@@ -134,16 +119,19 @@
       <depends_on name="pygccxml" optional="True"/>
     </module>
 
+
     <module name="nsc">
       <source type="mercurial">
 	<attribute name="url" value="https://secure.wand.net.nz/mercurial/nsc"/>
       </source>
       <!-- problem: scons has no generic command-line support for builddir and installdir -->
       <build type="inline"  classname="NscModuleBuild">
+	<attribute name="supported_os" value="linux;linux2"/>
 	<code>class NscModuleBuild(InlineModuleBuild):
     def __init__(self):
         InlineModuleBuild.__init__(self)
     def build(self, env, jobs):
+
         env.run(['python', os.path.join(env.srcdir, 'scons.py'), 
                  '-j', str(jobs), '--prefix=' + env.installdir, 'install'],
                 directory=env.srcdir)
@@ -164,18 +152,33 @@
 	<attribute name="name_apt-get" value="qt4-dev-tools"/>
 	<attribute name="more_information" value="Didn't find QT 4, download and install it from http://qt.nokia.com/downloads/"/>
       </source>
+      <build type="none" objdir="no">
+      </build>
     </module>
 
     <module name="net_anim">
       <source type="mercurial">
 	<attribute name="url" value="http://code.nsnam.org/netanim"/>
       </source>
-      <build type="waf" objdir="yes">
-	<attribute name="pre_installation" value="qmake NetAnim.pro or qmake-qt4 NetAnim.pro or qmake -spec macx-g++ NetAnim.pro"/>
+      <build type="make" objdir="no">
+	<attribute name="pre_installation" value="cd $SRCDIR;qmake NetAnim.pro or cd $SRCDIR;qmake-qt4 NetAnim.pro or cd $SRCDIR;qmake -spec macx-g++ NetAnim.pro"/>
       </build>
       <depends_on name="qt4" optional="False"/>
     </module>
 
+  <module name="ns-3">
+      <source type="mercurial">
+	<attribute name="url" value="http://code.nsnam.org/ns-3-dev"/>
+      </source>
+      <depends_on name="net_anim" optional="True"/>
+      <depends_on name="nsc" optional="True"/>
+      <depends_on name="pybindgen" optional="True"/>
+      <depends_on name="click-1.8.0" optional="True"/>
+      <depends_on name="openflow-ns3" optional="True"/>
+      <build type="waf" objdir="yes">
+	<attribute name="configure_arguments" value="configure --prefix=`pwd`/../build --enable-tests --with-nsc=$INSTALLDIR --with-nsclick=$INSTALLDIR --with-openflow=$INSTALLDIR"/>
+      </build>
+  </module>
 
   </modules>
 

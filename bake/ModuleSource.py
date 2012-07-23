@@ -3,6 +3,7 @@ import Utils
 from Utils import ModuleAttributeBase
 import os
 import urlparse
+import re
 from datetime import date
 from sets import Set
 
@@ -226,12 +227,12 @@ class SystemDependency(ModuleSource):
     def getCommand(self, distribution):
         """Finds the proper installer command line, given the linux distribution."""
         distributions = [
-            ['debian', 'sudo apt-get -y install '],
-            ['ubuntu', 'sudo apt-get -y install '],
-            ['fedora', 'sudo yum -y install '],
-            ['redhat', 'sudo yum -y install '],
-            ['centos', 'sudo yum -y install '],
-            ['suse', 'sudo yast --install '],
+            ['debian', 'apt-get -y install '],
+            ['ubuntu', 'apt-get -y install '],
+            ['fedora', 'yum -y install '],
+            ['redhat', 'yum -y install '],
+            ['centos', 'yum -y install '],
+            ['suse', 'yast --install '],
             ]
  
         for name, command in distributions:
@@ -241,7 +242,6 @@ class SystemDependency(ModuleSource):
 
     def remove(self, env):
         import platform 
-        import re
         
         # if the download is dependent of the machine's architecture 
         osName = platform.system().lower()
@@ -267,6 +267,13 @@ class SystemDependency(ModuleSource):
             raise TaskError('Removing module problem: \"%s\", Probably you miss root rights or the module is not present on your package management databases. Try calling bake with sudo or reviewing your library database to add \"%s\". Message: %s' % (env._module_name, installerName, self.attribute('more_information').value, e1._reason))
        
         return True
+
+    
+    def addCommandCalls(self, stringToChange, elements):
+        for element in elements:
+            stringToChange= re.sub(element + "(\s|\)|$)" , 'env.check_program(\'' + element + '\')\\1', stringToChange)
+        return stringToChange
+
 
     def checkDependencyExpression(self, env, valueToTest):
         """Verifies if the preconditions exist or not."""
@@ -300,11 +307,9 @@ class SystemDependency(ModuleSource):
         for element in elementsToChange:
             elementsSet.add(element) 
         
-        stringToChange = valueToTest
-        for element in elementsSet :
-            if element :
-                stringToChange = re.sub(element,'env.check_program(\''+element+'\')',stringToChange) 
-                
+        
+        stringToChange = self.addCommandCalls(valueToTest,elementsSet)
+               
         # Evaluate if all the programs exist
         returnValue = eval(stringToChange)
         

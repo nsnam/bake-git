@@ -1,5 +1,6 @@
 import Utils
 import os
+import platform
 import commands
 import re
 import sys
@@ -19,6 +20,7 @@ class ModuleBuild(ModuleAttributeBase):
         self.add_attribute('v_PKG_CONFIG', '', 'Directory, or directories separated by a \";\", to append to PKG_CONFIG environment variable')
         self.add_attribute('post_installation', '', 'UNIX Command to run after the installation')
         self.add_attribute('pre_installation', '', 'UNIX Command to run before the installation')
+        self.add_attribute('supported_os', '', 'List of supported Operating Systems for the module', mandatory=False)
 #        self.add_attribute('condition_to_build', '', 'Condition that, if existent, should be true for allowing the instalation')
 
     @classmethod
@@ -43,13 +45,30 @@ class ModuleBuild(ModuleAttributeBase):
     def check_version(self, env):
         raise NotImplemented()
     
+    def check_os(self, supportedOs) :
+        osName = platform.system().lower()
+        
+        if len(supportedOs) is 0 :
+            elements = []
+        else :
+            elements = supportedOs.split(';')
+            
+        supportedOS = False
+        
+        for element in elements : 
+            if(osName.startswith(element.lower())):
+                supportedOS = True
+        
+        return supportedOS 
+
+    
     def perform_pre_installation(self, env):
         if self.attribute('pre_installation').value != '':
             commandList = self.attribute('pre_installation').value.split(' or ')
                         
             for comandToExecute in commandList :
                 try:
-                    resultStatus = commands.getstatusoutput(comandToExecute)
+                    resultStatus = commands.getstatusoutput(env.replace_variables(comandToExecute))
                     if(resultStatus[0] == 0) :
                         return True
                 except Exception as e:
