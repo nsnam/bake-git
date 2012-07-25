@@ -259,7 +259,8 @@ class WafModuleBuild(ModuleBuild):
                 directory=env.srcdir,
                 env=self._env(env.objdir))
         except TaskError as e:
-            raise TaskError('Could not install, probably you have no permission to install  %s: Try to run bake with sudo. Original message: %s' % (env._module_name, e._reason))
+            print('Could not install, probably you have no permission to install  %s: Try to run bake with sudo. Original message: %s' % (env._module_name, e._reason))
+            #raise TaskError('Could not install, probably you have no permission to install  %s: Try to run bake with sudo. Original message: %s' % (env._module_name, e._reason))
        
         
     def clean(self, env):
@@ -330,7 +331,12 @@ class Cmake(ModuleBuild):
         if self.attribute('build_arguments').value != '':
             env.run(['make'] + self.attribute('build_arguments').value.split(' '),
                     directory=env.objdir)
-        env.run(['make', 'install'], directory=env.objdir)
+        try:
+            env.run(['make', 'install'], directory=env.objdir)
+        except TaskError as e:
+            print('Could not install, probably you have no permission to install  %s: Try to run bake with sudo. Original message: %s' % (env._module_name, e._reason))
+            #raise TaskError('Could not install, probably you have no permission to install  %s: Try to run bake with sudo. Original message: %s' % (env._module_name, e._reason))
+            
 
     def clean(self, env):
         if not os.path.isfile(os.path.join(env.objdir, 'Makefile')):
@@ -403,7 +409,7 @@ class Make(ModuleBuild):
         try:
             env.run(['make', 'install'], directory=env.srcdir)
         except TaskError as e:
-            env._logger.commands.write(' > No make install, or lack of permission \n')
+            raise TaskError('Could not install, probably you have no permission to install  %s: Try to run bake with sudo. Original message: %s' % (env._module_name, e._reason))
 
     def clean(self, env):
         if not os.path.isfile(os.path.join(env.objdir, 'Makefile')):
@@ -446,13 +452,17 @@ class Autotools(ModuleBuild):
                     directory=env.srcdir)
         options = []
         if self.attribute('configure_arguments').value != '':
-            options = self.attribute('configure_arguments').value.split(' ')
-            env.run([os.path.join(env.srcdir),
-                 '--prefix=' + env.installdir] + 
-                self._variables() + options,
-                directory=env.objdir)
+            command= (env.replace_variables(self.attribute('configure_arguments').value) + ' --prefix=' + env.installdir).split(' ')
+            env.run(command, directory=env.objdir)
+            
         env.run(['make', '-j', str(jobs)], directory=env.objdir)
-        env.run(['make', 'install'], directory=env.objdir)
+        
+        try :
+            env.run(['make', 'install'], directory=env.objdir)
+        except TaskError as e:
+            print('Could not install, probably you have no permission to install  %s: Try to run bake with sudo. Original message: %s' % (env._module_name, e._reason))
+            #raise TaskError('Could not install, probably you have no permission to install  %s: Try to run bake with sudo. Original message: %s' % (env._module_name, e._reason))
+        
 
     def clean(self, env):
         if not os.path.isfile(os.path.join(env.objdir, 'Makefile')):

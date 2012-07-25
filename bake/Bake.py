@@ -18,10 +18,16 @@ class Bake:
     
     def __init__(self):
         pass
-
+    
     def _error(self, string):
-        raise Exception('Error: %s' % string)
-
+        print(' > Error: %s ' % string)
+        if Bake.main_options.debug:
+            import Utils
+            Utils.print_backtrace()           
+        else:
+            print('   For more information call Bake with --debug and/or -vv (bake --help)')
+        sys.exit(1)
+        
     def _reconfigure(self,config,args):
         """Handles the reconfigure command line option."""
         
@@ -321,7 +327,7 @@ class Bake:
                 # configured xml file, e.g. misspelled module name  
                 if src is None:
                     self._error('Dependency "%s" not found' % dependency.name())
-                
+                 
                 if not src in configuration.disabled():
                     # if it is set to add even the optional modules, or the 
                     # dependency is not optional, add the module it depends on 
@@ -444,6 +450,8 @@ class Bake:
     def _install(self,config,args):
         """Handles the install command line option."""
 
+        print("Installing selected module and dependencies.")
+        print("Please, be patient, this may take a while!")
         returnValue =  self._download(config,args);
         if not returnValue:
             return self._build(config, args)
@@ -539,12 +547,12 @@ class Bake:
     def _show_one_builtin(self, builtin, string, variables):
         import textwrap
         if builtin.name() != 'none':
-            print '%s %s' % (string, builtin.name())
+            print ('%s %s' % (string, builtin.name()))
             if variables:
                 for attribute in builtin().attributes():
-                    print '    %s=%s' % (attribute.name, attribute.value)
+                    print ('    %s=%s' % (attribute.name, attribute.value))
                     lines = ['      %s' % line for line in textwrap.wrap(attribute.help)]
-                    print '\n'.join(lines)
+                    print ('\n'.join(lines))
 
     def _show_builtin(self, config, args):
         from ModuleSource import ModuleSource
@@ -573,14 +581,14 @@ class Bake:
     def _show_variables(self, module):
         source = module.get_source()
         if source.attributes():
-            print '  source %s' % source.name()
+            print ('  source %s' % source.name())
             for attribute in source.attributes():
-                print '    %s=%s' % (attribute.name, attribute.value)
+                print ('    %s=%s' % (attribute.name, attribute.value))
         build = module.get_build()
         if build.attributes():
-            print '  build %s' % build.name()
+            print ('  build %s' % build.name())
             for attribute in build.attributes():
-                print '    %s=%s' % (attribute.name, attribute.value)
+                print ('    %s=%s' % (attribute.name, attribute.value))
 
     def _show(self, config, args):
         """Handles the show command line option."""
@@ -616,9 +624,9 @@ class Bake:
             options.variables = True
             options.predefined = True
         if options.directories:
-            print 'installdir   : ' + configuration.compute_installdir()
-            print 'sourcedir    : ' + configuration.compute_sourcedir()
-            print 'objdir       : ' + configuration.get_objdir()
+            print ('installdir   : ' + configuration.compute_installdir())
+            print ('sourcedir    : ' + configuration.compute_sourcedir())
+            print ('objdir       : ' + configuration.get_objdir())
 
         enabled = []
         def _iterator(module):
@@ -629,12 +637,12 @@ class Bake:
 
         if options.enabled:
             for module in enabled:
-                print 'module: %s (enabled)' % module.name()
+                print ('module: %s (enabled)' % module.name())
                 if options.variables:
                     self._show_variables(module)
         if options.disabled:
             for module in disabled:
-                print 'module: %s (disabled)' % module.name()
+                print ('module: %s (disabled)' % module.name())
                 if options.variables:
                     self._show_variables(module)
     options=""
@@ -698,5 +706,5 @@ To get more help about each command, try:
                     try:
                         function(config=options.config_file, args=args_left[1:])
                     except Exception as e:
-                        print e.message
+                        print (e.message)
                         sys.exit(1)

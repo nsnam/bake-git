@@ -71,21 +71,23 @@
       </build>
     </module>
 
-    <module name="click-1.8.0">
-      <source type="archive">
-	<attribute name="url" value="http://read.cs.ucla.edu/click/click-1.8.0.tar.gz"/>
+    <module name="click">
+      <source type="git">
+	<attribute name="url" value="git://read.cs.ucla.edu/git/click"/>
+	<attribute name="revision" value="724412626833df5c13384be5cce4da52c601371f"/>
+
       </source>
       <build type="autotools" objdir="yes">
-	<attribute name="configure_arguments" value="configure --enable-userlevel --disable-linuxmodule --enable-nsclick --enable-wifi"/>
+	<attribute name="configure_arguments" value="../configure --enable-userlevel --disable-linuxmodule --enable-nsclick --enable-wifi"/>
       </build>
     </module>
 
     <module name="openflow-ns3">
       <source type="mercurial">
-	<attribute name="url" value="http://code.nsnam.org/bhurd/openflow"/>
+	<attribute name="url" value="http://code.nsnam.org/jpelkey3/openflow"/>
       </source>
       <build type="waf" objdir="yes">
-	<attribute name="configure_arguments" value="configure"/>
+	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR"/>
       </build>
     </module>
 
@@ -105,15 +107,16 @@
       </source>
       <build type="python" objdir="yes">
       </build>
-      <depends_on name="gccxml-ns3"/>
+      <depends_on name="gccxml-ns3" optional="True"/>
     </module>
 
     <module name="pybindgen">
       <source type="bazaar">
 	<attribute name="url" value="https://launchpad.net/pybindgen"/>
-	<attribute name="revision" value="revno:795"/>
+	<attribute name="revision" value="revno:809"/>
       </source>
       <build type="waf" objdir="yes">
+	<attribute name="configure_arguments" value="configure"/>
 	<attribute name="build_arguments" value="--generate-version"/>
       </build>
       <depends_on name="pygccxml" optional="True"/>
@@ -133,7 +136,7 @@
     def build(self, env, jobs):
 
         env.run(['python', os.path.join(env.srcdir, 'scons.py'), 
-                 '-j', str(jobs), '--prefix=' + env.installdir, 'install'],
+                 '-j', str(jobs), 'prefix=' + env.installdir, 'install'],
                 directory=env.srcdir)
     def clean(self, env):
         env.run(['python', os.path.join(env.srcdir, 'scons.py'), '-c'],
@@ -173,10 +176,10 @@
       <depends_on name="net_anim" optional="True"/>
       <depends_on name="nsc" optional="True"/>
       <depends_on name="pybindgen" optional="True"/>
-      <depends_on name="click-1.8.0" optional="True"/>
+      <depends_on name="click" optional="True"/>
       <depends_on name="openflow-ns3" optional="True"/>
       <build type="waf" objdir="yes">
-	<attribute name="configure_arguments" value="configure --prefix=`pwd`/../build --enable-tests --with-nsc=$INSTALLDIR --with-nsclick=$INSTALLDIR --with-openflow=$INSTALLDIR"/>
+	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests --with-nsclick=$INSTALLDIR --with-pybindgen=$SRCDIR/../pybindgen --with-openflow=$SRCDIR/../openflow-ns3 --with-nsc=$SRCDIR/../nsc"/>
       </build>
   </module>
 

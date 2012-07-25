@@ -59,7 +59,7 @@ class Module:
             if not self._build.check_os(self._build.attribute('supported_os').value) : 
                 import platform
                 osName = platform.system().lower()
-                print('    Downloading but this module works only on %s platoform(s), %s not supported for %s' % (self._build.attribute('supported_os').value, osName, env._module_name))
+                print('    Downloading, but this module works only on %s platform(s), %s not supported in %s' % (self._build.attribute('supported_os').value, env._module_name, osName))
             
         try:
             print(" >> Downloading " + self._name )
@@ -176,7 +176,8 @@ class Module:
             print(" >> Built " + self._name + " - OK ")
             return True
         except TaskError as e:
-            print(e.reason)
+            print(" >> Building " + self._name + " - Problem ")
+            print("  > " + e.reason)
             if env.debug :
                 import Utils
                 Utils.print_backtrace()           
@@ -254,9 +255,10 @@ class Module:
             self._build.clean(env)
             env.end_build()
             self._built_once = False
-            print(" Clean " + self._name + " - OK ")
+            print(" >> Cleaning " + self._name + " - OK ")
             return True
         except TaskError as e:
+            print(" >> Cleaning " + self._name + " - Problem ")
             print(e.reason)
             if env.debug :
                 import Utils
