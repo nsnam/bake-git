@@ -14,7 +14,7 @@ class MyOptionParser(OptionParser):
         
 
 class Bake:
-    main_options = ""
+    main_options = "" 
     
     def __init__(self):
         pass
