@@ -1,7 +1,7 @@
 import copy
 import os
-from FilesystemMonitor import FilesystemMonitor
-from Exceptions import TaskError
+from bake.FilesystemMonitor import FilesystemMonitor
+from bake.Exceptions import TaskError
 
 class ModuleDependency:
     def __init__(self, name, optional = False):
@@ -70,14 +70,14 @@ class Module:
             print(" >> Download " + self._name + " - Problem ")
             print(e.reason)
             if env.debug :
-                import Utils
-                Utils.print_backtrace()           
+                import bake.Utils
+                bake.Utils.print_backtrace()           
             return False
         except:
             print(" >> Download " + self._name + " - Problem ")
             if env.debug :
-                import Utils
-                Utils.print_backtrace()
+                import bake.Utils
+                bake.Utils.print_backtrace()
             return False
 
 
@@ -103,13 +103,13 @@ class Module:
         except TaskError as e:
             print(e.reason)
             if env.debug :
-                import Utils
+                import bake.Utils
                 Utils.print_backtrace()           
             return False
         except:
             if env.debug :
-                import Utils
-                Utils.print_backtrace()
+                import bake.Utils
+                bake.Utils.print_backtrace()
             return False
 
     def uninstall(self, env):
@@ -140,9 +140,6 @@ class Module:
         # and there are old files around
         if not self._built_once:
             self.clean(env)
-        # setup the monitor
-        monitor = FilesystemMonitor(env.installdir)
-        monitor.start()
 
         srcDirTmp = self._name
         if self._source.attribute('module_directory').value :
@@ -150,6 +147,11 @@ class Module:
             
         env.start_build(self._name, srcDirTmp,
                         self._build.supports_objdir)
+
+        # setup the monitor
+        monitor = FilesystemMonitor(env.installdir)
+        monitor.start()
+
         if not os.path.isdir(env.installdir):
             os.mkdir(env.installdir)
         if self._build.supports_objdir and not os.path.isdir(env.objdir):
@@ -179,15 +181,16 @@ class Module:
             print(" >> Building " + self._name + " - Problem ")
             print("  > " + e.reason)
             if env.debug :
-                import Utils
-                Utils.print_backtrace()           
+                import bake.Utils
+                bake.Utils.print_backtrace()           
+            env.end_build()
             return False
         except:
             self._installed = monitor.end()
             env.end_build()
             if env.debug :
-                import Utils
-                Utils.print_backtrace()
+                import bake.Utils
+                bake.Utils.print_backtrace()
             return False
 
     def check_build_version(self, env):
@@ -261,14 +264,14 @@ class Module:
             print(" >> Cleaning " + self._name + " - Problem ")
             print(e.reason)
             if env.debug :
-                import Utils
-                Utils.print_backtrace()           
+                import bake.Utils
+                bake.Utils.print_backtrace()           
             return False
         except:
             env.end_build()
             if env.debug :
-                import Utils
-                Utils.print_backtrace()
+                import bake.Utils
+                bake.Utils.print_backtrace()
             return False
 
     def is_built_once(self):

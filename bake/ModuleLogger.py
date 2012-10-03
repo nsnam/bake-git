@@ -1,6 +1,6 @@
 import sys
 import os
-from Exceptions import NotImplemented
+from bake.Exceptions import NotImplemented
 
 class ModuleLogger:
     def __init__(self):

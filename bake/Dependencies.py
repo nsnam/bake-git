@@ -50,8 +50,8 @@ class Target:
     def context(self):
         return self._context
 
-class Dependencies:
-    def __init__(self):
+class Dependencies33:
+    def __init__(self): 
         # a dictionnary that maps a string (key) to the only instance
         # of the class Target that has this string as its target.
         self._targets = dict()

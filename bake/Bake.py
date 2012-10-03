@@ -1,9 +1,9 @@
-from Configuration import Configuration
-from ModuleEnvironment import ModuleEnvironment
-from ModuleLogger import StdoutModuleLogger,LogfileModuleLogger,LogdirModuleLogger
+from bake.Configuration import Configuration
+from bake.ModuleEnvironment import ModuleEnvironment
+from bake.ModuleLogger import StdoutModuleLogger,LogfileModuleLogger,LogdirModuleLogger
 from optparse import OptionParser
-from Dependencies import Dependencies,DependencyUnmet
-from Exceptions import MetadataError
+from bake.Dependencies import Dependencies33,DependencyUnmet
+from bake.Exceptions import MetadataError
 import sys
 
 class MyOptionParser(OptionParser):
@@ -22,8 +22,8 @@ class Bake:
     def _error(self, string):
         print(' > Error: %s ' % string)
         if Bake.main_options.debug:
-            import Utils
-            Utils.print_backtrace()           
+            import bake.Utils
+            bake.Utils.print_backtrace()           
         else:
             print('   For more information call Bake with --debug and/or -vv (bake --help)')
         sys.exit(1)
@@ -138,7 +138,7 @@ class Bake:
             else:
                 for module in configuration.modules():
                     if module.get_build().attribute(name):
-                        if is_append:
+                        if is_append and module.get_build().attribute(name).value :
                             module.get_build().attribute(name).value = \
                                 module.get_build().attribute(name).value + ' ' + value
                         else:
@@ -305,7 +305,7 @@ class Bake:
     def _iterate(self, configuration, functor, targets, follow_optional=True):
         """Iterates over the configuration modules applying the functor function and solve reminding dependencies."""
         
-        deps = Dependencies()
+        deps = Dependencies33()
         class Wrapper:
             def __init__(self, module):
                 self._module = module
@@ -542,7 +542,7 @@ class Bake:
             return True
         env = self._do_operation(config, options, _do_env_update)
         import os
-        env.run([os.environ['SHELL']], directory=env.installdir, interactive = True)
+        env.run([os.environ['SHELL']], directory=env.objdir, interactive = True)
 
     def _show_one_builtin(self, builtin, string, variables):
         import textwrap
@@ -555,8 +555,8 @@ class Bake:
                     print ('\n'.join(lines))
 
     def _show_builtin(self, config, args):
-        from ModuleSource import ModuleSource
-        from ModuleBuild import ModuleBuild
+        from bake.ModuleSource import ModuleSource
+        from bake.ModuleBuild import ModuleBuild
         parser = OptionParser(usage='usage: %prog show [options]')
         parser.add_option('-a', '--all', action='store_true', dest='all', default=False,
                           help='Display all known information about builtin source and build commands')
@@ -589,6 +589,24 @@ class Bake:
             print ('  build %s' % build.name())
             for attribute in build.attributes():
                 print ('    %s=%s' % (attribute.name, attribute.value))
+
+
+    def showModule(self, state, options, label):
+        for module in state:
+            print('module: %s (%s)' % (module.name(), label))
+            dependencies = module.dependencies()
+            if dependencies:
+                print('  depends on:')
+                for dependsOn in module.dependencies():
+                    print('     %s (optional:%s)' % (dependsOn.name(), dependsOn.is_optional()))
+            
+            else:
+                print('no dependencies!')
+                
+            if options.variables:
+                self._show_variables(module)
+
+        return module
 
     def _show(self, config, args):
         """Handles the show command line option."""
@@ -636,15 +654,11 @@ class Bake:
         disabled = filter(lambda module: not module in enabled, configuration.modules())
 
         if options.enabled:
-            for module in enabled:
-                print ('module: %s (enabled)' % module.name())
-                if options.variables:
-                    self._show_variables(module)
+            module = self.showModule(enabled, options, 'enabled')
+
         if options.disabled:
-            for module in disabled:
-                print ('module: %s (disabled)' % module.name())
-                if options.variables:
-                    self._show_variables(module)
+            module = self.showModule(disabled, options, 'disabled')
+
     options=""
     
 

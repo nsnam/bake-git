@@ -1,5 +1,5 @@
 import subprocess
-from Exceptions import TaskError
+from bake.Exceptions import TaskError
 import os
 
 def print_backtrace():
@@ -14,6 +14,35 @@ def print_backtrace():
     for entry in tb_list:
         trace += entry
     sys.stderr.write("%s\n%s" % (exception, trace))
+
+def splitArgs(stringP):
+    "Split arguments respecting agregated strings "
+    
+    returnValue = []
+    rawSplit = stringP.split()
+    compensateElement=False
+    elementStr = ''
+    for element in rawSplit:
+        if "'" in element :
+            if element.count("'") % 2 != 0 :
+                if compensateElement :
+                    compensateElement = False
+                    returnValue.append(elementStr + " " + str(element))
+                    elementStr = ''
+                    element = None
+                elif element.find("'") == element.rfind("'") :
+                    compensateElement = True
+            
+        if compensateElement :
+            if len(elementStr) > 0 :
+                elementStr = elementStr + " " + element
+            else :
+                elementStr = element 
+        else : 
+            if element :
+                returnValue.append(element)
+    
+    return returnValue
 
 class ModuleAttribute:
     def __init__(self, name, value, help, mandatory):

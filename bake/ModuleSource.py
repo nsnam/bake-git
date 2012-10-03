@@ -1,6 +1,5 @@
-from Exceptions import TaskError
-import Utils
-from Utils import ModuleAttributeBase
+from bake.Exceptions import TaskError
+from bake.Utils import ModuleAttributeBase
 import os
 import urlparse
 import re

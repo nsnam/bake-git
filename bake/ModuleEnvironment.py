@@ -3,7 +3,7 @@ import subprocess
 import sys
 import platform
 
-from Exceptions import TaskError 
+from bake.Exceptions import TaskError 
 from sets import Set
 
 class ModuleEnvironment:

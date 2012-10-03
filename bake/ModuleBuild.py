@@ -1,12 +1,12 @@
-import Utils
+import bake.Utils
 import os
 import platform
 import commands
 import re
 import sys
-from Utils import ModuleAttributeBase
-from Exceptions import NotImplemented
-from Exceptions import TaskError 
+from bake.Utils import ModuleAttributeBase
+from bake.Exceptions import NotImplemented
+from bake.Exceptions import TaskError 
 
 
 class ModuleBuild(ModuleAttributeBase):
@@ -21,6 +21,7 @@ class ModuleBuild(ModuleAttributeBase):
         self.add_attribute('post_installation', '', 'UNIX Command to run after the installation')
         self.add_attribute('pre_installation', '', 'UNIX Command to run before the installation')
         self.add_attribute('supported_os', '', 'List of supported Operating Systems for the module', mandatory=False)
+        self.add_attribute('ignore_predefined_flags', 'False', 'True if the build should ignore the predefined flag settings')
 #        self.add_attribute('condition_to_build', '', 'Condition that, if existent, should be true for allowing the instalation')
 
     @classmethod
@@ -68,6 +69,7 @@ class ModuleBuild(ModuleAttributeBase):
                         
             for comandToExecute in commandList :
                 try:
+                    env._logger.commands.write("    > " +env.replace_variables(comandToExecute));
                     resultStatus = commands.getstatusoutput(env.replace_variables(comandToExecute))
                     if(resultStatus[0] == 0) :
                         return True
@@ -79,7 +81,7 @@ class ModuleBuild(ModuleAttributeBase):
     def perform_post_installation(self, env):
         if self.attribute('post_installation').value != '':
             try:
-                print (env.replace_variables(self.attribute('post_installation').value))
+                env._logger.commands.write(" > " + env.replace_variables(self.attribute('post_installation').value))
                 var = commands.getoutput(env.replace_variables(self.attribute('post_installation').value))
                 print(var)
             except Exception as e:
@@ -91,22 +93,24 @@ class ModuleBuild(ModuleAttributeBase):
         if hasPatch == False:
             raise TaskError('Path tool is not present and it is required for applying: %s, in: %s' % (self.attribute('patch').value, env._module_name))
 
-        self.attribute('patch').value = env.replace_variables(self.attribute('patch').value)      
-        if not env.exist_file(self.attribute('patch').value) :
-            raise TaskError('Path file is not present! missing file: %s, in: %s' % (self.attribute('patch').value, env._module_name))
+        vectorPath = env.replace_variables(self.attribute('patch').value).split(';')      
+        for item in vectorPath:
+      
+            if not env.exist_file(item) :
+                raise TaskError('Path file is not present! missing file: %s, in: %s' % (item, env._module_name))
 
-        try:
-            env._logger.commands.write('cd ' + env.srcdir + '; patch -p1 < ' + self.attribute('patch').value + '\n')
-            status = commands.getstatusoutput('cd ' + env.srcdir + '; patch -p1 < ' + self.attribute('patch').value) #                env.run(['patch ', '-p1', ' < ', self.attribute('patch').value],
-    #                    directory=env.srcdir)
-        except:
-            raise TaskError('Patch error: %s, in: %s' % (self.attribute('patch').value, env._module_name))
-    # if there were an error
-        if status[0] != 0:
-            if status[0] == 256:
-                env._logger.commands.write(' > Patch problem: Ignoring patch, either the patch file does not exist or it was already applied!\n')
-            else:
-                raise TaskError('Patch error %s: %s, in: %s' % (status[0], self.attribute('patch').value, env._module_name))
+            try:
+                env._logger.commands.write('cd ' + env.srcdir + '; patch -p1 < ' + item + '\n')
+                status = commands.getstatusoutput('cd ' + env.srcdir + '; patch -p1 < ' + item) 
+            except:
+                raise TaskError('Patch error: %s, in: %s' % (item, env._module_name))
+            
+            # if there were an error
+            if status[0] != 0:
+                if status[0] == 256:
+                    env._logger.commands.write(' > Patch problem: Ignoring patch, either the patch file does not exist or it was already applied!\n')
+                else:
+                    raise TaskError('Patch error %s: %s, in: %s' % (status[0], item, env._module_name))
 
     # Threats the parameter variables
     def threatParamVariables(self, env):
@@ -124,6 +128,18 @@ class ModuleBuild(ModuleAttributeBase):
         if self.attribute('v_PKG_CONFIG').value != '':
             elements = self.attribute('v_PKG_CONFIG').value.split(";")
             env.add_pkgpaths(elements)
+
+    def _flags(self):
+        variables = []
+        if self.attribute('ignore_predefined_flags').value == 'True':
+            return variables
+                           
+        if self.attribute('CFLAGS').value != '':
+            variables.append('CFLAGS=%s'% (self.attribute('CFLAGS').value))
+            
+        if self.attribute('CXXFLAGS').value != '':
+            variables.append('CXXFLAGS=%s'% (self.attribute('CXXFLAGS').value))
+        return variables
 
 
 class NoneModuleBuild(ModuleBuild):
@@ -237,7 +253,7 @@ class WafModuleBuild(ModuleBuild):
         extra_configure_options = []
         if self.attribute('configure_arguments').value != '':
             extra_configure_options = [env.replace_variables(tmp) for tmp in
-                                       self.attribute('configure_arguments').value.split(' ')]
+                                       bake.Utils.splitArgs(self.attribute('configure_arguments').value)]
             if self._is_1_6_x(env):
                 env.run([self._binary(env.srcdir)] + extra_configure_options,
                         directory=env.srcdir,
@@ -250,7 +266,7 @@ class WafModuleBuild(ModuleBuild):
         extra_build_options = []
         if self.attribute('build_arguments').value != '':
             extra_build_options = [env.replace_variables(tmp) for tmp in
-                                   self.attribute('build_arguments').value.split(' ')]
+                                   bake.Utils.splitArgs(self.attribute('build_arguments').value)]
         env.run([self._binary(env.srcdir)] + extra_build_options + ['-j', str(jobs)],
                 directory=env.srcdir,
                 env=self._env(env.objdir))
@@ -310,7 +326,7 @@ class Cmake(ModuleBuild):
 
         options = []
         if self.attribute('cmake_arguments').value != '':
-            options = self.attribute('cmake_arguments').value.split(' ')
+            options = bake.Utils.splitArgs(self.attribute('cmake_arguments').value)
         
         # if the object directory does not exist, it should create it, to
         # avoid build error, since the cmake does not create the directory
@@ -324,12 +340,12 @@ class Cmake(ModuleBuild):
             if not "error 1" in e._reason :
                 raise TaskError(e._reason)
 
-        env.run(['cmake', env.srcdir, '-DCMAKE_INSTALL_PREFIX=' + env.installdir] + 
+        env.run(['cmake', env.srcdir, '-DCMAKE_INSTALL_PREFIX=' + env.objdir] + 
                 self._variables() + options,
                 directory=env.objdir)
         env.run(['make', '-j', str(jobs)], directory=env.objdir)
         if self.attribute('build_arguments').value != '':
-            env.run(['make'] + self.attribute('build_arguments').value.split(' '),
+            env.run(['make'] + bake.Utils.splitArgs(self.attribute('build_arguments').value),
                     directory=env.objdir)
         try:
             env.run(['make', 'install'], directory=env.objdir)
@@ -357,25 +373,21 @@ class Cmake(ModuleBuild):
 class Make(ModuleBuild):
     def __init__(self):
         ModuleBuild.__init__(self)
+        self.add_attribute('CFLAGS', '', 'Flags to use for C compiler')
+        self.add_attribute('CXXFLAGS', '', 'Flags to use for C++ compiler')
         self.add_attribute('LDFLAGS', '', 'Flags to use for Linker')
         self.add_attribute('build_arguments', '', 'Targets to make before install')
-        self.add_attribute('make_arguments', '', 'Command-line arguments to pass to make')
         self.add_attribute('configure_arguments', '', 'Command-line arguments to pass to make')
+        self.add_attribute('install_arguments', '', 'Command-line arguments to pass to make install')
         
     @classmethod
     def name(cls):
         return 'make'
-    def _variables(self):
-        variables = []
-#        for a, b in [['LDFLAGS']]:
-#            if self.attribute(a).value != '':
-#                variables.append('-DCMAKE_%s=%s' % (b, self.attribute(a).value))
-        return variables
-
+    
     def build(self, env, jobs):
         if self.attribute('patch').value != '':
             self.threatPatch(env)
-
+    
         # if the object directory does not exist, it should create it, to
         # avoid build error, since the make does not create the directory
         # it also makes it orthogonal to waf, that creates the target object dir
@@ -391,23 +403,15 @@ class Make(ModuleBuild):
         # Configures make, if there is a configuration argument that was passed as parameter
         options = []      
         if self.attribute('configure_arguments').value != '':
-            options = self.attribute('configure_arguments').value.split(' ')
-            env.run(['make']+options,  directory=env.srcdir)
+            options = bake.Utils.splitArgs(self.attribute('configure_arguments').value)
+            env.run(['make'] + self._flags() + options,  directory=env.srcdir)
         
-        options = []      
-        if self.attribute('make_arguments').value != '':
-            options = self.attribute('make_arguments').value.split(' ')
-        
-        if not options: 
-            env.run(['make', '-j', str(jobs)], directory=env.srcdir)
-        else:
-            env.run(['make', '-j', str(jobs)]+ options, directory=env.srcdir)
+        options = bake.Utils.splitArgs(self.attribute('build_arguments').value)
+        env.run(['make', '-j', str(jobs)] + self._flags() + options, directory=env.srcdir)
            
-        if self.attribute('build_arguments').value != '':
-            env.run(['make'] + self.attribute('build_arguments').value.split(' '),
-                    directory=env.srcdir)
         try:
-            env.run(['make', 'install'], directory=env.srcdir)
+            options = bake.Utils.splitArgs(self.attribute('install_arguments').value)
+            env.run(['make', 'install']  + self._flags() + options, directory=env.srcdir)
         except TaskError as e:
             raise TaskError('Could not install, probably you have no permission to install  %s: Try to run bake with sudo. Original message: %s' % (env._module_name, e._reason))
 
@@ -452,7 +456,8 @@ class Autotools(ModuleBuild):
                     directory=env.srcdir)
         options = []
         if self.attribute('configure_arguments').value != '':
-            command= (env.replace_variables(self.attribute('configure_arguments').value) + ' --prefix=' + env.installdir).split(' ')
+            command= (env.replace_variables(self.attribute('configure_arguments').value) + ' --prefix=' + env.objdir)
+            command= bake.Utils.splitArgs(command)
             env.run(command, directory=env.objdir)
             
         env.run(['make', '-j', str(jobs)], directory=env.objdir)
