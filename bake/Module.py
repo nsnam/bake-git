@@ -168,13 +168,13 @@ class Module:
             print(" >> Building " + self._name )
             if self._build.attribute('pre_installation').value != '':
                 self._build.perform_pre_installation(env)
-            self._build.threatParamVariables(env)
+            self._build.threatVariables(env)
             self._build.build(env, jobs)
             self._installed = monitor.end()
-            env.end_build()
-            self._built_once = True
             if self._build.attribute('post_installation').value != '':
                 self._build.perform_post_installation(env)
+            env.end_build()
+            self._built_once = True
             print(" >> Built " + self._name + " - OK ")
             return True
         except TaskError as e:

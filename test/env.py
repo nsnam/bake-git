@@ -4,7 +4,7 @@ import sys
 import os
 
 from bake.ModuleEnvironment import ModuleEnvironment
-
+from bake.ModuleLogger import StdoutModuleLogger
 
 sys.path.append(os.path.join (os.getcwd(), '..'))
 
@@ -14,7 +14,8 @@ class TestModuleEnvironment(unittest.TestCase):
     def setUp(self):
         """Common set Up environment, available for all tests."""
         pathname = os.path.dirname(sys.argv[0])  
-        self._env = ModuleEnvironment(None, pathname, pathname, pathname)
+        logger = StdoutModuleLogger()
+        self._env = ModuleEnvironment(logger, pathname, pathname, pathname)
         
     def tearDown(self):
         """Cleans the environment environment for the next tests."""
@@ -24,7 +25,7 @@ class TestModuleEnvironment(unittest.TestCase):
     # TODO: see if the tests work in other OS environments, I would guess not
     # to be honest I am not even sure bake would work on other OS either
     # TODO:2 Test the search on the current dir/bin 
-    def test_program_location(self):
+    def Dtest_program_location(self):
         """Tests the _program_location method of Class ModuleEnvironment. """
         
         # searches for link, on unix systems, normally java would be a soft link
@@ -61,11 +62,25 @@ class TestModuleEnvironment(unittest.TestCase):
         testResult = self._env._program_location(knownPlacement);
         self.assertEqual(testResult, None)
 
+    def test_newVariables(self):
+        """Tests setting of variables. """
+        self._env.start_source("Test", ".")
+        self._env.add_libpaths(['v1'])
+        self._env.add_binpaths(['v2'])
+        self._env.add_pkgpaths(['v3'])
+        self._env.add_variables(['v4=test'])
+        string =  self._env.create_environement_file("test.txt")
+        self.assertTrue("v1" in string)
+        self.assertTrue("v2" in string)
+        self.assertTrue("v3" in string)
+        self.assertTrue("v4" in string)
+
+
     # def check_program(self, program, version_arg = None,
     #                   version_regexp = None, version_required = None,
     #                   match_type=HIGHER):
     # TODO: Test the version parameters of the executable
-    def test_check_program(self):
+    def Dtest_check_program(self):
         """Tests the _check_program method of Class ModuleEnvironment. """
         
         # specific existent program

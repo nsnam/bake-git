@@ -580,14 +580,14 @@ class TestBuild (unittest.TestCase):
 
         
         waf.attribute("v_PATH").value = "test_Path_added_value"
-        waf.threatParamVariables(self._env)
+        waf.threatVariables(self._env)
         self.assertTrue(len(self._env._libpaths) == 1)
         self.assertTrue(len(self._env._binpaths) == 1)
         self.assertTrue(self._env._libpaths.__contains__("test_Path_added_value"))
         self.assertTrue(self._env._binpaths.__contains__("test_Path_added_value"))
  
         waf.attribute("v_PATH").value = "secondTest;thirdValue"
-        waf.threatParamVariables(self._env)
+        waf.threatVariables(self._env)
         self.assertTrue(len(self._env._libpaths) == 3)
         self.assertTrue(len(self._env._binpaths) == 3)
         self.assertTrue(self._env._libpaths.__contains__("test_Path_added_value"))
@@ -599,13 +599,13 @@ class TestBuild (unittest.TestCase):
         
         waf.attribute("v_PATH").value = ""
         waf.attribute("v_LD_LIBRARY").value = "test_ld_Path_added_value"
-        waf.threatParamVariables(self._env)
+        waf.threatVariables(self._env)
         self.assertTrue(len(self._env._libpaths) == 4)
         self.assertTrue(len(self._env._binpaths) == 3)
         self.assertTrue(self._env._libpaths.__contains__("test_ld_Path_added_value"))
  
         waf.attribute("v_LD_LIBRARY").value = "secondTestLD;thirdValueLD"
-        waf.threatParamVariables(self._env)
+        waf.threatVariables(self._env)
         self.assertTrue(len(self._env._libpaths) == 6)
         self.assertTrue(len(self._env._binpaths) == 3)
         self.assertTrue(self._env._libpaths.__contains__("test_Path_added_value"))
@@ -617,7 +617,7 @@ class TestBuild (unittest.TestCase):
         
         # try to add repeated values
         waf.attribute("v_LD_LIBRARY").value = "secondTestLD;thirdValueLD"
-        waf.threatParamVariables(self._env)
+        waf.threatVariables(self._env)
         self.assertTrue(len(self._env._libpaths) == 6)
         self.assertTrue(len(self._env._binpaths) == 3)
 
@@ -626,14 +626,14 @@ class TestBuild (unittest.TestCase):
         
         self.assertTrue(len(self._env._pkgpaths) == 0)
         waf.attribute("v_PKG_CONFIG").value = "test_pkg_added_value"
-        waf.threatParamVariables(self._env)
+        waf.threatVariables(self._env)
         self.assertTrue(len(self._env._pkgpaths) == 1)
         self.assertTrue(len(self._env._binpaths) == 3)
         self.assertTrue(len(self._env._libpaths) == 6)
         self.assertTrue(self._env._pkgpaths.__contains__("test_pkg_added_value"))
  
         waf.attribute("v_PKG_CONFIG").value = "secondTestPkg;thirdValuePkg"
-        waf.threatParamVariables(self._env)
+        waf.threatVariables(self._env)
         self.assertTrue(len(self._env._pkgpaths) == 3)
         self.assertTrue(len(self._env._libpaths) == 6)
         self.assertTrue(len(self._env._binpaths) == 3)
@@ -643,7 +643,7 @@ class TestBuild (unittest.TestCase):
 
         # try to add repeated values
         waf.attribute("v_PKG_CONFIG").value = "secondTestPkg;thirdValuePkg"
-        waf.threatParamVariables(self._env)
+        waf.threatVariables(self._env)
         self.assertTrue(len(self._env._pkgpaths) == 3)
         self.assertTrue(len(self._env._libpaths) == 6)
         self.assertTrue(len(self._env._binpaths) == 3)

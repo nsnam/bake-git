@@ -381,6 +381,12 @@ class Bake:
         parser.add_option("--after", action="store", type="string",
                           dest="after", default="", 
                           help="Process all modules enabled starting after the module specified.")
+        parser.add_option("-i", "--environment_file_identification", action="store", type="string",
+                          dest="environment_file_identification", default="bakeSetEnv.sh",
+                          help="Name of the environment setting file")
+        parser.add_option("-x", "--no_environment_file", action='store_true', dest='no_environment_file', default=False,
+                          help='Do not create the environment file for this run')
+        
         return parser
 
     def _do_operation(self, config, options, functor, directory=None):
@@ -515,7 +521,10 @@ class Bake:
             if retval:
                 module.update_libpath(env)
             return retval
-        self._do_operation(config, options, _do_build)
+        env = self._do_operation(config, options, _do_build)
+        
+        if not options.no_environment_file:
+            env.create_environement_file(options.environment_file_identification)
 
     def _clean(self, config, args):
         parser = self._option_parser('clean')

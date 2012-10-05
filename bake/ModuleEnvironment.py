@@ -20,6 +20,7 @@ class ModuleEnvironment:
         self._libpaths = Set([])
         self._binpaths = Set([])
         self._pkgpaths =  Set([])
+        self._variables =  Set([])
         self._debug = debug
 
     def _module_directory(self):
@@ -180,6 +181,38 @@ class ModuleEnvironment:
     def add_pkgpaths(self, libpaths):
         for element in libpaths :
             self._pkgpaths.add(self.replace_variables(element))
+
+    def add_variables(self, libpaths):
+        for element in libpaths :
+            self._variables.add(self.replace_variables(element))
+            
+    def create_environement_file(self, fileName):
+        
+        script = "#!\bin\bash \n # Environment setting script gennerated by Bake\n"
+        
+        if len(self._libpaths) > 0:
+            script = script+self.add_onPath("LD_LIBRARY_PATH", self._libpaths) + "\n"
+        if len(self._binpaths) > 0:
+            script = script+self.add_onPath("PATH", self._binpaths) + "\n"
+        if len(self._pkgpaths) > 0:
+           script = script+self.add_onPath("PKG_CONFIG_PATH", self._pkgpaths) + "\n"
+        
+        for element in self._variables:
+            script = script + element  + "\n"
+        
+        fout = open(fileName, "w")
+        fout.write(script)
+        fout.close()
+        
+        return script
+        
+    def add_onPath (self, variableName, vectorPath):
+        returnString = variableName + "=$" + variableName
+        for element in vectorPath:
+            returnString = returnString + ":" + element
+            
+        return returnString
+
 
     def replace_variables(self, string):
         import re

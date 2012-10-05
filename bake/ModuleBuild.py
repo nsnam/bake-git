@@ -22,6 +22,7 @@ class ModuleBuild(ModuleAttributeBase):
         self.add_attribute('pre_installation', '', 'UNIX Command to run before the installation')
         self.add_attribute('supported_os', '', 'List of supported Operating Systems for the module', mandatory=False)
         self.add_attribute('ignore_predefined_flags', 'False', 'True if the build should ignore the predefined flag settings')
+        self.add_attribute('new_variable', '', 'Appends the value to the system variable on the format VARIABLE1=value1;VARIABLE2=value2')
 #        self.add_attribute('condition_to_build', '', 'Condition that, if existent, should be true for allowing the instalation')
 
     @classmethod
@@ -65,7 +66,7 @@ class ModuleBuild(ModuleAttributeBase):
     
     def perform_pre_installation(self, env):
         if self.attribute('pre_installation').value != '':
-            commandList = self.attribute('pre_installation').value.split(' or ')
+            commandList = env.replace_variables(self.attribute('pre_installation').value).split(' or ')
                         
             for comandToExecute in commandList :
                 try:
@@ -113,21 +114,26 @@ class ModuleBuild(ModuleAttributeBase):
                     raise TaskError('Patch error %s: %s, in: %s' % (status[0], item, env._module_name))
 
     # Threats the parameter variables
-    def threatParamVariables(self, env):
+    def threatVariables(self, env):
 
         elements = []
         if self.attribute('v_PATH').value != '':
-            elements = self.attribute('v_PATH').value.split(";")
+            elements = env.replace_variables(self.attribute('v_PATH')).value.split(";")
             env.add_libpaths(elements)
             env.add_binpaths(elements)
             
         if self.attribute('v_LD_LIBRARY').value != '':
-            elements = self.attribute('v_LD_LIBRARY').value.split(";")
+            elements = env.replace_variables(self.attribute('v_LD_LIBRARY')).value.split(";")
             env.add_libpaths(elements)
 
         if self.attribute('v_PKG_CONFIG').value != '':
-            elements = self.attribute('v_PKG_CONFIG').value.split(";")
+            elements = env.replace_variables(self.attribute('v_PKG_CONFIG').value).split(";")
             env.add_pkgpaths(elements)
+
+        if self.attribute('new_variable').value != '':
+            elements = env.replace_variables(self.attribute('new_variable').value).split(";")
+            env.add_variables(elements)
+
 
     def _flags(self):
         variables = []
@@ -253,7 +259,7 @@ class WafModuleBuild(ModuleBuild):
         extra_configure_options = []
         if self.attribute('configure_arguments').value != '':
             extra_configure_options = [env.replace_variables(tmp) for tmp in
-                                       bake.Utils.splitArgs(self.attribute('configure_arguments').value)]
+                                       bake.Utils.splitArgs(env.replace_variables(self.attribute('configure_arguments').value))]
             if self._is_1_6_x(env):
                 env.run([self._binary(env.srcdir)] + extra_configure_options,
                         directory=env.srcdir,
@@ -266,7 +272,7 @@ class WafModuleBuild(ModuleBuild):
         extra_build_options = []
         if self.attribute('build_arguments').value != '':
             extra_build_options = [env.replace_variables(tmp) for tmp in
-                                   bake.Utils.splitArgs(self.attribute('build_arguments').value)]
+                                   bake.Utils.splitArgs(env.replace_variables(self.attribute('build_arguments').value))]
         env.run([self._binary(env.srcdir)] + extra_build_options + ['-j', str(jobs)],
                 directory=env.srcdir,
                 env=self._env(env.objdir))
@@ -326,7 +332,7 @@ class Cmake(ModuleBuild):
 
         options = []
         if self.attribute('cmake_arguments').value != '':
-            options = bake.Utils.splitArgs(self.attribute('cmake_arguments').value)
+            options = bake.Utils.splitArgs(env.replace_variables(self.attribute('cmake_arguments').value))
         
         # if the object directory does not exist, it should create it, to
         # avoid build error, since the cmake does not create the directory
@@ -345,7 +351,7 @@ class Cmake(ModuleBuild):
                 directory=env.objdir)
         env.run(['make', '-j', str(jobs)], directory=env.objdir)
         if self.attribute('build_arguments').value != '':
-            env.run(['make'] + bake.Utils.splitArgs(self.attribute('build_arguments').value),
+            env.run(['make'] + bake.Utils.splitArgs(env.replace_variables(self.attribute('build_arguments').value)),
                     directory=env.objdir)
         try:
             env.run(['make', 'install'], directory=env.objdir)
@@ -403,14 +409,14 @@ class Make(ModuleBuild):
         # Configures make, if there is a configuration argument that was passed as parameter
         options = []      
         if self.attribute('configure_arguments').value != '':
-            options = bake.Utils.splitArgs(self.attribute('configure_arguments').value)
+            options = bake.Utils.splitArgs(env.replace_variables(self.attribute('configure_arguments').value))
             env.run(['make'] + self._flags() + options,  directory=env.srcdir)
         
-        options = bake.Utils.splitArgs(self.attribute('build_arguments').value)
+        options = bake.Utils.splitArgs(env.replace_variables(self.attribute('build_arguments').value))
         env.run(['make', '-j', str(jobs)] + self._flags() + options, directory=env.srcdir)
            
         try:
-            options = bake.Utils.splitArgs(self.attribute('install_arguments').value)
+            options = bake.Utils.splitArgs(env.replace_variables(self.attribute('install_arguments').value))
             env.run(['make', 'install']  + self._flags() + options, directory=env.srcdir)
         except TaskError as e:
             raise TaskError('Could not install, probably you have no permission to install  %s: Try to run bake with sudo. Original message: %s' % (env._module_name, e._reason))
@@ -456,7 +462,8 @@ class Autotools(ModuleBuild):
                     directory=env.srcdir)
         options = []
         if self.attribute('configure_arguments').value != '':
-            command= (env.replace_variables(self.attribute('configure_arguments').value) + ' --prefix=' + env.objdir)
+            command= (env.replace_variables(env.replace_variables(self.attribute('configure_arguments').value))
+                       + ' --prefix=' + env.objdir)
             command= bake.Utils.splitArgs(command)
             env.run(command, directory=env.objdir)
             
