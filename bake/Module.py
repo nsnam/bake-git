@@ -242,6 +242,7 @@ class Module:
             
         env.start_build(self._name, srcDirTmp,
                         self._build.supports_objdir)
+        env.add_libpaths([env._lib_path()])
         env.end_build()
 
     def clean(self, env):

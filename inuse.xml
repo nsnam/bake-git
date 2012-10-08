@@ -198,7 +198,7 @@
       <depends_on name="qt4" optional="False"/>
     </module>
 
-  <module name="ns-3">
+  <module name="ns-3-dev">
       <source type="mercurial">
 	<attribute name="url" value="http://code.nsnam.org/ns-3-dev"/>
       </source>
