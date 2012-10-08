@@ -197,7 +197,7 @@
       <depends_on name="qt4" optional="False"/>
     </module>
 
-  <module name="ns-3-dev">
+  <module name="ns-3">
       <source type="mercurial">
 	<attribute name="url" value="http://code.nsnam.org/ns-3-dev"/>
       </source>
@@ -207,7 +207,7 @@
       <depends_on name="click" optional="True"/>
       <depends_on name="openflow-ns3" optional="True"/>
       <build type="waf" objdir="yes">
-	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests --with-nsclick=$SRCDIR/click --with-pybindgen=$SRCDIR/pybindgen --with-openflow=$SRCDIR/openflow-ns3 --with-nsc=$SRCDIR/nsc"/>
+	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests --with-nsclick=$INSTALLDIR --with-pybindgen=$SRCDIR/pybindgen --with-openflow=$SRCDIR/openflow-ns3 --with-nsc=$SRCDIR/nsc"/>
       </build>
   </module>
 
@@ -223,11 +223,4 @@
     <append name="CFLAGS" value="-O3"/>
     <append name="CXXFLAGS" value="-O3"/>
   </predefined>
-  
-  <predefined name="ns3">
-    <enable name="ns-3-dev"/>
-    <!--    <configuration installdir="." sourcedir="../source"/> -->
-    <append module="ns-3-dev" name="configure_arguments" value="--enable-examples --enable-tests"/>
-  </predefined>
-
 </configuration>
