@@ -1,15 +1,19 @@
-# The purpose of this class is to capture a set of dependencies
-# between a set of objects. The idea is that you have a set of 'targets'
-# which depend on a set of sources. Each target can be the source of another
-# target. There might be cycles but it's a bug and we need to detect it.
-#
-# Once we have all dependencies, we need to 'resolve' them. This means
-# that we need to iterate over all targets and invoke a user-provided
-# callback on each target. The tricky thing here is that the user-provided
-# callback is allowed to recursively add new arbitrary dependencies, even
-# to targets which have already been 'resolved' so, we need to be careful
-# to re-resolve the targets to which dependencies have been recursively 
-# added.
+''' 
+ Dependencies.py
+
+ The purpose of this class is to capture a set of dependencies
+ between a set of objects. The idea is that you have a set of 'targets'
+ which depend on a set of sources. Each target can be the source of another
+ target. There might be cycles but it's a bug and we need to detect it.
+
+ Once we have all dependencies, we need to 'resolve' them. This means
+ that we need to iterate over all targets and invoke a user-provided
+ callback on each target. The tricky thing here is that the user-provided
+ callback is allowed to recursively add new arbitrary dependencies, even
+ to targets which have already been 'resolved' so, we need to be careful
+ to re-resolve the targets to which dependencies have been recursively 
+ added.
+''' 
 
 import copy
 
@@ -24,6 +28,8 @@ class DependencyUnmet:
         return self._failed
 
 class Target:
+    """ Target modules meta information."""
+        
     def __init__(self, dst, context):
         self._dst = dst
         self._src = []
@@ -50,7 +56,7 @@ class Target:
     def context(self):
         return self._context
 
-class Dependencies33:
+class Dependencies:
     def __init__(self): 
         # a dictionnary that maps a string (key) to the only instance
         # of the class Target that has this string as its target.
@@ -67,7 +73,7 @@ class Dependencies33:
         self._dirty = False
         
     def add_dst(self, dst, context = None):
-        """Add the dependence"""
+        """ Add the dependence"""
         
         # if the module passed as parameter, dst, is in fact a list of modules
         if isinstance(dst,list):
@@ -82,7 +88,7 @@ class Dependencies33:
         self._update_dirty(target)
 
     def add_dep(self, src, dst, optional = False):
-        """Registers a dependency regarding one module to another."""
+        """ Registers a dependency regarding one module to another."""
         
         # if the dependence is in fact for a list of dependencies
         if isinstance(src,list):
@@ -105,6 +111,8 @@ class Dependencies33:
         self._update_dirty(target)
 
     def dump(self,f,dot=True):
+        """ Debugging purpose function to visualize the targets."""
+        
         f.write('digraph {\n')
         for target in self._targets.values():
             for src in target.src ():
@@ -112,16 +120,22 @@ class Dependencies33:
         f.write('}')
 
     def resolve(self, targets, callback = None, n=1):
+        """ Resolve dependencies wrapper function."""
+        
         # raise exceptions to signal errors:
+        # todo:
         #  CycleDetected ()
         #  DependencyUnmet ()
+        
         if isinstance(targets,str):
             targets = [targets]
+            
         self._resolving = True
         if n == 1:
             self._resolve_serial(targets, callback)
         else:
             self._resolve_parallel(targets, callback, n)
+            
         self._resolving = False
 
     def _update_dirty(self,target):
@@ -136,6 +150,8 @@ class Dependencies33:
     # return list of targets which depend on the input
     # target, including the input target itself.
     def _depend_on(self,targets):
+        """ Finds the list of modules that depends on the target module."""
+        
         workqueue = copy.copy(targets)
         deps = []
         while len(workqueue) > 0:
@@ -149,8 +165,11 @@ class Dependencies33:
     # return list of targets which need to be resolved
     # to resolve the input targets
     def _dependencies_of(self,targets):
+        """ Finds the list of dependencies of the target module."""
+        
         # XXX: should detect cycles here.
         workqueue = [self._targets[target] for target in targets if self._targets.has_key(target)]
+        
         deps = []
         while len(workqueue) > 0:
             i = workqueue.pop()
@@ -162,6 +181,8 @@ class Dependencies33:
         return deps
 
     def _is_leaf(self, target):
+        """ Verifies if the target is independent of any module."""
+        
         assert self._targets.has_key(target.dst())
         # a 'leaf' is a target which either has
         # no source or whose sources are not
@@ -174,17 +195,22 @@ class Dependencies33:
     # return sorted list of targets such that the first
     # items must be 'resolved' first.
     def _sort(self,targets):
+        """ Organize the modules putting on the head the resolved ones."""
+        
         # to calculate this, we first collect the set of targets to
         # 'resolve'. i.e., the targets that 'targets' depends upon.
         to_resolve = self._dependencies_of(targets)
+        
         # then, we collect the set of targets that are the leaves
         # of the dependency graph to initialize our workqueue
         leaves = [i for i in to_resolve if self._is_leaf(i)]
         workqueue = leaves
         prio = dict()
+        
         # let's initialize the piority of every item to zero.
         for work in to_resolve:
             prio[work] = 0
+            
         # and, now, we update the priority so that the
         # deepest targets of the dependency tree have the highest
         # priority.
@@ -206,6 +232,7 @@ class Dependencies33:
                 prio_inverted[prio[target]].append(target)
             else:
                 prio_inverted[prio[target]] = [target]
+                
         # generate a sorted list of targets, lowest-priority first
         sorted_targets = []
         for key in sorted(prio_inverted.keys()):
@@ -217,17 +244,23 @@ class Dependencies33:
         return cmp(a.dst(), b.dst());
 
     def _is_clean(self,targets):
+        """ Returns true if the target is clean, resolved, and False if it 
+        is dirty, i.e. not all the dependencies resolved yet.
+        """
+
         for target in targets:
             if self._targets.has_key (target):
                 if self._targets[target].is_dirty():
                     return False
         return True
 
-    # 'resolve' all targets which the input targets depend upon
-    # in the right order. If resolving one of these targets
-    # creates new targets, the function is interrupted and returns
-    # False. Otherwise, the function completes and returns True.
     def _resolve_one_iteration(self, targets, callback):
+        """ 'resolve' all targets which the input targets depend upon
+        in the right order. If resolving one of these targets
+        creates new targets, the function is interrupted and returns
+        False. Otherwise, the function completes and returns True.
+        """
+        
         self._dirty = False
         
         # sort in a way that the nodes that have no dependencies are first
@@ -254,10 +287,14 @@ class Dependencies33:
         return True
 
     def _resolve_serial(self, targets, callback):
+        """ Resolves the dependencies in serial mode."""
+        
         finished = self._resolve_one_iteration(targets, callback)
         while not finished:
             finished = self._resolve_one_iteration(targets, callback)
 
     def _resolve_parallel(self, targets, callback, n):
-        # XXX: implement parallel version
+        """ Resolves the dependencies in parallel mode. Not yet functional."""
+        
+        # todo: implement parallel version
         self._resolve_serial(targets, callback)

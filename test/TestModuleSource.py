@@ -24,23 +24,24 @@ class TestModuleSource(unittest.TestCase):
         """Cleans the environment environment for the next tests."""
         self._env = None 
 
-    def executeCommand(self, command, dir):
+    def execute_command(self, command, dir):
         """Executes the given command, catching the exceptions."""
         
         try:
             self._env.run(command, dir)
         except Exception as inst:
             print (inst)     # the exception instance
-            self.fail("Could not execute command %s over directory %s failed" % (command, dir))
+            self.fail("Could not execute command %s over directory %s failed" % 
+                      (command, dir))
 
-    def test_generalFailures(self):
+    def test_general_failures(self):
         """Tests Some general failures that could happen in the Module Source. """
         
         #Verifies the return of the creation of a non existent module
         module = ModuleSource.create("NonExistentModule")
         self.assertEqual(module, None)
 
-    def test_archiveModuleSource(self):
+    def test_archive_module_source(self):
         """Tests the ArchiveModuleSource class. """
         
         # it first needs to be able to create the class otherwise will not be
@@ -59,7 +60,8 @@ class TestModuleSource(unittest.TestCase):
         # Unknown file type
         archive.attribute("url").value = "http://JustATest.com/File.unknownFileType"
         testResult = archive.check_version(self._env)
-        self.assertFalse(testResult, "There is no tool to handle the target extension, the result should be false")    
+        self.assertFalse(testResult, 
+                         "There is no tool to handle the target extension, the result should be false")    
         # zip
         archive.attribute("url").value = "http://JustATest.com/File.zip"
         testResult = archive.check_version(self._env)
@@ -91,8 +93,8 @@ class TestModuleSource(unittest.TestCase):
         self._logger.set_current_module(self._env._module_name)
         
         #clean up the environment, just to be safe
-        self.executeCommand(["/bin/rm", "-rf", "click-1.8.0.tar.gz"], "/tmp")
-        self.executeCommand(["/bin/rm", "-rf", "click-1.8.0"], "/tmp")
+        self.execute_command(["/bin/rm", "-rf", "click-1.8.0.tar.gz"], "/tmp")
+        self.execute_command(["/bin/rm", "-rf", "click-1.8.0"], "/tmp")
         testResult = archive.download(self._env)
         
         # if something goes wrong it should rise an exception so, None means 
@@ -107,8 +109,8 @@ class TestModuleSource(unittest.TestCase):
         self.assertEqual("/tmp/click-1.8.0", testStatus)
       
         #after the test, clean the environment
-        self.executeCommand(["/bin/rm", "-rf", "click-1.8.0.tar.gz"], "/tmp")
-        self.executeCommand(["/bin/rm", "-rf", "click-1.8.0"], "/tmp")
+        self.execute_command(["/bin/rm", "-rf", "click-1.8.0.tar.gz"], "/tmp")
+        self.execute_command(["/bin/rm", "-rf", "click-1.8.0"], "/tmp")
 
         # Searches for a valid file into an inexistent repository
         archive.attribute("url").value = "http://non.existent.host.com/click-1.8.0.tar.gz"
@@ -131,7 +133,8 @@ class TestModuleSource(unittest.TestCase):
             self.assertNotEqual(e._reason, None)    
             self.assertEqual(testResult, None)
 
-        testStatus = commands.getoutput('chmod 755 /tmp/click-1.8.0; rm -f /tmp/click-1.8.0')
+        testStatus = commands.getoutput("chmod 755 /tmp/click-1.8.0; rm -f "
+                                        "/tmp/click-1.8.0")
 
         # try to download to a non existent directory        
         testStatus = commands.getoutput('rm -rf /tmp/testDir')
@@ -139,7 +142,8 @@ class TestModuleSource(unittest.TestCase):
         testResult = None
         try:
             testResult = archive.download(self._env)
-            self.fail("There was no problem, target directory does not exist and it managed to finish the operation. ")
+            self.fail("There was no problem, target directory does not exist "
+                      "and it managed to finish the operation. ")
         except TaskError as e:
             self.assertNotEqual(e._reason, None)    
             self.assertEqual(testResult, None)
@@ -148,7 +152,8 @@ class TestModuleSource(unittest.TestCase):
         testResult = None
         try:
             testResult = archive.download(self._env)
-            self.fail("There was no problem, user has no permission on the target directory and it managed to finish the operation. ")
+            self.fail("There was no problem, user has no permission on the "
+                      "target directory and it managed to finish the operation.")
         except TaskError as e:
             self.assertNotEqual(e._reason, None)    
             self.assertEqual(testResult, None)
@@ -160,7 +165,8 @@ class TestModuleSource(unittest.TestCase):
         testResult = None
         try:
             testResult = archive.download(self._env)
-            self.fail("There was no problem, the user didn't add the protocol for the url. ")
+            self.fail("There was no problem, the user didn't add the protocol"
+                      " for the url. ")
         except TaskError as e:
             self.assertNotEqual(e._reason, None)    
             self.assertEqual(testResult, None)
@@ -206,6 +212,7 @@ class TestModuleSource(unittest.TestCase):
         installer.attribute("dependency_test").value = "NonExistentSoftForTest"
         installer.attribute('more_information').value = "Message test for inexistent module"
         installer.attribute("try_to_install").value=True
+        installer.attribute("sudoer_install").value=True
         testResult = None
         try :
             testResult = installer.download(self._env)
@@ -219,7 +226,8 @@ class TestModuleSource(unittest.TestCase):
         tmpMsg = installer.dependencyMessage;
         
         installer.attribute("dependency_test").value = "gcc"
-        installer.attribute('more_information').value = "You miss gcc download it from your linux distribution website"
+        installer.attribute('more_information').value = "You miss gcc download"
+        " it from your linux distribution website"
         testResult = None
         try :
             testResult = installer.download(self._env)
@@ -234,7 +242,10 @@ class TestModuleSource(unittest.TestCase):
       
         #try to install a non existent module
         installer.attribute("dependency_test").value = "erlang"
-        installer.attribute('more_information').value = "You miss erlang, download it from your linux distribution website"
+        installer.attribute('more_information').value = "You miss erlang, "
+        "download it from your linux distribution website"
+        installer.attribute('sudoer_install').value = True
+        
         testResult = None
         try :
             testResult = installer.download(self._env)
@@ -243,7 +254,8 @@ class TestModuleSource(unittest.TestCase):
             self.assertEqual(testResult, None)
             print(e._reason)
 
-        self.assertTrue(testResult)
+        self.assertTrue(testResult, "You need to call this test as sudoer"
+                        " otherwise it will not work properly!")
         self.assertEqual(tmpMsg, installer.dependencyMessage)
   
         # remove the just installed module      
@@ -293,34 +305,42 @@ class TestModuleSource(unittest.TestCase):
         installer = ModuleSource.create("system_dependency")
         self.assertNotEqual(installer, None)
         
-        testResult = installer.checkDependencyExpression(self._env,"")
+        testResult = installer._check_dependency_expression(self._env,"")
         self.assertTrue(testResult)    
 
-        testResult = installer.checkDependencyExpression(self._env,"ls")
+        testResult = installer._check_dependency_expression(self._env,"ls")
         self.assertTrue(testResult)    
 
-        testResult = installer.checkDependencyExpression(self._env,"(ls and bash)")
+        testResult = installer._check_dependency_expression(self._env,
+                                                            "(ls and bash)")
         self.assertTrue(testResult)    
        
-        testResult = installer.checkDependencyExpression(self._env,"(ls or us9245l25k)")
+        testResult = installer._check_dependency_expression(self._env,
+                                                            "(ls or us9245l25k)")
         self.assertTrue(testResult)    
         
-        testResult = installer.checkDependencyExpression(self._env,"(ls and not us9245l25k)")
+        testResult = installer._check_dependency_expression(self._env,
+                                                            "(ls and not us9245l25k)")
         self.assertTrue(testResult)    
 
-        testResult = installer.checkDependencyExpression(self._env,"(ls and us9245l25k)")
+        testResult = installer._check_dependency_expression(self._env,
+                                                            "(ls and us9245l25k)")
         self.assertFalse(testResult)    
 
-        testResult = installer.checkDependencyExpression(self._env,"(ls and bash) and rm")
+        testResult = installer._check_dependency_expression(self._env,
+                                                            "(ls and bash) and rm")
         self.assertTrue(testResult)    
 
-        testResult = installer.checkDependencyExpression(self._env,"(ls and bash) and us9245l25k")
+        testResult = installer._check_dependency_expression(self._env,
+                                                            "(ls and bash) and us9245l25k")
         self.assertFalse(testResult)    
 
-        testResult = installer.checkDependencyExpression(self._env,"(ls and bash) or us9245l25k")
+        testResult = installer._check_dependency_expression(self._env,
+                                                            "(ls and bash) or us9245l25k")
         self.assertTrue(testResult)    
 
-        testResult = installer.checkDependencyExpression(self._env,"((ls and bash) or us9245l25k)")
+        testResult = installer._check_dependency_expression(self._env,
+                                                            "((ls and bash) or us9245l25k)")
         self.assertTrue(testResult)    
         
 
@@ -343,7 +363,7 @@ class TestModuleSource(unittest.TestCase):
         self._logger.set_current_module(self._env._module_name)
         
         #clean up the environment, just to be safe
-        self.executeCommand(["/bin/rm", "-rf", "bake"], "/tmp")
+        self.execute_command(["/bin/rm", "-rf", "bake"], "/tmp")
         testResult = mercurial.download(self._env)
         
         # if something goes wrong it should rise an exception so, None means 
@@ -351,7 +371,7 @@ class TestModuleSource(unittest.TestCase):
         self.assertEqual(testResult, None)
         
         #after the test, clean the environment
-        self.executeCommand(["rm", "-rf", "bake"], "/tmp")
+        self.execute_command(["rm", "-rf", "bake"], "/tmp")
        
         # download a specific version
         mercurial.attribute("revision").value = "63"
@@ -385,7 +405,7 @@ class TestModuleSource(unittest.TestCase):
         versionDownloaded = re.compile('\d+').search(testStatus).group()
         self.assertEqual(versionRepository, versionDownloaded)
         
-        self.executeCommand(["rm", "-rf", "bake"], "/tmp")
+        self.execute_command(["rm", "-rf", "bake"], "/tmp")
           
         # Not http should give you a TaskError exception
         mercurial.attribute("url").value = "code.nsnam.org/daniel/bake"
@@ -400,19 +420,20 @@ class TestModuleSource(unittest.TestCase):
             self.assertNotEqual(e._reason, None)    
             self.assertEqual(testResult, None)
 
-        self.executeCommand(["rm", "-rf", "bake"], "/tmp")
+        self.execute_command(["rm", "-rf", "bake"], "/tmp")
         testStatus = commands.getoutput('mkdir /tmp/bake;chmod 000 /tmp/bake')    
         mercurial.attribute("url").value = "http://code.nsnam.org/daniel/bake"
         testResult = None
         try:
             testResult = mercurial.download(self._env)
-            self.fail("There was no problem and the user has no permission over the directory. ")
+            self.fail("There was no problem and the user has no permission"
+                      " over the directory. ")
         except TaskError as e:
             self.assertNotEqual(e._reason, None)    
             self.assertEqual(testResult, None)
             
         testStatus = commands.getoutput('chmod 755 /tmp/bake')    
-        self.executeCommand(["rm", "-rf", "bake"], "/tmp")
+        self.execute_command(["rm", "-rf", "bake"], "/tmp")
         
         # try to download to a non existent directory
         # mercurial cretes the directory
@@ -426,7 +447,8 @@ class TestModuleSource(unittest.TestCase):
         testResult = None
         try:
             testResult = mercurial.download(self._env)
-            self.fail("There was no problem, user has no permission on the target directory and it managed to finish the operation. ")
+            self.fail("There was no problem, user has no permission on the"
+                      " target directory and it managed to finish the operation. ")
         except TaskError as e:
             self.assertNotEqual(e._reason, None)    
             self.assertEqual(testResult, None)
@@ -447,7 +469,7 @@ class TestModuleSource(unittest.TestCase):
             self.assertEqual(testResult, None)
   
         # last clean up
-        self.executeCommand(["rm", "-rf", "bake"], "/tmp")
+        self.execute_command(["rm", "-rf", "bake"], "/tmp")
 
     def test_bazaar(self):
         """Tests the BazaarModuleSource class. """
@@ -467,7 +489,7 @@ class TestModuleSource(unittest.TestCase):
         
         ##### Normal Flow test
         #clean up the environment, just to be safe
-        self.executeCommand(["/bin/rm", "-rf", "pybindgen"], "/tmp")
+        self.execute_command(["/bin/rm", "-rf", "pybindgen"], "/tmp")
         testResult = bazaar.download(self._env)
         
         # None means everything was OK, since there were no exceptions
@@ -477,7 +499,7 @@ class TestModuleSource(unittest.TestCase):
         lastVersion = re.compile('\d+').search(testStatus).group()
 
         #after the test, clean the environment
-        self.executeCommand(["rm", "-rf", "pybindgen"], "/tmp")
+        self.execute_command(["rm", "-rf", "pybindgen"], "/tmp")
        
         # download a specific version
         bazaar.attribute("revision").value = "794"
@@ -499,7 +521,7 @@ class TestModuleSource(unittest.TestCase):
         version = re.compile('\d+').search(testStatus).group()
         self.assertEqual(version, "795")
         
-        self.executeCommand(["rm", "-rf", "pybindgen"], "/tmp")
+        self.execute_command(["rm", "-rf", "pybindgen"], "/tmp")
           
         # Wrong repository
         bazaar.attribute("url").value = "http://code.nsnam.org/daniel/bake"
@@ -526,20 +548,21 @@ class TestModuleSource(unittest.TestCase):
             self.assertNotEqual(e._reason, None)    
             self.assertEqual(testResult, None)
             
-        self.executeCommand(["rm", "-rf", "pybindgen"], "/tmp")
+        self.execute_command(["rm", "-rf", "pybindgen"], "/tmp")
         
         testStatus = commands.getoutput('mkdir /tmp/pybindgen;chmod 000 /tmp/pybindgen')    
         bazaar.attribute("url").value = "https://launchpad.net/pybindgen"
         testResult = None
         try:
             testResult = bazaar.download(self._env)
-            self.fail("There was no problem and the user has no permission over the directory. ")
+            self.fail("There was no problem and the user has no permission"
+                      " over the directory. ")
         except TaskError as e:
             self.assertNotEqual(e._reason, None)    
             self.assertEqual(testResult, None)
             
         testStatus = commands.getoutput('chmod 755 /tmp/pybindgen')    
-        self.executeCommand(["rm", "-rf", "pybindgen"], "/tmp")
+        self.execute_command(["rm", "-rf", "pybindgen"], "/tmp")
         
         # try to download to a non existent directory        
         testStatus = commands.getoutput('rm -rf /tmp/testDir')
@@ -547,7 +570,8 @@ class TestModuleSource(unittest.TestCase):
         testResult = None
         try:
             testResult = bazaar.download(self._env)
-            self.fail("There was no problem, target directory does not exist and it managed to finish the operation. ")
+            self.fail("There was no problem, target directory does not exist"
+                      " and it managed to finish the operation. ")
         except TaskError as e:
             self.assertNotEqual(e._reason, None)    
             self.assertEqual(testResult, None)
@@ -557,7 +581,8 @@ class TestModuleSource(unittest.TestCase):
         testResult = None
         try:
             testResult = bazaar.download(self._env)
-            self.fail("There was no problem, user has no permission on the target directory and it managed to finish the operation. ")
+            self.fail("There was no problem, user has no permission on the"
+                      " target directory and it managed to finish the operation. ")
         except TaskError as e:
             self.assertNotEqual(e._reason, None)    
             self.assertEqual(testResult, None)
@@ -604,7 +629,7 @@ class TestModuleSource(unittest.TestCase):
             self.assertEqual(testResult, None)
   
         # last clean up
-        self.executeCommand(["rm", "-rf", "pybindgen"], "/tmp")
+        self.execute_command(["rm", "-rf", "pybindgen"], "/tmp")
 
     def test_cvs(self):
         """Tests the CvsModuleSourceclass. """
@@ -627,7 +652,7 @@ class TestModuleSource(unittest.TestCase):
 
         ##### Normal Flow test
         #clean up the environment, just to be safe
-        self.executeCommand(["/bin/rm", "-rf", "gccxml"], "/tmp")
+        self.execute_command(["/bin/rm", "-rf", "gccxml"], "/tmp")
         testResult = cvs.download(self._env)
 
         # None means everything was OK, since there were no exceptions
@@ -638,7 +663,7 @@ class TestModuleSource(unittest.TestCase):
         lastVersion = re.compile('\d+.\d+').search(testStatus).group().replace(".","")
 
         #after the test, clean the environment
-        self.executeCommand(["rm", "-rf", "gccxml"], "/tmp")
+        self.execute_command(["rm", "-rf", "gccxml"], "/tmp")
         
       
         # download a specific version
@@ -669,7 +694,7 @@ class TestModuleSource(unittest.TestCase):
         version3 = re.compile('\d+.\d+').search(testStatus).group().replace(".","")
         self.assertTrue(float(version2) < float(version3))
 
-        self.executeCommand(["rm", "-rf", "gccxml"], "/tmp")
+        self.execute_command(["rm", "-rf", "gccxml"], "/tmp")
           
         # Wrong repository
         cvs.attribute("root").value = ":pserver:anoncvs:@non.Existent.server.com:/cvsroot/GCC_XML"
@@ -684,7 +709,7 @@ class TestModuleSource(unittest.TestCase):
             self.assertNotEqual(e._reason, None)    
             self.assertEqual(testResult, None)
              
-        self.executeCommand(["rm", "-rf", "gccxml"], "/tmp")
+        self.execute_command(["rm", "-rf", "gccxml"], "/tmp")
 
         # try to download to a non existent directory        
         testStatus = commands.getoutput('rm -rf /tmp/testDir')
@@ -692,7 +717,8 @@ class TestModuleSource(unittest.TestCase):
         testResult = None
         try:
             testResult = cvs.download(self._env)
-            self.fail("There was no problem, target directory does not exist and it managed to finish the operation. ")
+            self.fail("There was no problem, target directory does not exist"
+                      " and it managed to finish the operation. ")
         except TaskError as e:
             self.assertNotEqual(e._reason, None)    
             self.assertEqual(testResult, None)
@@ -702,7 +728,8 @@ class TestModuleSource(unittest.TestCase):
         testResult = None
         try:
             testResult = cvs.download(self._env)
-            self.fail("There was no problem, user has no permission on the target directory and it managed to finish the operation. ")
+            self.fail("There was no problem, user has no permission on the"
+                      " target directory and it managed to finish the operation. ")
         except TaskError as e:
             self.assertNotEqual(e._reason, None)    
             self.assertEqual(testResult, None)
@@ -735,7 +762,7 @@ class TestModuleSource(unittest.TestCase):
             self.assertEqual(testResult, None)
 
         # last clean up
-        self.executeCommand(["rm", "-rf", "gccxml"], "/tmp")
+        self.execute_command(["rm", "-rf", "gccxml"], "/tmp")
         
     def test_git(self):
         """Tests the GitModuleSource. """
@@ -757,7 +784,7 @@ class TestModuleSource(unittest.TestCase):
         
         ##### Normal Flow test
         #clean up the environment, just to be safe
-        self.executeCommand(["/bin/rm", "-rf", "hello-world"], "/tmp")
+        self.execute_command(["/bin/rm", "-rf", "hello-world"], "/tmp")
         testResult = git.download(self._env)
 
         # None means everything was OK, since there were no exceptions
@@ -769,7 +796,7 @@ class TestModuleSource(unittest.TestCase):
         self.assertEqual(lastVersion, "78cfc43c2827b9e48e6586a3523ff845a6378889")
 
         #after the test, clean the environment
-        self.executeCommand(["rm", "-rf", "hello-world"], "/tmp")
+        self.execute_command(["rm", "-rf", "hello-world"], "/tmp")
       
         # download a specific version
         git.attribute("revision").value="3fa7c46d11b11d61f1cbadc6888be5d0eae21969"
@@ -781,7 +808,7 @@ class TestModuleSource(unittest.TestCase):
         version = re.compile(' +\w+').search(testStatus).group().replace(" ","")
         self.assertEqual(version, "3fa7c46d11b11d61f1cbadc6888be5d0eae21969")
          
-        self.executeCommand(["rm", "-rf", "gccxml"], "/tmp")
+        self.execute_command(["rm", "-rf", "gccxml"], "/tmp")
          
         #Wrong repository
         git.attribute("url").value = "git://inexistant.server.com/git/hello-world.git"
@@ -796,7 +823,7 @@ class TestModuleSource(unittest.TestCase):
             self.assertNotEqual(e._reason, None)    
             self.assertEqual(testResult, None)
              
-        self.executeCommand(["rm", "-rf", "gccxml"], "/tmp")
+        self.execute_command(["rm", "-rf", "gccxml"], "/tmp")
 
         # no protocol
         git.attribute("url").value = "github.com/git/hello-world.git"
@@ -811,7 +838,7 @@ class TestModuleSource(unittest.TestCase):
             self.assertEqual(testResult, None)
              
         git.attribute("url").value = "git://github.com/git/hello-world.git"
-        self.executeCommand(["rm", "-rf", "gccxml"], "/tmp")
+        self.execute_command(["rm", "-rf", "gccxml"], "/tmp")
 
         # try to download to a non existent directory        
         testStatus = commands.getoutput('rm -rf /tmp/testDir')
@@ -819,7 +846,8 @@ class TestModuleSource(unittest.TestCase):
         testResult = None
         try:
             testResult = git.download(self._env)
-            self.fail("There was no problem, target directory does not exist and it managed to finish the operation. ")
+            self.fail("There was no problem, target directory does not"
+                      " exist and it managed to finish the operation. ")
         except TaskError as e:
             self.assertNotEqual(e._reason, None)    
             self.assertEqual(testResult, None)
@@ -829,7 +857,8 @@ class TestModuleSource(unittest.TestCase):
         testResult = None
         try:
             testResult = git.download(self._env)
-            self.fail("There was no problem, user has no permission on the target directory and it managed to finish the operation. ")
+            self.fail("There was no problem, user has no permission on the"
+                      " target directory and it managed to finish the operation. ")
         except TaskError as e:
             self.assertNotEqual(e._reason, None)    
             self.assertEqual(testResult, None)

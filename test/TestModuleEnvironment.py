@@ -25,7 +25,7 @@ class TestModuleEnvironment(unittest.TestCase):
     # TODO: see if the tests work in other OS environments, I would guess not
     # to be honest I am not even sure bake would work on other OS either
     # TODO:2 Test the search on the current dir/bin 
-    def Dtest_program_location(self):
+    def test_program_location(self):
         """Tests the _program_location method of Class ModuleEnvironment. """
         
         # searches for link, on unix systems, normally java would be a soft link
@@ -80,7 +80,7 @@ class TestModuleEnvironment(unittest.TestCase):
     #                   version_regexp = None, version_required = None,
     #                   match_type=HIGHER):
     # TODO: Test the version parameters of the executable
-    def Dtest_check_program(self):
+    def test_check_program(self):
         """Tests the _check_program method of Class ModuleEnvironment. """
         
         # specific existent program

@@ -1,14 +1,26 @@
+''' 
+ Module.py
+
+ This file stores the generic implementation of the bake options. e.g. how 
+ the download works, independently of the technology/repository used to  
+ store the code.
+''' 
+
 import copy
 import os
 from bake.FilesystemMonitor import FilesystemMonitor
 from bake.Exceptions import TaskError
 
 class ModuleDependency:
+    """ Dependency information. """
+    
     def __init__(self, name, optional = False):
         self._name = name
         self._optional = optional
+        
     def name(self):
         return self._name
+    
     def is_optional(self):
         return self._optional
 
@@ -29,15 +41,20 @@ class Module:
 
     @property
     def installed(self):
+        """ Returns if the module was already installed or not. """
         return self._installed
     @installed.setter
     def installed(self, value):
+        """ Stores the given value on the module installed option. """
         self._installed = copy.copy(value)
 
     def _directory(self):
         return self._name
 
     def _do_download(self, env, source, name):
+        """ Recursive download function, do the download for each 
+        target module. """
+        
         srcDirTmp = name
         if source.attribute('module_directory').value :
             srcDirTmp = source.attribute('module_directory').value
@@ -55,11 +72,16 @@ class Module:
             self._do_download(env, child, os.path.join(name, child_name))
 
     def download(self, env):
+        """ General download function. """
+        
         if self._build.attribute('supported_os').value :
             if not self._build.check_os(self._build.attribute('supported_os').value) : 
                 import platform
                 osName = platform.system().lower()
-                print('    Downloading, but this module works only on %s platform(s), %s not supported in %s' % (self._build.attribute('supported_os').value, env._module_name, osName))
+                print('    Downloading, but this module works only on %s ' 
+                      'platform(s), %s not supported in %s' % 
+                      (self._build.attribute('supported_os').value, 
+                       env._module_name, osName))
             
         try:
             print(" >> Downloading " + self._name )
@@ -82,6 +104,9 @@ class Module:
 
 
     def _do_update(self, env, source, name):
+        """ Recursive update function, do the update for each 
+        target module. """
+        
         srcDirTmp = name
         if source.attribute('module_directory').value :
             srcDirTmp = source.attribute('module_directory').value
@@ -96,6 +121,8 @@ class Module:
             self._do_update(env, child, os.path.join(name, child_name))
 
     def update(self, env):
+        """ Main update function. """
+        
         try:
             self._do_update(env, self._source, self._name)
             print(" Update " + self._name + " - OK ")
@@ -113,12 +140,14 @@ class Module:
             return False
 
     def uninstall(self, env):
-        # delete installed files
+        """ Main uninstall function, deletes the installed files. """
+         
         for installed in self._installed:
             try:
                 os.remove(installed)
             except OSError:
                 pass
+            
         # delete directories where files were installed if they are empty
         dirs = [os.path.dirname(installed) for installed in self._installed]
         def uniq(seq):
@@ -134,10 +163,11 @@ class Module:
         self._installed = []
 
     def build(self, env, jobs):
+        """ Main build function. """
         
-        self.uninstall(env)
         # delete in case this is a new build configuration
         # and there are old files around
+        self.uninstall(env)
         if not self._built_once:
             self.clean(env)
 
@@ -162,13 +192,16 @@ class Module:
             if not self._build.check_os(self._build.attribute('supported_os').value) : 
                 import platform
                 osName = platform.system().lower()
-                raise TaskError('This installation model works only on %s platoform(s), %s not supported for %s' % (self._build.attribute('supported_os').value, osName, env._module_name))
+                raise TaskError('This installation model works only on %s' 
+                                ' platform(s), %s not supported for %s' 
+                                % (self._build.attribute('supported_os').value, 
+                                   osName, env._module_name))
 
         try:
             print(" >> Building " + self._name )
             if self._build.attribute('pre_installation').value != '':
                 self._build.perform_pre_installation(env)
-            self._build.threatVariables(env)
+            self._build.threat_variables(env)
             self._build.build(env, jobs)
             self._installed = monitor.end()
             if self._build.attribute('post_installation').value != '':
@@ -194,6 +227,8 @@ class Module:
             return False
 
     def check_build_version(self, env):
+        """ Checks the version of the selected build tool in the machine. """
+        
         srcDirTmp = self._name
         if self._source.attribute('module_directory').value :
             srcDirTmp = self._source.attribute('module_directory').value
@@ -201,17 +236,13 @@ class Module:
         env.start_build(self._name, srcDirTmp,
                         self._build.supports_objdir)
         
-        # this if does not make any sense to me. If you do not have the object
-        # dir  the build version is automatically true ?  Even worse if you do
-        # NOT have the src dir it is true also????? Does not make any sense!!!
-#        if not os.path.isdir(env.objdir) or not os.path.isdir(env.srcdir):
-#            retval = True
-#        else:
         retval = self._build.check_version(env)
         env.end_build()
         return retval
 
     def is_downloaded(self, env):
+        """ Checks if the source code is not already available. """
+        
         srcDirTmp = self._name
         if self._source.name() is 'system_dependency' :
             return True
@@ -225,6 +256,8 @@ class Module:
         return retval
 
     def check_source_version(self, env):
+        """ Checks if the version of the available version control tool. """
+
         srcDirTmp = self._name
         if self._source.attribute('module_directory').value :
             srcDirTmp = self._source.attribute('module_directory').value
@@ -236,6 +269,8 @@ class Module:
 
 
     def update_libpath(self, env):
+        """ Makes it available for the next modules the present libpath. """
+        
         srcDirTmp = self._name
         if self._source.attribute('module_directory').value :
             srcDirTmp = self._source.attribute('module_directory').value
@@ -246,6 +281,8 @@ class Module:
         env.end_build()
 
     def clean(self, env):
+        """ Main cleaning build option handler. """
+        
         srcDirTmp = self._name
         if self._source.attribute('module_directory').value :
             srcDirTmp = self._source.attribute('module_directory').value

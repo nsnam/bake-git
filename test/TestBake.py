@@ -24,15 +24,16 @@ class TestBake(unittest.TestCase):
         self._logger = StdoutModuleLogger();
         self._logger.set_verbose(1)
         self._env = ModuleEnvironment(self._logger, pathname, pathname, pathname)
-#        testStatus = commands.getoutput('cp '+pathname+'/bakefile.xml /tmp/.')
+#        testStatus = commands.getoutput('cp ' + pathname + '/bakefile.xml /tmp/.')
 
         
     def tearDown(self):
         """Cleans the environment environment for the next tests."""
         self._env = None
         pathname = os.path.dirname("/tmp/source")  
-        pathname = os.path.dirname(sys.argv[1])  
-        testStatus = commands.getoutput('rm -f '+ pathname +'/bakefile.xml')
+        pathname = os.path.dirname(sys.argv[0])  
+        testStatus = commands.getoutput('rm -f ' + pathname +'/bakefile.xml')
+        testStatus = commands.getoutput('chmod 755 /tmp/source')
         testStatus = commands.getoutput('rm -rf /tmp/source')
 
    
@@ -44,8 +45,12 @@ class TestBake(unittest.TestCase):
         testResult = mercurial.check_version(self._env)
         self.assertTrue(testResult)
         
-        pathname = os.path.dirname(sys.argv[1])  
-        testStatus = commands.getoutput('python '+pathname+'/../bake.py configure --enable=openflow-ns3 --sourcedir=/tmp/source --installdir=/tmp/source')
+        pathname = os.path.dirname(sys.argv[0])  
+        testStatus = commands.getoutput('python ' + pathname + 
+                                        '/../bake.py configure ' 
+                                        '--enable=openflow-ns3 ' 
+                                        '--sourcedir=/tmp/source ' 
+                                        '--installdir=/tmp/source')
 
         mercurial.attribute("url").value = "http://code.nsnam.org/bhurd/openflow"
         self._env._module_name="openflow-ns3"
@@ -58,7 +63,8 @@ class TestBake(unittest.TestCase):
         config = "bakefile.xml" #bakefile.xml"
         args = []
         parser = bake._option_parser('build')
-        parser.add_option('-j', '--jobs', help='Allow N jobs at once. Default is 1.',
+        parser.add_option('-j', '--jobs', 
+                          help='Allow N jobs at once. Default is 1.',
                           type='int', action='store', dest='jobs', default=1)
         parser.add_option("--debug", action="store_true", 
                           dest="debug", default=False, 
@@ -77,7 +83,7 @@ class TestBake(unittest.TestCase):
         try: 
             testResult = bake._check_source_code(config, options);
             self.fail("There was no problem, and the module does not exist. ")
-        except Exception as e:
+        except SystemExit as e:
             self.assertNotEqual(e.message, None)    
             self.assertEqual(testResult, None)
         
@@ -89,7 +95,7 @@ class TestBake(unittest.TestCase):
         try: 
             testResult = bake._check_source_code(config, options);
             self.fail("There was no problem, and the module does not exist. ")
-        except Exception as e:
+        except SystemExit as e:
             self.assertNotEqual(e.message, None)    
             self.assertEqual(testResult, None)
              
@@ -103,8 +109,14 @@ class TestBake(unittest.TestCase):
         testResult = mercurial.check_version(self._env)
         self.assertTrue(testResult)
         
-        pathname = os.path.dirname(sys.argv[1])  
-        testStatus = commands.getoutput('python '+pathname+'/../bake.py configure --enable=openflow-ns3 --sourcedir=/tmp/source --installdir=/tmp/source')
+        self._env._debug = True
+        
+        pathname = os.path.dirname(sys.argv[0])  
+        testStatus = commands.getoutput('python ' + pathname + 
+                                        '/../bake.py configure' 
+                                        ' --enable=openflow-ns3' 
+                                        ' --sourcedir=/tmp/source' 
+                                        ' --installdir=/tmp/source')
 
         mercurial.attribute("url").value = "http://code.nsnam.org/bhurd/openflow"
         self._env._module_name="openflow-ns3"
@@ -137,7 +149,7 @@ class TestBake(unittest.TestCase):
         try: 
             testResult = bake._check_source_code(config, options);
             self.fail("There was no problem, and the module does not exist. ")
-        except Exception as e:
+        except SystemExit as e:
             self.assertNotEqual(e.message, None)    
             self.assertEqual(testResult, None)
         
@@ -149,7 +161,7 @@ class TestBake(unittest.TestCase):
         try: 
             testResult = bake._check_source_code(config, options);
             self.fail("There was no problem, and the module does not exist. ")
-        except Exception as e:
+        except SystemExit as e:
             self.assertNotEqual(e.message, None)    
             self.assertEqual(testResult, None)
 

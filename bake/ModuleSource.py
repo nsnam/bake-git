@@ -1,3 +1,11 @@
+''' 
+ ModuleSource.py
+ 
+ This file stores the real source fetching implementations for each one of 
+ the handled source code repository tools. It is this class that defines how 
+ a download of a zip file, or a mercurial repository will be made.  
+''' 
+
 from bake.Exceptions import TaskError
 from bake.Utils import ModuleAttributeBase
 import os
@@ -7,12 +15,20 @@ from datetime import date
 from sets import Set
 
 class ModuleSource(ModuleAttributeBase):
+    """ Generic Source class, stores the generic methods for the source 
+    code repository tools.
+    """
+    
     def __init__(self):
+        """ Generic attributes definition."""
+
         ModuleAttributeBase.__init__(self)
-        self.add_attribute('module_directory', '', 'Source module directory', mandatory=False)
+        self.add_attribute('module_directory', '', 'Source module directory', 
+                           mandatory=False)
     @classmethod
     def subclasses(self):
         return ModuleSource.__subclasses__()
+    
     @classmethod
     def create(cls, name):
         """Instantiates the class that is called by the requested name."""
@@ -23,6 +39,8 @@ class ModuleSource(ModuleAttributeBase):
             if subclass.name() == name:
                 return subclass()
         return None
+
+    # Methods to be implemented by the inherited classes
     def diff(self, env):
         raise NotImplemented()
     def download(self, env):
@@ -32,7 +50,13 @@ class ModuleSource(ModuleAttributeBase):
     def check_version(self, env):
         raise NotImplemented()
 
+
 class NoneModuleSource(ModuleSource):
+    """ This class defines an empty source, i.e. no source code fetching is 
+    needed. For compatibility purposes, it is possible to create a given module 
+    has no need for source code fetching.
+    """
+
     def __init__(self):
         ModuleSource.__init__(self)
     @classmethod
@@ -47,80 +71,123 @@ class NoneModuleSource(ModuleSource):
     def check_version(self, env):
         return True
 
+
 class InlineModuleSource(ModuleSource):
+    """ This class enables one to create a python function, using the Bake 
+    framework, to  directly to search for code.
+    """
+    
     def __init__(self):
         ModuleSource.__init__(self)
+        
     @classmethod
     def name(cls):
         return 'inline'
+
 
 class BazaarModuleSource(ModuleSource):
     """Handles the modules that have the sources stored in a bazaar repository."""
     
     def __init__(self):
+        """ Specific attributes definition."""
+        
         ModuleSource.__init__(self)
         self.add_attribute('url', '', 'The url to clone from',
                            mandatory=True)
-        self.add_attribute('revision', None, 'The revision to update to after the clone.')
+        self.add_attribute('revision', None, 'The revision to update to after' 
+                           ' the clone.')
     @classmethod
     def name(cls):
+        """ Identifier of the type of the tool used."""
         return 'bazaar'
+    
     def diff(self, env):
         pass
+
     def download(self, env):
+        """ Downloads the code, of a specific version, using Bazaar."""
+        
         rev_arg = []
         if not self.attribute('revision').value is None:
             rev_arg.extend(['-r', self.attribute('revision').value])
-        env.run(['bzr', 'clone'] + rev_arg + [self.attribute('url').value, env.srcdir])
+        env.run(['bzr', 'clone'] + rev_arg + [self.attribute('url').value, 
+                                              env.srcdir])
 
     def update(self, env):
+        """ Updates the code using a specific version from the repository."""
+        
         rev_arg = []
         if not self.attribute('revision').value is None:
             rev_arg.extend(['-r', self.attribute('revision').value])
-        env.run(['bzr', 'pull'] + rev_arg + [self.attribute('url').value], directory=env.srcdir)
+        env.run(['bzr', 'pull'] + rev_arg + [self.attribute('url').value], 
+                directory=env.srcdir)
+        
     def check_version(self, env):
+        """ Checks if the tool is available and with the needed version."""
+        
         return env.check_program('bzr')
 
     
 class MercurialModuleSource(ModuleSource):
-    """Handles the modules that have the sources stored in a mercurial repository."""
+    """Handles the modules that have the sources stored in a mercurial 
+    repository.
+    """
     
     def __init__(self):
+        """ Specific attributes definition."""
+
         ModuleSource.__init__(self)
         self.add_attribute('url', '', 'The url to clone from',
                             mandatory=True)
-        self.add_attribute('revision', 'tip', 'The revision to update to after the clone. '
+        self.add_attribute('revision', 'tip', 'The revision to update to '
+                           'after the clone. '
                            'If no value is specified, the default is "tip"')
     @classmethod
     def name(cls):
+        """ Identifier of the type of the tool used."""
         return 'mercurial'
+
     def download(self, env):
+        """ Downloads the code, of a specific version, using Mercurial."""
+        
         env.run(['hg', 'clone', '-U', self.attribute('url').value, env.srcdir])
         env.run(['hg', 'update', '-r', self.attribute('revision').value],
                 directory=env.srcdir)
+        
     def update(self, env):
-        env.run(['hg', 'pull', self.attribute('url').value], directory=env.srcdir)
+        """ Updates the code using a specific version from the repository."""
+
+        env.run(['hg', 'pull', self.attribute('url').value], 
+                directory=env.srcdir)
         env.run(['hg', 'update', '-r', self.attribute('revision').value],
                 directory=env.srcdir)
+        
     def check_version(self, env):
+        """ Checks if the tool is available and with the needed version."""
+
         return env.check_program('hg')
 
+
 import shutil
-        
 class ArchiveModuleSource(ModuleSource):
     """Handles the modules that have the sources as a single tarball like file."""
     
     def __init__(self):
+        """ Specific attributes definition."""
+
         ModuleSource.__init__(self)
         self.add_attribute('url', None, 'The url to clone from',
                            mandatory=True)
         self.add_attribute('extract_directory', None,
-                           'The name of the directory the source code will be extracted to naturally.'
-                           ' If no value is specified, directory is assumed to be equal to the '
-                           'of the archive without the file extension.')
+                           "The name of the directory the source code will "
+                           "be extracted to naturally. If no value is "
+                           "specified, directory is assumed to be equal to "
+                           "the  archive without the file extension.")
     @classmethod
     def name(cls):
+        """ Identifier of the type of the tool used."""
         return 'archive'
+
     def _decompress(self, filename, env):
         """Uses the appropriate tool to uncompress the sources."""
         
@@ -144,17 +211,22 @@ class ArchiveModuleSource(ModuleSource):
                     actual_extract_dir = self.attribute('extract_directory').value
                 else:
                     actual_extract_dir = os.path.basename(filename)[0:-len(extension) - 1]
-                # finally, rename the extraction directory to the target directory name.
+                    
+                # finally, rename the extraction directory to the target 
+                # directory name.
                 try:
-                    os.rename(os.path.join(tempdir, actual_extract_dir), env.srcdir)
-#                    os.remove(tempdir)
+                    os.rename(os.path.join(tempdir, actual_extract_dir), 
+                              env.srcdir)
                     shutil.rmtree(tempdir) # delete directory
                 except (OSError, IOError) as e:
-                    raise TaskError('Rename problem for module: %s, from: %s, to: %s, Error: %s' 
-                                    % (env._module_name, os.path.join(tempdir, actual_extract_dir), env.srcdir, e))
-
+                    raise TaskError("Rename problem for module: %s, from: %s, " 
+                                    "to: %s, Error: %s" 
+                                    % (env._module_name,os.path.join(tempdir, 
+                                                                     actual_extract_dir), 
+                                       env.srcdir, e))
                 return
-        raise TaskError('Unknown Archive Type: %s, for module: %s' % (filename, env._module_name))
+        raise TaskError('Unknown Archive Type: %s, for module: %s' % 
+                        (filename, env._module_name))
 
     def download(self, env):
         """Downloads the specific file."""
@@ -170,16 +242,19 @@ class ArchiveModuleSource(ModuleSource):
         try:
             urllib.urlretrieve(url_local, filename=tmpfile)
         except IOError as e:
-            raise TaskError('Download problem for module: %s, URL: %s, Error: %s' % (env._module_name, self.attribute('url').value, e))
+            raise TaskError('Download problem for module: %s, URL: %s, Error: %s' 
+                            % (env._module_name,self.attribute('url').value, e))
             
         self._decompress(tmpfile, env)
         
     def update(self, env):
-        # we really have nothing to do for archives. 
+        """ Empty, no update is possible for files.""" 
         pass
 
     def check_version(self, env):
-        """Verifies if the right program exists in the system to handle the given compressed source file."""
+        """Verifies if the right program exists in the system to handle the
+         given compressed source file.
+         """
         
         extensions = [
             ['tar', 'tar'],
@@ -199,32 +274,49 @@ class ArchiveModuleSource(ModuleSource):
                 return env.check_program(program)
         return False
         
+        
 class SystemDependency(ModuleSource):
-    """Handles the system dependencies for a given module, if the module is missing, and it is a linux box, 
-    try to install the missing module using one of the default tools  i.e. yum apt-get."""
+    """Handles the system dependencies for a given module, if the module 
+    is missing, and it is a linux box, try to install the missing module 
+    using one of the default tools  i.e. yum apt-get.
+    """
     
     dependencyMessage=''
     
     def __init__(self):
+        """ Specific attributes definition."""
+
         ModuleSource.__init__(self)
         self.add_attribute('dependency_test', None, 'The name of the installer',
                            mandatory=True)
-        self.add_attribute('try_to_install', None, 'If should try to install or not',
+        self.add_attribute('try_to_install', None, 
+                           'If should try to install or not',
                            mandatory=True)
-        self.add_attribute('name_yum', None, 'The name of the module to install with  yum',
+        self.add_attribute('sudoer_install', False, 
+                           'Try to install the dependency as sudoer',
                            mandatory=False)
-        self.add_attribute('name_apt-get', None, 'The name of the module to install with  apt-get',
+        self.add_attribute('name_yum', None, 
+                           'The name of the module to install with  yum',
                            mandatory=False)
-        self.add_attribute('name_yast', None, 'The name of the module to install with  yast',
+        self.add_attribute('name_apt-get', None, 
+                           'The name of the module to install with  apt-get',
                            mandatory=False)
-        self.add_attribute('more_information', None, 'Gives users a better hint of where to search for the module' ,
+        self.add_attribute('name_yast', None, 
+                           'The name of the module to install with  yast',
+                           mandatory=False)
+        self.add_attribute('more_information', None, 
+                           'Gives users a better hint of where to search for the module' ,
                            mandatory=True)
     @classmethod
     def name(cls):
+        """ Identifier of the type of the tool used."""
         return 'system_dependency'
     
-    def getCommand(self, distribution):
-        """Finds the proper installer command line, given the linux distribution."""
+    def _get_command(self, distribution):
+        """Finds the proper installer command line, given the linux 
+        distribution.
+        """
+        
         distributions = [
             ['debian', 'apt-get -y install '],
             ['ubuntu', 'apt-get -y install '],
@@ -240,41 +332,60 @@ class SystemDependency(ModuleSource):
         return ''
 
     def remove(self, env):
+        """ Removes the the present version of the dependency."""
         import platform 
         
         # if the download is dependent of the machine's architecture 
         osName = platform.system().lower()
         if(not osName.startswith('linux')):
-            raise TaskError('Not a Linux machine, self installation is not possible in %s for module: %s,  %s' % (osName, env._module_name, self.attribute('error_message').value))
+            raise TaskError("Not a Linux machine, self installation is not"
+                            " possible in %s for module: %s,  %s" % 
+                            (osName, env._module_name, 
+                             self.attribute('error_message').value))
                
         (distribution, version, version_id) = platform.linux_distribution()
         distribution = distribution.lower()
-        command = self.getCommand(distribution)
+        command = self._get_command(distribution)
         command = command.rstrip().rsplit(' ', 1)[0] + ' remove'
-        installerName = self.attribute('name_' + command.split()[1]).value
+        installerName = self.attribute('name_' + command.split()[0]).value
             
         # if didn't find the specific installer name uses the default one
         if(not installerName):
             installerName = self.attribute('dependency_test').value
 
+        # if should try to install as sudoer
+        if(self.attribute('sudoer_install').value):
+            command = "sudo "+ command
+
         # uses apt-get to install the module
         try:
-            env.run((command + " "+installerName).split(" "), directory=env.srcrepo)
+            env.run((command + " " + installerName).split(" "), 
+                    directory=env.srcrepo)
         except IOError as e:
-            raise TaskError('Removing module problem: \"%s\", Message: %s, Error: %s' % (env._module_name,  self.attribute('more_information').value, e))
+            raise TaskError('Removing module problem: \"%s\", Message: %s, Error: %s' 
+                            % (env._module_name,  
+                               self.attribute('more_information').value, e))
         except TaskError as e1:
-            raise TaskError('Removing module problem: \"%s\", Probably you miss root rights or the module is not present on your package management databases. Try calling bake with sudo or reviewing your library database to add \"%s\". Message: %s' % (env._module_name, installerName, self.attribute('more_information').value, e1._reason))
-       
+            raise TaskError("Removing module problem: \"%s\",\n Probably you"
+            "miss root rights or the module is not present on your package"
+            "management databases. \nTry calling bake with sudo or reviewing your"
+                            " library database to add \"%s\". Message: %s" 
+                            % (env._module_name, installerName, 
+                               self.attribute('more_information').value, 
+                               e1._reason))
         return True
 
-    
-    def addCommandCalls(self, stringToChange, elements):
+    def _add_command_calls(self, stringToChange, elements):
+        """ Define the command calls to be executed. """
+        
         for element in elements:
-            stringToChange= re.sub(element + "(\s|\)|$)" , 'env.check_program(\'' + element + '\')\\1', stringToChange)
+            stringToChange= re.sub(element + "(\s|\)|$)" , 
+                                   'env.check_program(\'' + element + 
+                                   '\')\\1', stringToChange)
         return stringToChange
 
 
-    def checkDependencyExpression(self, env, valueToTest):
+    def _check_dependency_expression(self, env, valueToTest):
         """Verifies if the preconditions exist or not."""
         
         # if there is no test to do, return true
@@ -307,22 +418,24 @@ class SystemDependency(ModuleSource):
             elementsSet.add(element) 
         
         
-        stringToChange = self.addCommandCalls(valueToTest,elementsSet)
+        stringToChange = self._add_command_calls(valueToTest,elementsSet)
                
         # Evaluate if all the programs exist
         returnValue = eval(stringToChange)
-        
-        return returnValue
-        
+        return returnValue     
 
     def download(self, env):
-        """Downloads the specific file."""
+        """ Verifies if the system dependency exists, if exists returns true, 
+        if not, and we are in a linux machine, tries to download and install 
+        the dependency.  
+        """
         
         import platform 
         import re
 
         # tests if the dependency exists or not        
-        dependencyExists = self.checkDependencyExpression(env,self.attribute('dependency_test').value) 
+        dependencyExists = self._check_dependency_expression(env,
+                                                             self.attribute('dependency_test').value) 
         
         # if the dependency exists there is nothing else to do
         if(dependencyExists) :
@@ -335,9 +448,9 @@ class SystemDependency(ModuleSource):
         if(osName.startswith('linux') and selfInstalation):
             (distribution, version, version_id) = platform.linux_distribution()
             distribution = distribution.lower()
-            command = self.getCommand(distribution)
+            command = self._get_command(distribution)
             
-            installerName = self.attribute('name_' + command.split()[1]).value
+            installerName = self.attribute('name_' + command.split()[0]).value
             
             # if didn't find the specific installer name uses the default one
             if(not installerName):
@@ -352,33 +465,50 @@ class SystemDependency(ModuleSource):
         errorTmp = None
         if(not dependencyExists and selfInstalation):
             # Try to install if possible
+            
+            # if should try to install as sudoer
+            if(self.attribute('sudoer_install').value):
+                command = "sudo "+ command
+
             try:
-                env.run((command + installerName).split(" "), directory=env.srcrepo)
+                env.run((command + installerName).split(" "), 
+                        directory=env.srcrepo)
                 return True
             except IOError as e:
-                errorTmp = ('Self installation problem for module: \"%s\", Error: %s' % (env._module_name,  e))
+                errorTmp = ('Self installation problem for module: \"%s\", ' 
+                            'Error: %s' % (env._module_name,  e))
             except TaskError as e1:
-                errorTmp = ('Self installation problem for module: \"%s\", Probably you miss root rights or the module is not present on your package management databases. Try calling bake with sudo or reviewing your library database to add \"%s\"' % (env._module_name, installerName))
+                errorTmp = ("Self installation problem for module: \"%s\", "
+                            "\nProbably you miss root rights or the module is"
+                            " not present on your package management databases."
+                            "\nTry calling bake with sudo or reviewing your "
+                            "library database to add \"%s\"" 
+                            % (env._module_name, installerName))
                 
         # if the dependency does not exist logs it on the message string
         if(not dependencyExists) :
-            self.dependencyMessage = self.dependencyMessage + ('  > System dependency: %s : %s: \n' % (env._module_name,  self.attribute('more_information').value))
+            self.dependencyMessage =  ('  > System dependency: %s : %s \n' % 
+                                                               (env._module_name,  
+                                                                self.attribute('more_information').value))
         
             if(errorTmp) :
-                self.dependencyMessage = self.dependencyMessage + '      ... ' + errorTmp + '\n';
+                self.dependencyMessage = self.dependencyMessage + '      '
+                '... ' + errorTmp + '\n';
             
         return dependencyExists
     
     def update(self, env):
-        # we really have nothing to do for archives. 
+        """Empty, no Update available for system dependency. """       
         pass
     
     def build(self, env):
-        # we really have nothing to do for archives. 
+        """ Empty, no build is possible for system dependencies.""" 
         pass
 
     def check_version(self, env):
-        """Verifies if the right program exists in the system to handle the given compressed source file."""
+        """Verifies if the right program exists in the system to handle 
+        the given compressed source file.
+        """
         
         distributions = [
             ['debian', 'apt-get'],
@@ -393,7 +523,10 @@ class SystemDependency(ModuleSource):
         
         osName = platform.system().lower()
         if(not osName.startswith('linux')):
-            raise TaskError('This installation model works only on Linux platoforms, %s not supported for %s,  %s' % (osName, env._module_name, self.attribute('error_message').value))
+            raise TaskError("This installation model works only on Linux"
+                            " platforms, %s not supported for %s,  %s" % 
+                            (osName, env._module_name, 
+                             self.attribute('error_message').value))
                
         (distribution, version, version_id) = platform.linux_distribution()
         distribution = distribution.lower()
@@ -402,49 +535,62 @@ class SystemDependency(ModuleSource):
                 return env.check_program(program)
         return False
 
+
 class CvsModuleSource(ModuleSource):
     """Handles the modules that have the sources stored in a CVS repository."""
     
     def __init__(self):
+        """ Specific attributes definition."""
+
         ModuleSource.__init__(self)
-        self.add_attribute('root', '', 'Repository root specification to checkout from.',
+        self.add_attribute('root', '', 
+                           'Repository root specification to checkout from.',
                            mandatory=True)
         self.add_attribute('module', '', 'Module to checkout.', mandatory=True)
-        self.add_attribute('checkout_directory', None, 'Name of directory checkout defaults to. '
-                           'If unspecified, defaults to the name of the module being checked out.')
+        self.add_attribute('checkout_directory', None, "Name of directory "
+                           "checkout defaults to. If unspecified, defaults"
+                           " to the name of the module being checked out.")
         self.add_attribute('date', None, 'Date to checkout')
 
     @classmethod
     def name(cls):
+        """ Identifier of the type of the tool used."""
+        
         return 'cvs'
+
     def download(self, env):
-        """ Downloads the CVS code from a specific date. """
+        """ Downloads the last CVS code, or from a specific date. """
         
         import tempfile
         try:
             tempdir = tempfile.mkdtemp(dir=env.srcrepo)
         except OSError as e:
-            raise TaskError('Could not create temporary directory %s, Error: %s' % (env.srcrepo, e))
+            raise TaskError('Could not create temporary directory %s, Error: %s' 
+                            % (env.srcrepo, e))
 
         env.run(['cvs', '-d', self.attribute('root').value, 'login'],
                 directory=tempdir)
+        
         checkout_options = []
         if not self.attribute('date').value is None:
             checkout_options.extend(['-D', self.attribute('date').value])
-        env.run(['cvs', '-d', self.attribute('root').value, 'checkout'] + checkout_options + 
-                [self.attribute('module').value],
+        env.run(['cvs', '-d', self.attribute('root').value, 'checkout'] + 
+                checkout_options + [self.attribute('module').value],
                 directory=tempdir)
+        
         if self.attribute('checkout_directory').value is not None:
             actual_checkout_dir = self.attribute('checkout_directory').value
         else:
             actual_checkout_dir = self.attribute('module').value
+            
         import os
         import shutil
         try:
             os.rename(os.path.join(tempdir, actual_checkout_dir), env.srcdir)
             shutil.rmtree(tempdir)
         except AttributeError as e:
-            raise TaskError('Atribute type error expected String, Error: %s' % e)
+            raise TaskError('Atribute type error expected String, Error: %s' 
+                            % e)
         
 
     def update(self, env):
@@ -461,7 +607,10 @@ class CvsModuleSource(ModuleSource):
         env.run(['cvs', 'up'] + update_options, directory=env.srcdir)
         
     def check_version(self, env):
+        """ Checks if the tool is available and with the needed version."""
+
         return env.check_program('cvs')
+
 
 class GitModuleSource(ModuleSource):
     """Handles the modules that have the sources stored in a git repository."""
@@ -471,17 +620,21 @@ class GitModuleSource(ModuleSource):
         self.add_attribute('url', '', 'Url to clone the source tree from.',
                            mandatory=True)
         self.add_attribute('revision', 'refs/remotes/origin/master',
-                           'Revision to checkout. Defaults to origin/master reference.')
+                           "Revision to checkout. Defaults to origin/master"
+                           " reference.")
     @classmethod
     def name(cls):
+        """ Identifier of the type of the tool used."""
+        
         return 'git'
+
     def download(self, env):
         import tempfile
         import os
         try:
             tempdir = tempfile.mkdtemp(dir=env.srcrepo)
         except AttributeError as e1:
-            raise TaskError('Atribute type error, expected String, Error: %s' % e1)
+            raise TaskError('Attribute type error, expected String, Error: %s' % e1)
         except OSError as e2:
             raise TaskError('Could not create temporary file, Error: %s' % e2)
             
@@ -495,9 +648,13 @@ class GitModuleSource(ModuleSource):
         os.rename(tempdir, env.srcdir)
 
     def update(self, env):
+        """ Updates the code using a specific version from the repository."""
+
         env.run(['git', 'fetch'], directory=env.srcdir)
         env.run(['git', 'checkout', self.attribute('revision').value],
                           directory=env.srcdir)
 
     def check_version(self, env):
+        """ Checks if the tool is available and with the needed version."""
+
         return env.check_program('git')

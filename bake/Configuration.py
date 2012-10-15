@@ -1,6 +1,13 @@
-from bake.Module import Module,ModuleDependency
-from bake.ModuleSource import ModuleSource,InlineModuleSource
-from bake.ModuleBuild import ModuleBuild,InlineModuleBuild
+''' 
+ Configuration.py
+
+ The main purpose of this file is to store all the classes related
+ to the configuration of Bake. 
+''' 
+
+from bake.Module import Module, ModuleDependency
+from bake.ModuleSource import ModuleSource, InlineModuleSource
+from bake.ModuleBuild import ModuleBuild, InlineModuleBuild
 import xml.etree.ElementTree as ET
 from bake.Exceptions import MetadataError
 from bake.Exceptions import TaskError 
@@ -8,11 +15,15 @@ import os
 import sys
 
 class MetadataFile:
+    """Stores the meta information of a given file."""
+    
     def __init__(self, filename, h=''):
         self._filename = os.path.realpath(filename)
         self._h = h
+
     def filename(self):
         return self._filename
+
     def h(self):
         import hashlib
         m = hashlib.md5()
@@ -23,12 +34,17 @@ class MetadataFile:
             return m.hexdigest()
         except:
             return ''
+
     def is_hash_ok(self):
-        """Verifies if the hash of the configuration file is OK, to avoid manual and transmission changes."""
+        """Verifies if the hash of the configuration file is OK, to avoid 
+        manual and transmission changes.
+        """
         
         return self.h() == self._h
 
 class PredefinedConfiguration:
+    """Stores the information of predefined options."""
+    
     def __init__(self, name, enable, disable, variables_set, variables_append,
                  directories):
         self.name = name
@@ -36,11 +52,12 @@ class PredefinedConfiguration:
         self.disable = disable
         self.variables_set = variables_set
         self.variables_append = variables_append
-        self.directories = directories
-        
+        self.directories = directories       
 
 class Configuration:
-    def __init__(self, bakefile, relative_directory_root = None):
+    """Main configuration class."""
+    
+    def __init__(self, bakefile, relative_directory_root=None):
         self._enabled = []
         self._disabled = []
         self._modules = []
@@ -50,98 +67,128 @@ class Configuration:
         self._metadata_file = None
         self._bakefile = os.path.abspath(bakefile)
         if relative_directory_root is None:
-            self._relative_directory_root = os.path.relpath(os.getcwd(), 
+            self._relative_directory_root = os.path.relpath(os.getcwd(),
                                                             os.path.dirname(self._bakefile))
         else:
             self._relative_directory_root = relative_directory_root
 
     def read_metadata(self, filename):
+        """ Reads the list of meta-data defined in the XML config file"""
+   
         if not os.path.exists(filename):
             self._error('Could not find "%s"' % filename)
+            
         self._metadata_file = MetadataFile(filename)
         et = ET.parse(filename)
         self._read_metadata(et)
         
     def read_predefined(self, filename):
-        """ Creates the list of predefined entries defined in the XML config file"""
+        """ Creates the list of predefined entries defined in the XML 
+        configuration file
+        """
         
         et = ET.parse(filename)
         predefined = []
         for pred_node in et.getroot().findall('predefined'):
             name = pred_node.get('name', None)
+            
             if not name:
                 self._error('<predefined> must define a "name" attribute.')
+                
             enable = []
             for enable_node in pred_node.findall('enable'):
                 enable_name = enable_node.get('name', None)
+                
                 if not enable_name:
                     self._error('<enable> must define a "name" attribute.')
                 enable.append(enable_name)
+                
             disable = []
             for disable_node in pred_node.findall('disable'):
                 disable_name = disable_node.get('name', None)
+                
                 if not disable_name:
                     self._error('<disable> must define a "name" attribute.')
                 disable.append(disable_name)
+                
             variables_set = []
             for set_node in pred_node.findall('set'):
                 set_name = set_node.get('name', None)
                 set_value = set_node.get('value', None)
                 set_module = set_node.get('module', None)
+                
                 if not set_name or not set_value:
                     self._error('<set> must define a "name" and a "value" attribute.')
                 variables_set.append((set_module, set_name, set_value))
+                
             variables_append = []
             for append_node in pred_node.findall('append'):
                 append_name = append_node.get('name', None)
                 append_value = append_node.get('value', None)
                 append_module = append_node.get('module', None)
+                
                 if not append_name or not append_value:
                     self._error('<append> must define a "name" and a "value" attribute.')
                 variables_append.append((append_module, append_name, append_value))
+                
             directories = {}
             for config_node in pred_node.findall('configuration'):
                 objdir = config_node.get('objdir', None)
                 installdir = config_node.get('installdir', None)
                 sourcedir = config_node.get('sourcedir', None)
+                
                 if objdir:
                     directories['objdir'] = objdir
+                    
                 if installdir:
                     directories['installdir'] = installdir
+                    
                 if sourcedir:
                     directories['sourcedir'] = sourcedir
-            predefined.append(PredefinedConfiguration(name, enable, disable, 
+                    
+            predefined.append(PredefinedConfiguration(name, enable, disable,
                                                       variables_set,
-                                                      variables_append, 
+                                                      variables_append,
                                                       directories))
         return predefined
 
     def _error(self, string):
+        """ Handles the exceptions """
         raise Exception(string)
 
-    def _check_mandatory_attributes(self, attribute_base, node, type_string, module_string):
+    def _check_mandatory_attributes(self, attribute_base, node, type_string, 
+                                    module_string):
+        """ Checks the existence of the mandatory attributes for each 
+        configuration.
+        """
+        
         # get list of names in <attribute name="" value=""> tags
         attributes_present = [child.get('name') for child in node.findall('attribute')]
         # get list of names in <type_string name="value"> attributes
         attributes_present = attributes_present + node.attrib.keys()
+        
         for attribute in attribute_base.attributes():
             if attribute.is_mandatory and not attribute.name in attributes_present:
                 sys.stderr.write('Error: mandatory attribute "%s" is missing from '
-                                 'module "%s" in node "%s"\n' % (attribute.name, 
-                                                                 module_string, 
+                                 'module "%s" in node "%s"\n' % (attribute.name,
+                                                                 module_string,
                                                                  type_string))
                 sys.exit(1)
 
     def _read_attributes(self, obj, node, type_string, module_string):
+        """ Reads the list of attributes on the configuration configuration."""
+        
         # read <type_string><attribute name="" value=""></type_string> tags
         for attribute_node in node.findall('attribute'):
             attr_name = attribute_node.get('name')
             attr_value = attribute_node.get('value', None)
             if obj.attribute(attr_name) is None:
-                sys.stderr.write('Error: attribute "%s" is not supported by %s node of type "%s"\n' % 
+                sys.stderr.write('Error: attribute "%s" is not supported by' 
+                                 ' %s node of type "%s"\n' % 
                                  (attr_name, type_string, node.get('type')))
                 sys.exit(1)
             obj.attribute(attr_name).value = attr_value
+            
         # as a fallback, read <type_string name="value"> attributes
         # note: this will not generate errors upon invalid attribute names
         # because certain kinds of <foo name="value"/> XML attributes are
@@ -151,6 +198,8 @@ class Configuration:
                 obj.attribute(attr_name).value = node.get(attr_name)
 
     def _write_attributes(self, attribute_base, obj_node):
+        """ Creates the XML elements, reflecting the listed attributes."""
+        
         # generate <attribute name="" value=""/> tags
         for attribute in attribute_base.attributes():
             if not attribute.value is None:
@@ -159,6 +208,8 @@ class Configuration:
                 obj_node.append(attribute_node)
 
     def _create_obj_from_node(self, node, classBase, node_string, module_name):
+        """ Translates the XML elements on the correct bake object."""
+        
         # read <node_string type=""> tag: handle type="inline" specially by
         # looking up a child node <code></code>
         if node.get('type') == 'inline':
@@ -166,6 +217,7 @@ class Configuration:
             if code_node is None:
                 sys.stderr.write('Error: no code tag in inline module\n')
                 sys.exit(1)
+                
             classname = node.get('classname')
             import codeop
             exec code_node.text in globals(), locals()
@@ -176,16 +228,18 @@ class Configuration:
 
         self._check_mandatory_attributes(obj, node, node_string, module_name)
         self._read_attributes(obj, node, node_string, module_name)
+        
         # if <type_string> has <child> nodes, look them up.
         for child_node in node.findall('child'):
             child_name = child_node.get('name')
-            child = self._create_obj_from_node(child_node, classBase, 'child', module_name)
+            child = self._create_obj_from_node(child_node, classBase, 'child', 
+                                               module_name)
             obj.add_child(child, child_name)
 
         return obj
 
     def _create_node_from_obj(self, obj, node_string):
-        """Generates the XML node based on the XML object passed as parameter"""
+        """ Generates the XML node based on the XML object passed as parameter"""
 
         # inline is when one uses Python as build configuration to create a 
         # small build script    
@@ -207,31 +261,26 @@ class Configuration:
 
         return node
 
-#    def _read_libpath(self, node, build):
-#        for libpath in node.findall('addlibpath'):
-#            location = libpath.get('location', None)
-#            assert location != None
-#            build.add_libpath(location)
-#
-#    def _write_libpath(self, node, build):
-#        for libpath in build.libpaths:
-#            libpath_node = ET.Element('addlibpath', {'location' : libpath})
-#            node.append(libpath_node)
-
     def _read_installed(self, node):
+        """ Reads the installed modules from the XML."""
+        
         installed = []
         for installed_node in node.findall('installed'):
             installed.append(installed_node.get('value', None))
         return installed
 
     def _write_installed(self, node, installed):
+        """ Generates the XML nodes to register the installed modules."""
+        
         for installed in installed:
             installed_node = ET.Element('installed', {'value' : installed})
             node.append(installed_node)
 
     
     def _read_metadata(self, et):
-        """ Reads the elements from the xml configuration files and add it to the internal list of modules."""
+        """ Reads the elements from the xml configuration files and add it to 
+        the internal list of modules.
+        """
 
         # function designed to be called on two kinds of xml files.
         modules = et.findall('modules/module')
@@ -240,28 +289,32 @@ class Configuration:
             installed = self._read_installed(module_node)
 
             source_node = module_node.find('source')
-            source = self._create_obj_from_node(source_node, ModuleSource, 'source', name)
+            source = self._create_obj_from_node(source_node, ModuleSource, 
+                                                'source', name)
 
             build_node = module_node.find('build')
-            build = self._create_obj_from_node(build_node, ModuleBuild, 'build', name)
+            build = self._create_obj_from_node(build_node, ModuleBuild, 
+                                               'build', name)
 #            self._read_libpath(build_node, build)
 
             dependencies = []
             for dep_node in module_node.findall('depends_on'):
-                dependencies.append(ModuleDependency(dep_node.get('name'), 
+                dependencies.append(ModuleDependency(dep_node.get('name'),
                                                      bool(dep_node.get('optional', ''))))
-            module = Module(name, source, build, dependencies = dependencies,
-                            built_once = bool(module_node.get('built_once', '')),
-                            installed = installed)
+            module = Module(name, source, build, dependencies=dependencies,
+                            built_once=bool(module_node.get('built_once', '')),
+                            installed=installed)
             self._modules.append(module)
 
     def _write_metadata(self, root):
-        """ Saves modules data to the XML configuration file. """
+        """ Saves modules data to the XML configuration file."""
         
         modules_node = ET.Element('modules')
         root.append(modules_node)
+        
         for module in self._modules:
             module_attrs = {'name' : module.name()}
+            
             if module.is_built_once():
                 module_attrs['built_once'] = 'True'
             module_node = ET.Element('module', module_attrs)
@@ -269,7 +322,8 @@ class Configuration:
 
             # registers the values, possible changed ones, from the source and
             # build XML tags of each module
-            source_node = self._create_node_from_obj(module.get_source(), 'source')
+            source_node = self._create_node_from_obj(module.get_source(), 
+                                                     'source')
             module_node.append(source_node)
 
             build_node = self._create_node_from_obj(module.get_build(), 'build')
@@ -287,26 +341,31 @@ class Configuration:
             modules_node.append(module_node)
 
     def defineXml(self):
-        root = ET.Element('configuration', {'installdir':self._installdir, 
-                'sourcedir':self._sourcedir, 
-                'objdir':self._objdir, 
-                'relative_directory_root':self._relative_directory_root, 
+        """ Creates the basic XML structure for the configuration file."""
+        
+        root = ET.Element('configuration', {'installdir':self._installdir,
+                'sourcedir':self._sourcedir,
+                'objdir':self._objdir,
+                'relative_directory_root':self._relative_directory_root,
                 'bakefile':self._bakefile})
+        
         if not self._metadata_file is None:
-            metadata = ET.Element('metadata', {'filename':self._metadata_file.filename(), 
-                    'hash':self._metadata_file.h()})
+            metadata = ET.Element('metadata', 
+                                  {'filename':self._metadata_file.filename(),
+                                   'hash':self._metadata_file.h()})
             root.append(metadata)
-    # write enabled nodes
+            
+        # write enabled nodes
         for e in self._enabled:
             enable_node = ET.Element('enabled', {'name':e.name()})
             root.append(enable_node)
         
-    # write disabled nodes
+        # write disabled nodes
         for e in self._disabled:
             disable_node = ET.Element('disabled', {'name':e.name()})
             root.append(disable_node)
         
-    # add modules information
+        # add modules information
         self._write_metadata(root)
         et = ET.ElementTree(element=root)
         return et
@@ -322,7 +381,8 @@ class Configuration:
             raise TaskError('Problems writing the file, error: %s' % e)
 
     def read(self):
-        """ Reads the XML customized configuration file. """
+        """ Reads the XML customized configuration file."""
+        
         try:
             et = ET.parse(self._bakefile)
         except IOError as e:
@@ -336,9 +396,10 @@ class Configuration:
         self._relative_directory_root = root.get('relative_directory_root')
         original_bakefile = root.get('bakefile')
         metadata = root.find('metadata')
+        
         if metadata is not None: 
             self._metadata_file = MetadataFile (metadata.get('filename'),
-                                            h = metadata.get('hash'))
+                                            h=metadata.get('hash'))
 
         # read which modules are enabled
         modules = root.findall('enabled')
@@ -384,7 +445,8 @@ class Configuration:
         if os.path.isabs(p):
             return p
         else:
-            tmp = os.path.join(os.path.dirname(self._bakefile), self._relative_directory_root, p)
+            tmp = os.path.join(os.path.dirname(self._bakefile), 
+                               self._relative_directory_root, p)
             return os.path.normpath(tmp)
 
     def compute_sourcedir(self):
@@ -394,7 +456,9 @@ class Configuration:
         return self._compute_path(self._installdir)
 
     def enable(self, module):
-        """ Set the module as enabled, but if it is disabled, simply removes it from the disabled list. """
+        """ Set the module as enabled, but if it is disabled, simply removes 
+        it from the disabled list.
+        """
         
         if module in self._disabled:
             self._disabled.remove(module)
@@ -402,7 +466,9 @@ class Configuration:
             self._enabled.append(module)
  
     def disable(self, module):
-        """ Set the module as disabled, but if it is enabled, simply removes it from the enabled list. """
+        """ Set the module as disabled, but if it is enabled, simply removes 
+        it from the enabled list.
+        """
         
         if module in self._enabled:
             self._enabled.remove(module)
@@ -410,7 +476,7 @@ class Configuration:
             self._disabled.append(module)
 
     def lookup(self, name):
-        """ Finds the module in the modules list. """
+        """ Finds the module in the modules list."""
         
         for module in self._modules:
             if module.name() == name:

@@ -2,7 +2,7 @@ import unittest
 import bake.Utils
 
 
-class TestUtils(unittest.TestCase):
+class TestModuleUtils(unittest.TestCase):
     """Tests cases for the Utils Class."""
     
     def setUp(self):
@@ -12,45 +12,47 @@ class TestUtils(unittest.TestCase):
         """Cleans the environment environment for the next tests."""
 
    
-    def test_splitArgs(self):
-        """Tests the splitArgs method of Class Utils. """
+    def test_split_args(self):
+        """Tests the split_args method of Class Utils. """
         
         string = "CCOPTS='-fpic -D_GNU_SOURCE -O0 -U_FORTIFY_SOURCE'"
-        testResult = bake.Utils.splitArgs(string)
+        testResult = bake.Utils.split_args(string)
         self.assertTrue(len(testResult)==1)
-        self.assertEqual(testResult[0], "CCOPTS='-fpic -D_GNU_SOURCE -O0 -U_FORTIFY_SOURCE'")
+        self.assertEqual(testResult[0], 
+                         "CCOPTS='-fpic -D_GNU_SOURCE -O0 -U_FORTIFY_SOURCE'")
         
         string = "CCOPTS='-fpic -D_GNU_SOURCE -O0 -U_FORTIFY_SOURCE' -g"
-        testResult = bake.Utils.splitArgs(string)
+        testResult = bake.Utils.split_args(string)
         self.assertTrue(len(testResult)==2)
-        self.assertEqual(testResult[0], "CCOPTS='-fpic -D_GNU_SOURCE -O0 -U_FORTIFY_SOURCE'")
+        self.assertEqual(testResult[0], 
+                         "CCOPTS='-fpic -D_GNU_SOURCE -O0 -U_FORTIFY_SOURCE'")
         self.assertEqual(testResult[1], "-g")
 
         string = "CCOPTS=-fpic -D_GNU_SOURCE -O0 -U_FORTIFY_SOURCE -g"
-        testResult = bake.Utils.splitArgs(string)
+        testResult = bake.Utils.split_args(string)
         self.assertTrue(len(testResult)==5)
         self.assertEqual(testResult[0], "CCOPTS=-fpic")
         self.assertEqual(testResult[1], "-D_GNU_SOURCE")
         self.assertEqual(testResult[4], "-g")
 
         string = ""
-        testResult = bake.Utils.splitArgs(string)
+        testResult = bake.Utils.split_args(string)
         self.assertTrue(len(testResult)==0)
         
         string = "install PREFIX=`pwd`/../build"
-        testResult = bake.Utils.splitArgs(string)
+        testResult = bake.Utils.split_args(string)
         self.assertTrue(len(testResult)==2)
         self.assertEqual(testResult[0], "install")
         self.assertEqual(testResult[1], "PREFIX=`pwd`/../build")
         
         string = "install PREFIX='pwd'/../build -g"
-        testResult = bake.Utils.splitArgs(string)
+        testResult = bake.Utils.split_args(string)
         self.assertTrue(len(testResult)==3)
         self.assertEqual(testResult[0], "install")
         self.assertEqual(testResult[1], "PREFIX='pwd'/../build")
 
         string = "'install PREFIX='pwd'/../build' -g"
-        testResult = bake.Utils.splitArgs(string)
+        testResult = bake.Utils.split_args(string)
         self.assertTrue(len(testResult)==2)
         self.assertEqual(testResult[0], "'install PREFIX='pwd'/../build'")
         self.assertEqual(testResult[1], "-g")

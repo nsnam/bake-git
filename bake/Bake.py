@@ -1,11 +1,28 @@
+''' 
+ Bake.py
+
+ This is the main Bake file, it stores all the classes related to the
+ basic Bake operation. The class Bake is responsible to identify and 
+ execute the defined options  
+'''
+
 from bake.Configuration import Configuration
 from bake.ModuleEnvironment import ModuleEnvironment
-from bake.ModuleLogger import StdoutModuleLogger,LogfileModuleLogger,LogdirModuleLogger
+from bake.ModuleLogger import StdoutModuleLogger, LogfileModuleLogger, LogdirModuleLogger
 from optparse import OptionParser
-from bake.Dependencies import Dependencies33,DependencyUnmet
+from bake.Dependencies import Dependencies, DependencyUnmet
 from bake.Exceptions import MetadataError
+from bake.Utils import ColorTool
 import sys
+import os
+import signal
 
+def signal_handler(signal, frame):
+    """ Handles Ctrl+C keyboard interruptions """
+    
+    print (' > Bake was aborted! (Ctrl+C)')
+    os._exit(0)
+        
 class MyOptionParser(OptionParser):
     def format_description(self, formatter):
         import os
@@ -14,33 +31,39 @@ class MyOptionParser(OptionParser):
         
 
 class Bake:
+    """ Main Bake class """
+    
     main_options = "" 
     
     def __init__(self):
         pass
     
     def _error(self, string):
+        """ Handles the exceptions during the processing of the chosen option"""
+
+        import sys
         print(' > Error: %s ' % string)
         if Bake.main_options.debug:
             import bake.Utils
             bake.Utils.print_backtrace()           
         else:
-            print('   For more information call Bake with --debug and/or -vv (bake --help)')
+            print('   For more information call Bake with --debug and/or'
+                  ' -vvv (bake --help)')
         sys.exit(1)
         
-    def _reconfigure(self,config,args):
+    def _reconfigure(self, config, args):
         """Handles the reconfigure command line option."""
         
-        parser = OptionParser(usage = 'usage: %prog reconfigure [options]')
+        parser = OptionParser(usage='usage: %prog reconfigure [options]')
         self._enable_disable_options(parser)
-        parser.add_option("-c", "--conffile", action="store", type="string", 
-                          dest="bakeconf", default="bakeconf.xml", 
-                          help="The Bake metadata configuration file to use. Default: %default.")
+        parser.add_option("-c", "--conffile", action="store", type="string",
+                          dest="bakeconf", default="bakeconf.xml",
+                          help="The Bake meta-data configuration file to use. Default: %default.")
         (options, args_left) = parser.parse_args(args)
         old_config = Configuration(config)
         old_config.read()
-        new_config = Configuration(config, 
-                                   relative_directory_root = old_config.get_relative_directory_root())
+        new_config = Configuration(config,
+                                   relative_directory_root=old_config.get_relative_directory_root())
         new_config.read_metadata(options.bakeconf)
         new_config.set_installdir(old_config.get_installdir())
         new_config.set_objdir(old_config.get_objdir())
@@ -91,11 +114,11 @@ class Bake:
     def _enable_disable_options(self, parser):
         """ Allows the parser to recognize --enable and --disable options."""
 
-        parser.add_option("-e", "--enable", action="append", type="string", dest="enable",
-                          default=[],
+        parser.add_option("-e", "--enable", action="append", type="string", 
+                          dest="enable", default=[],
                           help="A module to enable in the Bake configuration")
-        parser.add_option("-d", "--disable", action="append", type="string", dest="disable",
-                          default=[],
+        parser.add_option("-d", "--disable", action="append", type="string", 
+                          dest="disable", default=[],
                           help="A module to disable in the Bake configuration")
         parser.add_option("-a", "--enable-all", action="store_true",
                           dest="enable_all", default=None,
@@ -123,13 +146,16 @@ class Bake:
             configuration.disable(module)
 
     def _variables_process(self, items, configuration, is_append):
+        """ Handles the defined configured variables ."""
+        
         for module_name, name, value in items:
             if module_name:
                 module = configuration.lookup(module_name)
                 if not module:
                     self._error('Module "%s" not found' % module_name)
                 if not module.get_build().attribute(name):
-                    self._error('Module "%s" has no attribute "%s"' % (module_name, name))
+                    self._error('Module "%s" has no attribute "%s"' % 
+                                (module_name, name))
                 if is_append:
                     module.get_build().attribute(name).value = \
                         module.get_build().attribute(name).value + ' ' + value
@@ -145,7 +171,9 @@ class Bake:
                             module.get_build().attribute(name).value = value
         
     def _parse_enable_disable(self, options, configuration):
-        """ Identify the enabled and disabled options passed as parameters in the configuration."""
+        """ Identify the enabled and disabled options passed as parameters 
+        in the configuration.
+        """
         
         # enables/disables the explicit enable/disable modules passed as argument
         self._enable(options.enable, configuration)
@@ -165,27 +193,27 @@ class Bake:
                 enabled.append(module)
                 return True
             
-            self._iterate(configuration, _enabled_iterator, 
-                          configuration.enabled(), 
-                          follow_optional = True)
+            self._iterate(configuration, _enabled_iterator,
+                          configuration.enabled(),
+                          follow_optional=True)
             enabled_optional = []
             def _enabled_optional_iterator(module):
                 enabled_optional.append(module)
                 return True
-            self._iterate(configuration, _enabled_optional_iterator, 
+            self._iterate(configuration, _enabled_optional_iterator,
                           configuration.enabled(),
-                          follow_optional = False)
+                          follow_optional=False)
             for module in enabled:
                 if not module in enabled_optional:
                     configuration.disable(module)
 
     def _parse_variable(self, string, configuration):
-        """ Verifies if the module and requested attribute exists """
+        """ Verifies if the module and requested attribute exists."""
         
         retval = []
         data = string.split(":")
         
-        # if it is an set for all the modules that contains such variable
+        # if it is an setting for all the modules that contains such variable
         if len(data) == 1:
             name, value = string.split("=")
             for module in configuration.modules():
@@ -193,7 +221,7 @@ class Bake:
                     retval.append((module, name, value))
             if not retval:
                 print ('Error: no module contains variable %s' % name)
-        # if it is a set for a module in specific
+        # if it is a setting for a specific module 
         elif len(data) == 2:
             name, value = data[1].split("=")
             module = configuration.lookup(data[0])
@@ -201,30 +229,33 @@ class Bake:
                 self._error('non-existing module %s in variable specification %s' % \
                                 (name, string))
             if not module.get_build().attribute(name):
-                self._error('non-existing variable %s in module %s' % (name, module._name))
+                self._error('non-existing variable %s in module %s' % 
+                            (name, module._name))
             retval.append((module, name, value))
         # if the variable is set incorrectly 
         else:
             self._error('invalid variable specification: "%s"' % string)
         return retval
         
-    def _configure(self,config,args):
+    def _configure(self, config, args):
         """ Handles the configuration option for %prog """
         
-        # set the options the parser should recognize for the configuration
-        parser = OptionParser(usage = 'usage: %prog configure [options]')
+        # sets the options the parser should recognize for the configuration
+        parser = OptionParser(usage='usage: %prog configure [options]')
         self._enable_disable_options(parser)
-        parser.add_option("-c", "--conffile", action="store", type="string", 
-                          dest="bakeconf", default="bakeconf.xml", 
-                          help="The Bake metadata configuration file to use. Default: %default.")
-        parser.add_option("-g", "--gui", action="store_true", 
-                          dest="gui", default="False", 
+        parser.add_option("-c", "--conffile", action="store", type="string",
+                          dest="bakeconf", default="bakeconf.xml",
+                          help="The Bake meta-data configuration file to use. Default: %default.")
+        parser.add_option("-g", "--gui", action="store_true",
+                          dest="gui", default="False",
                           help="Use a GUI to define the configuration.")
-        parser.add_option("-s", "--set", action="append", type="string", dest="set",
+        parser.add_option("-s", "--set", action="append", type="string", 
+                          dest="set",
                           default=[],
                           help="Format: module:name=value. A variable to set in the Bake "
                           "configuration for the matching module.")
-        parser.add_option("--append", action="append", type="string", dest="append", default=[],
+        parser.add_option("--append", action="append", type="string", 
+                          dest="append", default=[],
                           help="Format: module:name=value. A variable to append to in the Bake "
                           "configuration for the matching module.")
         parser.add_option("--objdir", action="store", type="string",
@@ -269,8 +300,10 @@ class Bake:
                         found = True
                         self._enable(predef.enable, configuration)
                         self._disable(predef.disable, configuration)
-                        self._variables_process(predef.variables_set, configuration, is_append = False)
-                        self._variables_process(predef.variables_append, configuration, is_append = True)
+                        self._variables_process(predef.variables_set, 
+                                                configuration, is_append=False)
+                        self._variables_process(predef.variables_append, 
+                                                configuration, is_append=True)
                         directories = predef.directories
                         if 'sourcedir' in directories:
                             configuration.set_sourcedir(directories['sourcedir'])
@@ -303,9 +336,11 @@ class Bake:
         configuration.write()
 
     def _iterate(self, configuration, functor, targets, follow_optional=True):
-        """Iterates over the configuration modules applying the functor function and solve reminding dependencies."""
+        """Iterates over the configuration modules applying the functor 
+        function and solve reminding dependencies.
+        """
         
-        deps = Dependencies33()
+        deps = Dependencies()
         class Wrapper:
             def __init__(self, module):
                 self._module = module
@@ -333,7 +368,7 @@ class Bake:
                     # dependency is not optional, add the module it depends on 
                     # as a dependency 
                     if follow_optional or not dependency.is_optional():
-                        deps.add_dep(src, m, optional = dependency.is_optional())
+                        deps.add_dep(src, m, optional=dependency.is_optional())
                         
         try:
             deps.resolve(targets)
@@ -341,6 +376,8 @@ class Bake:
             self._error('%s failed' % error.failed().name())
 
     def _read_config(self, config, directory=None):
+        """Reads the configuration file."""
+
         configuration = Configuration(config, directory)
         if not configuration.read():
             sys.stderr.write('The configuration file has been changed or has moved.\n'
@@ -355,44 +392,49 @@ class Bake:
         return configuration
 
     def _option_parser(self, operation_name):
-        """Adds genneric options to the options parser. Receives the name of the present option as parameter."""
+        """Adds generic options to the options parser. Receives the name of the 
+        present option as parameter.
+        """
         
         parser = OptionParser(usage='usage: %prog ' + operation_name + ' [options]')
         parser.add_option('--logfile', help='File in which we want to store log output '
                           'of requested operation', action="store", type="string", dest="logfile",
                           default='')
         parser.add_option('--logdir', help='Directory in which we want to store log output '
-                          'of requested operation. One file per module.', action="store", 
+                          'of requested operation. One file per module.', action="store",
                           type="string", dest="logdir",
                           default='')
-        parser.add_option('-v', '--verbose', action='count', dest='verbose', default=0,
-                          help='Increase the log verbosity level')
-        parser.add_option('-q', '--quiet', action='count', dest='quiet', default=0,
-                          help='Increase the log quietness level')
+        parser.add_option('-v', '--verbose', action='count', dest='verbose', 
+                          default=0, help='Increase the log verbosity level')
+        parser.add_option('-q', '--quiet', action='count', dest='quiet', 
+                          default=0, help='Increase the log quietness level')
         parser.add_option("-o", "--one", action="store", type="string",
-                          dest="one", default="", 
+                          dest="one", default="",
                           help="Process only the module specified.")
         parser.add_option("-a", "--all", action="store_true",
-                          dest="all", default=False, 
+                          dest="all", default=False,
                           help="Process all modules")
         parser.add_option("-s", "--start", action="store", type="string",
-                          dest="start", default="", 
+                          dest="start", default="",
                           help="Process all modules enabled starting from the module specified.")
         parser.add_option("--after", action="store", type="string",
-                          dest="after", default="", 
+                          dest="after", default="",
                           help="Process all modules enabled starting after the module specified.")
-        parser.add_option("-i", "--environment_file_identification", action="store", type="string",
-                          dest="environment_file_identification", default="bakeSetEnv.sh",
+        parser.add_option("-i", "--environment_file_identification", 
+                          action="store", type="string",
+                          dest="environment_file_identification", 
+                          default="bakeSetEnv.sh",
                           help="Name of the environment setting file")
-        parser.add_option("-x", "--no_environment_file", action='store_true', dest='no_environment_file', default=False,
+        parser.add_option("-x", "--no_environment_file", action='store_true', 
+                          dest='no_environment_file', default=False,
                           help='Do not create the environment file for this run')
         
         return parser
 
     def _do_operation(self, config, options, functor, directory=None):
-        """Applies the function, passed as parameter, over the options. """
+        """Applies the function, passed as parameter, over the options."""
         
-        configuration = self._read_config(config,directory)
+        configuration = self._read_config(config, directory)
         if options.logdir == '' and options.logfile == '':
             logger = StdoutModuleLogger()
         elif options.logdir != '':
@@ -405,10 +447,11 @@ class Bake:
         verbose = verbose if verbose >= 0 else 0
         logger.set_verbose(verbose)
 
-        env = ModuleEnvironment(logger, 
+        env = ModuleEnvironment(logger,
                                configuration.compute_installdir(),
-                               configuration.compute_sourcedir(), 
-                               configuration.get_objdir(), Bake.main_options.debug)
+                               configuration.compute_sourcedir(),
+                               configuration.get_objdir(), 
+                               Bake.main_options.debug)
         must_disable = []
         if options.one != '':
             if options.all or options.start != '' or options.after != '':
@@ -453,17 +496,17 @@ class Bake:
             self._iterate(configuration, _iterator, configuration.enabled())
         return env
 
-    def _install(self,config,args):
+    def _install(self, config, args):
         """Handles the install command line option."""
 
         print("Installing selected module and dependencies.")
         print("Please, be patient, this may take a while!")
-        returnValue =  self._download(config,args);
+        returnValue = self._download(config, args);
         if not returnValue:
             return self._build(config, args)
         
 
-    def _download(self,config,args):
+    def _download(self, config, args):
         """Handles the download command line option."""
 
         parser = self._option_parser('download')
@@ -473,7 +516,7 @@ class Bake:
             return module.download(env)
         self._do_operation(config, options, _do_download)
 
-    def _update(self,config,args):
+    def _update(self, config, args):
         """Handles the update command line option."""
 
         parser = self._option_parser('update')
@@ -484,9 +527,12 @@ class Bake:
         self._do_operation(config, options, _do_update)
 
     def _check_build_version(self, config, options):
+        """Checks if the required build tools are available in the machine."""
+        
         def _do_check(configuration, module, env):
             if not module.check_build_version(env):
-                self._error('Could not find build tool for module "%s"' % module.name())
+                self._error('Could not find build tool for module "%s"' 
+                            % module.name())
             return True
         self._do_operation(config, options, _do_check)
 
@@ -495,24 +541,30 @@ class Bake:
          
         def _do_check(configuration, module, env):
             if not module.check_source_version(env):
-                self._error('Could not find source tool for module %s' % module.name())
+                self._error('Could not find source tool for module %s' 
+                            % module.name())
             return True
         self._do_operation(config, options, _do_check)
 
     def _check_source_code(self, config, options, directory=None):
-        # let's check that we have downloaded the matching source code
+        """ Checks if  we have already downloaded the matching source code."""
+        
         def _do_check(configuration, module, env):
             if not module.is_downloaded(env):
-                self._error('Could not find source code for module %s. Try %s download first.' % \
-                                (module.name(), sys.argv[0]))
+                self._error('Could not find source code for module %s.' 
+                            ' Try %s download first.' %(module.name(), 
+                                                        sys.argv[0]))
             return True
         self._do_operation(config, options, _do_check, directory)
 
 
-    def _build(self,config,args):
+    def _build(self, config, args):
+        """Handles the build command line option."""
+        
         parser = self._option_parser('build')
-        parser.add_option('-j', '--jobs', help='Allow N jobs at once. Default is 1.',
-                          type='int', action='store', dest='jobs', default=1)
+        parser.add_option('-j', '--jobs', help='Allow N jobs at once.'
+                          ' Default is 1.',type='int', action='store', 
+                          dest='jobs', default=1)
         (options, args_left) = parser.parse_args(args)
         self._check_source_code(config, options)
         self._check_build_version(config, options)
@@ -527,6 +579,8 @@ class Bake:
             env.create_environement_file(options.environment_file_identification)
 
     def _clean(self, config, args):
+        """Handles the clean command line option."""
+        
         parser = self._option_parser('clean')
         (options, args_left) = parser.parse_args(args)
         self._check_build_version(config, options)
@@ -536,6 +590,8 @@ class Bake:
         self._do_operation(config, options, _do_clean)
 
     def _uninstall(self, config, args):
+        """Handles the uninstall command line option."""
+        
         parser = self._option_parser('uninstall')
         (options, args_left) = parser.parse_args(args)
         def _do_uninstall(configuration, module, env):
@@ -544,6 +600,8 @@ class Bake:
         self._do_operation(config, options, _do_uninstall)
 
     def _shell(self, config, args):
+        """Handles the shell command line option."""
+        
         parser = self._option_parser('build')
         (options, args_left) = parser.parse_args(args)
         def _do_env_update(configuration, module, env):
@@ -551,9 +609,44 @@ class Bake:
             return True
         env = self._do_operation(config, options, _do_env_update)
         import os
-        env.run([os.environ['SHELL']], directory=env.objdir, interactive = True)
+        env.run([os.environ['SHELL']], directory=env.objdir, interactive=True)
+
+    def _check(self, config, args):
+        """Handles the check command line option."""
+        
+        checkPrograms = [['testas', 'error message'],
+                         ['python', 'Python'],
+                         ['hg', 'Mercurial'],
+                         ['cvs', 'CVS'],
+                         ['bzr', 'Bazaar'],
+                         ['tar', 'Tar tool'],
+                         ['unzip', 'Unzip tool'],
+                         ['unrar', 'Unrar tool'],
+                         ['git', 'GIT'],
+                         ['make', 'Make'],
+                         ['cmake', 'cMake'],
+                         ['patch', 'path tool'],
+                         ['autoreconf', 'Autotools']
+                         ]
+        parser = self._option_parser('build')
+        (options, args_left) = parser.parse_args(args)
+        def _do_env_check(configuration, module, env):
+            return True
+        
+        env = self._do_operation(config, options, _do_env_check)
+        
+        colorTool = ColorTool()
+        for element in checkPrograms:
+            if env.check_program(element[0]):
+                colorTool.cPrint(colorTool.OK, " > " + element[1] + " - Ok")                    
+            else:
+                colorTool.cPrint(colorTool.WARNING, " > " + element[1] + 
+                                 " - is missing")
+
 
     def _show_one_builtin(self, builtin, string, variables):
+        """Go over the available builtins handling tools."""
+
         import textwrap
         if builtin.name() != 'none':
             print ('%s %s' % (string, builtin.name()))
@@ -563,52 +656,70 @@ class Bake:
                     lines = ['      %s' % line for line in textwrap.wrap(attribute.help)]
                     print ('\n'.join(lines))
 
-    def _show_builtin(self, config, args):
-        from bake.ModuleSource import ModuleSource
-        from bake.ModuleBuild import ModuleBuild
-        parser = OptionParser(usage='usage: %prog show [options]')
-        parser.add_option('-a', '--all', action='store_true', dest='all', default=False,
-                          help='Display all known information about builtin source and build commands')
-        parser.add_option('--source', action='store_true', dest='source', default=False,
-                          help='Display information about builtin source commands')
-        parser.add_option('--build', action='store_true', dest='build', default=False,
-                          help='Display information about builtin build commands')
-        parser.add_option('--variables', action='store_true', dest='variables', default=False,
-                          help='Display variables for builtin commands')
-        (options, args_left) = parser.parse_args(args)
-        if options.all:
-            options.source = True
-            options.build = True
-            options.variables = True
-        if options.source:
-            for source in ModuleSource.subclasses():
-                self._show_one_builtin(source, 'source', options.variables)
-        if options.build:
-            for build in ModuleBuild.subclasses():
-                self._show_one_builtin(build, 'build', options.variables)
-
     def _show_variables(self, module):
+        """Handles the show the variables available for source and build."""
+        
         source = module.get_source()
         if source.attributes():
             print ('  source %s' % source.name())
             for attribute in source.attributes():
                 print ('    %s=%s' % (attribute.name, attribute.value))
         build = module.get_build()
+        
         if build.attributes():
             print ('  build %s' % build.name())
             for attribute in build.attributes():
                 print ('    %s=%s' % (attribute.name, attribute.value))
 
+    def _show_builtin(self, config, args):
+        """Handles the show one builtin command line option."""
+        
+        from bake.ModuleSource import ModuleSource
+        from bake.ModuleBuild import ModuleBuild
+        parser = OptionParser(usage='usage: %prog show [options]')
+        parser.add_option('-a', '--all', action='store_true', dest='all', 
+                          default=False,
+                          help='Display all known information about builtin source and build commands')
+        parser.add_option('--source', action='store_true', dest='source', 
+                          default=False,
+                          help='Display information about builtin source commands')
+        parser.add_option('--build', action='store_true', dest='build', 
+                          default=False,
+                          help='Display information about builtin build commands')
+        parser.add_option('--variables', action='store_true', dest='variables', 
+                          default=False,
+                          help='Display variables for builtin commands')
+        (options, args_left) = parser.parse_args(args)
+            
+        if options.all :
+            options.source = True
+            options.build = True
+            options.variables = True
+        elif not options.source and not options.build :
+            options.source = True
+            options.build = True
+          
+            
+        if options.source:
+            for source in ModuleSource.subclasses():
+                self._show_one_builtin(source, 'source', options.variables)
+                
+        if options.build:
+            for build in ModuleBuild.subclasses():
+                self._show_one_builtin(build, 'build', options.variables)
 
-    def showModule(self, state, options, label):
+
+    def show_module(self, state, options, label):
+        """ Handles the printing of the information of modules and dependencies."""
+        
         for module in state:
             print('module: %s (%s)' % (module.name(), label))
             dependencies = module.dependencies()
             if dependencies:
                 print('  depends on:')
                 for dependsOn in module.dependencies():
-                    print('     %s (optional:%s)' % (dependsOn.name(), dependsOn.is_optional()))
-            
+                    print('     %s (optional:%s)' % 
+                          (dependsOn.name(), dependsOn.is_optional()))      
             else:
                 print('no dependencies!')
                 
@@ -621,41 +732,49 @@ class Bake:
         """Handles the show command line option."""
         
         parser = OptionParser(usage='usage: %prog show [options]')
-        parser.add_option("-c", "--conffile", action="store", type="string", 
+        parser.add_option("-c", "--conffile", action="store", type="string",
                           dest="bakeconf", default="bakeconf.xml",
-                          help="The Bake metadata configuration file to use if a Bake file is "
+                          help="The Bake meta-data configuration file to use if a Bake file is "
                           "not specified. Default: %default.")
-        parser.add_option('-a', '--all', action='store_true', dest='all', default=False,
+        parser.add_option('-a', '--all', action='store_true', dest='all', 
+                          default=False,
                           help='Display all known information about current configuration')
         parser.add_option('--enabled', action='store_true', dest='enabled',
                           default=False, help='Display information about existing enabled modules')
         parser.add_option('--disabled', action='store_true', dest='disabled',
                           default=False, help='Display information about existing disabled modules')
-        parser.add_option('--variables', action='store_true', dest='variables', default=False, 
+        parser.add_option('--variables', action='store_true', dest='variables', 
+                          default=False,
                           help='Display information on the variables set for the modules selected')
-        parser.add_option('--predefined', action='store_true', dest='predefined', default=False, 
+        parser.add_option('--predefined', action='store_true', dest='predefined', 
+                          default=False,
                           help='Display information on the items predefined')
-        parser.add_option('--directories', action='store_true', dest='directories', default=False,
+        parser.add_option('--directories', action='store_true', dest='directories', 
+                          default=False,
                           help='Display information about which directories have been configured')
         (options, args_left) = parser.parse_args(args)
+        
         import os
         if os.path.isfile(config):
             configuration = self._read_config(config)
         else:
             configuration = Configuration(config)
             configuration.read_metadata(options.bakeconf)
+            
         if options.all:
             options.enabled = True
             options.disabled = True
             options.directories = True
             options.variables = True
             options.predefined = True
+            
         if options.directories:
             print ('installdir   : ' + configuration.compute_installdir())
             print ('sourcedir    : ' + configuration.compute_sourcedir())
             print ('objdir       : ' + configuration.get_objdir())
 
         enabled = []
+        
         def _iterator(module):
             enabled.append(module)
             return True
@@ -663,21 +782,21 @@ class Bake:
         disabled = filter(lambda module: not module in enabled, configuration.modules())
 
         if options.enabled:
-            module = self.showModule(enabled, options, 'enabled')
+            module = self.show_module(enabled, options, 'enabled')
 
         if options.disabled:
-            module = self.showModule(disabled, options, 'disabled')
+            module = self.show_module(disabled, options, 'disabled')
 
-    options=""
+    options = ""
     
 
-#    def setMainOptions(self, options):
-#        global main_options
-#        main_options = options
-
     def main(self, argv):
-        parser = MyOptionParser(usage = 'usage: %prog [options] command [command options]',
-                                description = """Where command is one of:
+        """Main Bake function."""
+       
+        # catches Ctrl-c 
+        signal.signal(signal.SIGINT, signal_handler)
+        parser = MyOptionParser(usage='usage: %prog [options] command [command options]',
+                                description="""Where command is one of:
   install      : Downloads the configured modules AND makes the build in one step
   configure    : Setup the build configuration (source, build, install directory,
                  and per-module build options) from the module descriptions
@@ -690,15 +809,16 @@ class Bake:
   uninstall    : Remove all files that were installed during build
   show         : Report on build configuration
   show-builtin : Report on builtin source and build commands
+  check        : Checks if all the required tools are available on the system
 
 To get more help about each command, try:
   %s command --help
 """)
-        parser.add_option("-f", "--file", action="store", type="string", 
-                          dest="config_file", default="bakefile.xml", 
+        parser.add_option("-f", "--file", action="store", type="string",
+                          dest="config_file", default="bakefile.xml",
                           help="The Bake file to use. Default: %default.")
-        parser.add_option("--debug", action="store_true", 
-                          dest="debug", default=False, 
+        parser.add_option("--debug", action="store_true",
+                          dest="debug", default=False,
                           help="Should we enable extra Bake debugging output ?")
         parser.disable_interspersed_args()
         (options, args_left) = parser.parse_args(argv[1:])
@@ -718,7 +838,8 @@ To get more help about each command, try:
                 ['shell', self._shell],
                 ['uninstall', self._uninstall],
                 ['show', self._show],
-                ['show-builtin', self._show_builtin]
+                ['show-builtin', self._show_builtin],
+                ['check', self._check],
                ]
         
         for name, function in ops: 
