@@ -292,7 +292,7 @@ class SystemDependency(ModuleSource):
         self.add_attribute('try_to_install', None, 
                            'If should try to install or not',
                            mandatory=True)
-        self.add_attribute('sudoer_install', False, 
+        self.add_attribute('sudoer_install', None, 
                            'Try to install the dependency as sudoer',
                            mandatory=False)
         self.add_attribute('name_yum', None, 

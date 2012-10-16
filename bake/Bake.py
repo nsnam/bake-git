@@ -51,23 +51,63 @@ class Bake:
                   ' -vvv (bake --help)')
         sys.exit(1)
         
-    def _reconfigure(self, config, args):
-        """Handles the reconfigure command line option."""
+    def _fix_config(self, config, args):
+        """Handles the fix_cinfig command line option. It intends to fix 
+        manually changed files and updates the in-use configuration with 
+        new values."""
         
-        parser = OptionParser(usage='usage: %prog reconfigure [options]')
+        parser = OptionParser(usage='usage: %prog fix-config [options]')
         self._enable_disable_options(parser)
         parser.add_option("-c", "--conffile", action="store", type="string",
                           dest="bakeconf", default="bakeconf.xml",
-                          help="The Bake meta-data configuration file to use. Default: %default.")
+                          help="The Bake meta-data configuration from where to"
+                          " get the updated modules file to use. Default: %default.")
+        parser.add_option("--objdir", action="store", type="string",
+                          dest="objdir", default=None,
+                          help="The per-module directory where the object files of each module "
+                          "will be compiled.")
+        parser.add_option("--sourcedir", action="store", type="string",
+                          dest="sourcedir", default=None,
+                          help="The directory where the source code of all modules "
+                          "will be downloaded.")
+        parser.add_option("-i", "--installdir", action="store", type="string",
+                          dest="installdir", default=None,
+                          help="The directory where all modules will be installed.")
+
+        parser.add_option("-t", "--target_file", action="store", type="string",
+                          dest="targetfile", default=None,
+                          help="New target file, if not defined Bake"
+                          " overwrites the present configuration file.")
+
         (options, args_left) = parser.parse_args(args)
+
+        # Stores the present configuration         
         old_config = Configuration(config)
         old_config.read()
-        new_config = Configuration(config,
+        
+        if options.targetfile:
+            new_config = Configuration(options.targetfile,
                                    relative_directory_root=old_config.get_relative_directory_root())
+        else:
+            new_config = Configuration(config,
+                                   relative_directory_root=old_config.get_relative_directory_root())
+            
         new_config.read_metadata(options.bakeconf)
-        new_config.set_installdir(old_config.get_installdir())
-        new_config.set_objdir(old_config.get_objdir())
-        new_config.set_sourcedir(old_config.get_sourcedir())
+        
+        # Checks if the directories where set and if so set the new config file
+        # with the new parameters, or let the old ones
+        if options.installdir:
+            new_config.set_installdir(options.installdir)
+        else:
+            new_config.set_installdir(old_config.get_installdir())
+        if options.objdir:
+            new_config.set_objdir(options.objdir)
+        else:
+            new_config.set_objdir(old_config.get_objdir())
+        if options.sourcedir:
+            new_config.set_sourcedir(options.sourcedir)
+        else:    
+            new_config.set_sourcedir(old_config.get_sourcedir())
 
         # copy installed files.
         for old_module in old_config.modules():
@@ -381,12 +421,12 @@ class Bake:
         configuration = Configuration(config, directory)
         if not configuration.read():
             sys.stderr.write('The configuration file has been changed or has moved.\n'
-                             'Running \'reconfigure\'. You should consider running it\n'
+                             'Running \'fix-config\'. You should consider running it\n'
                              'yourself to tweak some parameters if needed.\n')
-            self._reconfigure(config, [])
+            self._fix_config(config, [])
             configuration = Configuration(config)
             if not configuration.read():
-                self._error('Oops. \'reconfigure\' did not succeed. You should consider\n'
+                self._error('Oops. \'fix-config\' did not succeed. You should consider\n'
                             'deleting your bakefile and running \'configure\' again.')
 
         return configuration
@@ -800,7 +840,7 @@ class Bake:
   install      : Downloads the configured modules AND makes the build in one step
   configure    : Setup the build configuration (source, build, install directory,
                  and per-module build options) from the module descriptions
-  reconfigure  : Update the build configuration from a newer module description
+  fix-config  : Update the build configuration from a newer module description
   download     : Download all modules enabled during configure
   update       : Update the source tree of all modules enabled during configure
   build        : Build all modules enabled during configure
@@ -816,10 +856,11 @@ To get more help about each command, try:
 """)
         parser.add_option("-f", "--file", action="store", type="string",
                           dest="config_file", default="bakefile.xml",
-                          help="The Bake file to use. Default: %default.")
+                          help="The Bake file to use, and the target "
+                          "configuration/reconfiguration. Default: %default.")
         parser.add_option("--debug", action="store_true",
                           dest="debug", default=False,
-                          help="Should we enable extra Bake debugging output ?")
+                          help="Prints out all the error messages and problems.")
         parser.disable_interspersed_args()
         (options, args_left) = parser.parse_args(argv[1:])
         
@@ -830,7 +871,7 @@ To get more help about each command, try:
             sys.exit(1)
         ops = [ ['install', self._install],
                 ['configure', self._configure],
-                ['reconfigure', self._reconfigure],
+                ['fix-config', self._fix_config],
                 ['download', self._download],
                 ['update', self._update],
                 ['build', self._build],
