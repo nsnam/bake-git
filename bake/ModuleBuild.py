@@ -26,27 +26,27 @@ class ModuleBuild(ModuleAttributeBase):
         
         ModuleAttributeBase.__init__(self)
 #        self._libpaths = []
-        self.add_attribute('objdir', 'no', 'Module supports objdir != srcdir.')
-        self.add_attribute('patch', '', 'code to patch before build')
+        self.add_attribute('objdir', 'no', 'Module supports objdir != srcdir.', mandatory=False)
+        self.add_attribute('patch', '', 'code to patch before build', mandatory=False)
         self.add_attribute('v_PATH', '', 'Directory, or directories separated'
-                           ' by a \";\", to append to PATH environment variable')
+                           ' by a \";\", to append to PATH environment variable', mandatory=False)
         self.add_attribute('v_LD_LIBRARY', '', 'Directory, or directories'
                            ' separated by a \";\", to append LD_LIBRARY'
-                           ' environment variable')
+                           ' environment variable', mandatory=False)
         self.add_attribute('v_PKG_CONFIG', '', 'Directory, or directories'
                            ' separated by a \";\", to append to PKG_CONFIG'
-                           ' environment variable')
+                           ' environment variable', mandatory=False)
         self.add_attribute('post_installation', '', 'UNIX Command to run'
-                           ' after the installation')
+                           ' after the installation', mandatory=False)
         self.add_attribute('pre_installation', '', 'UNIX Command to run'
-                           ' before the installation')
+                           ' before the installation', mandatory=False)
         self.add_attribute('supported_os', '', 'List of supported Operating'
                            ' Systems for the module', mandatory=False)
         self.add_attribute('ignore_predefined_flags', 'False', 'True if the'
                            ' build should ignore the predefined flag settings')
         self.add_attribute('new_variable', '', 'Appends the value to the'
                            ' system variable on the format VARIABLE1=value1'
-                           ';VARIABLE2=value2')
+                           ';VARIABLE2=value2', mandatory=False)
         # self.add_attribute('condition_to_build', '', 'Condition that, if '
         # 'existent, should be true for allowing the instalation')
 

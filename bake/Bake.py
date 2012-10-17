@@ -605,11 +605,15 @@ class Bake:
         parser.add_option('-j', '--jobs', help='Allow N jobs at once.'
                           ' Default is 1.',type='int', action='store', 
                           dest='jobs', default=1)
+        parser.add_option('--force_clean', help='Forces the call of the clean'
+                          ' option for the build.', action="store_true", 
+                          default=False, dest='force_clean')
         (options, args_left) = parser.parse_args(args)
         self._check_source_code(config, options)
         self._check_build_version(config, options)
+        
         def _do_build(configuration, module, env):
-            retval = module.build(env, options.jobs)
+            retval = module.build(env, options.jobs, options.force_clean)
             if retval:
                 module.update_libpath(env)
             return retval
@@ -624,6 +628,7 @@ class Bake:
         parser = self._option_parser('clean')
         (options, args_left) = parser.parse_args(args)
         self._check_build_version(config, options)
+        
         def _do_clean(configuration, module, env):
             module.clean(env)
             return True
@@ -644,6 +649,7 @@ class Bake:
         
         parser = self._option_parser('build')
         (options, args_left) = parser.parse_args(args)
+        
         def _do_env_update(configuration, module, env):
             module.update_libpath(env)
             return True

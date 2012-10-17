@@ -382,21 +382,21 @@ class ModuleEnvironment:
         # sets the library and binary paths 
         for libpath in self._libpaths:
             self._append_path(tmp, self._lib_var(), libpath, os.pathsep)
-            if self.debug():
+            if self.debug:
                 print(self._lib_var() + " " + libpath + " ")  
                         
         self._append_path(tmp, self._lib_var(), self._lib_path(), os.pathsep)
         
         for libpath in self._binpaths:
             self._append_path(tmp, self._bin_var(), libpath, os.pathsep)          
-            if self.debug():
+            if self.debug:
                 print(self._bin_var() + " " + libpath + " ")          
                 
         self._append_path(tmp, self._bin_var(), self._bin_path(), os.pathsep)
         
         for libpath in self._pkgpaths:
             self._append_path(tmp, self._pkgconfig_var(), libpath, os.pathsep)
-            if self.debug():
+            if self.debug:
                 print(self._pkgconfig_var() + " " + libpath + " ")         
                  
         self._append_path(tmp, self._pkgconfig_var(), self._pkgconfig_path(), 
@@ -411,7 +411,7 @@ class ModuleEnvironment:
                                  stderr = stderr,
                                  cwd = directory,
                                  env = tmp)
-        # Waits for the full OS execution of the third party software
+        # Waits for the full execution of the third party software
         retcode = popen.wait()
         if retcode != 0:
             raise TaskError('Subprocess failed with error %d: %s' % (retcode, str(args)))

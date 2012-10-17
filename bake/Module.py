@@ -162,14 +162,15 @@ class Module:
                 pass
         self._installed = []
 
-    def build(self, env, jobs):
+    def build(self, env, jobs, force_clean):
         """ Main build function. """
         
         # delete in case this is a new build configuration
         # and there are old files around
-        self.uninstall(env)
-        if not self._built_once:
-            self.clean(env)
+        if force_clean:
+            self.uninstall(env)
+            if not self._built_once:
+                self.clean(env)
 
         srcDirTmp = self._name
         if self._source.attribute('module_directory').value :
