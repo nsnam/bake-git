@@ -17,7 +17,16 @@ sys.path.append(os.path.join (os.getcwd(), '..'))
 
 class TestBake(unittest.TestCase):
     """Tests cases for the main Bake Class."""
-    
+
+    def compensate_third_runner(self):
+        """ Compensates the name of the file, if a third party program is
+         calling bake, as it is the case for running the tests from 
+         inside eclipse."""
+        fileName = sys.argv[0]
+        if len(sys.argv) > 1:
+            fileName = sys.argv[1]
+        return fileName
+           
     def setUp(self):
         """Common set Up environment, available for all tests."""
         pathname = os.path.dirname("/tmp/source/")  
@@ -25,13 +34,15 @@ class TestBake(unittest.TestCase):
         self._logger.set_verbose(1)
         self._env = ModuleEnvironment(self._logger, pathname, pathname, pathname)
 #        testStatus = commands.getoutput('cp ' + pathname + '/bakefile.xml /tmp/.')
+        testStatus = commands.getoutput('chmod 755 /tmp/source')
+        testStatus = commands.getoutput('rm -rf /tmp/source')
 
         
     def tearDown(self):
         """Cleans the environment environment for the next tests."""
         self._env = None
         pathname = os.path.dirname("/tmp/source")  
-        pathname = os.path.dirname(sys.argv[0])  
+        pathname = os.path.dirname(self.compensate_third_runner())  
         testStatus = commands.getoutput('rm -f ' + pathname +'/bakefile.xml')
         testStatus = commands.getoutput('chmod 755 /tmp/source')
         testStatus = commands.getoutput('rm -rf /tmp/source')
@@ -45,7 +56,7 @@ class TestBake(unittest.TestCase):
         testResult = mercurial.check_version(self._env)
         self.assertTrue(testResult)
         
-        pathname = os.path.dirname(sys.argv[0])  
+        pathname = os.path.dirname(self.compensate_third_runner())  
         testStatus = commands.getoutput('python ' + pathname + 
                                         '/../bake.py configure ' 
                                         '--enable=openflow-ns3 ' 
@@ -67,7 +78,7 @@ class TestBake(unittest.TestCase):
                           help='Allow N jobs at once. Default is 1.',
                           type='int', action='store', dest='jobs', default=1)
         parser.add_option("--debug", action="store_true", 
-                          dest="debug", default=False, 
+                          dest="debug", default=True, 
                           help="Should we enable extra Bake debugging output ?")
         (options, args_left) = parser.parse_args(args)
 #        bake.setMainOptions(options)
@@ -80,24 +91,16 @@ class TestBake(unittest.TestCase):
         # if the user has no permission to see the file
         testStatus = commands.getoutput('chmod 000 /tmp/source')
         testResult=None
-        try: 
-            testResult = bake._check_source_code(config, options);
-            self.fail("There was no problem, and the module does not exist. ")
-        except SystemExit as e:
-            self.assertNotEqual(e.message, None)    
-            self.assertEqual(testResult, None)
+        testResult = bake._check_source_code(config, options);
+        self.assertFalse(testResult, None)    
         
         testStatus = commands.getoutput('chmod 755 /tmp/source')
            
         # if the folder is not where it should be
         testStatus = commands.getoutput('rm -rf /tmp/source')
         testResult=None
-        try: 
-            testResult = bake._check_source_code(config, options);
-            self.fail("There was no problem, and the module does not exist. ")
-        except SystemExit as e:
-            self.assertNotEqual(e.message, None)    
-            self.assertEqual(testResult, None)
+        testResult = bake._check_source_code(config, options);
+        self.assertFalse(testResult, None)    
              
 
     def test_check_build_version(self):
@@ -111,7 +114,9 @@ class TestBake(unittest.TestCase):
         
         self._env._debug = True
         
-        pathname = os.path.dirname(sys.argv[0])  
+        file = self.compensate_third_runner()
+           
+        pathname = os.path.dirname(file)  
         testStatus = commands.getoutput('python ' + pathname + 
                                         '/../bake.py configure' 
                                         ' --enable=openflow-ns3' 
@@ -146,24 +151,16 @@ class TestBake(unittest.TestCase):
         # if the user has no permission to see the file
         testStatus = commands.getoutput('chmod 000 /tmp/source')
         testResult=None
-        try: 
-            testResult = bake._check_source_code(config, options);
-            self.fail("There was no problem, and the module does not exist. ")
-        except SystemExit as e:
-            self.assertNotEqual(e.message, None)    
-            self.assertEqual(testResult, None)
+        testResult = bake._check_source_code(config, options);
+        self.assertFalse(testResult, None)    
         
         testStatus = commands.getoutput('chmod 755 /tmp/source')
            
         # if the folder is not where it should be
         testStatus = commands.getoutput('rm -rf /tmp/source')
         testResult=None
-        try: 
-            testResult = bake._check_source_code(config, options);
-            self.fail("There was no problem, and the module does not exist. ")
-        except SystemExit as e:
-            self.assertNotEqual(e.message, None)    
-            self.assertEqual(testResult, None)
+        testResult = bake._check_source_code(config, options);
+        self.assertFalse(testResult, None)    
 
 
 # main call for the tests        

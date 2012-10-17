@@ -16,12 +16,25 @@ def print_backtrace():
     import traceback
     trace = ""
     exception = ""
-    exc_list = traceback.format_exception_only (sys.exc_type, sys.exc_value)
-    for entry in exc_list:
-        exception += entry
-    tb_list = traceback.format_tb(sys.exc_info()[2])
+    
+    exceptionHandling = True
+    if(not sys.exc_info()[0] or not sys.exc_info()[1]):
+        exceptionHandling = False
+        
+    if exceptionHandling: 
+        traceback.extract_tb()
+        exc_list = traceback.format_exception_only (sys.exc_info()[0],sys.exc_info()[1])
+
+        for entry in exc_list:
+            exception += entry
+    
+        tb_list = traceback.format_tb(sys.exc_info()[2])
+    else:
+        tb_list = traceback.format_stack()
+        
     for entry in tb_list:
         trace += entry
+
     sys.stderr.write("%s\n%s" % (exception, trace))
 
 def split_args(stringP):

@@ -3,6 +3,7 @@ import unittest
 import sys
 import os
 
+import test.TestBake
 from bake.ModuleEnvironment import ModuleEnvironment
 from bake.ModuleLogger import StdoutModuleLogger
 
@@ -13,7 +14,8 @@ class TestModuleEnvironment(unittest.TestCase):
     
     def setUp(self):
         """Common set Up environment, available for all tests."""
-        pathname = os.path.dirname(sys.argv[0])  
+        testBake = test.TestBake() 
+        pathname = os.path.dirname(testBake.compensate_third_runner())  
         logger = StdoutModuleLogger()
         self._env = ModuleEnvironment(logger, pathname, pathname, pathname)
         

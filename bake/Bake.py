@@ -39,7 +39,9 @@ class Bake:
         pass
     
     def _error(self, string):
-        """ Handles the exceptions during the processing of the chosen option"""
+        """ Handles hard exceptions, the kind of exceptions Bake should not 
+        recover from.
+        """
 
         import sys
         print(' > Error: %s ' % string)
@@ -571,8 +573,9 @@ class Bake:
         
         def _do_check(configuration, module, env):
             if not module.check_build_version(env):
-                self._error('Could not find build tool for module "%s"' 
-                            % module.name())
+                env._logger.commands.write('Could not find build tool for'
+                                            ' module "%s"\n' % module.name())
+                return False
             return True
         self._do_operation(config, options, _do_check)
 
@@ -581,8 +584,9 @@ class Bake:
          
         def _do_check(configuration, module, env):
             if not module.check_source_version(env):
-                self._error('Could not find source tool for module %s' 
-                            % module.name())
+                env._logger.commands.write('Could not find source tool'
+                                            ' for module %s' % module.name())
+                return False
             return True
         self._do_operation(config, options, _do_check)
 
@@ -591,9 +595,10 @@ class Bake:
         
         def _do_check(configuration, module, env):
             if not module.is_downloaded(env):
-                self._error('Could not find source code for module %s.' 
-                            ' Try %s download first.' %(module.name(), 
-                                                        sys.argv[0]))
+                env._logger.commands.write('Could not find source code for'
+                                            ' module %s. Try %s download first.'
+                                             %(module.name(), sys.argv[0]))
+                return False
             return True
         self._do_operation(config, options, _do_check, directory)
 
@@ -767,7 +772,7 @@ class Bake:
                     print('     %s (optional:%s)' % 
                           (dependsOn.name(), dependsOn.is_optional()))      
             else:
-                print('no dependencies!')
+                print('  No dependencies!')
                 
             if options.variables:
                 self._show_variables(module)
@@ -799,7 +804,12 @@ class Bake:
                           default=False,
                           help='Display information about which directories have been configured')
         (options, args_left) = parser.parse_args(args)
-        
+
+        # adds a default value so that show will show something even if there is
+        # no option 
+        if not args:
+            options.enabled = True
+
         import os
         if os.path.isfile(config):
             configuration = self._read_config(config)
@@ -818,6 +828,7 @@ class Bake:
             print ('installdir   : ' + configuration.compute_installdir())
             print ('sourcedir    : ' + configuration.compute_sourcedir())
             print ('objdir       : ' + configuration.get_objdir())
+
 
         enabled = []
         

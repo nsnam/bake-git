@@ -5,6 +5,7 @@ import os
 import commands
 import re
 
+import test.TestBake
 from bake.ModuleEnvironment import ModuleEnvironment
 from bake.ModuleLogger import StdoutModuleLogger
 from bake.ModuleSource import ModuleSource
@@ -31,8 +32,9 @@ class TestModuleBuild (unittest.TestCase):
     def tearDown(self):
         """Cleans the environment environment for the next tests."""
         self._env = None
-        pathname = os.path.dirname("/tmp/source")  
-        pathname = os.path.dirname(sys.argv[1])  
+        pathname = os.path.dirname("/tmp/source") 
+        testBake = test.TestBake() 
+        pathname = os.path.dirname(testBake.compensate_third_runner())  
         testStatus = commands.getoutput('rm -f ' + pathname +'/bakefile.xml')
         testStatus = commands.getoutput('rm -rf /tmp/source')
 
