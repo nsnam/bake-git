@@ -14,8 +14,7 @@ class TestModuleEnvironment(unittest.TestCase):
     
     def setUp(self):
         """Common set Up environment, available for all tests."""
-        testBake = test.TestBake() 
-        pathname = os.path.dirname(testBake.compensate_third_runner())  
+        pathname = os.path.dirname(test.TestBake.compensate_third_runner())  
         logger = StdoutModuleLogger()
         self._env = ModuleEnvironment(logger, pathname, pathname, pathname)
         

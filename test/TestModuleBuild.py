@@ -24,17 +24,15 @@ class TestModuleBuild (unittest.TestCase):
         pathname = os.path.dirname("/tmp/source/")  
         testStatus = commands.getoutput('rm -rf ' + pathname)
         self._logger = StdoutModuleLogger();
-        self._logger.set_verbose(1)
+        self._logger.set_verbose(2)
         self._env = ModuleEnvironment(self._logger, pathname, pathname, pathname+"/obj")
-#        testStatus = commands.getoutput('cp '+pathname+'/bakefile.xml /tmp/.')
 
         
     def tearDown(self):
         """Cleans the environment environment for the next tests."""
         self._env = None
         pathname = os.path.dirname("/tmp/source") 
-        testBake = test.TestBake() 
-        pathname = os.path.dirname(testBake.compensate_third_runner())  
+#        pathname = os.path.dirname(test.TestBake.compensate_third_runner())  
         testStatus = commands.getoutput('rm -f ' + pathname +'/bakefile.xml')
         testStatus = commands.getoutput('rm -rf /tmp/source')
 

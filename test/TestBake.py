@@ -15,17 +15,18 @@ from bake.Bake import Bake
 
 sys.path.append(os.path.join (os.getcwd(), '..'))
 
+def compensate_third_runner():
+    """ Compensates the name of the file, if a third party program is
+        calling bake, as it is the case for running the tests from 
+        inside eclipse."""
+    fileName = sys.argv[0]
+    if len(sys.argv) > 1:
+        fileName = sys.argv[1]
+    return fileName
+
 class TestBake(unittest.TestCase):
     """Tests cases for the main Bake Class."""
 
-    def compensate_third_runner(self):
-        """ Compensates the name of the file, if a third party program is
-         calling bake, as it is the case for running the tests from 
-         inside eclipse."""
-        fileName = sys.argv[0]
-        if len(sys.argv) > 1:
-            fileName = sys.argv[1]
-        return fileName
            
     def setUp(self):
         """Common set Up environment, available for all tests."""
@@ -42,7 +43,7 @@ class TestBake(unittest.TestCase):
         """Cleans the environment environment for the next tests."""
         self._env = None
         pathname = os.path.dirname("/tmp/source")  
-        pathname = os.path.dirname(self.compensate_third_runner())  
+#        pathname = os.path.dirname(compensate_third_runner())  
         testStatus = commands.getoutput('rm -f ' + pathname +'/bakefile.xml')
         testStatus = commands.getoutput('chmod 755 /tmp/source')
         testStatus = commands.getoutput('rm -rf /tmp/source')
@@ -114,7 +115,7 @@ class TestBake(unittest.TestCase):
         
         self._env._debug = True
         
-        file = self.compensate_third_runner()
+        file = compensate_third_runner()
            
         pathname = os.path.dirname(file)  
         testStatus = commands.getoutput('python ' + pathname + 
