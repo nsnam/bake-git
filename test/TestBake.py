@@ -47,6 +47,8 @@ class TestBake(unittest.TestCase):
         testStatus = commands.getoutput('rm -f ' + pathname +'/bakefile.xml')
         testStatus = commands.getoutput('chmod 755 /tmp/source')
         testStatus = commands.getoutput('rm -rf /tmp/source')
+        testStatus = commands.getoutput('mv bc.xml bakeconf.xml ')
+        testStatus = commands.getoutput('mv bf.xml bakefile.xml ')
 
    
     def test_check_source_code(self):
@@ -172,6 +174,31 @@ class TestBake(unittest.TestCase):
         testResult = bake._check_source_code(config, options);
         self.assertFalse(testResult, None)    
 
+    def test_check_configuration_file(self):
+        """Tests the check_configuration_file method of Class Bake. """
+
+        bakeInstance = Bake() 
+
+        testResult = bakeInstance.check_configuration_file("strangeName")
+        self.assertEqual(testResult, "strangeName", "New name is not respected")
+
+        testResult = bakeInstance.check_configuration_file("bakefile.xml")
+        self.assertEqual(testResult, "bakefile.xml", "Default file should"
+                         " exist but it changed the name.")
+        
+        testStatus = commands.getoutput('mv bakefile.xml bf.xml')
+        testResult = bakeInstance.check_configuration_file("bakefile.xml")
+        self.assertTrue(testResult.endswith("bakeconf.xml"), "Should have"
+                        " returned the bakeconf but returned " + testResult)
+
+        testStatus = commands.getoutput('mv bakeconf.xml bc.xml')
+        testResult = bakeInstance.check_configuration_file("bakefile.xml")
+        self.assertEqual(testResult, "bakefile.xml", "Default file should"
+                         " be returned in the last case.")
+        
+        testStatus = commands.getoutput('mv bc.xml bakeconf.xml ')
+        testStatus = commands.getoutput('mv bf.xml bakefile.xml ')
+       
 
 # main call for the tests        
 if __name__ == '__main__':

@@ -665,8 +665,7 @@ class Bake:
     def _check(self, config, args):
         """Handles the check command line option."""
         
-        checkPrograms = [['testas', 'error message'],
-                         ['python', 'Python'],
+        checkPrograms = [['python', 'Python'],
                          ['hg', 'Mercurial'],
                          ['cvs', 'CVS'],
                          ['bzr', 'Bazaar'],
@@ -762,31 +761,33 @@ class Bake:
 
     def show_module(self, state, options, label):
         """ Handles the printing of the information of modules and dependencies."""
-        
-        for module in state:
-            print('module: %s (%s)' % (module.name(), label))
-            dependencies = module.dependencies()
+
+        if not state:
+            return
+        for mod in state:
+            print('module: %s (%s)' % (mod.name(), label))
+            dependencies = mod.dependencies()
             if dependencies:
                 print('  depends on:')
-                for dependsOn in module.dependencies():
+                for dependsOn in mod.dependencies():
                     print('     %s (optional:%s)' % 
                           (dependsOn.name(), dependsOn.is_optional()))      
             else:
                 print('  No dependencies!')
                 
             if options.variables:
-                self._show_variables(module)
+                self._show_variables(mod)
 
-        return module
+        return mod
 
     def _show(self, config, args):
         """Handles the show command line option."""
         
         parser = OptionParser(usage='usage: %prog show [options]')
-        parser.add_option("-c", "--conffile", action="store", type="string",
-                          dest="bakeconf", default="bakeconf.xml",
-                          help="The Bake meta-data configuration file to use if a Bake file is "
-                          "not specified. Default: %default.")
+#        parser.add_option("-c", "--conffile", action="store", type="string",
+#                          dest="bakeconf", default=None,
+#                          help="The Bake meta-data configuration file to use if a Bake file is "
+#                          "not specified. Default: %default.")
         parser.add_option('-a', '--all', action='store_true', dest='all', 
                           default=False,
                           help='Display all known information about current configuration')
@@ -814,8 +815,12 @@ class Bake:
         if os.path.isfile(config):
             configuration = self._read_config(config)
         else:
-            configuration = Configuration(config)
-            configuration.read_metadata(options.bakeconf)
+            # try to get the default 
+            print(" > Couldn't find the " + config + " configuration file. \n"
+                  "   Call bake with -f [full path configuration file name].\n")
+            return
+#            configuration = Configuration(config)
+#            configuration.read_metadata(config)
             
         if options.all:
             options.enabled = True
@@ -831,7 +836,6 @@ class Bake:
 
 
         enabled = []
-        
         def _iterator(module):
             enabled.append(module)
             return True
@@ -839,14 +843,40 @@ class Bake:
         disabled = filter(lambda module: not module in enabled, configuration.modules())
 
         if options.enabled:
-            module = self.show_module(enabled, options, 'enabled')
+            self.show_module(enabled, options, 'enabled')
 
         if options.disabled:
-            module = self.show_module(disabled, options, 'disabled')
+            self.show_module(disabled, options, 'disabled')
+
+    def check_configuration_file(self, configFile):
+        """ Checks if the configuration file exists, if not tries to use the
+        one on the root bake directory."""
+        
+        # If the name is not the default one... do not interfere 
+        if configFile != "bakefile.xml":
+            return configFile
+        
+        # If the file is the default, and exists on the local directory, fine
+        if os.path.isfile(configFile):
+            return configFile
+        
+        presentDir = os.path.dirname(sys.argv[0])
+        if not presentDir:
+            presentDir = "."
+        # if the file does not exist on the local directory
+        # tries the standard configuration file on the installation directory
+        if os.path.isfile(presentDir + "/bakefile.xml"):
+            return presentDir + "/bakefile.xml"
+        
+        # if the standard file does not exist 
+        # tries the generic configuration file on the installation directory
+        if os.path.isfile(presentDir + "/bakeconf.xml"):
+            return presentDir + "/bakeconf.xml"
+        
+        # if everything else fail.... returns the same name
+        return configFile
 
     options = ""
-    
-
     def main(self, argv):
         """Main Bake function."""
        
@@ -881,6 +911,9 @@ To get more help about each command, try:
         parser.disable_interspersed_args()
         (options, args_left) = parser.parse_args(argv[1:])
         
+        if options.config_file == "bakefile.xml":
+            options.config_file = self.check_configuration_file(options.config_file)
+
         Bake.main_options = options
 
         if len(args_left) == 0:
