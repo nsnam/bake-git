@@ -24,7 +24,7 @@ class TestModuleBuild (unittest.TestCase):
         pathname = os.path.dirname("/tmp/source/")  
         testStatus = commands.getoutput('rm -rf ' + pathname)
         self._logger = StdoutModuleLogger();
-        self._logger.set_verbose(2)
+        self._logger.set_verbose(1)
         self._env = ModuleEnvironment(self._logger, pathname, pathname, pathname+"/obj")
 
         

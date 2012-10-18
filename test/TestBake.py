@@ -57,7 +57,9 @@ class TestBake(unittest.TestCase):
         testResult = mercurial.check_version(self._env)
         self.assertTrue(testResult)
         
-        pathname = os.path.dirname(self.compensate_third_runner())  
+        pathname = os.path.dirname(compensate_third_runner())  
+        if not pathname:
+            pathname="."
         testStatus = commands.getoutput('python ' + pathname + 
                                         '/../bake.py configure ' 
                                         '--enable=openflow-ns3 ' 
@@ -114,10 +116,10 @@ class TestBake(unittest.TestCase):
         self.assertTrue(testResult)
         
         self._env._debug = True
-        
-        file = compensate_third_runner()
-           
-        pathname = os.path.dirname(file)  
+        pathname = os.path.dirname(compensate_third_runner()) 
+        if not pathname:
+            pathname="."
+ 
         testStatus = commands.getoutput('python ' + pathname + 
                                         '/../bake.py configure' 
                                         ' --enable=openflow-ns3' 
@@ -130,6 +132,13 @@ class TestBake(unittest.TestCase):
         testStatus = commands.getoutput('rm -rf /tmp/source')
         self._logger.set_current_module(self._env._module_name)
         testResult = mercurial.download(self._env)
+#        try:
+#            testResult = mercurial.download(self._env)
+#            self.fail("The directory does not exist, this shouldn't work")
+#        except TaskError as e:
+#            self.assertNotEqual(e._reason, None)    
+#            self.assertEqual(testResult, None)
+        
 
         bake = Bake()
         config = "bakefile.xml" #bakefile.xml"

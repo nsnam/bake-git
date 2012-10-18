@@ -14,7 +14,9 @@ class TestModuleEnvironment(unittest.TestCase):
     
     def setUp(self):
         """Common set Up environment, available for all tests."""
-        pathname = os.path.dirname(test.TestBake.compensate_third_runner())  
+        pathname = os.path.dirname(test.TestBake.compensate_third_runner())
+        if not pathname:
+            pathname="."
         logger = StdoutModuleLogger()
         self._env = ModuleEnvironment(logger, pathname, pathname, pathname)
         
@@ -65,7 +67,7 @@ class TestModuleEnvironment(unittest.TestCase):
 
     def test_newVariables(self):
         """Tests setting of variables. """
-        self._env.start_source("Test", ".")
+        self._env.start_source("Test", "/tmp/source")
         self._env.add_libpaths(['v1'])
         self._env.add_binpaths(['v2'])
         self._env.add_pkgpaths(['v3'])
@@ -75,6 +77,9 @@ class TestModuleEnvironment(unittest.TestCase):
         self.assertTrue("v2" in string)
         self.assertTrue("v3" in string)
         self.assertTrue("v4" in string)
+        import commands
+        testStatus = commands.getoutput('rm -rf /tmp/source')
+        self.assertTrue(not testStatus)
 
 
     # def check_program(self, program, version_arg = None,
