@@ -1,7 +1,7 @@
 '''
-Created on Oct 12, 2012
+BakeTestSuite.py
 
-@author: dcamara
+Calls all the available bake tests in sequence.
 '''
 
 import glob
@@ -10,7 +10,7 @@ import unittest
 # finds the test files, should start with Test and finnish with .py
 test_file_strings = glob.glob('Test*.py')
 
-test_file_strings = ["TestBake.py"]
+#test_file_strings = ["TestBake.py"]
 # puts the file in the format of modules to be imported
 module_strings = ["test."+str[0:len(str)-3] for str in test_file_strings]
 

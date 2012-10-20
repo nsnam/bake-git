@@ -414,7 +414,7 @@ class Configuration:
             self.disable(disabled)
 
         if metadata  is not None: 
-            return self._metadata_file.is_hash_ok() and original_bakefile == self._bakefile
+            return self._metadata_file.is_hash_ok() #and original_bakefile == self._bakefile
         else :
             return True
 
