@@ -86,17 +86,17 @@ class Module:
         try:
             print(" >> Downloading " + self._name )
             self._do_download(env, self._source, self._name)
-            print(" >> Download " + self._name + " - OK ")
+            print(" >> Download " + self._name + " - OK")
             return True
         except TaskError as e:
-            print(" >> Download " + self._name + " - Problem ")
+            print(" >> Download " + self._name + " - Problem")
             print(e.reason)
             if env.debug :
                 import bake.Utils
                 bake.Utils.print_backtrace()           
             return False
         except:
-            print(" >> Download " + self._name + " - Problem ")
+            print(" >> Download " + self._name + " - Problem")
             if env.debug :
                 import bake.Utils
                 bake.Utils.print_backtrace()
@@ -125,7 +125,7 @@ class Module:
         
         try:
             self._do_update(env, self._source, self._name)
-            print(" Update " + self._name + " - OK ")
+            print(" Update " + self._name + " - OK")
             return True
         except TaskError as e:
             print(e.reason)
@@ -209,10 +209,10 @@ class Module:
                 self._build.perform_post_installation(env)
             env.end_build()
             self._built_once = True
-            print(" >> Built " + self._name + " - OK ")
+            print(" >> Built " + self._name + " - OK")
             return True
         except TaskError as e:
-            print(" >> Building " + self._name + " - Problem ")
+            print(" >> Building " + self._name + " - Problem")
             print("  > " + e.reason)
             if env.debug :
                 import bake.Utils
@@ -297,10 +297,10 @@ class Module:
             self._build.clean(env)
             env.end_build()
             self._built_once = False
-            print(" >> Cleaning " + self._name + " - OK ")
+            print(" >> Cleaning " + self._name + " - OK")
             return True
         except TaskError as e:
-            print(" >> Cleaning " + self._name + " - Problem ")
+            print(" >> Cleaning " + self._name + " - Problem")
             print(e.reason)
             if env.debug :
                 import bake.Utils
