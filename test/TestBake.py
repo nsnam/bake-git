@@ -50,8 +50,32 @@ class TestBake(unittest.TestCase):
         testStatus = commands.getoutput('mv bc.xml bakeconf.xml ')
         testStatus = commands.getoutput('mv bf.xml bakefile.xml ')
 
+    def test_simple_proceedings(self):
+        """Tests the _check_source_code method of Class Bake. """
+
+        mercurial = ModuleSource.create("mercurial")
+        testResult = mercurial.check_version(self._env)
+        self.assertTrue(testResult)
+        mercurial.attribute("url").value = "http://code.nsnam.org/daniel/bake"
+        self._env._module_name="bake"
+        self._env._module_dir="bake"
+        testStatus = commands.getoutput('rm -rf /tmp/source')
+        self._logger.set_current_module(self._env._module_name)
+        testResult = mercurial.download(self._env)
+        self.assertFalse(testResult)
+
+        testStatus = commands.getoutput('cd /tmp/source/bake;./bake.py configure -e openflow-ns3')
+        self.assertEquals(testStatus, "", "Should have worked the download of the code")
+        testStatus = commands.getoutput('cd /tmp/source/bake;./bake.py download')
+        self.assertTrue(testStatus.endswith(">> Download openflow-ns3 - OK"), 
+                        "Should have worked the download of the code")
+        testStatus = commands.getoutput('cd /tmp/source/bake;./bake.py build')
+        self.assertTrue(testStatus.endswith(">> Built openflow-ns3 - OK"), 
+                        "Should have worked the build of the code")
+  
+  
    
-    def test_check_source_code(self):
+    def Dtest_check_source_code(self):
         """Tests the _check_source_code method of Class Bake. """
 
         # Environment settings        
@@ -108,7 +132,7 @@ class TestBake(unittest.TestCase):
         self.assertFalse(testResult, None)    
              
 
-    def test_check_build_version(self):
+    def Dtest_check_build_version(self):
         """Tests the _check_source_code method of Class Bake. """
 
         # Environment settings        
@@ -174,7 +198,7 @@ class TestBake(unittest.TestCase):
         testResult = bake._check_source_code(config, options);
         self.assertFalse(testResult, None)    
 
-    def test_check_configuration_file(self):
+    def Dtest_check_configuration_file(self):
         """Tests the check_configuration_file method of Class Bake. """
 
         bakeInstance = Bake() 
@@ -188,6 +212,11 @@ class TestBake(unittest.TestCase):
         
         testStatus = commands.getoutput('mv bakefile.xml bf.xml')
         testResult = bakeInstance.check_configuration_file("bakefile.xml")
+        self.assertTrue(testResult.endswith("bakefile.xml"), "Should have"
+                        " returned the bakeconf but returned " + testResult)
+
+        testStatus = commands.getoutput('mv bakefile.xml bf.xml')
+        testResult = bakeInstance.check_configuration_file("bakefile.xml", True)
         self.assertTrue(testResult.endswith("bakeconf.xml"), "Should have"
                         " returned the bakeconf but returned " + testResult)
 

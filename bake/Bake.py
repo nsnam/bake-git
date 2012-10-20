@@ -83,6 +83,8 @@ class Bake:
 
         (options, args_left) = parser.parse_args(args)
 
+	config = self.check_configuration_file(config, True)
+
         # Stores the present configuration         
         old_config = Configuration(config)
         old_config.read()
@@ -426,6 +428,7 @@ class Bake:
                              'Running \'fix-config\'. You should consider running it\n'
                              'yourself to tweak some parameters if needed.\n')
             self._fix_config(config, [])
+            print(">> " + config)
             configuration = Configuration(config)
             if not configuration.read():
                 self._error('Oops. \'fix-config\' did not succeed. You should consider\n'
@@ -848,7 +851,7 @@ class Bake:
         if options.disabled:
             self.show_module(disabled, options, 'disabled')
 
-    def check_configuration_file(self, configFile):
+    def check_configuration_file(self, configFile, considersTemplate=False):
         """ Checks if the configuration file exists, if not tries to use the
         one on the root bake directory."""
         
@@ -870,7 +873,7 @@ class Bake:
         
         # if the standard file does not exist 
         # tries the generic configuration file on the installation directory
-        if os.path.isfile(presentDir + "/bakeconf.xml"):
+        if  considersTemplate and os.path.isfile(presentDir + "/bakeconf.xml"):
             return presentDir + "/bakeconf.xml"
         
         # if everything else fail.... returns the same name
@@ -912,7 +915,7 @@ To get more help about each command, try:
         (options, args_left) = parser.parse_args(argv[1:])
         
         if options.config_file == "bakefile.xml":
-            options.config_file = self.check_configuration_file(options.config_file)
+            options.config_file = self.check_configuration_file(options.config_file, False)
 
         Bake.main_options = options
 
