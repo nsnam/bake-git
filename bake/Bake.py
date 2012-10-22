@@ -280,6 +280,17 @@ class Bake:
         else:
             self._error('invalid variable specification: "%s"' % string)
         return retval
+    
+    def _read_ressource_file(self, configuration):
+        """ Reads the predefined elements on the uer's ressource file."""
+        
+        rcPredefined = []
+        fileName = os.path.join(os.path.expanduser("~"), ".bakerc")
+        
+        if os.path.isfile(fileName):
+            rcPredefined = configuration.read_predefined(fileName)
+    
+        return rcPredefined
         
     def _configure(self, config, args):
         """ Handles the configuration option for %prog """
@@ -330,6 +341,12 @@ class Bake:
             data = options.predefined.split(':')
             requested = None
             predefined = configuration.read_predefined(options.bakeconf)
+            
+            # if the user has a bake configuration
+            rcPredefined = self._read_ressource_file(configuration)
+            predefined = rcPredefined + predefined
+            
+                 
             if len(data) == 1:
                 requested = data[0]
             elif len(data) == 2:

@@ -5,6 +5,7 @@ import os
 import commands
 import re
 
+from bake.Configuration import Configuration
 from bake.ModuleEnvironment import ModuleEnvironment
 from bake.ModuleEnvironment import ModuleEnvironment
 from bake.ModuleLogger import StdoutModuleLogger
@@ -49,6 +50,7 @@ class TestBake(unittest.TestCase):
         testStatus = commands.getoutput('rm -rf /tmp/source')
         testStatus = commands.getoutput('mv bc.xml bakeconf.xml ')
         testStatus = commands.getoutput('mv bf.xml bakefile.xml ')
+        testStatus = commands.getoutput('mv ~/.bakerc_saved ~/.bakerc')
 
     def test_simple_proceedings(self):
         """Tests the _check_source_code method of Class Bake. """
@@ -73,9 +75,31 @@ class TestBake(unittest.TestCase):
         self.assertTrue(testStatus.endswith(">> Built openflow-ns3 - OK"), 
                         "Should have worked the build of the code")
   
+ 
+    def test_read_ressource_file(self):
+        """Tests the _read_ressource_file method of Class Bake."""
+        
+        configuration = Configuration("bakefile.xml")
+        testStatus,testMessage = commands.getstatusoutput('mv ~/.bakerc ~/.bakerc_saved')
+        self.assertTrue(testStatus==0 or testStatus==256,"Couldn't move the ressource file!")
+        bake = Bake()
+        
+        testResult = bake._read_ressource_file(configuration)
+        self.assertFalse(testResult,"Shouldn't find a configuration!")
+        
+        testStatus = commands.getoutput('touch ~/.bakerc')
+        testResult = bake._read_ressource_file(configuration)
+        self.assertFalse(testResult,"Configuration should be empty!")
+
+        testStatus = commands.getoutput('cp ./bakeTest.rc ~/.bakerc')
+        testResult = bake._read_ressource_file(configuration)
+        self.assertTrue(testResult[0].name=="my-ns3","Shouldn't find a configuration!")
+        
+        testStatus,testMessage = commands.getstatusoutput('mv ~/.bakerc_saved ~/.bakerc')
+      
   
    
-    def Dtest_check_source_code(self):
+    def test_check_source_code(self):
         """Tests the _check_source_code method of Class Bake. """
 
         # Environment settings        
@@ -132,7 +156,7 @@ class TestBake(unittest.TestCase):
         self.assertFalse(testResult, None)    
              
 
-    def Dtest_check_build_version(self):
+    def test_check_build_version(self):
         """Tests the _check_source_code method of Class Bake. """
 
         # Environment settings        
@@ -198,7 +222,7 @@ class TestBake(unittest.TestCase):
         testResult = bake._check_source_code(config, options);
         self.assertFalse(testResult, None)    
 
-    def Dtest_check_configuration_file(self):
+    def test_check_configuration_file(self):
         """Tests the check_configuration_file method of Class Bake. """
 
         bakeInstance = Bake() 

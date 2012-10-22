@@ -5,14 +5,16 @@
  to the configuration of Bake. 
 ''' 
 
+import os
+import sys
+import xml.etree.ElementTree as ET
+from xml.etree.ElementTree import ParseError
+
 from bake.Module import Module, ModuleDependency
 from bake.ModuleSource import ModuleSource, InlineModuleSource
 from bake.ModuleBuild import ModuleBuild, InlineModuleBuild
-import xml.etree.ElementTree as ET
 from bake.Exceptions import MetadataError
 from bake.Exceptions import TaskError 
-import os
-import sys
 
 class MetadataFile:
     """Stores the meta information of a given file."""
@@ -86,9 +88,13 @@ class Configuration:
         """ Creates the list of predefined entries defined in the XML 
         configuration file
         """
-        
-        et = ET.parse(filename)
         predefined = []
+
+        try:
+            et = ET.parse(filename)
+        except ParseError:
+            return predefined
+        
         for pred_node in et.getroot().findall('predefined'):
             name = pred_node.get('name', None)
             
