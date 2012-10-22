@@ -76,27 +76,76 @@ class TestBake(unittest.TestCase):
                         "Should have worked the build of the code")
   
  
-    def test_read_ressource_file(self):
-        """Tests the _read_ressource_file method of Class Bake."""
+    def test_read_resource_file(self):
+        """Tests the _read_resource_file method of Class Bake."""
         
         configuration = Configuration("bakefile.xml")
         testStatus,testMessage = commands.getstatusoutput('mv ~/.bakerc ~/.bakerc_saved')
         self.assertTrue(testStatus==0 or testStatus==256,"Couldn't move the ressource file!")
         bake = Bake()
         
-        testResult = bake._read_ressource_file(configuration)
+        testResult = bake._read_resource_file(configuration)
         self.assertFalse(testResult,"Shouldn't find a configuration!")
         
         testStatus = commands.getoutput('touch ~/.bakerc')
-        testResult = bake._read_ressource_file(configuration)
+        testResult = bake._read_resource_file(configuration)
         self.assertFalse(testResult,"Configuration should be empty!")
 
         testStatus = commands.getoutput('cp ./bakeTest.rc ~/.bakerc')
-        testResult = bake._read_ressource_file(configuration)
+        testResult = bake._read_resource_file(configuration)
         self.assertTrue(testResult[0].name=="my-ns3","Shouldn't find a configuration!")
         
         testStatus,testMessage = commands.getstatusoutput('mv ~/.bakerc_saved ~/.bakerc')
       
+    def test_save_resource_configuration(self):
+        """Tests the _save_resource_configuration method of Class Bake."""
+        
+        pathname = os.path.dirname(compensate_third_runner())  
+        if not pathname:
+            pathname="."
+        testStatus = commands.getoutput('python ' + pathname + 
+                                        '/../bake.py -f ./ttt.xml configure ' 
+                                        '--enable=openflow-ns3 ' 
+                                        '--sourcedir=/tmp/source ' 
+                                        '--installdir=/tmp/source')
+
+        configuration = Configuration("./ttt.xml")
+        configuration.read()
+        testStatus,testMessage = commands.getstatusoutput('mv ~/.bakerc ~/.bakerc_saved')
+        self.assertTrue(testStatus==0 or testStatus==256,
+                        "Couldn't move the resource file!")
+        fileName = os.path.join(os.path.expanduser("~"), ".bakerc")
+        testStatus,testMessage = commands.getstatusoutput('rm -rf ./ttt.xml')
+        bake = Bake()
+        
+        testResult = bake._save_resource_configuration(configuration)
+        self.assertFalse(testResult,"Should have write configuration!")
+        self.assertTrue(os.path.isfile(fileName), "Didn't create the .bakerc file")
+        fin = open(fileName, "r")
+        string = fin.read()
+        fin.close()
+        self.assertTrue("last" in string, "Didn't save the last configuration")
+        self.assertTrue("openflow-ns3" in string, 
+                        "Didn't save the last configuration")
+        
+        testStatus = commands.getoutput('cp ./bakeTest.rc ~/.bakerc')
+        fin = open(fileName, "r")
+        string = fin.read()
+        fin.close()
+        self.assertFalse("last" in string, "Did find last in the configuration")
+        
+        testResult = bake._save_resource_configuration(configuration)
+        self.assertFalse(testResult,"Should have write configuration!")
+        self.assertTrue(os.path.isfile(fileName), "Didn't create the .bakerc file")
+        fin = open(fileName, "r")
+        string = fin.read()
+        fin.close()
+        self.assertTrue("<predefined name=\"last\">" in string, "Didn't save the last configuration")
+        self.assertTrue("<enable name=\"openflow-ns3\"/>" in string, 
+                        "Didn't save the last configuration")
+
+
+        testStatus,testMessage = commands.getstatusoutput('mv ~/.bakerc_saved ~/.bakerc')
   
    
     def test_check_source_code(self):

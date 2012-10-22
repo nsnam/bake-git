@@ -6,6 +6,12 @@
  execute the defined options  
 '''
 
+import xml.etree.ElementTree as ET
+from xml.etree.ElementTree import ParseError
+import sys
+import os
+import signal
+import bake.Utils
 from bake.Configuration import Configuration
 from bake.ModuleEnvironment import ModuleEnvironment
 from bake.ModuleLogger import StdoutModuleLogger, LogfileModuleLogger, LogdirModuleLogger
@@ -13,9 +19,7 @@ from optparse import OptionParser
 from bake.Dependencies import Dependencies, DependencyUnmet
 from bake.Exceptions import MetadataError
 from bake.Utils import ColorTool
-import sys
-import os
-import signal
+from bake.Exceptions import TaskError 
 
 def signal_handler(signal, frame):
     """ Handles Ctrl+C keyboard interruptions """
@@ -281,8 +285,8 @@ class Bake:
             self._error('invalid variable specification: "%s"' % string)
         return retval
     
-    def _read_ressource_file(self, configuration):
-        """ Reads the predefined elements on the uer's ressource file."""
+    def _read_resource_file(self, configuration):
+        """ Reads the predefined elements on the uer's resource file."""
         
         rcPredefined = []
         fileName = os.path.join(os.path.expanduser("~"), ".bakerc")
@@ -291,6 +295,61 @@ class Bake:
             rcPredefined = configuration.read_predefined(fileName)
     
         return rcPredefined
+
+    def _get_predefined(self, configuration):
+        """ Gets the values of enable and disable as a predefined setting."""
+        
+        predefined =ET.Element('predefined', {'name':'last'})
+        for e in configuration._enabled:
+            enable_node = ET.Element('enable', {'name':e.name()})
+            predefined.append(enable_node)
+        
+        for e in configuration._disabled:
+            enable_node = ET.Element('disable', {'name':e.name()})
+            predefined.append(enable_node)
+        return predefined
+
+
+    def save_resource_file(self, configuration, fileName):
+        """ Saves the pretty resource file."""
+        
+        try:
+            fout = open(fileName, "w")
+            fout.write(bake.Utils.prettify(configuration))
+            fout.close()
+        except IOError as e:
+            ""
+            # print ('Problems writing the  resource file, error: %s' % e)
+
+    def _save_resource_configuration(self, configuration):
+        """ Saves the last call to the predefined elements on the 
+        user's resource file.
+        """
+        
+        allPredefined = []
+        fileName = os.path.join(os.path.expanduser("~"), ".bakerc")
+        lastConfig = self._get_predefined(configuration)
+        
+        if os.path.isfile(fileName):
+            try:
+                et = ET.parse(fileName)
+                root = et.getroot()
+                for element in root.findall('predefined'):
+                    if element.attrib['name'] == "last":
+                        root.remove(element)
+                        break
+            
+                root.append(lastConfig)
+                self.save_resource_file(root, fileName)
+                return
+            except ParseError as e :
+                print ('Problems reading the resource file, error: %s'% e)
+            
+        # There is no configuration file, so wee need to create one
+        configuration = ET.Element('configuration', {})      
+        configuration.append(lastConfig)
+        self.save_resource_file(configuration, fileName)
+
         
     def _configure(self, config, args):
         """ Handles the configuration option for %prog """
@@ -300,23 +359,25 @@ class Bake:
         self._enable_disable_options(parser)
         parser.add_option("-c", "--conffile", action="store", type="string",
                           dest="bakeconf", default="bakeconf.xml",
-                          help="The Bake meta-data configuration file to use. Default: %default.")
+                          help="The Bake meta-data configuration file to use. "
+                          "Default: %default.")
         parser.add_option("-g", "--gui", action="store_true",
                           dest="gui", default="False",
                           help="Use a GUI to define the configuration.")
         parser.add_option("-s", "--set", action="append", type="string", 
                           dest="set",
                           default=[],
-                          help="Format: module:name=value. A variable to set in the Bake "
-                          "configuration for the matching module.")
+                          help="Format: module:name=value. A variable to set"
+                          " in the Bake configuration for the matching module.")
         parser.add_option("--append", action="append", type="string", 
                           dest="append", default=[],
-                          help="Format: module:name=value. A variable to append to in the Bake "
+                          help="Format: module:name=value. A variable to"
+                          " append to in the Bake "
                           "configuration for the matching module.")
         parser.add_option("--objdir", action="store", type="string",
                           dest="objdir", default="objdir",
-                          help="The per-module directory where the object files of each module "
-                          "will be compiled.")
+                          help="The per-module directory where the object"
+                          " files of each module will be compiled.")
         parser.add_option("--sourcedir", action="store", type="string",
                           dest="sourcedir", default="source",
                           help="The directory where the source code of all modules "
@@ -343,7 +404,7 @@ class Bake:
             predefined = configuration.read_predefined(options.bakeconf)
             
             # if the user has a bake configuration
-            rcPredefined = self._read_ressource_file(configuration)
+            rcPredefined = self._read_resource_file(configuration)
             predefined = rcPredefined + predefined
             
                  
@@ -395,6 +456,8 @@ class Bake:
                 current_value = module.get_build().attribute(name).value
                 module.get_build().attribute(name).value = current_value + ' ' + value
         configuration.write()
+        
+        self._save_resource_configuration(configuration)
 
     def _iterate(self, configuration, functor, targets, follow_optional=True):
         """Iterates over the configuration modules applying the functor 

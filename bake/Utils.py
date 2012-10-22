@@ -6,8 +6,10 @@
 ''' 
 
 import subprocess
-from bake.Exceptions import TaskError
 import os
+from xml.etree import ElementTree
+from xml.dom import minidom
+from bake.Exceptions import TaskError
 
 def print_backtrace():
     """ Prints the full trace of the exception."""
@@ -65,6 +67,20 @@ def split_args(stringP):
                 returnValue.append(element)
     
     return returnValue
+
+def prettify(elem):
+    """Return a pretty-printed XML string for the Element.
+    """
+    rough_string = ElementTree.tostring(elem, 'utf-8')
+    reparsed = minidom.parseString(rough_string)
+    string = reparsed.toprettyxml(indent="  ")
+    new_string=''
+    for line in string.split('\n'):
+        if line.strip():
+                new_string += line + '\n'
+
+    return new_string
+
 
 class ModuleAttribute:
     """ Definition of the Bake attribute. An attribute is basically one of the 
@@ -153,3 +169,5 @@ class ColorTool:
         """ Print the message with the defined color. """
         
         print (color + message + self.ENDC)
+        
+
