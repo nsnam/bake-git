@@ -1,5 +1,6 @@
 import unittest
 import bake.Utils
+from bake.Exceptions import TaskError
 
 
 class TestModuleUtils(unittest.TestCase):
@@ -11,8 +12,21 @@ class TestModuleUtils(unittest.TestCase):
     def tearDown(self):
         """Cleans the environment environment for the next tests."""
 
+    def test_print_backtrace(self):
+        """Tests the _print_backtrace method from Util. """
+
+        testResult = bake.Utils.print_backtrace()
+        self.assertTrue(testResult)
+        
+        try:
+            raise TaskError('Process test failure')
+        except TaskError as e:
+            testResult = bake.Utils.print_backtrace()
+            self.assertTrue('Process test failure' in testResult)
+
+
    
-    def test_split_args(self):
+    def Dtest_split_args(self):
         """Tests the split_args method of Class Utils. """
         
         string = "CCOPTS='-fpic -D_GNU_SOURCE -O0 -U_FORTIFY_SOURCE'"

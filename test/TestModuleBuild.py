@@ -35,13 +35,6 @@ class TestModuleBuild (unittest.TestCase):
 #        pathname = os.path.dirname(test.TestBake.compensate_third_runner())  
         testStatus = commands.getoutput('rm -f ' + pathname +'/bakefile.xml')
         testStatus = commands.getoutput('rm -rf /tmp/source')
-
-    def test_ModuleBuild(self):
-        """Tests the WafModuleBuild Class from ModuleBuild. """
-
-        build = ModuleBuild.create("non_Existing_BuilTool")
-        self.assertEqual(build  , None)
-
    
     def test_PythonModuleBuild(self):
         """Tests the WafModuleBuild Class from ModuleBuild. """
