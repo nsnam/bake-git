@@ -212,7 +212,7 @@ class Module:
 
         try:
             print(" >> Building " + self._name )
-            if os.path.isdir(env.srcdir):
+            if not os.path.isdir(env.srcdir):
                 raise TaskError('Source is not available for module %s: '
                             'directory %s not found.  Try %s download first.' % 
                             (env._module_name,env.srcdir, sys.argv[0]))
