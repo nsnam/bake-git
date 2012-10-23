@@ -87,7 +87,7 @@ class Bake:
 
         (options, args_left) = parser.parse_args(args)
 
-	config = self.check_configuration_file(config, True)
+        config = self.check_configuration_file(config, True)
 
         # Stores the present configuration         
         old_config = Configuration(config)
@@ -635,10 +635,15 @@ class Bake:
         """Handles the download command line option."""
 
         parser = self._option_parser('download')
+        parser.add_option("--force_download", action='store_true', 
+                          dest='force_download', default=False,
+                          help='Force the download of all modules again')
+
+        
         (options, args_left) = parser.parse_args(args)
         self._check_source_version(config, options)
         def _do_download(configuration, module, env):
-            return module.download(env)
+            return module.download(env, options.force_download)
         self._do_operation(config, options, _do_download)
 
     def _update(self, config, args):
@@ -1024,5 +1029,5 @@ To get more help about each command, try:
                     try:
                         function(config=options.config_file, args=args_left[1:])
                     except Exception as e:
-                        print (e.message)
+                        print ('\n'+e.message)
                         sys.exit(1)

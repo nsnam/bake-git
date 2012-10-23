@@ -8,6 +8,8 @@
 
 import copy
 import os
+import sys
+import shutil
 from bake.FilesystemMonitor import FilesystemMonitor
 from bake.Exceptions import TaskError
 
@@ -51,7 +53,7 @@ class Module:
     def _directory(self):
         return self._name
 
-    def _do_download(self, env, source, name):
+    def _do_download(self, env, source, name, forceDownload):
         """ Recursive download function, do the download for each 
         target module. """
         
@@ -60,6 +62,16 @@ class Module:
             srcDirTmp = source.attribute('module_directory').value
             
         env.start_source(name, srcDirTmp)
+        
+        if forceDownload:
+            try: # when forced download, removes the repository if it exists
+                if os.path.isdir(env.srcdir):
+                    shutil.rmtree(env.srcdir)
+            except OSError as e:
+                env._logger.commands.write('Could not remove source files'
+                                            ' %s for module: %s \n Error: %s' % 
+                                            (env.srcdir, env._module_name, 
+                                             str(e)))
         
         if os.path.isdir(env.srcdir):
             env.end_source()
@@ -71,7 +83,7 @@ class Module:
         for child, child_name in source.children():
             self._do_download(env, child, os.path.join(name, child_name))
 
-    def download(self, env):
+    def download(self, env, forceDownload):
         """ General download function. """
         
         if self._build.attribute('supported_os').value :
@@ -85,7 +97,7 @@ class Module:
             
         try:
             print(" >> Downloading " + self._name )
-            self._do_download(env, self._source, self._name)
+            self._do_download(env, self._source, self._name, forceDownload)
             print(" >> Download " + self._name + " - OK")
             return True
         except TaskError as e:
@@ -131,7 +143,7 @@ class Module:
             print(e.reason)
             if env.debug :
                 import bake.Utils
-                Utils.print_backtrace()           
+                bake.Utils.print_backtrace()           
             return False
         except:
             if env.debug :
@@ -200,6 +212,11 @@ class Module:
 
         try:
             print(" >> Building " + self._name )
+            if os.path.isdir(env.srcdir):
+                raise TaskError('Source is not available for module %s: '
+                            'directory %s not found.  Try %s download first.' % 
+                            (env._module_name,env.srcdir, sys.argv[0]))
+
             if self._build.attribute('pre_installation').value != '':
                 self._build.perform_pre_installation(env)
             self._build.threat_variables(env)
@@ -213,7 +230,7 @@ class Module:
             return True
         except TaskError as e:
             print(" >> Building " + self._name + " - Problem")
-            print("  > " + e.reason)
+            print("   > " + e.reason)
             if env.debug :
                 import bake.Utils
                 bake.Utils.print_backtrace()           

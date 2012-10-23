@@ -405,12 +405,17 @@ class ModuleEnvironment:
         self._append_path(tmp, self._py_var(), self._py_path(), os.pathsep)
         
         # Calls the third party executable with the whole context
-        popen = subprocess.Popen(args,
-                                 stdin = stdin,
-                                 stdout = stdout,
-                                 stderr = stderr,
-                                 cwd = directory,
-                                 env = tmp)
+        try:
+            popen = subprocess.Popen(args,
+                                     stdin = stdin,
+                                     stdout = stdout,
+                                     stderr = stderr,
+                                     cwd = directory,
+                                     env = tmp)
+        except Exception as e:
+            raise TaskError('could not execute: %s %s. \nUnexpected error: %s' 
+                                % (str(directory), str(args), str(e)))
+        
         # Waits for the full execution of the third party software
         retcode = popen.wait()
         if retcode != 0:

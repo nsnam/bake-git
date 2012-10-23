@@ -346,7 +346,6 @@ class WafModuleBuild(ModuleBuild):
         
         if self.attribute('patch').value != '':
             self.threat_patch(env)
-               
         
         extra_configure_options = []
         if self.attribute('configure_arguments').value != '':

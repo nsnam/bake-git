@@ -24,7 +24,6 @@ def print_backtrace():
         exceptionHandling = False
         
     if exceptionHandling: 
-#        traceback.extract_tb()
         exc_list = traceback.format_exception_only (sys.exc_info()[0],sys.exc_info()[1])
 
         for entry in exc_list:
@@ -37,7 +36,7 @@ def print_backtrace():
     for entry in tb_list:
         trace += entry
 
-    toWrite = "%s\n%s" % (exception, trace)
+    toWrite = "\n%s\n%s" % (exception, trace)
     sys.stderr.write(toWrite)
     return toWrite
 

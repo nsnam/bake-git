@@ -26,7 +26,7 @@ class TestModuleUtils(unittest.TestCase):
 
 
    
-    def Dtest_split_args(self):
+    def test_split_args(self):
         """Tests the split_args method of Class Utils. """
         
         string = "CCOPTS='-fpic -D_GNU_SOURCE -O0 -U_FORTIFY_SOURCE'"
