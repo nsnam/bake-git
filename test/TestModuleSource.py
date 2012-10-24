@@ -189,6 +189,78 @@ class TestModuleSource(unittest.TestCase):
 #
 #        testStatus = commands.getoutput('chmod 755 /tmp/click-1.8.0; rm -rf /tmp/click-1.8.0')
 
+    def test_check_dependency_expression(self):
+        """ Tests the _check_dependency_expression method. """
+        
+        # it first needs to be able to create the class otherwise will not be
+        # able to do anything else
+        installer = ModuleSource.create("system_dependency")
+        self.assertNotEqual(installer, None)
+        self.assertEqual(installer.name(), "system_dependency")
+       
+        self._env._module_name="testModule"
+        self._logger.set_current_module(self._env._module_name)
+        
+        # Unknown file type
+        installer.attribute('more_information').value = "Just a test"
+        installer.attribute('sudoer_install').value = False
+        installer.attribute("try_to_install").value=True
+
+        installer.attribute("dependency_test").value = "NonExistentSoftForTest"
+
+        testResult = None
+        testResult = installer._check_dependency_expression(self._env, 
+                                                                "NonExistentSoft")
+        self.assertFalse(testResult, "Non existent software, should be false")    
+
+        testResult = None
+        testResult = installer._check_dependency_expression(self._env, "bash")
+        self.assertTrue(testResult, "Existent software, should be true")    
+
+        testResult = None
+        testResult = installer._check_dependency_expression(self._env, "nthing or bash")
+        self.assertTrue(testResult, "Existent software, should be true")    
+
+        testResult = None
+        testResult = installer._check_dependency_expression(self._env, "nthinag and bash")
+        self.assertFalse(testResult, "Inexistent software AND existent one, "
+                        "should be false")    
+
+        testResult = None
+        testResult = installer._check_dependency_expression(self._env, "not bash")
+        self.assertFalse(testResult, "The software should exist so it, "
+                        "should be false")    
+
+        testResult = None
+        testResult = installer._check_dependency_expression(self._env, "not nthing")
+        self.assertTrue(testResult, "The software does not exist so it, "
+                        "should be true")    
+
+        testResult = None
+        testResult = installer._check_dependency_expression(self._env, "/bin/ls")
+        self.assertTrue(testResult, "The software exist so it, "
+                        "should be true")    
+
+        testResult = None
+        testResult = installer._check_dependency_expression(self._env, "/lib")
+        self.assertTrue(testResult, "The repository exist so it, "
+                        "should be true")    
+
+        testResult = None
+        testResult = installer._check_dependency_expression(self._env, "/tt/NoDirDir")
+        self.assertFalse(testResult, "The repository does not exist so it, "
+                        "should be False")    
+
+        testResult = None
+        testResult = installer._check_dependency_expression(self._env, "libc.so")
+        self.assertTrue(testResult, "The library should  exist so it, "
+                        "should be True")    
+
+        testResult = None
+        testResult = installer._check_dependency_expression(self._env, "notValidLibNot.so")
+        self.assertFalse(testResult, "The library should not exist so it, "
+                        "should be False")    
+
     def test_SystemDependencySource(self):
         """Tests the SelfInstallerModule class. """
         

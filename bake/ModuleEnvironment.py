@@ -209,6 +209,27 @@ class ModuleEnvironment:
                 exe_file = os.path.join(path, program)
                 if is_exe(exe_file):
                     return exe_file
+                
+            # search for libs with that name on the library path
+            if program.endswith(".so"):
+                tmp=['/usr/lib','/usr/lib64','/usr/lib32','/usr/local/lib',
+                     '/lib']
+                for libpath in self._libpaths:
+                    tmp.append(libpath)
+                stdLibs = []
+                try:
+                    libPath = os.environ[self._lib_var()]
+                    if libPath:
+                        stdLibs=libPath.split(os.pathsep)
+                except:
+                    pass
+
+                for path in (stdLibs + tmp + 
+                             [self._lib_path()]):
+                    lib_file = os.path.join(path, program)
+                    if os.path.exists(lib_file):
+                        return lib_file
+             
         return None
 
     def _check_version(self, found, required, match_type):

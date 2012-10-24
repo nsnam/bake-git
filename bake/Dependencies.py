@@ -16,6 +16,7 @@
 ''' 
 
 import copy
+from bake.Exceptions import TaskError 
 
 class CycleDetected:
     def __init__(self):
@@ -271,9 +272,28 @@ class Dependencies:
             assert self._is_clean(i.src())
             success = True
             if callback is None and i.context() is not None:
-                success = i.context()()
+                try:
+                    success = i.context()()
+                except TaskError as e:
+                    success = False
+                    print ("  > Error: " + e._reason)
+                except:
+                    success = False
+                    import sys
+                    er = sys.exc_info()[0]
+                    print ("  > Unexpected error: " + str(er))
+                    
             elif callback is not None:
-                success = callback(i.dst(), i.context())
+                try:
+                    success = callback(i.dst(), i.context())
+                except TaskError as e:
+                    success = False
+                    print ("  > Error: " + e._reason)
+                except:
+                    success = False
+                    import sys
+                    er = sys.exc_info()[0]
+                    print ("  > Unexpected error: " + str(er))
             if not success:
                 if not self._sources.has_key(i.dst()):
                     raise DependencyUnmet(i.dst())

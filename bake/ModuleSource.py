@@ -110,7 +110,7 @@ class BazaarModuleSource(ModuleSource):
         rev_arg = []
         if not self.attribute('revision').value is None:
             rev_arg.extend(['-r', self.attribute('revision').value])
-        env.run(['bzr', 'clone'] + rev_arg + [self.attribute('url').value, 
+        env.run(['bzr', 'branch'] + rev_arg + [self.attribute('url').value, 
                                               env.srcdir])
 
     def update(self, env):
@@ -125,7 +125,9 @@ class BazaarModuleSource(ModuleSource):
     def check_version(self, env):
         """ Checks if the tool is available and with the needed version."""
         
-        return env.check_program('bzr')
+        return env.check_program('bzr', version_arg='--version',
+                                 version_regexp='(\d+)\.(\d+)',
+                                 version_required=(2, 4))
 
     
 class MercurialModuleSource(ModuleSource):
@@ -351,7 +353,7 @@ class SystemDependency(ModuleSource):
             
         # if didn't find the specific installer name uses the default one
         if(not installerName):
-            installerName = self.attribute('dependency_test').value
+            installerName = env._module_name
 
         # if should try to install as sudoer
         if(self.attribute('sudoer_install').value):
@@ -454,7 +456,7 @@ class SystemDependency(ModuleSource):
             
             # if didn't find the specific installer name uses the default one
             if(not installerName):
-                installerName = self.attribute('dependency_test').value
+                installerName = env._module_name
             
             if(not command):
                 selfInstalation = False

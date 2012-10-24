@@ -195,12 +195,6 @@ class Module:
         monitor = FilesystemMonitor(env.installdir)
         monitor.start()
 
-        if not os.path.isdir(env.installdir):
-            os.mkdir(env.installdir)
-        if self._build.supports_objdir and not os.path.isdir(env.objdir):
-            os.mkdir(env.objdir)
-
-
         if self._build.attribute('supported_os').value :
             if not self._build.check_os(self._build.attribute('supported_os').value) : 
                 import platform
@@ -209,6 +203,11 @@ class Module:
                                 ' platform(s), %s not supported for %s' 
                                 % (self._build.attribute('supported_os').value, 
                                    osName, env._module_name))
+
+        if not os.path.isdir(env.installdir):
+            os.mkdir(env.installdir)
+        if self._build.supports_objdir and not os.path.isdir(env.objdir):
+            os.mkdir(env.objdir)
 
         try:
             print(" >> Building " + self._name )

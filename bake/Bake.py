@@ -703,13 +703,19 @@ class Bake:
                           default=False, dest='force_clean')
         (options, args_left) = parser.parse_args(args)
         self._check_source_code(config, options)
-        self._check_build_version(config, options)
+        #self._check_build_version(config, options)
         
         def _do_build(configuration, module, env):
-            retval = module.build(env, options.jobs, options.force_clean)
-            if retval:
-                module.update_libpath(env)
-            return retval
+            if module.check_build_version(env):
+                retval = module.build(env, options.jobs, options.force_clean)
+                if retval:
+                    module.update_libpath(env)
+                return retval
+            else:
+                raise TaskError('Could not find build tool for'
+                                ' module "%s". Try to call \"%s check\"\n' % 
+                                (module.name(), os.path.basename(sys.argv[0])))
+
         env = self._do_operation(config, options, _do_build)
         
         if not options.no_environment_file:
