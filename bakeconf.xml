@@ -96,7 +96,7 @@
 
       </source>
       <build type="autotools" objdir="yes">
-	<attribute name="configure_arguments" value="../configure --enable-userlevel --disable-linuxmodule --enable-nsclick --enable-wifi"/>
+	<attribute name="configure_arguments" value="../configure --prefix=$INSTALLDIR --exec-prefix=$INSTALLDIR -enable-userlevel --disable-linuxmodule --enable-nsclick --enable-wifi"/>
       </build>
     </module>
 
@@ -152,6 +152,7 @@
 	<attribute name="build_arguments" value="--generate-version"/>
       </build>
       <depends_on name="pygccxml" optional="True"/>
+      <depends_on name="gccxml-ns3" optional="False"/>
     </module>
 
 

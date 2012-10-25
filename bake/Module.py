@@ -177,6 +177,10 @@ class Module:
     def build(self, env, jobs, force_clean):
         """ Main build function. """
         
+        # if there is no build we do not need to proceed 
+        if self._build.name() == 'none':
+            return True
+        
         # delete in case this is a new build configuration
         # and there are old files around
         if force_clean:
@@ -190,7 +194,7 @@ class Module:
             
         env.start_build(self._name, srcDirTmp,
                         self._build.supports_objdir)
-
+        
         # setup the monitor
         monitor = FilesystemMonitor(env.installdir)
         monitor.start()

@@ -70,8 +70,8 @@ class Bake:
                           " get the updated modules file to use. Default: %default.")
         parser.add_option("--objdir", action="store", type="string",
                           dest="objdir", default=None,
-                          help="The per-module directory where the object files of each module "
-                          "will be compiled.")
+                          help="The per-module directory where the object"
+                          " files of each module will be compiled.")
         parser.add_option("--sourcedir", action="store", type="string",
                           dest="sourcedir", default=None,
                           help="The directory where the source code of all modules "
@@ -274,8 +274,8 @@ class Bake:
             name, value = data[1].split("=")
             module = configuration.lookup(data[0])
             if not module:
-                self._error('non-existing module %s in variable specification %s' % \
-                                (name, string))
+                self._error('non-existing module %s in variable'
+                            ' specification %s' % (name, string))
             if not module.get_build().attribute(name):
                 self._error('non-existing variable %s in module %s' % 
                             (name, module._name))
@@ -661,8 +661,8 @@ class Bake:
         
         def _do_check(configuration, module, env):
             if not module.check_build_version(env):
-                env._logger.commands.write('Could not find build tool for'
-                                            ' module "%s"\n' % module.name())
+                env._logger.commands.write('Unavailable building tool for'
+                                            ' module "%s"' % module.name())
                 return False
             return True
         self._do_operation(config, options, _do_check)
@@ -672,18 +672,18 @@ class Bake:
          
         def _do_check(configuration, module, env):
             if not module.check_source_version(env):
-                env._logger.commands.write('Could not find source tool'
+                env._logger.commands.write('Unavailable source tool'
                                             ' for module %s' % module.name())
                 return False
             return True
         self._do_operation(config, options, _do_check)
 
     def _check_source_code(self, config, options, directory=None):
-        """ Checks if  we have already downloaded the matching source code."""
+        """ Checks if we have already downloaded the matching source code."""
         
         def _do_check(configuration, module, env):
             if not module.is_downloaded(env):
-                env._logger.commands.write('Could not find source code for'
+                env._logger.commands.write('Unavailable source code for'
                                             ' module %s. Try %s download first.'
                                              %(module.name(), sys.argv[0]))
                 return False
@@ -712,7 +712,7 @@ class Bake:
                     module.update_libpath(env)
                 return retval
             else:
-                raise TaskError('Could not find build tool for'
+                raise TaskError('Unavailable building tool for'
                                 ' module "%s". Try to call \"%s check\"\n' % 
                                 (module.name(), os.path.basename(sys.argv[0])))
 
