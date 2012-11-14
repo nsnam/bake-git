@@ -67,13 +67,14 @@ class Configuration:
         self._objdir = None
         self._sourcedir = None
         self._metadata_file = None
-        self._bakefile = os.path.abspath(bakefile)
+#        self._bakefile = os.path.abspath(bakefile)
+        self._bakefile = os.getcwd()+os.sep+bakefile
         if relative_directory_root is None:
             self._relative_directory_root = os.path.relpath(os.getcwd(),
                                                             os.path.dirname(self._bakefile))
         else:
             self._relative_directory_root = relative_directory_root
-
+        
     def read_metadata(self, filename):
         """ Reads the list of meta-data defined in the XML config file"""
    

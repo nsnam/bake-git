@@ -202,8 +202,12 @@ class ArchiveModuleSource(ModuleSource):
             ['tar.Z', ['tar', 'zxf']],
             ['tar.bz2', ['tar', 'jxf']],
             ['zip', ['unzip']],
-            ['rar', ['unrar', 'e']]
-            ]
+            ['rar', ['unrar', 'e']],
+            ['xz', ['unxz']],
+            ['tar.xz', ['tar', 'Jxf']],
+            ['7z', ['7z', 'x']],
+            ['tbz2', ['tar', 'jxf']]
+           ]
         
         # finds the right tool
         for extension, command in extensions:
@@ -265,6 +269,9 @@ class ArchiveModuleSource(ModuleSource):
             ['tar.bz2', 'tar'],
             ['zip', 'unzip'],
             ['rar', 'unrar']
+            ['7z', '7z']
+            ['xz', 'unxz']
+            ['Z', 'uncompress']
             ]
         try:
             filename = os.path.basename(urlparse.urlparse(self.attribute('url').value).path)
@@ -279,7 +286,7 @@ class ArchiveModuleSource(ModuleSource):
         
 class SystemDependency(ModuleSource):
     """Handles the system dependencies for a given module, if the module 
-    is missing, and it is a linux box, try to install the missing module 
+    is missing, and it is a supported box, try to install the missing module 
     using one of the default tools  i.e. yum apt-get.
     """
     
@@ -306,6 +313,9 @@ class SystemDependency(ModuleSource):
         self.add_attribute('name_yast', None, 
                            'The name of the module to install with  yast',
                            mandatory=False)
+        self.add_attribute('name_ports', None, 
+                           'The name of the module to install with  ports (Mac OS)',
+                           mandatory=False)
         self.add_attribute('more_information', None, 
                            'Gives users a better hint of where to search for the module' ,
                            mandatory=True)
@@ -315,8 +325,7 @@ class SystemDependency(ModuleSource):
         return 'system_dependency'
     
     def _get_command(self, distribution):
-        """Finds the proper installer command line, given the linux 
-        distribution.
+        """Finds the proper installer command line, given the OS distribution.
         """
         
         distributions = [
@@ -326,6 +335,7 @@ class SystemDependency(ModuleSource):
             ['redhat', 'yum -y install '],
             ['centos', 'yum -y install '],
             ['suse', 'yast --install '],
+            ['darwin', 'ports install '],
             ]
  
         for name, command in distributions:
@@ -339,12 +349,12 @@ class SystemDependency(ModuleSource):
         
         # if the download is dependent of the machine's architecture 
         osName = platform.system().lower()
-        if(not osName.startswith('linux')):
-            raise TaskError("Not a Linux machine, self installation is not"
+        if(not osName.startswith('linux') and not osName.startswith('darwin')):
+            raise TaskError("Not a Linux/Mac OS machine, self installation is not"
                             " possible in %s for module: %s,  %s" % 
                             (osName, env._module_name, 
                              self.attribute('error_message').value))
-               
+        
         (distribution, version, version_id) = platform.linux_distribution()
         distribution = distribution.lower()
         command = self._get_command(distribution)
@@ -428,7 +438,7 @@ class SystemDependency(ModuleSource):
 
     def download(self, env):
         """ Verifies if the system dependency exists, if exists returns true, 
-        if not, and we are in a linux machine, tries to download and install 
+        if not, and we are in a supported machine, tries to download and install 
         the dependency.  
         """
         
@@ -445,9 +455,9 @@ class SystemDependency(ModuleSource):
 
         selfInstalation = self.attribute('try_to_install').value
         
-        # even if should try to install, if it is not a linux mahine we will not be able
+        # even if should try to install, if it is not a supported mahine we will not be able
         osName = platform.system().lower()
-        if(osName.startswith('linux') and selfInstalation):
+        if((osName.startswith('linux') or osName.startswith('darwin')) and selfInstalation):
             (distribution, version, version_id) = platform.linux_distribution()
             distribution = distribution.lower()
             command = self._get_command(distribution)
@@ -519,16 +529,21 @@ class SystemDependency(ModuleSource):
             ['redhat', 'yum'],
             ['centos', 'yum'],
             ['suse', 'yast'],
+            ['darwin', 'ports'],
             ]
 
         import platform 
         
         osName = platform.system().lower()
-        if(not osName.startswith('linux')):
-            raise TaskError("This installation model works only on Linux"
+        if(not osName.startswith('linux') and not osName.startswith('darwin')):
+            raise TaskError("This installation model works only on Linux/Mac OS"
                             " platforms, %s not supported for %s,  %s" % 
                             (osName, env._module_name, 
                              self.attribute('error_message').value))
+        print(" TEST!!!! ! > %s - %s - %s " % (platform.linux_distribution()))
+        
+        if osName.startswith('darwin'):
+                 return env.check_program('ports')
                
         (distribution, version, version_id) = platform.linux_distribution()
         distribution = distribution.lower()
@@ -652,9 +667,19 @@ class GitModuleSource(ModuleSource):
     def update(self, env):
         """ Updates the code using a specific version from the repository."""
 
-        env.run(['git', 'fetch'], directory=env.srcdir)
-        env.run(['git', 'checkout', self.attribute('revision').value],
-                          directory=env.srcdir)
+        env.run(['git', 'stash'], directory=env.srcdir)
+        env.run(['git', 'rebase', self.attribute('revision').value], directory=env.srcdir)
+        try:
+            env.run(['git', 'stash','pop'], directory=env.srcdir)
+        except TaskError as t:
+            if not ' 1' in t.reason:
+                raise t
+            env._logger.commands.write('  No perceived changes on the local repository.\n')
+
+        
+#        env.run(['git', 'fetch'], directory=env.srcdir)
+#        env.run(['git', 'checkout', self.attribute('revision').value],
+#                          directory=env.srcdir)
 
     def check_version(self, env):
         """ Checks if the tool is available and with the needed version."""

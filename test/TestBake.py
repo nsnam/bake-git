@@ -52,7 +52,7 @@ class TestBake(unittest.TestCase):
         testStatus = commands.getoutput('mv bf.xml bakefile.xml ')
         testStatus = commands.getoutput('mv ~/.bakerc_saved ~/.bakerc')
 
-    def test_simple_proceedings(self):
+    def Dtest_simple_proceedings(self):
         """Tests the _check_source_code method of Class Bake. """
 
         mercurial = ModuleSource.create("mercurial")
@@ -76,7 +76,7 @@ class TestBake(unittest.TestCase):
                         "Should have worked the build of the code")
   
  
-    def test_read_resource_file(self):
+    def Dtest_read_resource_file(self):
         """Tests the _read_resource_file method of Class Bake."""
         
         configuration = Configuration("bakefile.xml")
@@ -97,7 +97,7 @@ class TestBake(unittest.TestCase):
         
         testStatus,testMessage = commands.getstatusoutput('mv ~/.bakerc_saved ~/.bakerc')
       
-    def test_save_resource_configuration(self):
+    def Dtest_save_resource_configuration(self):
         """Tests the _save_resource_configuration method of Class Bake."""
         
         pathname = os.path.dirname(compensate_third_runner())  
@@ -148,7 +148,7 @@ class TestBake(unittest.TestCase):
         testStatus,testMessage = commands.getstatusoutput('mv ~/.bakerc_saved ~/.bakerc')
   
    
-    def test_check_source_code(self):
+    def Dtest_check_source_code(self):
         """Tests the _check_source_code method of Class Bake. """
 
         # Environment settings        
@@ -205,7 +205,7 @@ class TestBake(unittest.TestCase):
         self.assertFalse(testResult, None)    
              
 
-    def test_check_build_version(self):
+    def Dtest_check_build_version(self):
         """Tests the _check_source_code method of Class Bake. """
 
         # Environment settings        
@@ -279,16 +279,16 @@ class TestBake(unittest.TestCase):
         testResult = bakeInstance.check_configuration_file("strangeName")
         self.assertEqual(testResult, "strangeName", "New name is not respected")
 
-        testResult = bakeInstance.check_configuration_file("bakefile.xml")
-        self.assertEqual(testResult, "bakefile.xml", "Default file should"
+        testResult = bakeInstance.check_configuration_file("bakeconf.xml")
+        self.assertEqual(testResult, "bakeconf.xml", "Default file should"
                          " exist but it changed the name.")
         
-        testStatus = commands.getoutput('mv bakefile.xml bf.xml')
-        testResult = bakeInstance.check_configuration_file("bakefile.xml")
-        self.assertTrue(testResult.endswith("bakefile.xml"), "Should have"
+        testStatus = commands.getoutput('mv bakeconf.xml bc.xml')
+        testResult = bakeInstance.check_configuration_file("bakeconf.xml")
+        self.assertTrue(testResult.endswith("/bakeconf.xml"), "Should have"
                         " returned the bakeconf but returned " + testResult)
 
-        testStatus = commands.getoutput('mv bakefile.xml bf.xml')
+        testStatus = commands.getoutput('mv bakeconf.xml bc.xml')
         testResult = bakeInstance.check_configuration_file("bakefile.xml", True)
         self.assertTrue(testResult.endswith("bakeconf.xml"), "Should have"
                         " returned the bakeconf but returned " + testResult)

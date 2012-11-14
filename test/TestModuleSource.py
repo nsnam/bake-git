@@ -34,14 +34,14 @@ class TestModuleSource(unittest.TestCase):
             self.fail("Could not execute command %s over directory %s failed" % 
                       (command, dir))
 
-    def test_general_failures(self):
+    def Dtest_general_failures(self):
         """Tests Some general failures that could happen in the Module Source. """
         
         #Verifies the return of the creation of a non existent module
         module = ModuleSource.create("NonExistentModule")
         self.assertEqual(module, None)
 
-    def test_archive_module_source(self):
+    def Dtest_archive_module_source(self):
         """Tests the ArchiveModuleSource class. """
         
         # it first needs to be able to create the class otherwise will not be
@@ -189,7 +189,7 @@ class TestModuleSource(unittest.TestCase):
 #
 #        testStatus = commands.getoutput('chmod 755 /tmp/click-1.8.0; rm -rf /tmp/click-1.8.0')
 
-    def test_check_dependency_expression(self):
+    def Dtest_check_dependency_expression(self):
         """ Tests the _check_dependency_expression method. """
         
         # it first needs to be able to create the class otherwise will not be
@@ -369,7 +369,7 @@ class TestModuleSource(unittest.TestCase):
         self.assertTrue(testResult)
         self.assertEqual(tmpMsg, installer.dependencyMessage)
 
-    def test_systemPrecondition(self):
+    def Dtest_systemPrecondition(self):
         """Tests the SelfInstallerModule class. """
         
         # it first needs to be able to create the class otherwise will not be
@@ -416,7 +416,7 @@ class TestModuleSource(unittest.TestCase):
         self.assertTrue(testResult)    
         
 
-    def test_mercurial(self):
+    def Dtest_mercurial(self):
         """Tests the MercurialModuleSource class. """
         
         # it first needs to be able to create the class otherwise will not be
@@ -543,7 +543,7 @@ class TestModuleSource(unittest.TestCase):
         # last clean up
         self.execute_command(["rm", "-rf", "bake"], "/tmp")
 
-    def test_bazaar(self):
+    def Dtest_bazaar(self):
         """Tests the BazaarModuleSource class. """
         
         # checks if can create the class 
@@ -703,7 +703,7 @@ class TestModuleSource(unittest.TestCase):
         # last clean up
         self.execute_command(["rm", "-rf", "pybindgen"], "/tmp")
 
-    def test_cvs(self):
+    def Dtest_cvs(self):
         """Tests the CvsModuleSourceclass. """
         
         # checks if can create the class 
@@ -836,7 +836,7 @@ class TestModuleSource(unittest.TestCase):
         # last clean up
         self.execute_command(["rm", "-rf", "gccxml"], "/tmp")
         
-    def test_git(self):
+    def Dtest_git(self):
         """Tests the GitModuleSource. """
         
         # checks if can create the class 
@@ -866,6 +866,17 @@ class TestModuleSource(unittest.TestCase):
         testStatus = commands.getoutput('cd /tmp/hello-world; git log')
         lastVersion = re.compile(' +\w+').search(testStatus).group().replace(" ","")
         self.assertEqual(lastVersion, "78cfc43c2827b9e48e6586a3523ff845a6378889")
+
+        testResult = git.update(self._env)       
+        self.assertEqual(testResult, None)
+
+        git.attribute("revision").value="45021a874e090b765acc5e2696154c495686614b"
+        testResult = git.update(self._env)       
+        self.assertEqual(testResult, None)
+
+        commands.getoutput("cat /tmp/hello-world/c.c >> /tmp/hello-world/dos.bat")
+        testResult = git.update(self._env)       
+        self.assertEqual(testResult, None)
 
         #after the test, clean the environment
         self.execute_command(["rm", "-rf", "hello-world"], "/tmp")

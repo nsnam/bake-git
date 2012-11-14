@@ -150,6 +150,15 @@ class Module:
                 import bake.Utils
                 bake.Utils.print_backtrace()
             return False
+        
+    def distclean(self, env):
+        """ Main distclean function, deletes the source and installed files. """
+        
+        env.start_build(self._name, srcDirTmp,
+                        self._build.supports_objdir)
+        os.remove(env.srcdir())
+        os.remove(env.installdir())
+         
 
     def uninstall(self, env):
         """ Main uninstall function, deletes the installed files. """

@@ -87,6 +87,9 @@ class Bake:
 
         (options, args_left) = parser.parse_args(args)
 
+        if options.bakeconf == "bakeconf.xml":
+            options.bakeconf = self.check_configuration_file(options.bakeconf, False);
+
         config = self.check_configuration_file(config, True)
 
         # Stores the present configuration         
@@ -391,6 +394,10 @@ class Bake:
 
         # sets the configuration values got from the line command
         (options, args_left) = parser.parse_args(args)
+
+        if options.bakeconf == "bakeconf.xml":
+            options.bakeconf = self.check_configuration_file(options.bakeconf, False);
+
         configuration = Configuration(config)
         configuration.read_metadata(options.bakeconf)
         configuration.set_sourcedir(options.sourcedir)
@@ -733,6 +740,18 @@ class Bake:
             return True
         self._do_operation(config, options, _do_clean)
 
+    def _distclean(self, config, args):
+        """Handles the distclean command line option."""
+        
+        parser = self._option_parser('distclean')
+        (options, args_left) = parser.parse_args(args)
+        self._check_build_version(config, options)
+        
+        def _do_distclean(configuration, module, env):
+            module.distclean(env)
+            return True
+        self._do_operation(config, options, _do_distclean)
+
     def _uninstall(self, config, args):
         """Handles the uninstall command line option."""
         
@@ -762,11 +781,13 @@ class Bake:
         checkPrograms = [['python', 'Python'],
                          ['hg', 'Mercurial'],
                          ['cvs', 'CVS'],
+                         ['git', 'GIT'],
                          ['bzr', 'Bazaar'],
                          ['tar', 'Tar tool'],
                          ['unzip', 'Unzip tool'],
                          ['unrar', 'Unrar tool'],
-                         ['git', 'GIT'],
+                         ['7z', '7z  data compression utility'],
+                         ['unxz', 'XZ data compression utility'],
                          ['make', 'Make'],
                          ['cmake', 'cMake'],
                          ['patch', 'path tool'],
@@ -947,7 +968,7 @@ class Bake:
         one on the root bake directory."""
         
         # If the name is not the default one... do not interfere 
-        if configFile != "bakefile.xml":
+        if configFile != "bakeconf.xml":
             return configFile
         
         # If the file is the default, and exists on the local directory, fine
@@ -959,8 +980,8 @@ class Bake:
             presentDir = "."
         # if the file does not exist on the local directory
         # tries the standard configuration file on the installation directory
-        if os.path.isfile(presentDir + "/bakefile.xml"):
-            return presentDir + "/bakefile.xml"
+        if os.path.isfile(presentDir + "/bakeconf.xml"):
+            return presentDir + "/bakeconf.xml"
         
         # if the standard file does not exist 
         # tries the generic configuration file on the installation directory
@@ -988,6 +1009,7 @@ class Bake:
   clean        : Cleanup the source tree of all modules built previously
   shell        : Start a shell and setup relevant environment variables
   uninstall    : Remove all files that were installed during build
+  distclean    : Remove build AND source files
   show         : Report on build configuration
   show-builtin : Report on builtin source and build commands
   check        : Checks if all the required tools are available on the system
@@ -1005,8 +1027,9 @@ To get more help about each command, try:
         parser.disable_interspersed_args()
         (options, args_left) = parser.parse_args(argv[1:])
         
-        if options.config_file == "bakefile.xml":
-            options.config_file = self.check_configuration_file(options.config_file, False)
+#        if options.config_file == "bakefile.xml":
+#            options.config_file = self.check_configuration_file(options.config_file, False)
+
 
         Bake.main_options = options
 
@@ -1025,6 +1048,7 @@ To get more help about each command, try:
                 ['show', self._show],
                 ['show-builtin', self._show_builtin],
                 ['check', self._check],
+                ['distclean', self._distclean],
                ]
         
         for name, function in ops: 

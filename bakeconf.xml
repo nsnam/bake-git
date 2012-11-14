@@ -231,9 +231,13 @@
   <predefined name="dbg">
     <append name="CFLAGS" value="-g"/>
     <append name="CXXFLAGS" value="-g"/>
+    <configuration objdir="dbg"/>
+    <configuration installdir="build_dbg"/>
   </predefined>
+
   <predefined name="opt">
     <configuration objdir="opt"/>
+    <configuration installdir="build_opt"/>
 <!--   <append name="configure_arguments" value=" -d optimized"/> -->
     <append name="CFLAGS" value="-O3"/>
     <append name="CXXFLAGS" value="-O3"/>
