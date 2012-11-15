@@ -745,11 +745,10 @@ class Bake:
         
         parser = self._option_parser('distclean')
         (options, args_left) = parser.parse_args(args)
-        self._check_build_version(config, options)
-        
+
         def _do_distclean(configuration, module, env):
-            module.distclean(env)
-            return True
+            returnValue = module.distclean(env)
+            return returnValue
         self._do_operation(config, options, _do_distclean)
 
     def _uninstall(self, config, args):

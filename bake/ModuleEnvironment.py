@@ -315,6 +315,7 @@ class ModuleEnvironment:
         
         for element in self._variables:
             script = script + " export " + element  + "\n"
+        script = script + self.add_onPath("PYTHONPATH", [sys.path[0]]) + "\n"
         
         fout = open(fileName, "w")
         fout.write(script)

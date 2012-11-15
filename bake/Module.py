@@ -154,10 +154,22 @@ class Module:
     def distclean(self, env):
         """ Main distclean function, deletes the source and installed files. """
         
-        env.start_build(self._name, srcDirTmp,
-                        self._build.supports_objdir)
-        os.remove(env.srcdir())
-        os.remove(env.installdir())
+        srcDirTmp = self._name
+        if self._source.attribute('module_directory').value :
+            srcDirTmp = self._source.attribute('module_directory').value
+            
+        env.start_source(self._name, srcDirTmp)
+        print(" >> Clean source " + self._name )
+        try: 
+            shutil.rmtree(env.srcdir)
+        except Exception as e:
+#            print (e)
+            pass
+        try: 
+            shutil.rmtree(env.installdir)
+        except:
+            pass
+        return True
          
 
     def uninstall(self, env):

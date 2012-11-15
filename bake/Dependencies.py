@@ -281,6 +281,8 @@ class Dependencies:
                     success = False
                     import sys
                     er = sys.exc_info()[0]
+#                    import bake.Utils
+#                    bake.Utils.print_backtrace()           
                     print ("  > Unexpected error: " + str(er))
                     
             elif callback is not None:

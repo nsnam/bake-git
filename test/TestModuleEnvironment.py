@@ -81,6 +81,14 @@ class TestModuleEnvironment(unittest.TestCase):
         testStatus = commands.getoutput('rm -rf /tmp/source')
         self.assertTrue(not testStatus)
 
+    def test_create_environement_file(self):
+        """Tests the create_environement_file method of Class ModuleEnvironment. """
+        
+        testResult = self._env.create_environement_file('test.sh');
+        self.assertTrue(os.path.exists('test.sh'))
+        import commands
+        testStatus = commands.getoutput('rm -rf test.sh')
+ 
 
     # def check_program(self, program, version_arg = None,
     #                   version_regexp = None, version_required = None,

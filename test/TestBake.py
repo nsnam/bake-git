@@ -18,7 +18,6 @@ sys.path.append(os.path.join (os.getcwd(), '..'))
 
 def compensate_third_runner():
     """ Compensates the name of the file, if a third party program is
-        calling bake, as it is the case for running the tests from 
         inside eclipse."""
     fileName = sys.argv[0]
     if len(sys.argv) > 1:
@@ -52,7 +51,7 @@ class TestBake(unittest.TestCase):
         testStatus = commands.getoutput('mv bf.xml bakefile.xml ')
         testStatus = commands.getoutput('mv ~/.bakerc_saved ~/.bakerc')
 
-    def Dtest_simple_proceedings(self):
+    def test_simple_proceedings(self):
         """Tests the _check_source_code method of Class Bake. """
 
         mercurial = ModuleSource.create("mercurial")
@@ -76,7 +75,7 @@ class TestBake(unittest.TestCase):
                         "Should have worked the build of the code")
   
  
-    def Dtest_read_resource_file(self):
+    def test_read_resource_file(self):
         """Tests the _read_resource_file method of Class Bake."""
         
         configuration = Configuration("bakefile.xml")
@@ -97,7 +96,7 @@ class TestBake(unittest.TestCase):
         
         testStatus,testMessage = commands.getstatusoutput('mv ~/.bakerc_saved ~/.bakerc')
       
-    def Dtest_save_resource_configuration(self):
+    def test_save_resource_configuration(self):
         """Tests the _save_resource_configuration method of Class Bake."""
         
         pathname = os.path.dirname(compensate_third_runner())  
@@ -148,7 +147,7 @@ class TestBake(unittest.TestCase):
         testStatus,testMessage = commands.getstatusoutput('mv ~/.bakerc_saved ~/.bakerc')
   
    
-    def Dtest_check_source_code(self):
+    def test_check_source_code(self):
         """Tests the _check_source_code method of Class Bake. """
 
         # Environment settings        
@@ -205,7 +204,7 @@ class TestBake(unittest.TestCase):
         self.assertFalse(testResult, None)    
              
 
-    def Dtest_check_build_version(self):
+    def test_check_build_version(self):
         """Tests the _check_source_code method of Class Bake. """
 
         # Environment settings        

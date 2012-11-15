@@ -268,9 +268,9 @@ class ArchiveModuleSource(ModuleSource):
             ['tar.Z', 'tar'],
             ['tar.bz2', 'tar'],
             ['zip', 'unzip'],
-            ['rar', 'unrar']
-            ['7z', '7z']
-            ['xz', 'unxz']
+            ['rar', 'unrar'],
+            ['7z', '7z'],
+            ['xz', 'unxz'],
             ['Z', 'uncompress']
             ]
         try:
@@ -540,7 +540,6 @@ class SystemDependency(ModuleSource):
                             " platforms, %s not supported for %s,  %s" % 
                             (osName, env._module_name, 
                              self.attribute('error_message').value))
-        print(" TEST!!!! ! > %s - %s - %s " % (platform.linux_distribution()))
         
         if osName.startswith('darwin'):
                  return env.check_program('ports')
