@@ -101,12 +101,12 @@ class ModuleBuild(ModuleAttributeBase):
                         
             for comandToExecute in commandList :
                 try:
-                    env._logger.commands.write("    > " +env.replace_variables(comandToExecute));
+                    env._logger.commands.write("    > " +env.replace_variables(comandToExecute)+ '\n');
                     resultStatus = commands.getstatusoutput(env.replace_variables(comandToExecute))
                     if(resultStatus[0] == 0) :
                         return True
                 except Exception as e:
-                    print ("   > Error executing pre installation : " + e )
+                    print ("   > Error executing pre installation : " + e + "\n")
 
         return False
     

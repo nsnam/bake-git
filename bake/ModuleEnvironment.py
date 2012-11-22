@@ -312,10 +312,11 @@ class ModuleEnvironment:
             
         if len(self._pkgpaths) > 0:
             script = script + self.add_onPath("PKG_CONFIG_PATH", self._pkgpaths) + "\n"
+
+        script = script + self.add_onPath("PYTHONPATH", [sys.path[0]]) + "\n"
         
         for element in self._variables:
             script = script + " export " + element  + "\n"
-        script = script + self.add_onPath("PYTHONPATH", [sys.path[0]]) + "\n"
         
         fout = open(fileName, "w")
         fout.write(script)
