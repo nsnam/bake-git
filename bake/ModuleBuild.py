@@ -119,7 +119,7 @@ class ModuleBuild(ModuleAttributeBase):
                 var = commands.getoutput(env.replace_variables(self.attribute('post_installation').value))
                 
                 if env.debug:
-                    print(var)
+                    print("  -> " +  var)
             except Exception as e:
                 print ("   > Error executing post installation : " + e )
 

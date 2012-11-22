@@ -406,21 +406,21 @@ class ModuleEnvironment:
         for libpath in self._libpaths:
             self._append_path(tmp, self._lib_var(), libpath, os.pathsep)
             if self.debug:
-                print(self._lib_var() + " " + libpath + " ")  
+                print("  -> " + self._lib_var() + " " + libpath + " ")  
                         
         self._append_path(tmp, self._lib_var(), self._lib_path(), os.pathsep)
         
         for libpath in self._binpaths:
             self._append_path(tmp, self._bin_var(), libpath, os.pathsep)          
             if self.debug:
-                print(self._bin_var() + " " + libpath + " ")          
+                print("  -> " + self._bin_var() + " " + libpath + " ")          
                 
         self._append_path(tmp, self._bin_var(), self._bin_path(), os.pathsep)
         
         for libpath in self._pkgpaths:
             self._append_path(tmp, self._pkgconfig_var(), libpath, os.pathsep)
             if self.debug:
-                print(self._pkgconfig_var() + " " + libpath + " ")         
+                print("  -> " + self._pkgconfig_var() + " " + libpath + " ")         
                  
         self._append_path(tmp, self._pkgconfig_var(), self._pkgconfig_path(), 
                           os.pathsep)
