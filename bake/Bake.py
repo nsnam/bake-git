@@ -1049,9 +1049,11 @@ To get more help about each command, try:
                 ['check', self._check],
                 ['distclean', self._distclean],
                ]
+        recognizedCommand = False
         
         for name, function in ops: 
             if args_left[0] == name:
+                recognizedCommand = True
                 if options.debug:
                     function(config=options.config_file, args=args_left[1:])
                 else:
@@ -1060,3 +1062,8 @@ To get more help about each command, try:
                     except Exception as e:
                         print ('\n'+e.message)
                         sys.exit(1)
+                        
+        if not recognizedCommand:
+            print (' >> Unrecognized option: ' + args_left[0])
+            sys.exit(1)
+           

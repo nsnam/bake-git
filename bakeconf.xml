@@ -42,7 +42,7 @@
 	<attribute name="extract_directory" value="ccnx-0.6.2"/>
       </source>
       <build type="make" objdir="yes">
-	<attribute name="pre_installation" value="cd $SRCDIR;INSTALL_BASE=$INSTALLDIR ./configure"/>
+	<attribute name="pre_installation" value="cd $SRCDIR;INSTALL_BASE=$INSTALLDIR ./configure;mkdir $INSTALLDIR/include;mkdir $INSTALLDIR/lib;mkdir $INSTALLDIR/bin"/>
 	<attribute name="build_arguments" value="MORE_LDLIBS=-pie"/>
         <attribute name="new_variable" value="INSTALL_BASE=$INSTALLDIR" />
       </build>
@@ -226,9 +226,32 @@
       <depends_on name="qt4" optional="False"/>
     </module>
 
+  <module name="ns-3-allinone">
+      <source type="mercurial">
+	<attribute name="url" value="http://code.nsnam.org/ns-3-dev"/>
+      </source>
+      <depends_on name="net_anim" optional="True"/>
+      <depends_on name="nsc" optional="True"/>
+      <depends_on name="pybindgen" optional="True"/>
+      <depends_on name="click" optional="True"/>
+      <depends_on name="openflow-ns3" optional="True"/>
+      <build type="waf" objdir="yes">
+	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests --with-nsclick=$SRCDIR/click --with-pybindgen=$SRCDIR/pybindgen --with-openflow=$SRCDIR/openflow-ns3 --with-nsc=$SRCDIR/nsc"/>
+      </build>
+  </module>
+
   <module name="ns-3-dev">
       <source type="mercurial">
 	<attribute name="url" value="http://code.nsnam.org/ns-3-dev"/>
+      </source>
+      <build type="waf" objdir="yes">
+	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
+      </build>
+  </module>
+
+  <module name="ns-3-16">
+      <source type="mercurial">
+	<attribute name="url" value="http://code.nsnam.org/ns-3.16"/>
       </source>
       <depends_on name="net_anim" optional="True"/>
       <depends_on name="nsc" optional="True"/>
@@ -265,11 +288,6 @@
 
   <predefined name="ns3-min">
     <enable name="ns-3-dev"/>
-    <disable name="nsc"/>
-    <disable name="net_anim"/>
-    <disable name="pybindgen"/>
-    <disable name="click"/>
-    <disable name="openflow-ns3"/>
     <append module="ns-3-dev" name="configure_arguments" value=" --enable-modules=core,network,wifi"/> -->
   </predefined>
 
