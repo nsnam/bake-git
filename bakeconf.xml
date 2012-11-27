@@ -184,7 +184,13 @@
 
         env.run(['python', os.path.join(env.srcdir, 'scons.py'), 
                  '-j', str(jobs), 'prefix=' + env.installdir, 'install'],
-                directory=env.srcdir)
+                directory=env.srcdir )
+        srcLib = os.path.join(env.srcdir, 'lib')
+        files = os.listdir(srcLib)
+        destination = os.path.join(env.installdir, 'lib')
+        for file in files:
+             shutil.copy2(os.path.join(srcLib, file), destination)
+        
     def clean(self, env):
         env.run(['python', os.path.join(env.srcdir, 'scons.py'), '-c'],
                 directory=env.srcdir)
@@ -216,7 +222,7 @@
       </build>
     </module>
 
-    <module name="netanim">
+    <module name="net_anim">
       <source type="mercurial">
 	<attribute name="url" value="http://code.nsnam.org/netanim"/>
       </source>
@@ -230,7 +236,7 @@
       <source type="mercurial">
 	<attribute name="url" value="http://code.nsnam.org/ns-3-dev"/>
       </source>
-      <depends_on name="netanim" optional="True"/>
+      <depends_on name="net_anim" optional="True"/>
       <depends_on name="nsc" optional="True"/>
       <depends_on name="pybindgen" optional="True"/>
       <depends_on name="click" optional="True"/>
@@ -253,7 +259,7 @@
       <source type="mercurial">
 	<attribute name="url" value="http://code.nsnam.org/ns-3.16"/>
       </source>
-      <depends_on name="netanim" optional="True"/>
+      <depends_on name="net_anim" optional="True"/>
       <depends_on name="nsc" optional="True"/>
       <depends_on name="pybindgen" optional="True"/>
       <depends_on name="click" optional="True"/>
