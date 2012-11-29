@@ -7,15 +7,12 @@
  	<attribute name="module_directory" value="dce"/>
       </source>
        <depends_on name="ns-3-dev-dce" optional="False"/>
+       <depends_on name="elf-loader" optional="False"/>
        <depends_on name="iperf" optional="True"/>
        <depends_on name="ccnx" optional="True"/>
       <build type="waf" objdir="build">
-	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --verbose"/>
-	<attribute name="post_installation" value="export DCE_PATH=$INSTALLDIR/bin:$INSTALLDIR/bin_dce;export DCE_ROOT=$INSTALLDIR;export LD_LIBRARY_PATH=$INSTALLDIR/lib:$INSTALLDIR/bin:$SRCDIR/../ns-3-dev-dce/build;$INSTALLDIR/bin/ns3test-dce --verbose"/>
-        <attribute name="v_PATH" value="$SRCDIR;$SRCDIR/../build/bin" />
-        <attribute name="v_LD_LIBRARY" value="$OBJDIR/..;$SRCDIR;$SRCDIR/../ns-3-dev-dce/build;$INSTALLDIR" />
-        <attribute name="v_PKG_CONFIG" value="$SRCDIR/../ns-3-dev-dce/build/lib/pkgconfig;$OBJDIR/../../ns-3-dev-" />
-        <attribute name="new_variable" value="DCE_PATH=$INSTALLDIR/bin:$INSTALLDIR/bin_dce;DCE_ROOT=$INSTALLDIR;LD_LIBRARY_PATH=$INSTALLDIR/lib:$INSTALLDIR/bin:$SRCDIR/../ns-3-dev-dce/build" />
+	<attribute name="configure_arguments" value="configure --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --prefix=$INSTALLDIR"/>
+	<attribute name="post_installation" value="cd $SRCDIR; ./waf --run ns3test-dce"/>
      </build>
     </module>
 
@@ -24,15 +21,13 @@
 	<attribute name="url" value="http://code.nsnam.org/furbani/ns-3-dce"/>
  	<attribute name="module_directory" value="dce"/>
      </source>
+       <depends_on name="elf-loader" optional="False"/>
        <depends_on name="ns-3-linux" optional="False"/>
+       <depends_on name="iproute" optional="False"/>
        <depends_on name="ns-3-dev-dce" optional="False"/>
-
       <build type="waf" objdir="yes" sourcedir="dce">
-	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-kernel-stack=$SRCDIR/../ns-3-linux --verbose"/>
-	<attribute name="post_installation" value="BASEDCE=$SRCDIR;DCE_PATH=$SRCDIR/build/bin_dce:$SRCDIR/build/bin;DCE_ROOT=$BASEDCE/build;LD_LIBRARY_PATH=$OBJDIR/../build/lib:$SRCDIR/build/bin:$SRCDIR/../ns-3-dev-dce/build;$OBJDIR/../build/bin/ns3test-dce --verbose"/>
-        <attribute name="v_PATH" value="$SRCDIR;$SRCDIR/../build/bin" />
-        <attribute name="v_LD_LIBRARY" value="$OBJDIR/..;$SRCDIR;$SRCDIR/../ns-3-dev-dce/build;$INSTALLDIR" />
-        <attribute name="v_PKG_CONFIG" value="$SRCDIR/../ns-3-dev-dce/build/lib/pkgconfig" />
+	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../ns-3-linux"/>
+	<attribute name="post_installation" value="cd $SRCDIR; ./waf --run ns3test-dce"/>
       </build>
     </module>
 
@@ -67,28 +62,17 @@
 	<attribute name="pre_installation" value="$SRCDIR/configure"/>
 	<attribute name="LDFLAGS" value="-pie"/>
 	<attribute name="ignore_predefined_flags" value="True"/>
-	<attribute name="build_arguments" value="CCOPTS+=-fpic CCOPTS+=-D_GNU_SOURCE CCOPTS+=-O0 CCOPTS+=-U_FORTIFY_SOURCE"/>
+         <attribute name="install_arguments" value="DESTDIR=$INSTALLDIR" />
+	<attribute name="build_arguments" value="CCOPTS+=-fpic CCOPTS+=-D_GNU_SOURCE CCOPTS+=-O0 CCOPTS+=-U_FORTIFY_SOURCE LDFLAGS=-pie"/>
       </build>
      </module>
 
     <module name="ns-3-dev-dce">
       <source type="mercurial">
 	<attribute name="url" value="http://code.nsnam.org/ns-3-dev"/>
-	<attribute name="revision" value="55055ecdbd47"/>
       </source>
       <build type="waf" objdir="yes">
-	<attribute name="pre_installation" value="cd $SRCDIR;hg revert -a"/>
-	<attribute name="patch" value="$SRCDIR/../dce/utils/packet-socket-upgrade-exp.patch;$SRCDIR/../dce/utils/remove-default-simulator-asserts.patch;$SRCDIR/../dce/utils/NS3-shutdown.patch"/>
 	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-tests"/>
-      </build>
-    </module>
-
-    <module name="git-kern">
-      <source type="git">
-	<attribute name="url" value="git://git.kernel.org/pub/scm/linux/kernel/git/davem/net-next.git"/>
-	<attribute name="revision" value="fed66381d65a35198639f564365e61a7f256bf79"/>
-      </source>
-      <build type="none" objdir="no">
       </build>
     </module>
 
@@ -96,11 +80,105 @@
       <source type="mercurial">
 	<attribute name="url" value="http://code.nsnam.org/furbani/ns-3-linux"/>
       </source>
-      <depends_on name="git-kern" optional="False"/>
       <build type="make" objdir="no">
-	<attribute name="pre_installation" value="ln -s ../git-kern net-next-2.6; sed 's/$(PWD)/$SRCDIR/' Makefile >a; mv a Makefile; make unpatch; make setup ;make defconfig; make config; sed s/CONFIG_PACKET=m/CONFIG_PACKET=y/ config >c2 ; mv c2 config"/>
+        <attribute name="install_arguments" value="INSTALL_DIR=$INSTALLDIR"/>
+        <attribute name="post_installation" value="mkdir -p $INSTALLDIR/bin_dce; cd $INSTALLDIR/bin_dce; ln -s ../lib/libnet-next-2.6.so liblinux.so; ln -s ../lib/libnet-next-2.6.so"/>
       </build>
     </module>
+
+     <module name="iputils">
+       <source type="archive">
+	 <attribute name="url" value="http://www.skbuff.net/iputils/iputils-s20101006.tar.bz2"/>
+       </source>
+       <!-- note: iputils does not have 'make install' -->
+       <build type="inline"  classname="IputilsModuleBuild">
+	 <attribute name="supported_os" value="linux;linux2"/>
+	 <code>class IputilsModuleBuild(InlineModuleBuild):
+    def __init__(self):
+        InlineModuleBuild.__init__(self)
+    def build(self, env, jobs):
+           env.run(['patch', '-p1', '-f', '-i', env.srcdir + '/../dce-quagga/utils/iputils-ping6.patch'],
+           directory=env.srcdir)
+           env.run(['make', 'CFLAGS=-fpic', 'CFLAGS+=-D_GNU_SOURCE', 'CFLAGS+=-g',
+           'CFLAGS+=-Wstrict-prototypes', 'CFLAGS+=-Wall', 'LDFLAGS=-pie', 
+           'ping', 'ping6', '-j', str(jobs)],
+           directory=env.srcdir)
+           env.run(['mkdir', '-p' , env.installdir + '/bin_dce/'],
+           directory=env.srcdir)
+           env.run(['cp', 'ping', 'ping6', env.installdir + '/bin_dce'],
+           directory=env.srcdir)
+    def clean(self, env):
+           env.run(['make', 'clean'], directory=env.srcdir)
+    def check_version(self, env):
+           return True</code>
+       </build>
+     </module>
+
+     <!-- umip related modules -->
+     <module name="dce-umip">
+       <source type="mercurial">
+	 <attribute name="url" value="http://code.nsnam.org/thehajime/ns-3-dce-umip"/>
+	 <attribute name="module_directory" value="dce-umip/"/>
+       </source>
+       <depends_on name="dce-linux" optional="False"/>
+       <depends_on name="dce-quagga" optional="False"/>
+       <depends_on name="umip" optional="False"/>
+       <depends_on name="ns-3-dev-dce-umip" optional="False"/>
+       <build type="waf" objdir="build">
+	 <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR"/>
+       </build>
+     </module>
+
+     <module name="ns-3-dev-dce-umip">
+       <source type="none">
+ 	 <attribute name="module_directory" value="ns-3-dev-dce/"/>
+       </source>
+       <depends_on name="ns-3-dev-dce" optional="False"/>
+       <build type="waf" objdir="yes">
+	 <attribute name="patch" value="$SRCDIR/../dce-umip/utils/ipv6-opt-header.patch"/>
+	 <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-tests"/>
+       </build>
+     </module>
+
+     <module name="umip">
+       <source type="git">
+         <attribute name="url" value="git://git.umip.org/umip.git"/>
+       </source>
+       <build type="autotools" objdir="no">
+         <attribute name="maintainer" value="yes" />
+         <attribute name="configure_arguments" value="./configure CFLAGS=-fPIC  LDFLAGS=-pie --prefix=$INSTALLDIR --enable-vt --with-builtin-crypto"/>
+         <attribute name="install_arguments" value="-n" />
+         <attribute name="post_installation" value="cd $SRCDIR; mkdir $INSTALLDIR/bin_dce; /bin/cp -f src/mip6d  $INSTALLDIR/bin_dce"/>
+       </build>
+     </module>
+
+    <!-- quagga related modules -->
+    <module name="dce-quagga">
+      <source type="mercurial">
+	<attribute name="url" value="http://code.nsnam.org/thehajime/ns-3-dce-quagga"/>
+ 	<attribute name="module_directory" value="dce-quagga/"/>
+      </source>
+       <depends_on name="dce-ns3" optional="False"/>
+       <depends_on name="quagga" optional="False"/>
+       <depends_on name="iputils" optional="False"/>
+      <build type="waf" objdir="build">
+	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR"/>
+     </build>
+    </module>
+
+     <module name="quagga">
+       <source type="archive">
+	<!-- some of mirror sever of gnu.org isn't available.. -->
+	<!-- attribute name="url" value="http://download.savannah.gnu.org/releases/quagga/quagga-0.99.20.tar.gz"/ -->
+	<attribute name="url" value="http://pkgs.fedoraproject.org/lookaside/pkgs/quagga/quagga-0.99.20.tar.gz/64cc29394eb8a4e24649d19dac868f64/quagga-0.99.20.tar.gz"/>
+	<attribute name="extract_directory" value="quagga-0.99.20"/>
+       </source>
+       <build type="make" objdir="yes">
+	 <attribute name="pre_installation" value="cd $SRCDIR; CFLAGS='-fPIC -g' LDFLAGS=-pie ./configure --disable-shared --enable-static --disable-user --disable-group --disable-capabilities --prefix=$INSTALLDIR"/>
+         <attribute name="install_arguments" value="-n" />
+         <attribute name="post_installation" value="cd $SRCDIR; mkdir $INSTALLDIR/bin_dce; /bin/cp zebra/zebra $INSTALLDIR/bin_dce;/bin/cp ripd/ripd $INSTALLDIR/bin_dce;/bin/cp ripngd/ripngd $INSTALLDIR/bin_dce;/bin/cp ospfd/ospfd $INSTALLDIR/bin_dce;/bin/cp ospf6d/ospf6d $INSTALLDIR/bin_dce;/bin/cp bgpd/bgpd $INSTALLDIR/bin_dce"/>
+       </build>
+     </module>
 
     <module name="click">
       <source type="git">
@@ -222,8 +300,8 @@
 	<attribute name="url" value="http://code.nsnam.org/mathieu/elf-loader"/>
       </source>
       <build type="make" objdir="no">
-	<attribute name="patch" value="$SRCDIR/../dce/utils/elf-loader-r633.patch"/>
 	<attribute name="configure_arguments" value="vdl-config.h"/>
+	<attribute name="install_arguments" value="PREFIX=$INSTALLDIR"/>
       </build>
     </module>
 
