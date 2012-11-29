@@ -909,6 +909,8 @@ class Bake:
                           default=False, help='Display information about existing enabled modules')
         parser.add_option('--disabled', action='store_true', dest='disabled',
                           default=False, help='Display information about existing disabled modules')
+        parser.add_option('--available', action='store_true', dest='available',
+                          default=False, help='Display information about available modules')
         parser.add_option('--variables', action='store_true', dest='variables', 
                           default=False,
                           help='Display information on the variables set for the modules selected')
@@ -924,6 +926,8 @@ class Bake:
         # no option 
         if not args:
             options.enabled = True
+
+        config= self.check_configuration_file(config, True);
 
         import os
         if os.path.isfile(config):
@@ -942,6 +946,10 @@ class Bake:
             options.directories = True
             options.variables = True
             options.predefined = True
+        elif options.available:
+            options.enabled = True
+            options.disabled = True
+
             
         if options.directories:
             print ('installdir   : ' + configuration.compute_installdir())
@@ -967,7 +975,7 @@ class Bake:
         one on the root bake directory."""
         
         # If the name is not the default one... do not interfere 
-        if configFile != "bakeconf.xml":
+        if configFile != "bakeconf.xml" and configFile != "bakefile.xml":
             return configFile
         
         # If the file is the default, and exists on the local directory, fine
@@ -979,13 +987,14 @@ class Bake:
             presentDir = "."
         # if the file does not exist on the local directory
         # tries the standard configuration file on the installation directory
-        if os.path.isfile(presentDir + "/bakeconf.xml"):
-            return presentDir + "/bakeconf.xml"
+        if os.path.isfile(os.path.join(presentDir, configFile)):
+            return os.path.join(presentDir, configFile)
         
         # if the standard file does not exist 
         # tries the generic configuration file on the installation directory
-        if  considersTemplate and os.path.isfile(presentDir + "/bakeconf.xml"):
-            return presentDir + "/bakeconf.xml"
+        if  considersTemplate and os.path.isfile(os.path.join(presentDir,
+                                                              "bakeconf.xml")):
+            return os.path.join(presentDir,"bakeconf.xml")
         
         # if everything else fail.... returns the same name
         return configFile
