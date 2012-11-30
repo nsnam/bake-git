@@ -14,14 +14,14 @@ Features
 * Automatic handling of dependencies
 * Automatic download of the required sources
 * Automatic correct build of the required modules
-* Off-line instalation and build capabilities
+* Off-line installation and build capabilities
 * Transparency, from the user's point of view, of the methods/tools used to store and build the used modules
 * Fully configurable: Possible to add new modules, create complex build tasks, create predefined builds, among others
 
 Limitations
 ===========
 
-* Currently it works under linux like systems
+* Currently it works under Linux like systems
 * The required missing system tools have to be installed by the user
 
 Prerequisites
@@ -55,11 +55,11 @@ A typical user session should be:::
 The result:
 
 * The wget command will download the last version of the bake configuration file
-* **bake.py show --available** will show all the available modules
-* After configuring bake with **bake.py configure** a bakefile.xml, containning the output of configuration step should be created on the same directory the user called bake configure
+* **bake.py show **available** will show all the available modules
+* After configuring bake with **bake.py configure** a bakefile.xml, containing the output of configuration step should be created on the same directory the user called bake configure
 * After calling **bake.py install** two directories, build and source should have been created. Source will have one directory for each module downloaded and the build will contains the installed object files for all the built modules. 
 
-The installation process may be breaked into download and build, in this way the user just need to be online to perform the download and the build may be done later, even offline. 
+The installation process may be broken into download and build, in this way the user just need to be online to perform the download and the build may be done later, even offline. 
 
 In this case the steps should be:::
 
@@ -67,5 +67,6 @@ In this case the steps should be:::
   > bake.py show --available
   > bake.py configure -e <one of the available modules>
   > bake.py download
+    <-- Later, even if the user is offline -->
   > bake.py build
 

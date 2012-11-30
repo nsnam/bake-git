@@ -6,21 +6,21 @@ Introduction
 
 This tutorial will present a walk through over all the steps to set, configure, download and build a new module using Bake. 
 
-Bake is a tool for distributed buildings, developed for the ns-3 project, but it is general and could be used to help on the development of any open-source project.  First of all, Bake is developed in python, so you have to have python on your machine.  This walkthrough will consider that the user is using a linux, fedora or ubuntu distributions, with bash.  
+Bake is a tool for distributed buildings, developed for the ns-3 project, but it is general and could be used to help on the development of any open-source project.  First of all, Bake is developed in python, so you have to have python on your machine.  This walk-through will consider that the user is using a Linux, fedora or Ubuntu distributions, with bash.  
 
 Conventions: 
 ************
 |    During the tutorial we will use the following conventions:
-|     **> [command]** - For now, bake is only linux compatible, the “>” means the prompt into a linux machine, and what comes next, [command] , is the command that should be executed on a bash shell screen. It also means that the operation is distribution independent.
-|     **ubuntu >**  - Designates commands that are specific for ubuntu distributions
+|     **> [command]** - For now, bake is only Linux compatible, the “>” means the prompt into a Linux machine, and what comes next, [command] , is the command that should be executed on a bash shell screen. It also means that the operation is distribution independent.
+|     **Ubuntu >**  - Designates commands that are specific for Ubuntu distributions
 |     **fedora >**  - Designates commands that are specific for fedora distributions
 |     **$BAKE_HOME** -  is the home directory for bake
-|     **$HOME**- the user home directory, this tutorial considers that, by default, all the actions will be performed from this directory. Whenever one need a relative path, it will be given regarding the HOME directory.  For example, if  HOME=/home/username  $HOME/bake would be /home/username/bake. 
+|     **$HOME** - the user home directory, this tutorial considers that, by default, all the actions will be performed from this directory. Whenever one need a relative path, it will be given regarding the HOME directory.  For example, if  HOME=/home/username  $HOME/bake would be /home/username/bake. 
 
 Third party software 
 ********************
 
-Bake uses a series of third party tools that, not necessarily, come with standard linux machines distributions, however, they are usually required.   Each given module has a specific set of tools that are required to build it, and each module is different. If you never builds a module that is stored, for example, in a mercurial repository, you do not need to have mercurial in your machine. However, if the module requires it and you do not have it installed... you will not be able to install that specific module.  Apart from python, no other third party software is mandatory, however, it is highly recommended to have all these tools installed on your machine.  To check if you have all the third party software installed on your machine you can run “> bake.py check”.  However, to do that you need to have Python installed. 
+Bake uses a series of third party tools that, not necessarily, come with standard Linux machines distributions, however, they are usually required.   Each given module has a specific set of tools that are required to build it, and each module is different. If you never builds a module that is stored, for example, in a mercurial repository, you do not need to have mercurial in your machine. However, if the module requires it and you do not have it installed... you will not be able to install that specific module.  Apart from python, no other third party software is mandatory, however, it is highly recommended to have all these tools installed on your machine.  To check if you have all the third party software installed on your machine you can run “> bake.py check”.  However, to do that you need to have Python installed. 
 
 To check if you have python installed you can do the following: 
 1. Open a shell window and type:
@@ -34,7 +34,7 @@ If as answer you receive the version of the installed python, preferably above 2
 
 ::
  
- ubuntu > sudo apt-get install python 
+ Ubuntu > sudo apt-get install python 
  or
  fedora > sudo yum install python
 
@@ -199,8 +199,9 @@ If you are a developer, and you want to add your module to bake how should you p
 First you need to create a new xml entry on the configuration file so that bake can understand the actions it should perform. Lets take DCE as an example of configuration for a new module: 
 
 
-::
- 
+.. code-block:: xml
+   :linenos:
+
     <module name="dce-ns3">
        <source type="mercurial">
 	<attribute name="url" value="http://code.nsnam.org/furbani/ns-3-dce"/>
@@ -234,64 +235,64 @@ First you need to create a new xml entry on the configuration file so that bake 
 
 This defines how bake should download and build the code of DCE and which are the dependencies of DCE code. Now lets take a look on the code step by step so that we can understand what is going on and how we can do the same for a new code:. 
 
-
-::
+.. code-block:: xml
+   :linenos:
  
- <module name="dce-ns3">
-  This defines that a new module will be created and its name -->
+   <module name="dce-ns3">
+   <!-- This defines that a new module will be created and its name -->
 
-   <source type="mercurial">
-   <!-- The type of the source code repository tool in use.
-        Can be CVS, mercurial, svn, Bazaar and archive. --> 
+     <source type="mercurial">
+     <!-- The type of the source code repository tool in use.
+          Can be CVS, mercurial, SVN, Bazaar and archive. --> 
 
-       <attribute name="url" value="http://code.nsnam.org/furbani/ns-3-dce"/>
-       <!-- The address of the target repository. -->
+         <attribute name="url" value="http://code.nsnam.org/furbani/ns-3-dce"/>
+         <!-- The address of the target repository. -->
 
-       <attribute name="module_directory" value="dce"/>
-       <!-- The target directory the source should be downloaded to -->
-   </source> <!-- End of the source handling data -->
+         <attribute name="module_directory" value="dce"/>
+         <!-- The target directory the source should be downloaded to -->
+     </source> <!-- End of the source handling data -->
 
-   <!-- Here we treat the dependencies of dce. The dependencies may be optional
-        or not, the lack of an optional dependency decreases the functionality 
-        of the module, but do not prevent its successful installation, mandatory 
-        dependencies on the other hand, do.  The dependencies below are, in the 
-        order, ns-3, iperf and ccnx. The ns-3 code is mandatory since DCE can 
-        not work without it. Iperf and CCNx are applications that can be used 
-        together DCE and are used as examples of DCE power, but are not 
-        essential for DCE. -->
-    <depends_on name="ns-3-dev-dce" optional="False"/> 
-    <depends_on name="iperf" optional="True"/>
-    <depends_on name="ccnx" optional="True"/>
+     <!-- Here we treat the dependencies of dce. The dependencies may be optional
+          or not, the lack of an optional dependency decreases the functionality 
+          of the module, but do not prevent its successful installation, mandatory 
+          dependencies on the other hand, do.  The dependencies below are, in the 
+          order, ns-3, iperf and ccnx. The ns-3 code is mandatory since DCE can 
+          not work without it. Iperf and CCNx are applications that can be used 
+          together DCE and are used as examples of DCE power, but are not 
+          essential for DCE. -->
+      <depends_on name="ns-3-dev-dce" optional="False"/> 
+      <depends_on name="iperf" optional="True"/>
+      <depends_on name="ccnx" optional="True"/>
 
-    <!-- Here we set how bake should perform the build of the system. -->
-    <build type="waf" objdir="build">
-    <!-- The build tool used for building DCE is waf, and it will be stored 
-         on the directory build. -->
+      <!-- Here we set how bake should perform the build of the system. -->
+      <build type="waf" objdir="build">
+      <!-- The build tool used for building DCE is waf, and it will be stored 
+           on the directory build. -->
 
-	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --verbose"/>
-        <!-- These are the set of parameters that should be passed as 
-             parameter to the waf configure --prefix=$INSTALLDIR --verbose. --> 
+          <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --verbose"/>
+          <!-- These are the set of parameters that should be passed as 
+               parameter to the waf configure --prefix=$INSTALLDIR --verbose. --> 
 
-	<attribute name="post_installation" value="export 
-        DCE_PATH=$INSTALLDIR/bin:$INSTALLDIR/bin_dce;export DCE_ROOT=$INSTALLDIR;
-        export LD_LIBRARY_PATH=$INSTALLDIR/lib:$INSTALLDIR/bin:$SRCDIR/../ns-3-dev-dce/build;
-        $INSTALLDIR/bin/ns3test-dce --verbose"/>
+          <attribute name="post_installation" value="export 
+          DCE_PATH=$INSTALLDIR/bin:$INSTALLDIR/bin_dce;export DCE_ROOT=$INSTALLDIR;
+          export LD_LIBRARY_PATH=$INSTALLDIR/lib:$INSTALLDIR/bin:$SRCDIR/../ns-3-dev-dce/build;
+          $INSTALLDIR/bin/ns3test-dce --verbose"/>
         <!-- These are the list of shell commands Bake should execute 
-             after performing the build. -->
+               after performing the build. -->
 
-       <!-- These are the overload of the standard PATH, LD_LIBRARYPATH, 
-            PKG_CONFIG_PATH and a list of new variables that are 
-            required by DCE. -->
-        <attribute name="v_PATH" value="$SRCDIR;$SRCDIR/../build/bin" />
-        <attribute name="v_LD_LIBRARY" value="$OBJDIR/..;
-                         $SRCDIR;$SRCDIR/../ns-3-dev-dce/build;$INSTALLDIR" />
-        <attribute name="v_PKG_CONFIG" value="$SRCDIR/../ns-3-dev-dce/build/lib/pkgconfig;
-                         $OBJDIR/../../ns-3-dev-" />
-        <attribute name="new_variable" value="DCE_PATH=$INSTALLDIR/bin:$INSTALLDIR/bin_dce;
-                         DCE_ROOT=$INSTALLDIR;
-                         LD_LIBRARY_PATH=$INSTALLDIR/lib:$INSTALLDIR/bin:$SRCDIR/../ns-3-dev-dce/build" />
-     </build> <!-- End of the build handling data -->
-   </module> <!-- End of the module -->
+         <!-- These are the overload of the standard PATH, LD_LIBRARYPATH, 
+              PKG_CONFIG_PATH and a list of new variables that are 
+              required by DCE. -->
+          <attribute name="v_PATH" value="$SRCDIR;$SRCDIR/../build/bin" />
+          <attribute name="v_LD_LIBRARY" value="$OBJDIR/..;
+                           $SRCDIR;$SRCDIR/../ns-3-dev-dce/build;$INSTALLDIR" />
+          <attribute name="v_PKG_CONFIG" value="$SRCDIR/../ns-3-dev-dce/build/lib/pkgconfig;
+                           $OBJDIR/../../ns-3-dev-" />
+          <attribute name="new_variable" value="DCE_PATH=$INSTALLDIR/bin:$INSTALLDIR/bin_dce;
+                           DCE_ROOT=$INSTALLDIR;
+                           LD_LIBRARY_PATH=$INSTALLDIR/lib:$INSTALLDIR/bin:$SRCDIR/../ns-3-dev-dce/build" />
+       </build> <!-- End of the build handling data -->
+    </module> <!-- End of the module -->
 
 Considering that the standard configuration file has the inputs for the dependencies, this is enough to teach Bake how to build DCE.  After adding this to the standard configuration file, or to the ~/.bakerc file, one can simply call bake configure passing the name of the new module ‘’dce-ns3’’ as parameter.  Each configuration entry has to have a name, a source section and a build section.   
 
@@ -306,24 +307,24 @@ Tasks that are often made can be automatized with Bake by creating predefined en
 
 A predefined configuration entry may looks like: 
 
-::
+.. code-block:: xml
+   :linenos:
  
- 
-  <predefined name="dce-min-tmp"> <!-- name of the predefined tag -->
-    <enable name="dce-ns3"/>  <!-- module to enable -->
+    <predefined name="dce-min-tmp"> <!-- name of the predefined tag -->
+      <enable name="dce-ns3"/>  <!-- module to enable -->
 
-    <!-- disables optional modules -->
-    <disable name="iperf"/> 
-    <disable name="ccnx"/>
+      <!-- disables optional modules -->
+      <disable name="iperf"/> 
+      <disable name="ccnx"/>
 
-    <!-- Changes the bin and source directories to /tmp --> 
-    <configuration installdir="/tmp/tmpBin" sourcedir="/tmp/tmpSource"/> 
+      <!-- Changes the bin and source directories to /tmp --> 
+      <configuration installdir="/tmp/tmpBin" sourcedir="/tmp/tmpSource"/> 
 
-   <!-- Configures ns-3 to enable the modules  core,network and wifi, 
-        it appends so it does not change the default configuration --> 
-   <append module="ns-3-dev-dce" name="configure_arguments" 
-           value=" --enable-modules=core,network,wifi"/> 
- </predefined> <!-- End of the predefined configuration -->
+      <!-- Configures ns-3 to enable the modules  core,network and WiFi, 
+           it appends so it does not change the default configuration --> 
+     <append module="ns-3-dev-dce" name="configure_arguments" 
+             value=" --enable-modules=core,network,WiFi"/> 
+    </predefined> <!-- End of the predefined configuration -->
 
 Thus, after adding this to the end of the bakeconf.xml file we can configure bake to download DCE without any optional module by calling: 
 

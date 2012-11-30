@@ -7,10 +7,10 @@
 
    <br />
 
-BAKE 
+BAKE Documentation
 ====
 
-Contents:
+Content:
 
 .. toctree::
    :maxdepth: 3
