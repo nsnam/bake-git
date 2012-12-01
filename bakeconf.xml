@@ -222,7 +222,7 @@
       </build>
     </module>
 
-    <module name="net_anim">
+    <module name="netanim">
       <source type="mercurial">
 	<attribute name="url" value="http://code.nsnam.org/netanim"/>
       </source>
@@ -236,7 +236,7 @@
       <source type="mercurial">
 	<attribute name="url" value="http://code.nsnam.org/ns-3-dev"/>
       </source>
-      <depends_on name="net_anim" optional="True"/>
+      <depends_on name="netanim" optional="True"/>
       <depends_on name="nsc" optional="True"/>
       <depends_on name="pybindgen" optional="True"/>
       <depends_on name="click" optional="True"/>
@@ -260,7 +260,7 @@
       <source type="mercurial">
 	<attribute name="url" value="http://code.nsnam.org/ns-3.16"/>
       </source>
-      <depends_on name="net_anim" optional="True"/>
+      <depends_on name="netanim" optional="True"/>
       <depends_on name="nsc" optional="True"/>
       <depends_on name="pybindgen" optional="True"/>
       <depends_on name="click" optional="True"/>
