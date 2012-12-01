@@ -3,3 +3,4 @@
 bakefile.xml$
 .pyc$
 source/*
+build/*
