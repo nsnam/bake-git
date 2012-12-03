@@ -181,6 +181,8 @@
     def __init__(self):
         InlineModuleBuild.__init__(self)
     def build(self, env, jobs):
+        import os
+        import shutil
 
         env.run(['python', os.path.join(env.srcdir, 'scons.py'), 
                  '-j', str(jobs), 'prefix=' + env.installdir, 'install'],
@@ -189,8 +191,11 @@
         files = os.listdir(srcLib)
         destination = os.path.join(env.installdir, 'lib')
         for file in files:
-             shutil.copy2(os.path.join(srcLib, file), destination)
-        
+             try:
+                 shutil.copy2(os.path.join(srcLib, file), destination)
+             except Exception as e:
+                 print ("   > Error executing copy : " + str(e) + "\n")
+       
     def clean(self, env):
         env.run(['python', os.path.join(env.srcdir, 'scons.py'), '-c'],
                 directory=env.srcdir)

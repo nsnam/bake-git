@@ -144,7 +144,7 @@ This will create a consistent version of ns-3 and its libraries in the configure
 To receive more information about the ongoing process one can call bake in verbose mode.  The verbose varies from -v to -vvv that is the maximum verbose level. If one call bake with -vvv all the messages from the third part tools will be showed.
 
 ::
-  
+    
  > bake.py build -vvv
 
 
@@ -341,4 +341,3 @@ Thus, after adding this to the end of the bakeconf.xml file we can configure bak
       ccnx (optional:True)
 
 We can observe that only the **ns-3-dev-dce** and **dce-ns3** modules are enabled. 
-
