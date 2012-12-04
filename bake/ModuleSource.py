@@ -451,6 +451,8 @@ class SystemDependency(ModuleSource):
         
         # if the dependency exists there is nothing else to do
         if(dependencyExists) :
+            env._logger.commands.write("   >> Not downloading " + env._module_name + 
+                       " as it is already installed on the system\n")
             return True
 
         selfInstalation = self.attribute('try_to_install').value
@@ -481,6 +483,7 @@ class SystemDependency(ModuleSource):
             # if should try to install as sudoer
             if(self.attribute('sudoer_install').value):
                 command = "sudo "+ command
+                command = command
 
             try:
                 env.run((command + installerName).split(" "), 
@@ -490,12 +493,13 @@ class SystemDependency(ModuleSource):
                 errorTmp = ('Self installation problem for module: \"%s\", ' 
                             'Error: %s' % (env._module_name,  e))
             except TaskError as e1:
-                errorTmp = ("Self installation problem for module: \"%s\", "
+                e1.reason = ("Self installation problem for module: \"%s\", "
                             "\nProbably you miss root rights or the module is"
                             " not present on your package management databases."
                             "\nTry calling bake with sudo or reviewing your "
                             "library database to add \"%s\"" 
                             % (env._module_name, installerName))
+                raise e1
                 
         # if the dependency does not exist logs it on the message string
         if(not dependencyExists) :
