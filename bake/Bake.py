@@ -713,12 +713,15 @@ class Bake:
         #self._check_build_version(config, options)
         
         def _do_build(configuration, module, env):
+            print(" >> Building " + module.name() )
+
             if module.check_build_version(env):
                 retval = module.build(env, options.jobs, options.force_clean)
                 if retval:
                     module.update_libpath(env)
                 return retval
             else:
+                print(" >> Building " + module.name() + " - Problem")
                 raise TaskError('Unavailable building tool for'
                                 ' module "%s". Try to call \"%s check\"\n' % 
                                 (module.name(), os.path.basename(sys.argv[0])))

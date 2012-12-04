@@ -235,7 +235,6 @@ class Module:
             os.mkdir(env.objdir)
 
         try:
-            print(" >> Building " + self._name )
             if not os.path.isdir(env.srcdir):
                 raise TaskError('Source is not available for module %s: '
                             'directory %s not found.  Try %s download first.' % 

@@ -280,7 +280,7 @@ class Dependencies:
                 except:
                     success = False
                     import sys
-                    er = sys.exc_info()[0]
+                    er = sys.exc_info()[1]
 #                    import bake.Utils
 #                    bake.Utils.print_backtrace()           
                     print ("  > Unexpected error: " + str(er))
@@ -294,7 +294,7 @@ class Dependencies:
                 except:
                     success = False
                     import sys
-                    er = sys.exc_info()[0]
+                    er = sys.exc_info()[1]
                     print ("  > Unexpected error: " + str(er))
             if not success:
                 if not self._sources.has_key(i.dst()):

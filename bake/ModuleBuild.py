@@ -651,8 +651,11 @@ class Autotools(ModuleBuild):
             
         options = []
         if self.attribute('configure_arguments').value != '':
-            command= (env.replace_variables(env.replace_variables(self.attribute('configure_arguments').value))
-                       + ' --prefix=' + env.objdir)
+            command= (env.replace_variables(env.replace_variables(self.attribute('configure_arguments').value)))
+            
+            if not "--prefix" in command:
+                command = command + ' --prefix=' + env.objdir
+                
             command= bake.Utils.split_args(command)
             env.run(command, directory=env.objdir)
             
