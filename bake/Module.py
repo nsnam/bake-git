@@ -96,7 +96,6 @@ class Module:
                        env._module_name, osName))
             
         try:
-            print(" >> Downloading " + self._name )
             self._do_download(env, self._source, self._name, forceDownload)
             print(" >> Download " + self._name + " - OK")
             return True

@@ -648,9 +648,16 @@ class Bake:
 
         
         (options, args_left) = parser.parse_args(args)
-        self._check_source_version(config, options)
+#        downloadTool2 = self._check_source_version(config, options)
         def _do_download(configuration, module, env):
-            return module.download(env, options.force_download)
+            print(" >> Downloading " + module.name() )
+            if self._check_source_version(config, options): 
+                return module.download(env, options.force_download)
+            else:
+                print(" >> Download " + module.name() + " - Problem")
+                raise TaskError('    Unavailable Downloading tool for'
+                                ' module "%s". Try to call \"%s check\"\n' % 
+                                (module.name(), os.path.basename(sys.argv[0])))
         self._do_operation(config, options, _do_download)
 
     def _update(self, config, args):
@@ -668,30 +675,32 @@ class Bake:
         
         def _do_check(configuration, module, env):
             if not module.check_build_version(env):
-                env._logger.commands.write('Unavailable building tool for'
-                                            ' module "%s"' % module.name())
+                env._logger.commands.write('    Unavailable building tool for'
+                                            ' module "%s"\n' % module.name())
                 return False
             return True
         self._do_operation(config, options, _do_check)
 
     def _check_source_version(self, config, options):
         """Checks if the source can be handled by the programs in the machine."""
-         
+        okForTool=True
         def _do_check(configuration, module, env):
             if not module.check_source_version(env):
-                env._logger.commands.write('Unavailable source tool'
-                                            ' for module %s' % module.name())
+                env._logger.commands.write('    Unavailable source tool'
+                                            ' for module %s\n' % module.name())
+                okForTool=False
                 return False
             return True
         self._do_operation(config, options, _do_check)
+        return okForTool
 
     def _check_source_code(self, config, options, directory=None):
         """ Checks if we have already downloaded the matching source code."""
         
         def _do_check(configuration, module, env):
             if not module.is_downloaded(env):
-                env._logger.commands.write('Unavailable source code for'
-                                            ' module %s. Try %s download first.'
+                env._logger.commands.write('    Unavailable source code for'
+                                            ' module %s. Try %s download first.\n'
                                              %(module.name(), sys.argv[0]))
                 return False
             return True
@@ -722,7 +731,7 @@ class Bake:
                 return retval
             else:
                 print(" >> Building " + module.name() + " - Problem")
-                raise TaskError('Unavailable building tool for'
+                raise TaskError('    Unavailable building tool for'
                                 ' module "%s". Try to call \"%s check\"\n' % 
                                 (module.name(), os.path.basename(sys.argv[0])))
 
