@@ -335,7 +335,7 @@ class SystemDependency(ModuleSource):
             ['redhat', 'yum -y install '],
             ['centos', 'yum -y install '],
             ['suse', 'yast --install '],
-            ['darwin', 'ports install '],
+            ['darwin', 'port install '],
             ]
  
         for name, command in distributions:
@@ -533,7 +533,7 @@ class SystemDependency(ModuleSource):
             ['redhat', 'yum'],
             ['centos', 'yum'],
             ['suse', 'yast'],
-            ['darwin', 'ports'],
+            ['darwin', 'port'],
             ]
 
         import platform 

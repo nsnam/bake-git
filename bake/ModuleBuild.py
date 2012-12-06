@@ -476,7 +476,7 @@ class Cmake(ModuleBuild):
             if not "error 1" in e._reason :
                 raise TaskError(e._reason)
 
-        env.run(['cmake', env.srcdir, '-DCMAKE_INSTALL_PREFIX:PATH=' + env.objdir] + 
+        env.run(['cmake', env.srcdir, '-DCMAKE_INSTALL_PREFIX:PATH=' + env.installdir] + 
                 self._variables() + options,
                 directory=env.objdir)
         env.run(['make', '-j', str(jobs)], directory=env.objdir)
