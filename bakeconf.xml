@@ -75,7 +75,7 @@
     <module name="ns-3-dev-dce">
       <source type="mercurial">
 	<attribute name="url" value="http://code.nsnam.org/ns-3-dev"/>
-	<attribute name="revision" value="49dadc40be43"/>
+	<attribute name="revision" value="2b1da90eb6a7"/>
       </source>
       <build type="waf" objdir="yes">
 	<attribute name="pre_installation" value="cd $SRCDIR;hg revert -a"/>
