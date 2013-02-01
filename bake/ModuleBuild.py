@@ -38,6 +38,8 @@ class ModuleBuild(ModuleAttributeBase):
                            ' environment variable', mandatory=False)
         self.add_attribute('post_installation', '', 'UNIX Command to run'
                            ' after the installation', mandatory=False)
+        self.add_attribute('no_installation', '', 'Does not call the installation'
+                           ' by default', mandatory=False)
         self.add_attribute('pre_installation', '', 'UNIX Command to run'
                            ' before the installation', mandatory=False)
         self.add_attribute('supported_os', '', 'List of supported Operating'
@@ -82,13 +84,22 @@ class ModuleBuild(ModuleAttributeBase):
         if len(supportedOs) is 0 :
             elements = []
         else :
-            elements = supportedOs.split(';')
+            elements = supportedOs.strip().split(';')
             
         supportedOS = False
         
         for element in elements : 
-            if(osName.startswith(element.lower())):
-                supportedOS = True
+            especification = element.strip().split(' ')
+            # if the main version is correct e.g linux/darwin/windows`
+            if(osName.startswith(especification[0].lower())):
+                # if we need to go into a distribuition of the OS e.g. Debian/Fedora
+                if(len(especification)>1):
+                    (distname,version,id)=platform.linux_distribution()
+                    for providedName in especification:
+                        if distname.lower() == providedName.lower():
+                            supportedOS = True
+                else :
+                    supportedOS = True
         
         return supportedOS 
 
@@ -370,15 +381,16 @@ class WafModuleBuild(ModuleBuild):
                 directory=env.srcdir,
                 env=self._env(env.objdir))
         
-        try :
-            options = bake.Utils.split_args(env.replace_variables(self.attribute('install_arguments').value))
-            env.run([self._binary(env.srcdir), 'install'] + options,
+        if self.attribute('no_installation').value != True:
+            try :
+                options = bake.Utils.split_args(env.replace_variables(self.attribute('install_arguments').value))
+                env.run([self._binary(env.srcdir), 'install'] + options,
                 directory=env.srcdir,
                 env=self._env(env.objdir))
-        except TaskError as e:
-            print('Could not install, probably you have no permission to'
-                  ' install  %s: Try to run bake with sudo. Original'
-                  ' message: %s' % (env._module_name, e._reason))
+            except TaskError as e:
+                print('Could not install, probably you do not have permission to'
+                      ' install  %s: Verify if you have the required rights. Original'
+                      ' message: %s' % (env._module_name, e._reason))
        
         
     def clean(self, env):
@@ -485,13 +497,14 @@ class Cmake(ModuleBuild):
             env.run(['make'] + bake.Utils.split_args(env.replace_variables(self.attribute('build_arguments').value)),
                     directory=env.objdir)
             
-        try:
-            options = bake.Utils.split_args(env.replace_variables(self.attribute('install_arguments').value))
-            env.run(['make', 'install'] + options, directory=env.objdir)
-        except TaskError as e:
-            print('Could not install, probably you have no permission to'
-                  ' install  %s: Try to run bake with sudo. Original'
-                  ' message: %s' % (env._module_name, e._reason))
+        if self.attribute('no_installation').value != True:
+            try:
+                options = bake.Utils.split_args(env.replace_variables(self.attribute('install_arguments').value))
+                env.run(['make', 'install'] + options, directory=env.objdir)
+            except TaskError as e:
+                print('Could not install, probably you do not have permission to'
+                      ' install  %s: Verify if you have the required rights. Original'
+                      ' message: %s' % (env._module_name, e._reason))
             #raise TaskError('Could not install, probably you have no'
             #' permission to install  %s: Try to run bake with sudo.'
             #' Original message: %s' % (env._module_name, e._reason))
@@ -573,14 +586,14 @@ class Make(ModuleBuild):
         options = bake.Utils.split_args(env.replace_variables(self.attribute('build_arguments').value))
         env.run(['make', '-j', str(jobs)] + self._flags() + options, directory=env.srcdir)
            
-        try:
-            options = bake.Utils.split_args(env.replace_variables(self.attribute('install_arguments').value))
-            env.run(['make', 'install']  + self._flags() + options, directory=env.srcdir)
-        except TaskError as e:
-            raise TaskError('Could not install, probably you have no'
-                            ' permission to install  %s: Try to run bake with'
-                            ' sudo. Original message: %s' 
-                            % (env._module_name, e._reason))
+        if self.attribute('no_installation').value != str(True):
+            try:
+                options = bake.Utils.split_args(env.replace_variables(self.attribute('install_arguments').value))
+                env.run(['make', 'install']  + self._flags() + options, directory=env.srcdir)
+            except TaskError as e:
+                raise TaskError('Could not install, probably you do not have permission to'
+                      ' install  %s: Verify if you have the required rights. Original'
+                      ' message: %s' % (env._module_name, e._reason))
 
     def clean(self, env):
         """ Call make clean to remove the results of the last build ."""
@@ -661,13 +674,14 @@ class Autotools(ModuleBuild):
             
         env.run(['make', '-j', str(jobs)], directory=env.objdir)
         
-        try :
-            options = bake.Utils.split_args(env.replace_variables(self.attribute('install_arguments').value))
-            env.run(['make', 'install'] + options, directory=env.objdir)
-        except TaskError as e:
-            print('Could not install, probably you have no permission to'
-                  ' install  %s: Try to run bake with sudo. Original message:'
-                  ' %s' % (env._module_name, e._reason))
+        if self.attribute('no_installation').value != True:
+            try :
+                options = bake.Utils.split_args(env.replace_variables(self.attribute('install_arguments').value))
+                env.run(['make', 'install'] + options, directory=env.objdir)
+            except TaskError as e:
+                print('Could not install, probably you do not have permission to'
+                      ' install  %s: Verify if you have the required rights. Original'
+                      ' message: %s' % (env._module_name, e._reason))
             #raise TaskError('Could not install, probably you have no'
             #' permission to install  %s: Try to run bake with sudo. '
             #'Original message: %s' % (env._module_name, e._reason))

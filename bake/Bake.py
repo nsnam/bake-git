@@ -560,7 +560,11 @@ class Bake:
         parser.add_option("-x", "--no_environment_file", action='store_true', 
                           dest='no_environment_file', default=False,
                           help='Do not create the environment file for this run')
-        
+        parser.add_option("--sudo", action="store_true",
+                          dest="call_with_sudo", default=False, 
+                          help='Attempts to install dependencies and modules, when'
+                          ' required,  using sudo. The user has to have sudo rights.')
+       
         return parser
 
     def _do_operation(self, config, options, functor, directory=None):

@@ -90,10 +90,11 @@ class Module:
             if not self._build.check_os(self._build.attribute('supported_os').value) : 
                 import platform
                 osName = platform.system().lower()
-                print('    Downloading, but this module works only on %s ' 
-                      '  platform(s), %s not supported in %s' % 
+                (distname,version,ids)=platform.linux_distribution()
+                print('    Downloading, but this module works only on \"%s\"' 
+                      ' platform(s), %s is not supported for \"%s %s %s %s\"' % 
                       (self._build.attribute('supported_os').value, 
-                       self.name(), osName))
+                       self._name, platform.system(), distname,version,ids))
             
         try:
             self._do_download(env, self._source, self._name, forceDownload)
@@ -198,8 +199,8 @@ class Module:
         """ Main build function. """
         
         # if there is no build we do not need to proceed 
-        if self._build.name() == 'none':
-            return True
+#        if self._build.name() == 'none':
+#            return True
         
         # delete in case this is a new build configuration
         # and there are old files around
@@ -223,11 +224,12 @@ class Module:
             if not self._build.check_os(self._build.attribute('supported_os').value) : 
                 import platform
                 osName = platform.system().lower()
+                (distname,version,ids)=platform.linux_distribution()
                 print(" >> Building " + self._name + " - Problem")
-                print('This module works only on %s' 
-                                ' platform(s), %s not supported for %s' 
-                                % (self._build.attribute('supported_os').value, 
-                                   osName, self.name()))
+                print('    This module works only on \"%s\"' 
+                      ' platform(s), %s is not supported for \"%s %s %s %s\"' % 
+                      (self._build.attribute('supported_os').value, 
+                       self._name, platform.system(), distname,version,ids))
                 return
 
         if not os.path.isdir(env.installdir):
