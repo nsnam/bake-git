@@ -36,6 +36,7 @@ class ModuleEnvironment:
         self._pkgpaths =  Set([])
         self._variables =  Set([])
         self._debug = debug
+        self._sudoEnabled = False
 
     def _module_directory(self):
         ''' Returns the name of the directory of the on use module.'''
@@ -93,6 +94,12 @@ class ModuleEnvironment:
                                 'objdir= %s, Error: %s' 
                                 % (self._sourcedir, self._module_directory(), e))
         return obj
+
+    @property
+    def sudoEnabled(self):
+        ''' Returns the setting of the --sudo option'''
+        
+        return self._sudoEnabled
 
     def _pkgconfig_var(self):
         ''' Returns the PKG_CONFIG_PATH configured environment variable.'''

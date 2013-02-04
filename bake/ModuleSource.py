@@ -290,8 +290,6 @@ class SystemDependency(ModuleSource):
     using one of the default tools  i.e. yum apt-get.
     """
     
-    dependencyMessage=''
-    
     def __init__(self):
         """ Specific attributes definition."""
 
@@ -365,26 +363,56 @@ class SystemDependency(ModuleSource):
         if(not installerName):
             installerName = env._module_name
 
-        # if should try to install as sudoer
-        if(self.attribute('sudoer_install').value):
-            command = "sudo "+ command
+        # if should try to remove as sudoer
+        if(self.attribute('sudoer_install').value and (not env.sudoEnabled)):
+            raise TaskError('    Module: \"%s\" requires sudo rights, if' 
+                            ' you have the right, call bake with the'
+                            ' --sudo option, or ask your system admin'
+                            ' to install \"%s\" in your machine.\n'
+                            '    More information from the module: \"%s\"' 
+                            % (env._module_name, installerName, 
+                               self.attribute('more_information').value))
 
-        # uses apt-get to install the module
+        if(env.sudoEnabled):
+            command = "sudo "+ command
+            command = command
+
+        # uses apt-get/yum/... to remove the module
         try:
             env.run((command + " " + installerName).split(" "), 
                     directory=env.srcrepo)
         except IOError as e:
-            raise TaskError('Removing module problem: \"%s\", Message: %s, Error: %s' 
+            raise TaskError('    Removing module problem: \"%s\", Message: %s, Error: %s' 
                             % (env._module_name,  
                                self.attribute('more_information').value, e))
         except TaskError as e1:
-            raise TaskError("Removing module problem: \"%s\",\n Probably you"
-            "miss root rights or the module is not present on your package"
-            "management databases. \nTry calling bake with sudo or reviewing your"
-                            " library database to add \"%s\". Message: %s" 
+            if(env.sudoEnabled):
+                e1.reason = ("    Removing problem for module: \"%s\", "
+                            "\n    Probably either you miss sudo rights or the module is"
+                            " not present on your package management databases."
+                            "\n    Try to either talk to your system admin or review your "
+                            "library database to add \"%s\"\n"
+                            "    More information from the module: \"%s\"" 
                             % (env._module_name, installerName, 
-                               self.attribute('more_information').value, 
-                               e1._reason))
+                               self.attribute('more_information').value))
+            else:
+                e1.reason = ("    Removing problem for module: \"%s\", "
+                            "\n    Probably you either need sudo to remove the packet, "
+                            " or the module is"
+                            " not present on your package management databases."
+                            "\n    Try calling bake with the --sudo option and/or " 
+                            "review your library database to add \"%s\"\n"
+                                "    More information from the module: \"%s\"" 
+                            % (env._module_name, installerName, 
+                               self.attribute('more_information').value))
+
+            raise TaskError("    Removing module problem: \"%s\",\n    Probably you"
+            "miss sudo rights or the module is not present on your package "
+            "management databases. \n    Try calling bake with --sudo or reviewing your"
+                            " library database to add \"%s\"\n"
+                                "    More information from the module: \"%s\"" 
+                            % (env._module_name, installerName, 
+                               self.attribute('more_information').value))
         return True
 
     def _add_command_calls(self, stringToChange, elements):
@@ -481,7 +509,17 @@ class SystemDependency(ModuleSource):
             # Try to install if possible
             
             # if should try to install as sudoer
-            if(self.attribute('sudoer_install').value):
+            if(self.attribute('sudoer_install').value and (not env.sudoEnabled)):
+                raise TaskError('    Module: \"%s\" requires sudo rights, if' 
+                                ' you have the right, call bake with the'
+                                ' --sudo option, or ask your system admin'
+                                ' to install \"%s\" in your machine.\n'
+                                '    More information from the module: \"%s\"' 
+                            % (env._module_name, installerName, 
+                               self.attribute('more_information').value))
+
+            # if the user asked to install everything as sudoer... do it!
+            if(env.sudoEnabled):
                 command = "sudo "+ command
                 command = command
 
@@ -490,26 +528,29 @@ class SystemDependency(ModuleSource):
                         directory=env.srcrepo)
                 return True
             except IOError as e:
-                errorTmp = ('Self installation problem for module: \"%s\", ' 
+                errorTmp = ('    Self installation problem for module: \"%s\", ' 
                             'Error: %s' % (env._module_name,  e))
             except TaskError as e1:
-                e1.reason = ("Self installation problem for module: \"%s\", "
-                            "\nProbably you miss root rights or the module is"
+                if(env.sudoEnabled):
+                    e1.reason = ("    Self installation problem for module: \"%s\", "
+                            "\n    Probably either you miss sudo rights or the module is"
                             " not present on your package management databases."
-                            "\nTry calling bake with sudo or reviewing your "
-                            "library database to add \"%s\"" 
-                            % (env._module_name, installerName))
+                            "\n    Try to either talk to your system admin or review your "
+                            "library database to add \"%s\"\n"
+                            "    More information from the module: \"%s\"" 
+                            % (env._module_name, installerName, 
+                               self.attribute('more_information').value))
+                else:
+                    e1.reason = ("    Self installation problem for module: \"%s\", "
+                            "\n    Probably you need to install the packet with "
+                            "sudo, or that the module is"
+                            " not present on your package management databases."
+                            "\n    Try calling bake with the --sudo option and/or " 
+                            "review your library database to add \"%s\"\n"
+                            "    More information from the module: \"%s\"" 
+                            % (env._module_name, installerName, 
+                               self.attribute('more_information').value))
                 raise e1
-                
-        # if the dependency does not exist logs it on the message string
-        if(not dependencyExists) :
-            self.dependencyMessage =  ('  > System dependency: %s : %s \n' % 
-                                                               (env._module_name,  
-                                                                self.attribute('more_information').value))
-        
-            if(errorTmp) :
-                self.dependencyMessage = self.dependencyMessage + '      '
-                '... ' + errorTmp + '\n';
             
         return dependencyExists
     

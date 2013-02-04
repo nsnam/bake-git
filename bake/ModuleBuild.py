@@ -264,8 +264,12 @@ class PythonModuleBuild(ModuleBuild):
         if self.attribute('patch').value != '':
             self.threat_patch(env)
        
+        sudoOp=[]
+        if(env.sudoEnabled):
+            sudoOp = ['sudo']
+
         # TODO: Add the options, there is no space for the configure_arguments
-        env.run(['python', os.path.join(env.srcdir, 'setup.py'), 'build',
+        env.run(sudoOp + ['python', os.path.join(env.srcdir, 'setup.py'), 'build',
                   '--build-base=' + env.objdir,
                   'install', '--prefix=' + env.installdir],
                  directory=env.srcdir)
@@ -382,13 +386,18 @@ class WafModuleBuild(ModuleBuild):
                 env=self._env(env.objdir))
         
         if self.attribute('no_installation').value != True:
+
+            sudoOp=[]
+            if(env.sudoEnabled):
+                sudoOp = ['sudo']
+
             try :
                 options = bake.Utils.split_args(env.replace_variables(self.attribute('install_arguments').value))
-                env.run([self._binary(env.srcdir), 'install'] + options,
+                env.run(sudoOp + [self._binary(env.srcdir), 'install'] + options,
                 directory=env.srcdir,
                 env=self._env(env.objdir))
             except TaskError as e:
-                print('Could not install, probably you do not have permission to'
+                print('    Could not install, probably you do not have permission to'
                       ' install  %s: Verify if you have the required rights. Original'
                       ' message: %s' % (env._module_name, e._reason))
        
@@ -498,17 +507,18 @@ class Cmake(ModuleBuild):
                     directory=env.objdir)
             
         if self.attribute('no_installation').value != True:
+
+            sudoOp=[]
+            if(env.sudoEnabled):
+                sudoOp = ['sudo']
+
             try:
                 options = bake.Utils.split_args(env.replace_variables(self.attribute('install_arguments').value))
-                env.run(['make', 'install'] + options, directory=env.objdir)
+                env.run(sudoOp + ['make', 'install'] + options, directory=env.objdir)
             except TaskError as e:
-                print('Could not install, probably you do not have permission to'
+                print('    Could not install, probably you do not have permission to'
                       ' install  %s: Verify if you have the required rights. Original'
                       ' message: %s' % (env._module_name, e._reason))
-            #raise TaskError('Could not install, probably you have no'
-            #' permission to install  %s: Try to run bake with sudo.'
-            #' Original message: %s' % (env._module_name, e._reason))
-            
 
     def clean(self, env):
         """ Call make clean to remove the results of the last build."""
@@ -587,11 +597,16 @@ class Make(ModuleBuild):
         env.run(['make', '-j', str(jobs)] + self._flags() + options, directory=env.srcdir)
            
         if self.attribute('no_installation').value != str(True):
+
+            sudoOp=[]
+            if(env.sudoEnabled):
+                sudoOp = ['sudo']
+
             try:
                 options = bake.Utils.split_args(env.replace_variables(self.attribute('install_arguments').value))
-                env.run(['make', 'install']  + self._flags() + options, directory=env.srcdir)
+                env.run(sudoOp + ['make', 'install']  + self._flags() + options, directory=env.srcdir)
             except TaskError as e:
-                raise TaskError('Could not install, probably you do not have permission to'
+                raise TaskError('    Could not install, probably you do not have permission to'
                       ' install  %s: Verify if you have the required rights. Original'
                       ' message: %s' % (env._module_name, e._reason))
 
@@ -675,17 +690,18 @@ class Autotools(ModuleBuild):
         env.run(['make', '-j', str(jobs)], directory=env.objdir)
         
         if self.attribute('no_installation').value != True:
+
+            sudoOp=[]
+            if(env.sudoEnabled):
+                sudoOp = ['sudo']
+
             try :
                 options = bake.Utils.split_args(env.replace_variables(self.attribute('install_arguments').value))
-                env.run(['make', 'install'] + options, directory=env.objdir)
+                env.run(sudoOp + ['make', 'install'] + options, directory=env.objdir)
             except TaskError as e:
-                print('Could not install, probably you do not have permission to'
+                print('    Could not install, probably you do not have permission to'
                       ' install  %s: Verify if you have the required rights. Original'
                       ' message: %s' % (env._module_name, e._reason))
-            #raise TaskError('Could not install, probably you have no'
-            #' permission to install  %s: Try to run bake with sudo. '
-            #'Original message: %s' % (env._module_name, e._reason))
-        
 
     def clean(self, env):
         """ Call make maintainerclean or distclean to remove the results of 

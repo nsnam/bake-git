@@ -199,8 +199,8 @@ class Module:
         """ Main build function. """
         
         # if there is no build we do not need to proceed 
-#        if self._build.name() == 'none':
-#            return True
+        if self._build.name() == 'none':
+            return True
         
         # delete in case this is a new build configuration
         # and there are old files around

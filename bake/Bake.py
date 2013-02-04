@@ -655,6 +655,7 @@ class Bake:
 #        downloadTool2 = self._check_source_version(config, options)
         def _do_download(configuration, module, env):
             print(" >> Downloading " + module.name() )
+            env._sudoEnabled=options.call_with_sudo
             if self._check_source_version(config, options): 
                 return module.download(env, options.force_download)
             else:
@@ -722,12 +723,13 @@ class Bake:
                           ' option for the build.', action="store_true", 
                           default=False, dest='force_clean')
         (options, args_left) = parser.parse_args(args)
-        self._check_source_code(config, options)
         #self._check_build_version(config, options)
+        self._check_source_code(config, options)
         
         def _do_build(configuration, module, env):
+           
             print(" >> Building " + module.name() )
-
+            env._sudoEnabled=options.call_with_sudo
             if module.check_build_version(env):
                 retval = module.build(env, options.jobs, options.force_clean)
                 if retval:
@@ -997,7 +999,7 @@ class Bake:
         # If the file is the default, and exists on the local directory, fine
         if os.path.isfile(configFile):
             return configFile
-        
+
         presentDir = os.path.dirname(sys.argv[0])
         if not presentDir:
             presentDir = "."

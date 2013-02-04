@@ -68,12 +68,12 @@ class StdoutModuleLogger(ModuleLogger):
         """ Initializes the used variables."""
 
         ModuleLogger.__init__(self)
-        self._update_file(sys.stdout)
+        self._update_file(sys.__stdout__)
         
     def set_current_module(self, name):
         """ Sets stdout as the output as the output for the module."""
 
-        self._update_file(sys.stdout)
+        self._update_file(sys.__stdout__)
         
     def clear_current_module(self):
         """ Not implemented, as the output is always the same, one does 

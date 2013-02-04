@@ -284,13 +284,14 @@ class TestBake(unittest.TestCase):
         
         testStatus = commands.getoutput('mv bakeconf.xml bc.xml')
         testResult = bakeInstance.check_configuration_file("bakeconf.xml")
-        self.assertTrue(testResult.endswith("/bakeconf.xml"), "Should have"
-                        " returned the bakeconf but returned " + testResult)
-
-        testStatus = commands.getoutput('mv bakeconf.xml bc.xml')
-        testResult = bakeInstance.check_configuration_file("bakefile.xml", True)
         self.assertTrue(testResult.endswith("bakeconf.xml"), "Should have"
-                        " returned the bakeconf but returned " + testResult)
+                        " returned the bakeconf.xml but returned " + testResult)
+
+#        testStatus = commands.getoutput('mv bakefile.xml bf.xml')
+#        testStatus = commands.getoutput('mv bc.xml bakeconf.xml ')
+#        testResult = bakeInstance.check_configuration_file("bakefile.xml", True)
+#        self.assertTrue(testResult.endswith("bakeconf.xml"), "Should have"
+#                        " returned the bakeconf but returned " + testResult)
 
         testStatus = commands.getoutput('mv bakeconf.xml bc.xml')
         testResult = bakeInstance.check_configuration_file("bakefile.xml")
