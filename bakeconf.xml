@@ -67,8 +67,7 @@
 	<attribute name="pre_installation" value="$SRCDIR/configure"/>
 	<attribute name="LDFLAGS" value="-pie"/>
 	<attribute name="ignore_predefined_flags" value="True"/>
-	<attribute name="build_arguments" value="CCOPTS='-fpic -D_GNU_SOURCE -O0 -U_FORTIFY_SOURCE'"/>
-        <attribute name="new_variable" value="V1=44;V33=12" />
+	<attribute name="build_arguments" value="CCOPTS+=-fpic CCOPTS+=-D_GNU_SOURCE CCOPTS+=-O0 CCOPTS+=-U_FORTIFY_SOURCE"/>
       </build>
      </module>
 

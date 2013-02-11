@@ -295,7 +295,7 @@ class SystemDependency(ModuleSource):
 
         ModuleSource.__init__(self)
         self.add_attribute('dependency_test', None, 'The name of the installer',
-                           mandatory=True)
+                           mandatory=False)
         self.add_attribute('try_to_install', None, 
                            'If should try to install or not',
                            mandatory=True)
@@ -472,10 +472,13 @@ class SystemDependency(ModuleSource):
         
         import platform 
         import re
-
-        # tests if the dependency exists or not        
-        dependencyExists = self._check_dependency_expression(env,
-                                                             self.attribute('dependency_test').value) 
+        dependencyExists = None
+        
+        dependencTest = self.attribute('dependency_test').value
+        
+        if(dependencTest):
+            # tests if the dependency exists or not        
+            dependencyExists = self._check_dependency_expression(env, dependencTest) 
         
         # if the dependency exists there is nothing else to do
         if(dependencyExists) :
