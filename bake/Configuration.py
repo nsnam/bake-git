@@ -9,8 +9,10 @@ import os
 import re
 import sys
 import xml.etree.ElementTree as ET
-from xml.etree.ElementTree import ParseError
-
+try:
+ from xml.etree.ElementTree import ParseError
+except ImportError:
+ from xml.parsers.expat import ExpatError as ParseError
 from bake.Module import Module, ModuleDependency
 from bake.ModuleSource import ModuleSource, InlineModuleSource
 from bake.ModuleBuild import ModuleBuild, InlineModuleBuild

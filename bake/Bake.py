@@ -7,7 +7,10 @@
 '''
 
 import xml.etree.ElementTree as ET
-from xml.etree.ElementTree import ParseError
+try:
+ from xml.etree.ElementTree import ParseError
+except ImportError:
+ from xml.parsers.expat import ExpatError as ParseError
 import sys
 import os
 import signal

@@ -443,7 +443,7 @@ class SystemDependency(ModuleSource):
         
         ### Clean expression
         # elements to ignore
-        lib_var = {r'\b(or)\b', r'\b(not)\b', r'\b(and)\b',r'\b(if)\b'}
+        lib_var = [r'\b(or)\b', r'\b(not)\b', r'\b(and)\b',r'\b(if)\b']
         
         stringToChange = re.sub(r'(\(|\))',' ',stringToChange)
         for element in lib_var :
