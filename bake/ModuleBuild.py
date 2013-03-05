@@ -726,7 +726,7 @@ class Autotools(ModuleBuild):
 
         if not env.check_program('autoreconf', version_arg='--version',
                                  version_regexp='(\d+)\.(\d+)',
-                                 version_required=(2, 66)):
+                                 version_required=(2, 13)):
             return False
         
         if not env.check_program('make', version_arg='--version',
