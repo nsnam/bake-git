@@ -311,7 +311,7 @@ class SystemDependency(ModuleSource):
         self.add_attribute('name_yast', None, 
                            'The name of the module to install with  yast',
                            mandatory=False)
-        self.add_attribute('name_ports', None, 
+        self.add_attribute('name_port', None, 
                            'The name of the module to install with  ports (Mac OS)',
                            mandatory=False)
         self.add_attribute('more_information', None, 
@@ -354,7 +354,12 @@ class SystemDependency(ModuleSource):
                              self.attribute('error_message').value))
         
         (distribution, version, version_id) = platform.linux_distribution()
-        distribution = distribution.lower()
+
+        if not distribution:
+            distribution = 'darwin' # osName
+        else:
+            distribution = distribution.lower()
+
         command = self._get_command(distribution)
         command = command.rstrip().rsplit(' ', 1)[0] + ' remove'
         installerName = self.attribute('name_' + command.split()[0]).value
@@ -397,8 +402,8 @@ class SystemDependency(ModuleSource):
                                self.attribute('more_information').value))
             else:
                 e1.reason = ("    Removing problem for module: \"%s\", "
-                            "\n    Probably you either need sudo to remove the packet, "
-                            " or the module is"
+                            "\n    Probably you either need super user rights"
+                            " to remove the packet, or the module is"
                             " not present on your package management databases."
                             "\n    Try calling bake with the --sudo option and/or " 
                             "review your library database to add \"%s\"\n"
@@ -489,10 +494,15 @@ class SystemDependency(ModuleSource):
         selfInstalation = self.attribute('try_to_install').value
         
         # even if should try to install, if it is not a supported mahine we will not be able
-        osName = platform.system().lower()
+        osName = platform.system().lower().strip()
         if((osName.startswith('linux') or osName.startswith('darwin')) and selfInstalation):
             (distribution, version, version_id) = platform.linux_distribution()
-            distribution = distribution.lower()
+            
+            if not distribution:
+                distribution = 'darwin' # osName
+            else:
+                distribution = distribution.lower()
+                
             command = self._get_command(distribution)
             
             installerName = self.attribute('name_' + command.split()[0]).value
@@ -505,7 +515,7 @@ class SystemDependency(ModuleSource):
                 selfInstalation = False
             
         else :
-                selfInstalation = False
+            selfInstalation = False
         
         errorTmp = None
         if(not dependencyExists and selfInstalation):
@@ -545,8 +555,8 @@ class SystemDependency(ModuleSource):
                                self.attribute('more_information').value))
                 else:
                     e1.reason = ("    Self installation problem for module: \"%s\", "
-                            "\n    Probably you need to install the packet with "
-                            "sudo, or that the module is"
+                            "\n    Probably either you need super user rights to install the packet,"
+                            "or that the module is"
                             " not present on your package management databases."
                             "\n    Try calling bake with the --sudo option and/or " 
                             "review your library database to add \"%s\"\n"
@@ -593,7 +603,11 @@ class SystemDependency(ModuleSource):
                  return env.check_program('ports')
                
         (distribution, version, version_id) = platform.linux_distribution()
-        distribution = distribution.lower()
+        if not distribution:
+            distribution = 'darwin' # osName
+        else:
+            distribution = distribution.lower()
+            
         for dist, program in distributions:
             if distribution.startswith(dist):
                 return env.check_program(program)

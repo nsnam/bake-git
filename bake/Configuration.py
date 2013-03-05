@@ -6,6 +6,7 @@
 ''' 
 
 import os
+import re
 import sys
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import ParseError
@@ -389,11 +390,14 @@ class Configuration:
 
     def read(self):
         """ Reads the XML customized configuration file."""
-        
+         
         try:
             et = ET.parse(self._bakefile)
         except IOError as e:
-            raise TaskError('Problems reading the file, error: %s' % e)
+            err = re.sub(r'\[\w+ \w+\]+', ' ', str(e)).strip()
+            raise TaskError('>> Problems reading the configuration file, verify if'
+                            ' it exists or try calling bake.py configure. \n'
+                            '   Error: %s' % err)
 
         self._read_metadata(et)
         root = et.getroot()

@@ -571,6 +571,7 @@ class Bake:
         """Applies the function, passed as parameter, over the options."""
         
         configuration = self._read_config(config, directory)
+                        
         if options.logdir == '' and options.logfile == '':
             logger = StdoutModuleLogger()
         elif options.logdir != '':
@@ -815,16 +816,32 @@ class Bake:
         def _do_env_check(configuration, module, env):
             return True
         
-        env = self._do_operation(config, options, _do_env_check)
+        env = self._get_dummy_env(options)
         
         colorTool = ColorTool()
         for element in checkPrograms:
             if env.check_program(element[0]):
-                colorTool.cPrint(colorTool.OK, " > " + element[1] + " - Ok")                    
+                colorTool.cPrint(colorTool.OK, " > " + element[1] + " - OK")                    
             else:
                 colorTool.cPrint(colorTool.WARNING, " > " + element[1] + 
                                  " - is missing")
+    def _get_dummy_env(self, options):
+        """ Returns a dummy environment just for verifying the user's system configuration. """
+        configuration = Configuration("")
+                        
+        if options.logdir == '' and options.logfile == '':
+            logger = StdoutModuleLogger()
+        elif options.logdir != '':
+            assert options.logfile == ''
+            logger = LogdirModuleLogger(options.logdir)
+        else:
+            assert options.logfile != ''
+            logger = LogfileModuleLogger(options.logfile)
+        verbose = options.verbose - options.quiet
+        verbose = verbose if verbose >= 0 else 0
+        logger.set_verbose(verbose)
 
+        return ModuleEnvironment(logger, "","","", Bake.main_options.debug)
 
     def _show_one_builtin(self, builtin, string, variables):
         """Go over the available builtins handling tools."""
@@ -1018,11 +1035,27 @@ class Bake:
         return configFile
 
     options = ""
+
+    def checkPythonVersion(self):
+        """ Checks the version  of the user's machine python. For now we just guarantee
+        the compatibility with python above 2.7.0. """
+
+        #Temporary environment variable to check the pyton version available
+        envTmp = ModuleEnvironment("", ".", ".", ".")
+        validPython = envTmp.check_program("python", version_arg='--version', 
+            version_regexp='(\d+)\.(\d+)\.(\d+)', 
+            version_required=(2, 7, 0))
+        if (not validPython):
+            print(">>> Old Python version detected, please install a newer one (above 2.7.0)")
+
     def main(self, argv):
         """Main Bake function."""
        
         # catches Ctrl-c 
         signal.signal(signal.SIGINT, signal_handler)
+        
+        self.checkPythonVersion()
+        
         parser = MyOptionParser(usage='usage: %prog [options] command [command options]',
                                 description="""Where command is one of:
   install      : Downloads the configured modules AND makes the build in one step
@@ -1088,6 +1121,9 @@ To get more help about each command, try:
                         function(config=options.config_file, args=args_left[1:])
                     except Exception as e:
                         print ('\n'+e.message)
+                        sys.exit(1)
+                    except TaskError as e:
+                        print ('\n'+e.reason)
                         sys.exit(1)
                         
         if not recognizedCommand:

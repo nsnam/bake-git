@@ -7,10 +7,10 @@ Calls all the available bake tests in sequence.
 import glob
 import unittest
 
-# finds the test files, should start with Test and finnish with .py
+# finds the test files, should start with Test and finish with .py
 test_file_strings = glob.glob('Test*.py')
 
-# test_file_strings = ["TestModuleSource.py"]
+#test_file_strings = ["TestModuleSource.py"]
 # puts the file in the format of modules to be imported
 module_strings = ["test."+str[0:len(str)-3] for str in test_file_strings]
 
