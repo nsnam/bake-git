@@ -119,8 +119,7 @@
      <!-- umip related modules -->
      <module name="dce-umip">
        <source type="mercurial">
-	 <!-- attribute name="url" value="http://code.nsnam.org/thehajime/ns-3-dce-umip"/ -->
-	 <attribute name="url" value="/home/tazaki/hgworks/ns-3-dce-thehajime/ns-3-dce-umip"/>
+	 <attribute name="url" value="http://code.nsnam.org/thehajime/ns-3-dce-umip"/>
 	 <attribute name="module_directory" value="dce/myscripts/ns-3-dce-umip/"/>
        </source>
        <depends_on name="dce-linux" optional="False"/>
@@ -158,8 +157,7 @@
     <!-- quagga related modules -->
     <module name="dce-quagga">
       <source type="mercurial">
-	<!-- attribute name="url" value="http://code.nsnam.org/thehajime/ns-3-dce-quagga"/ -->
-	<attribute name="url" value="/home/tazaki/hgworks/ns-3-dce-thehajime/ns-3-dce-quagga"/>
+	<attribute name="url" value="http://code.nsnam.org/thehajime/ns-3-dce-quagga"/>
  	<attribute name="module_directory" value="dce/myscripts/ns-3-dce-quagga/"/>
       </source>
        <depends_on name="dce-linux" optional="False"/>
