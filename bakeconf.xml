@@ -201,7 +201,7 @@
 	<attribute name="name_yum" value="libxml2-devel"/>
 	<attribute name="name_yast" value="libxml2-devel"/>
 	<attribute name="name_apt-get" value="libxml2-dev"/>
-	<attribute name="more_information" value="Didn't the libxml2-dev library, try to install it!"/>
+	<attribute name="more_information" value="Didn't find the libxml2-dev library, try to install it!"/>
       </source>
       <build type="none" objdir="no">
       </build>
