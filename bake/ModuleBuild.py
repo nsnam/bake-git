@@ -282,6 +282,14 @@ class PythonModuleBuild(ModuleBuild):
         env.run(['python', os.path.join(env.srcdir, 'setup.py'), 'clean',
                  '--build-base=' + env.objdir],
                 directory=env.srcdir)
+
+    def distclean(self, env):
+        """ Call the code with the setup.py with the distclean option, 
+        to remove the older code.
+        """
+        
+        env.run(['python', os.path.join(env.srcdir, 'setup.py'), 'distclean'],
+                directory=env.srcdir)
         
     def check_version(self, env):
         """Verifies only if python exists in the machine."""
@@ -407,11 +415,19 @@ class WafModuleBuild(ModuleBuild):
         last build.
         """
 
-        wlockfile = '.lock-%s' % os.path.basename(env.objdir)
-        if os.path.isfile(os.path.join(env.srcdir, wlockfile)):
-            env.run([self._binary(env.srcdir), '-k', 'clean'],
-                    directory=env.srcdir,
-                    env=self._env(env.objdir))
+        env.run([self._binary(env.srcdir), '-k', 'clean'],
+                directory=env.srcdir,
+                env=self._env(env.objdir))
+            
+    def distclean(self, env):
+        """ Call waf with the distclean option to remove the results of the 
+        last build.
+        """
+
+        env.run([self._binary(env.srcdir), '-k', 'distclean'],
+                directory=env.srcdir,
+                env=self._env(env.objdir))
+            
             
     def check_version(self, env):
         """ Verifies the waf version."""
@@ -526,7 +542,15 @@ class Cmake(ModuleBuild):
         if not os.path.isfile(os.path.join(env.objdir, 'Makefile')):
             return
         
-        env.run(['make', 'clean'], directory=env.objdir)
+        env.run(['make','-i', 'clean'], directory=env.objdir)
+        
+    def distclean(self, env):
+        """ Call make distclean to remove the results of the last build."""
+
+        if not os.path.isfile(os.path.join(env.objdir, 'Makefile')):
+            return
+        
+        env.run(['make','-i', 'distclean'], directory=env.objdir)
         
     def check_version(self, env):
         """ Verifies if CMake and Make are available and their versions."""
@@ -616,8 +640,16 @@ class Make(ModuleBuild):
         if not os.path.isfile(os.path.join(env.objdir, 'Makefile')):
             return
         
-        env.run(['make', '-i', 'clean'], directory=env.objdir)
+        env.run(['make', 'clean'], directory=env.objdir)
         
+    def distclean(self, env):
+        """ Call make distclean to remove the results of the last build."""
+
+        if not os.path.isfile(os.path.join(env.objdir, 'Makefile')):
+            return
+        
+        env.run(['make', '-i', 'distclean'], directory=env.objdir)
+
     def check_version(self, env):
         """ Verifies if Make are available and its versions."""
         
@@ -720,6 +752,12 @@ class Autotools(ModuleBuild):
             os.remove(os.path.join(env.objdir, 'config.cache'))
         except OSError:
             pass
+
+    def distclean(self, env):
+        """ Call make distclean to remove the results of the last build."""
+
+        Autotools.clean(self, env)
+
         
     def check_version(self, env):
         """ Verifies if Autoreconf and Make are available and their versions."""

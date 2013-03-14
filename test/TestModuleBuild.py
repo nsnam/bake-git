@@ -12,6 +12,7 @@ from bake.ModuleSource import ModuleSource
 from bake.ModuleBuild import ModuleBuild
 from bake.Exceptions import TaskError
 from bake.Bake import Bake
+from bake.Module import Module
 
 
 sys.path.append(os.path.join (os.getcwd(), '..'))
@@ -63,7 +64,7 @@ class TestModuleBuild (unittest.TestCase):
         testResult = archive.download(self._env)
         self.assertEqual(testResult, None)
         testStatus = commands.getoutput('ls /tmp/source/pygccxml|wc')
-        created = re.compile('\d+').search(testStatus).group()
+        created = re.compile(' +\d+').search(testStatus).group().strip()
         self.assertNotEqual(created, "0")
      
         # Expected case test
@@ -100,6 +101,11 @@ class TestModuleBuild (unittest.TestCase):
        
         testResult = python.build(self._env, "1")
         self.assertEqual(testResult, None)       
+
+# TODO: find a python module that accepts the distclean      
+#        testResult = python.distclean(self._env)
+#        self.assertEqual(testResult, None)       
+        
         
         python.attribute('patch').value = ''
        
@@ -108,10 +114,10 @@ class TestModuleBuild (unittest.TestCase):
         testResult = python.build(self._env, "1")
         self.assertEqual(testResult, None)
         testStatus = commands.getoutput('ls /tmp/source/pygccxml/object_bake|wc')
-        created = re.compile('\d+').search(testStatus).group()
+        created = re.compile(' +\d+').search(testStatus).group().strip()
         self.assertNotEqual(created, "0")
         testStatus = commands.getoutput('ls /tmp/source/pygccxml/install_bake|wc')
-        created = re.compile('\d+').search(testStatus).group()
+        created = re.compile(' +\d+').search(testStatus).group().strip()
         self.assertNotEqual(created, "0")
         
 
@@ -142,10 +148,10 @@ class TestModuleBuild (unittest.TestCase):
 #        testResult = python.clean(self._env)
 #        self.assertEqual(testResult, None)
 #        testStatus = commands.getoutput('ls /tmp/source/pygccxml/object_bake|wc')
-#        created = re.compile('\d+').search(testStatus).group()
+#        created = re.compile(' +\d+').search(testStatus).group().strip()
 #        self.assertEqual(created, "0")
 #        testStatus = commands.getoutput('ls /tmp/source/pygccxml/install_bake|wc')
-#        created = re.compile('\d+').search(testStatus).group()
+#        created = re.compile(' +\d+').search(testStatus).group().strip()
 #        self.assertEqual(created, "0")
         
 
@@ -239,17 +245,19 @@ class TestModuleBuild (unittest.TestCase):
         except TaskError as t:
             print(t.reason)
         self.assertEqual(testResult, None)
-        testStatus = commands.getoutput('ls /tmp/source/openflow-ns3/object|wc')
-        created = re.compile('\d+').search(testStatus).group()
+        testStatus = commands.getoutput('ls /tmp/source/openflow-ns3/build|wc')
+        created = re.compile(' +\d+').search(testStatus).group().strip()
         self.assertNotEqual(created, "0")
         waf.attribute('patch').value = ''
-
-        # call the clean to remove the build
-        testResult = waf.clean(self._env)
-        self.assertEqual(testResult, None)
-        testStatus = os.path.exists('/tmp/source/openflow-ns3/object')
-        self.assertFalse(testStatus)
         
+        # call the distclean to remove the build
+        testResult = waf.distclean(self._env)
+        self.assertEqual(testResult, None)
+        testStatus = commands.getoutput('ls /tmp/source/openflow-ns3/build|wc')
+        created = re.compile(' +\d+').search(testStatus).group().strip()
+        self.assertEqual(created, "0")
+       
+
         # Call with extra options
         # TODO: find a solution either use another packet, like pybindgen, that
         # uses waf, or see to fix the openflow, because open flow does not accept
@@ -265,9 +273,17 @@ class TestModuleBuild (unittest.TestCase):
         except TaskError as t:
             print(t.reason)
         self.assertEqual(testResult, None)
-        testStatus = os.path.exists('/tmp/source/openflow-ns3/object')
-        self.assertFalse(testStatus)
+        testStatus = commands.getoutput('ls /tmp/source/openflow-ns3/build/default/lib|wc')
+        created = re.compile(' +\d+').search(testStatus).group().strip()
+        self.assertNotEqual(created, "0")
         
+        # call the clean to remove the build
+        testResult = waf.clean(self._env)
+        self.assertEqual(testResult, None)
+        testStatus = commands.getoutput('ls /tmp/source/openflow-ns3/build/default/lib|wc')
+        created = re.compile(' +\d+').search(testStatus).group().strip()
+        self.assertEqual(created, "0")
+
         # TODO: 
         # test if the object dir is equal to the source dir, for the open flow 
         # case it is not allowed but I am not sure for everyone else 
@@ -478,8 +494,18 @@ class TestModuleBuild (unittest.TestCase):
             
         self.assertEqual(testResult, None)
         testStatus = commands.getoutput('ls /tmp/source/gccxml/object|wc')
-        created = re.compile('\d+').search(testStatus).group()
+        created = re.compile(' +\d+').search(testStatus).group().strip()
         self.assertNotEqual(created, "0")
+        
+        
+        # call the distclean to remove the build
+        #TODO: This module does not accepts distclean find another one to test
+#        testResult = cmake.distclean(self._env)
+#        self.assertEqual(testResult, None)
+#        testStatus = commands.getoutput('ls /tmp/source/gccxml/object|wc')
+#        created = re.compile(' +\d+').search(testStatus).group().strip()
+#        self.assertEqual(created, "0")
+
 
         # call the clean to remove the build
         # TODO:  Find a solution for the remaining directories
@@ -489,7 +515,7 @@ class TestModuleBuild (unittest.TestCase):
         self.assertEqual(testResult, None)
         testStatus = commands.getoutput('ls /tmp/source/gccxml/object/GCC/' 
                                         'gcc/CMakeFiles/backend.dir/*.o|wc')
-        created = re.compile('\d+').search(testStatus).group()
+        created = re.compile(' +\d+').search(testStatus).group().strip()
         self.assertEqual(created, "0")
         
         # TODO: neighter the --generate-version appears but I couldn't also 
@@ -504,8 +530,8 @@ class TestModuleBuild (unittest.TestCase):
         except TaskError as t:
             print("Error compiling the module, maybe gccxml is not compatible with this architecture")
         self.assertEqual(testResult, None)
-        testStatus = commands.getoutput('ls -l /tmp/source/openflow-ns3/object|wc')
-        created = re.compile('\d+').search(testStatus).group()
+        testStatus = commands.getoutput('ls -l /tmp/source/gccxml/object|wc')
+        created = re.compile(' +\d+').search(testStatus).group().strip()
         self.assertNotEqual(created, "0")
 
     def test_makeModule(self):
@@ -566,7 +592,7 @@ class TestModuleBuild (unittest.TestCase):
         testStatus = commands.getoutput('touch ' + self._env.srcdir + 
                                         '/test.patch')
 
-        testStatus = commands.getoutput('rm -rf /tmp/source/gccxml/object')
+        testStatus = commands.getoutput('rm -rf /tmp/source/readversiondef/object')
         
         try:
             testResult = make.build(self._env, "1")
@@ -576,19 +602,25 @@ class TestModuleBuild (unittest.TestCase):
         self.assertEqual(testResult, None)
         make.attribute('patch').value = ''
 
-#        testStatus = commands.getoutput('ls /tmp/source/gccxml/object|wc')
-#        created = re.compile('\d+').search(testStatus).group()
-#        self.assertNotEqual(created, "0")
+        testStatus = commands.getoutput('ls /tmp/source/readversiondef/bin|wc')
+        created = re.compile(' +\d+').search(testStatus).group().strip()
+        self.assertNotEqual(created, "0")
+
+        #TODO: This module does not accepts distclean find another one to test
+#        testResult = make.distclean(self._env)
+#        self.assertEqual(testResult, None)
+#        testStatus = commands.getoutput('ls /tmp/source/readversiondef/bin|wc')
+#        created = re.compile(' +\d+').search(testStatus).group().strip()
+#        self.assertEqual(created, "0")
+
 
         # call the clean to remove the build
-        # TODO:  Find a solution for the remaining directories
-        #    - It is strange because the waf does not remove the directories, 
-        # just the object files.... Should this  be like that??!?!        
-        testResult = make.clean(self._env)
-        self.assertEqual(testResult, None)
-        testStatus = commands.getoutput('ls /tmp/source/readversiondef/*.o|wc')
-        created = re.compile('\d+').search(testStatus).group()
-        self.assertEqual(created, "0")
+        # TODO:  This module does not support make clean find another one        
+#         testResult = make.clean(self._env)
+#         self.assertEqual(testResult, None)
+#        testStatus = commands.getoutput('ls /tmp/source/readversiondef/*.o|wc')
+#        created = re.compile(' +\d+').search(testStatus).group().strip()
+#        self.assertEqual(created, "0")
         
         # TODO: neither the --generate-version appears but I couldn't also 
         # find a configuration argument for pybindgen :(
@@ -610,7 +642,7 @@ class TestModuleBuild (unittest.TestCase):
         self.assertEqual(testResult, None)
         make.perform_post_installation(self._env)
         testStatus = commands.getoutput('ls /tmp/source/readversiondef/*.o|wc')
-        created = re.compile('\d+').search(testStatus).group()
+        created = re.compile(' +\d+').search(testStatus).group().strip()
         self.assertEqual(created, "0")
 
     def test_genneral_build_arguments(self):
@@ -767,8 +799,66 @@ class TestModuleBuild (unittest.TestCase):
         self.assertFalse(testResult)    
 
 
+    def test_fullclean(self):
+        """Tests distclean command call. """
+
+        waf = ModuleBuild.create("waf")
+        self.assertNotEqual(waf, None)
+        self.assertEqual(waf.name(), "waf")
+
+        # Environment settings        
+        mercurial = ModuleSource.create("mercurial")
+        testResult = mercurial.check_version(self._env)
+        self.assertTrue(testResult)
+
+
+        mercurial.attribute("url").value = "http://code.nsnam.org/bhurd/openflow"
+        self._env._module_name="openflow-ns3"
+        self._env._module_dir="openflow-ns3"
+        self._env._objdir = "/tmp/object_openflow"
+        self._env._installdir = "/tmp/install_openflow"
+        testStatus = commands.getoutput('rm -rf /tmp/source')
+        self._logger.set_current_module(self._env._module_name)
+        testResult = mercurial.download(self._env)
+        self.assertEqual(testResult, None)
+        self._env.start_build("openflow-ns3", "/tmp/source/openflow-ns3", True)
+        waf.attribute('configure_arguments').value = 'configure  --prefix='+ self._env.installdir + ' --destdir=' + self._env.installdir + ' --blddir=' + self._env.objdir 
+
+        try:
+            testResult = waf.build(self._env, "1")
+        except TaskError as t:
+            print(t.reason)
+
+        self.assertEqual(testResult, None)
+        testStatus = os.path.isdir('/tmp/source/openflow-ns3')
+        self.assertTrue(testStatus)
+        
+        testStatus = os.path.isdir('/tmp/object_openflow')
+        self.assertTrue(testStatus)
+
+        module = Module(self._env._module_name, 
+                        mercurial, 
+                        waf)
+        module._module_supports_objdir = True
+        self._env.end_build()
+
+        try:
+            testResult = module.fullclean(self._env)
+        except TaskError as t:
+            print(t.reason)
+
+        self.assertTrue(testResult)    
+        testStatus = os.path.isdir('/tmp/source/openflow-ns3')
+        self.assertFalse(testStatus)
+        
+        testStatus = os.path.isdir('/tmp/source/object_openflow')
+        self.assertFalse(testStatus)
+
+        testStatus = os.path.isdir('/tmp/source/install_openflow')
+        self.assertFalse(testStatus)
+
 #        testStatus = commands.getoutput('ls -l /tmp/source/openflow-ns3/object|wc')
-#        created = re.compile('\d+').search(testStatus).group()
+#        created = re.compile(' +\d+').search(testStatus).group().strip()
 #        self.assertNotEqual(created, "0")
 
 # main call for the tests        

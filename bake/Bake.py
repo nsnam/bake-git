@@ -770,8 +770,19 @@ class Bake:
 
         def _do_distclean(configuration, module, env):
             returnValue = module.distclean(env)
-            return returnValue
+            return True
         self._do_operation(config, options, _do_distclean)
+
+    def _fullclean(self, config, args):
+        """Handles the fullclean command line option."""
+        
+        parser = self._option_parser('fullclean')
+        (options, args_left) = parser.parse_args(args)
+
+        def _do_fullclean(configuration, module, env):
+            returnValue = module.fullclean(env)
+            return returnValue
+        self._do_operation(config, options, _do_fullclean)
 
     def _uninstall(self, config, args):
         """Handles the uninstall command line option."""
@@ -1047,7 +1058,7 @@ class Bake:
         envTmp = ModuleEnvironment("", ".", ".", ".")
         validPython = envTmp.check_program("python", version_arg='--version', 
             version_regexp='(\d+)\.(\d+)\.(\d+)', 
-            version_required=(2, 7, 0))
+            version_required=(2, 6, 6))
         if (not validPython):
             print(">>> Old Python version detected, please install a newer one (above 2.7.0)")
 
@@ -1104,13 +1115,14 @@ To get more help about each command, try:
                 ['download', self._download],
                 ['update', self._update],
                 ['build', self._build],
+                ['distclean', self._distclean],
                 ['clean', self._clean],
                 ['shell', self._shell],
                 ['uninstall', self._uninstall],
                 ['show', self._show],
                 ['show-builtin', self._show_builtin],
                 ['check', self._check],
-                ['distclean', self._distclean],
+                ['fullclean', self._fullclean],
                ]
         recognizedCommand = False
         

@@ -8,6 +8,7 @@
 
 import copy
 import os
+import re
 import sys
 import shutil
 from bake.FilesystemMonitor import FilesystemMonitor
@@ -150,25 +151,75 @@ class Module:
                 import bake.Utils
                 bake.Utils.print_backtrace()
             return False
-        
+      
     def distclean(self, env):
-        """ Main distclean function, deletes the source and installed files. """
+        """ Main distclean source function, call the modules distclean. """
+        
+        srcDirTmp = self._name
+        if self._source.attribute('module_directory').value :
+            srcDirTmp = self._source.attribute('module_directory').value
+
+        env.start_build(self._name, srcDirTmp,
+                        self._build.supports_objdir)
+        if not os.path.isdir(env.objdir) or not os.path.isdir(env.srcdir):
+            env.end_build()
+            return
+        try:
+            self._build.distclean(env)
+            env.end_build()
+            self._built_once = False
+            print(" >> Distcleaning " + self._name + " - OK")
+            return True
+        except TaskError as e:
+            print(" >> Distcleaning " + self._name + " - Problem")
+            print(e.reason)
+            if env.debug :
+                import bake.Utils
+                bake.Utils.print_backtrace()           
+            return False
+        except:
+            env.end_build()
+            if env.debug :
+                import bake.Utils
+                bake.Utils.print_backtrace()
+            return False
+       
+    def fullclean(self, env):
+        """ Main full clean function, deletes the source and installed files. """
         
         srcDirTmp = self._name
         if self._source.attribute('module_directory').value :
             srcDirTmp = self._source.attribute('module_directory').value
             
-        env.start_source(self._name, srcDirTmp)
-        print(" >> Clean source " + self._name )
+        env.start_build(self._name, srcDirTmp, True)
+        print(" >> Removing source of " + self._name + ": " + env.srcdir)
         try: 
             shutil.rmtree(env.srcdir)
+            print(" >> Source removed - OK ")
         except Exception as e:
+            err = re.sub(r'\[\w+ \w+\]+', ' ', str(e)).strip()
+            print("    > " + err )
 #            print (e)
             pass
-        try: 
-            shutil.rmtree(env.installdir)
-        except:
-            pass
+
+        if os.path.isdir(env.objdir):
+            print(" >> Removing build: " + env.objdir)
+            try: 
+                shutil.rmtree(env.objdir)
+                print(" >> Build removed - OK ")
+            except Exception as e:
+                err = re.sub(r'\[\w+ \w+\]+', ' ', str(e)).strip()
+                print("    > " + err )
+ 
+        if os.path.isdir(env.installdir):
+            print(" >> Removing installation: " + env.installdir)
+            try: 
+                shutil.rmtree(env.installdir)
+                print(" >> Installation removed - OK ")
+            except Exception as e:
+                err = re.sub(r'\[\w+ \w+\]+', ' ', str(e)).strip()
+                print("    > " + err )
+           
         return True
          
 
@@ -344,7 +395,8 @@ class Module:
             return True
         except TaskError as e:
             print(" >> Cleaning " + self._name + " - Problem")
-            print(e.reason)
+            err = re.sub(r'\[\w+ \w+\]+', ' ', str(e)).strip()
+            print(err)
             if env.debug :
                 import bake.Utils
                 bake.Utils.print_backtrace()           
