@@ -10,6 +10,8 @@
        <depends_on name="elf-loader" optional="False"/>
        <depends_on name="iperf" optional="True"/>
        <depends_on name="ccnx" optional="True"/>
+       <depends_on name="wget" optional="True"/>
+       <depends_on name="thttpd" optional="True"/>
       <build type="waf" objdir="build">
 	<attribute name="configure_arguments" value="configure --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --prefix=$INSTALLDIR"/>
 	<!-- attribute name="post_installation" value="cd $SRCDIR; ./test.py" -->
@@ -26,6 +28,8 @@
        <depends_on name="iproute" optional="False"/>
        <depends_on name="iperf" optional="True"/>
        <depends_on name="ccnx" optional="True"/>
+       <depends_on name="wget" optional="True"/>
+       <depends_on name="thttpd" optional="True"/>
        <depends_on name="ns-3-dev-dce" optional="False"/>
       <build type="waf" objdir="yes" sourcedir="dce">
 	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../ns-3-linux"/>
@@ -87,6 +91,33 @@
         <attribute name="post_installation" value="mkdir -p $INSTALLDIR/bin_dce; cd $INSTALLDIR/bin_dce; ln -s ../lib/libnet-next-2.6.so liblinux.so; ln -s ../lib/libnet-next-2.6.so"/>
       </build>
     </module>
+
+     <module name="wget">
+      <source type="archive">
+    <attribute name="url" value="http://ftp.gnu.org/gnu/wget/wget-1.14.tar.gz"/>
+    <attribute name="extract_directory" value="wget-1.14"/>
+      </source>
+      <build type="make" objdir="yes">
+    <attribute name="pre_installation" value="cd $SRCDIR; CFLAGS=-fPIC LDFLAGS=-pie ./configure --disable-opie  --disable-digest --disable-ntlm  --disable-largefile
+ --disable-threads --disable-nls  --disable-rpath  --disable-iri --without-ssl --without-zlib  --without-libiconv-prefix --without-libintl-prefix --without-libpth-prefi
+x  --without-included-regex --prefix=$INSTALLDIR"/>
+      </build>
+     </module>
+
+    <module name="thttpd">
+      <source type="archive">
+    <attribute name="url" value="http://www.acme.com/software/thttpd/thttpd-2.25b.tar.gz"/>
+    <attribute name="extract_directory" value="thttpd-2.25b"/>
+      </source>
+      <build type="make" objdir="yes">
+    <attribute name="pre_installation" value="cd $SRCDIR;./configure --prefix=$INSTALLDIR"/>
+    <attribute name="patch" value="$SRCDIR/../dce/myscripts/httpd/dce-thttpd.patch"/>
+         <attribute name="install_arguments" value="-n" />
+    <attribute name="build_arguments" value="thttpd"/>
+         <attribute name="post_installation" value="cd $SRCDIR; mkdir $INSTALLDIR/bin_dce; /bin/cp -f thttpd-2.25b/thttpd  $INSTALLDIR/bin_dce"/>
+      </build>
+     </module>
+
 
      <module name="iputils">
        <source type="archive">
