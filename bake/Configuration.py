@@ -310,9 +310,9 @@ class Configuration:
             dependencies = []
             for dep_node in module_node.findall('depends_on'):
                 dependencies.append(ModuleDependency(dep_node.get('name'),
-                                                     bool(dep_node.get('optional', ''))))
+                                                     bool(dep_node.get('optional', '').upper()=='TRUE')))
             module = Module(name, source, build, dependencies=dependencies,
-                            built_once=bool(module_node.get('built_once', '')),
+                            built_once=bool(module_node.get('built_once', '').upper()=='TRUE'),
                             installed=installed)
             self._modules.append(module)
 
@@ -346,6 +346,8 @@ class Configuration:
                 attrs = {'name' : dependency.name() }
                 if dependency.is_optional():
                     attrs['optional'] = 'True'
+                else:
+                    attrs['optional'] = 'False'
                 dep_node = ET.Element('depends_on', attrs)
                 module_node.append(dep_node)
             modules_node.append(module_node)

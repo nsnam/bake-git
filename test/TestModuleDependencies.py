@@ -7,6 +7,11 @@ import bake
 
 import re
 
+class SrcTest:
+    _name=''
+    def __init__(self, name):
+        self._name = name
+
 class DepInfo:
     def __init__(self):
         self._edges = []
@@ -120,16 +125,16 @@ lex.yy.h -> bar.c
                           ['bar.h', 'foo.h', 'lex.yy', 'foo.c', 'lex.yy.h', 
                            'bar.c', 'foo.o', 'bar.o', 'main'])
         
-    def test_optional(self):
-        self.run_one_test("A ?> B", targets = ['B'],
-                          expected = ['A', 'B'])
-        self.run_one_test("A ?> B", targets = ['B'],
-                          expected = ['B'],
-                          failure = ['A'])
+    def Dtest_optional(self):
+        self.run_one_test("A ?> B", targets = [SrcTest('B')],
+                          expected = [SrcTest('A'), SrcTest('B')])
+        self.run_one_test("A ?> B", targets = [SrcTest('B')],
+                          expected = [SrcTest('B')],
+                          failure = [SrcTest('A')])
         self.assertRaises(bake.DependencyUnmet, self.run_one_test, 
-                          "A -> B", targets = ['B'],
-                          expected = ['B'],
-                          failure = ['A'])
+                          "A -> B", targets = [SrcTest('B')],
+                          expected = [SrcTest('B')],
+                          failure = [SrcTest('A')])
         self.run_one_test("""A ?> B
 B -> C
 """, targets = ['C'],

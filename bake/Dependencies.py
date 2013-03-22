@@ -16,6 +16,7 @@
 ''' 
 
 import copy
+import sys
 from bake.Exceptions import TaskError 
 
 class CycleDetected:
@@ -27,6 +28,16 @@ class DependencyUnmet:
         self._failed = failed
     def failed(self):
         return self._failed
+
+class DependencyLink():
+    """ Stores information about the optional chain link of modules."""
+    moduleProblem=False
+    optionalChain=True
+    module=None
+    def __init__(self, optionalChain, module):
+        self.optionalChain = optionalChain
+        self.module = copy.copy(module)
+        
 
 class Target:
     """ Target modules meta information."""
@@ -169,13 +180,16 @@ class Dependencies:
         """ Finds the list of dependencies of the target module."""
         
         # XXX: should detect cycles here.
-        workqueue = [self._targets[target] for target in targets if self._targets.has_key(target)]
+        workqueue = [self._targets[target] 
+                     for target in targets 
+                        if self._targets.has_key(target)]
         
         deps = []
         while len(workqueue) > 0:
             i = workqueue.pop()
             if i not in deps:
                 deps.append(i)
+
             for src in i.src():
                 if self._targets.has_key(src):
                     workqueue.append(self._targets[src])
@@ -283,7 +297,7 @@ class Dependencies:
                     er = sys.exc_info()[1]
 #                    import bake.Utils
 #                    bake.Utils.print_backtrace()           
-                    print ("  > Unexpected error: " + str(er))
+                    print ("  > Error: " + str(er))
                     
             elif callback is not None:
                 try:
@@ -301,8 +315,20 @@ class Dependencies:
                     raise DependencyUnmet(i.dst())
                 else:
                     for j in self._sources[i.dst()]:
-                        if not j.is_src_optional(i.dst()):
-                            raise DependencyUnmet(i.dst())
+                        dependencyTmp= self.dependencies.get(i.dst()._name)
+                        if dependencyTmp:
+                            if not dependencyTmp.optionalChain:
+                                raise DependencyUnmet(i.dst())
+                            
+                            if not self.dependencies[i.dst()._name].moduleProblem:
+                                print (' > Problem: Unmet dependency'
+                                             ' on module: %s.\n'
+                                             '   Bake will continue since'
+                                             ' this module is not in the'
+                                             ' critical path. For more'
+                                             ' information call bake with -vv.\n' 
+                                             % (i.dst()._name))
+                                self.dependencies[i.dst()._name].moduleProblem = True
             if self._dirty:
                 self._dirty = False
                 return False
@@ -320,3 +346,38 @@ class Dependencies:
         
         # todo: implement parallel version
         self._resolve_serial(targets, callback)
+        
+    
+    dependencies=dict()
+    modTmp = dict()
+    def recDependencies(self, targetModule, optionalDepChain):
+        existModule = self.dependencies.get(targetModule._name)
+        
+        # verify if the module exist or not if does not insert it as a dependency
+        if not existModule:
+            self.dependencies[targetModule._name] = DependencyLink(optionalDepChain, targetModule)
+        elif existModule.optionalChain and not optionalDepChain : # if it exists check if the 
+            self.dependencies[targetModule._name].optionalChain = optionalDepChain
+            
+        if targetModule._dependencies:
+            for j in targetModule._dependencies:
+                if j._optional:
+                    optionalDepChain= j._optional
+                self.recDependencies(self.modTmp[j._name], optionalDepChain)
+        
+
+        
+    def checkDependencies(self, targets, modules):
+        enabled = copy.copy(targets)
+        
+        for i in modules:
+            self.modTmp[i._name]=i
+        
+        for i in enabled:
+            self.dependencies[i._name]= DependencyLink(False, i)
+            if i._dependencies:
+                for j in i._dependencies:
+                    self.recDependencies(self.modTmp[j._name], j._optional)
+        
+        return self.dependencies
+

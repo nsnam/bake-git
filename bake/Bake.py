@@ -14,6 +14,7 @@ except ImportError:
 import sys
 import os
 import signal
+import copy
 import bake.Utils
 from bake.Configuration import Configuration
 from bake.ModuleEnvironment import ModuleEnvironment
@@ -468,13 +469,25 @@ class Bake:
         configuration.write()
         
         self._save_resource_configuration(configuration)
-
+        
+        
+    dependencyChain=None
     def _iterate(self, configuration, functor, targets, follow_optional=True):
         """Iterates over the configuration modules applying the functor 
         function and solve reminding dependencies.
         """
         
         deps = Dependencies()
+        
+        # execute just one time to get the optional dependencies chain
+        if not self.dependencyChain:
+            deps.checkDependencies(targets,configuration.modules())
+            self.dependencyChain = deps.dependencies
+        else :
+            deps.dependencies= self.dependencyChain
+#        
+#        
+        
         class Wrapper:
             def __init__(self, module):
                 self._module = module
@@ -507,7 +520,7 @@ class Bake:
         try:
             deps.resolve(targets)
         except DependencyUnmet as error:
-            self._error('%s failed' % error.failed().name())
+            self._error(' Unmet critical dependency on module: ' + error.failed().name())
 
     def _read_config(self, config, directory=None):
         """Reads the configuration file."""
@@ -660,7 +673,9 @@ class Bake:
         def _do_download(configuration, module, env):
             print(" >> Downloading " + module.name() )
             env._sudoEnabled=options.call_with_sudo
-            if self._check_source_version(config, options): 
+            valueToReturn=module.check_source_version(env)
+            
+            if valueToReturn: 
                 return module.download(env, options.force_download)
             else:
                 print(" >> Download " + module.name() + " - Problem")
@@ -689,6 +704,7 @@ class Bake:
                 return False
             return True
         self._do_operation(config, options, _do_check)
+
 
     def _check_source_version(self, config, options):
         """Checks if the source can be handled by the programs in the machine."""
@@ -742,7 +758,7 @@ class Bake:
             else:
                 print(" >> Building " + module.name() + " - Problem")
                 raise TaskError('    Unavailable building tool for'
-                                ' module "%s". Try to call \"%s check\"\n' % 
+                                ' module "%s". Try to call \"%s check\"' % 
                                 (module.name(), os.path.basename(sys.argv[0])))
 
         env = self._do_operation(config, options, _do_build)

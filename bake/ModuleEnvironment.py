@@ -177,7 +177,7 @@ class ModuleEnvironment:
     def start_build(self, name, dir, supports_objdir):
         ''' Sets the environment to be used by the given build module.'''
         
-        assert self._module_supports_objdir is None
+#        assert self._module_supports_objdir is None
         self._module_name = name
         self._module_dir = dir
         self._module_supports_objdir = supports_objdir
@@ -242,27 +242,31 @@ class ModuleEnvironment:
     def _check_version(self, found, required, match_type):
         ''' Checks the version of the required executable.'''
         
-        # I guess we should change here to accept different sizes
-        # e.g. Version 4.2 is required, but 4.2.1 is already bigger so it is OK
-        # the only change to make is to get the smaller length to control the 
-        # for, and if different decide in accordance to if it is HIGHER or LOWER 
-        assert len(found) == len(required)
+        smallerSize=min(len(found),len(required))
         if match_type == self.HIGHER:
-            for i in range(0,len(found)):
+            for i in range(0,smallerSize):
+                if not found[i]:
+                    return False
                 if int(found[i]) < int(required[i]):
                     return False
                 elif int(found[i]) > int(required[i]):
                     return True
             return True
         elif match_type == self.LOWER:
-            for i in range(0,len(found)):
+            for i in range(0,smallerSize):
+                if not found[i]:
+                    return True
                 if int(found[i]) > int(required[i]):
                     return False
                 elif int(found[i]) < int(required[i]):
                     return True
+            if len(found) >= len(required):
+                return False               
             return True
         elif match_type == self.EQUAL:
-            for i in range(0,len(found)):
+            if len(found) != len(required):
+                return False
+            for i in range(0,smallerSize):
                 if int(found[i]) != int(required[i]):
                     return False
             return True

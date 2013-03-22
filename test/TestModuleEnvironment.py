@@ -28,7 +28,7 @@ class TestModuleEnvironment(unittest.TestCase):
     # TODO: see if the tests work in other OS environments, I would guess not
     # to be honest I am not even sure bake would work on other OS either
     # TODO:2 Test the search on the current dir/bin 
-    def test_program_location(self):
+    def test___program_location(self):
         """Tests the _program_location method of Class ModuleEnvironment. """
         
         # searches for link, on unix systems, normally java would be a soft link
@@ -65,7 +65,7 @@ class TestModuleEnvironment(unittest.TestCase):
         testResult = self._env._program_location(knownPlacement);
         self.assertEqual(testResult, None)
 
-    def test_newVariables(self):
+    def test___newVariables(self):
         """Tests setting of variables. """
         self._env.start_source("Test", "/tmp/source")
         self._env.add_libpaths(['v1'])
@@ -81,7 +81,7 @@ class TestModuleEnvironment(unittest.TestCase):
         testStatus = commands.getoutput('rm -rf /tmp/source')
         self.assertTrue(not testStatus)
 
-    def test_create_environement_file(self):
+    def test___create_environement_file(self):
         """Tests the create_environement_file method of Class ModuleEnvironment. """
         
         testResult = self._env.create_environement_file('test.sh');
@@ -94,7 +94,7 @@ class TestModuleEnvironment(unittest.TestCase):
     #                   version_regexp = None, version_required = None,
     #                   match_type=HIGHER):
     # TODO: Test the version parameters of the executable
-    def test_check_program(self):
+    def test___check_program(self):
         """Tests the _check_program method of Class ModuleEnvironment. """
         
         # specific existent program
@@ -108,9 +108,36 @@ class TestModuleEnvironment(unittest.TestCase):
         self.assertFalse(testResult)
      
         # specific existent program version
-#        programToCheck = "gcc"
-#        testResult = self._env.check_program(programToCheck,"--version", "(\d+(\.\d+)*)+", "2.4");
-#        self.assertTrue(testResult)
+        programToCheck = "python"
+        testResult = self._env.check_program(programToCheck,"--version", "(\d+)\.(\d+)\.?(\d+)?", (2, 7, 0));
+        self.assertTrue(testResult)
+
+    def test__check_version(self):
+        """Tests the _check_program method of Class ModuleEnvironment. """
+        import re
+        
+        r = re.compile("(\d+)\.(\d+)\.?(\d+)?")
+        found = r.search("Python 2.7.3").groups()
+        testResult = self._env._check_version(found, (2, 7, 0), 0)
+        self.assertTrue(testResult)
+        testResult = self._env._check_version(found, (2, 7), 0)
+        self.assertTrue(testResult)
+        testResult = self._env._check_version(found, (2, 7), 1)
+        self.assertFalse(testResult)
+        testResult = self._env._check_version(found, (2, 7, 0), 1)
+        self.assertFalse(testResult)
+        testResult = self._env._check_version(found, (2, 7, 0), 2)
+        self.assertFalse(testResult)
+        testResult = self._env._check_version(found, (2, 7), 2)
+        self.assertFalse(testResult)
+        testResult = self._env._check_version(found, (2, 7, 3), 2)
+        self.assertTrue(testResult)
+        testResult = self._env._check_version(found, ([2]), 0)
+        self.assertTrue(testResult)
+        testResult = self._env._check_version(found, ([2]), 1)
+        self.assertFalse(testResult)
+        testResult = self._env._check_version(found, ([2]), 2)
+        self.assertFalse(testResult)
         
 
 # main call for the tests        

@@ -28,6 +28,7 @@ class ModuleDependency:
         return self._optional
 
 class Module:
+    followOptional = None
     def __init__(self, name, 
                  source,
                  build,
@@ -63,6 +64,7 @@ class Module:
             srcDirTmp = source.attribute('module_directory').value
             
         env.start_source(name, srcDirTmp)
+        rt = source.check_version(env)
         
         if forceDownload:
             try: # when forced download, removes the repository if it exists
