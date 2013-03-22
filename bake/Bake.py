@@ -1098,7 +1098,8 @@ class Bake:
   clean        : Cleanup the source tree of all modules built previously
   shell        : Start a shell and setup relevant environment variables
   uninstall    : Remove all files that were installed during build
-  distclean    : Remove build AND source files
+  distclean    : Call the modules distclean option, if available
+  fullclean    : Remove all the build AND source files
   show         : Report on build configuration
   show-builtin : Report on builtin source and build commands
   check        : Checks if all the required tools are available on the system
@@ -1131,14 +1132,14 @@ To get more help about each command, try:
                 ['download', self._download],
                 ['update', self._update],
                 ['build', self._build],
-                ['distclean', self._distclean],
                 ['clean', self._clean],
                 ['shell', self._shell],
                 ['uninstall', self._uninstall],
+                ['distclean', self._distclean],
+                ['fullclean', self._fullclean],
                 ['show', self._show],
                 ['show-builtin', self._show_builtin],
                 ['check', self._check],
-                ['fullclean', self._fullclean],
                ]
         recognizedCommand = False
         
