@@ -156,20 +156,8 @@ x  --without-included-regex --prefix=$INSTALLDIR"/>
        <depends_on name="dce-linux" optional="False"/>
        <depends_on name="dce-quagga" optional="False"/>
        <depends_on name="umip" optional="False"/>
-       <depends_on name="ns-3-dev-dce-umip" optional="False"/>
        <build type="none">
 	 <!-- attribute name="configure_arguments" value="configure -prefix=$INSTALLDIR"/ -->
-       </build>
-     </module>
-
-     <module name="ns-3-dev-dce-umip">
-       <source type="none">
- 	 <attribute name="module_directory" value="ns-3-dev-dce/"/>
-       </source>
-       <depends_on name="ns-3-dev-dce" optional="False"/>
-       <build type="waf" objdir="yes">
-	 <attribute name="patch" value="$SRCDIR/../dce/myscripts/ns-3-dce-umip/utils/ipv6-opt-header.patch"/>
-	 <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-tests"/>
        </build>
      </module>
 
