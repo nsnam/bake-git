@@ -24,7 +24,7 @@
  	<attribute name="module_directory" value="dce"/>
      </source>
        <depends_on name="elf-loader" optional="False"/>
-       <depends_on name="ns-3-linux" optional="False"/>
+       <depends_on name="net-next-sim-2.6.36" optional="False"/>
        <depends_on name="iproute" optional="False"/>
        <depends_on name="iperf" optional="True"/>
        <depends_on name="ccnx" optional="True"/>
@@ -32,7 +32,7 @@
        <depends_on name="thttpd" optional="True"/>
        <depends_on name="ns-3-dev-dce" optional="False"/>
       <build type="waf" objdir="yes" sourcedir="dce">
-	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../ns-3-linux"/>
+	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../net-next-sim-2.6.36/arch"/>
 	<!-- attribute name="post_installation" value="cd $SRCDIR; ./test.py"/ -->
       </build>
     </module>
@@ -82,15 +82,47 @@
       </build>
     </module>
 
-    <module name="ns-3-linux" built_once="true">
-      <source type="mercurial">
-	<attribute name="url" value="http://code.nsnam.org/furbani/ns-3-linux"/>
-      </source>
-      <build type="make" objdir="no">
-        <attribute name="install_arguments" value="INSTALL_DIR=$INSTALLDIR"/>
-        <attribute name="post_installation" value="mkdir -p $INSTALLDIR/bin_dce; cd $INSTALLDIR/bin_dce; ln -s ../lib/libnet-next-2.6.so liblinux.so; ln -s ../lib/libnet-next-2.6.so"/>
-      </build>
-    </module>
+     <module name="net-next-sim-2.6.36">
+       <source type="git">
+         <attribute name="url" value="https://github.com/thehajime/net-next-sim.git"/>
+         <attribute name="module_directory" value="net-next-sim-2.6.36"/>
+         <attribute name="revision" value="sim-ns3-2.6.36-branch"/>
+       </source>
+       <build type="make" objdir="no">
+         <attribute name="configure_arguments" value="defconfig ARCH=sim"/>
+         <attribute name="build_arguments" value="library ARCH=sim"/>
+         <attribute name="no_installation" value="True"/>
+         <attribute name="post_installation" value="mkdir -p $INSTALLDIR/bin_dce; cd $INSTALLDIR/bin_dce; cp $SRCDIR/libsim-linux2.6.36.so ./; ln -s -f libsim-linux2.6.36.so liblinux.so"/>
+       </build>
+     </module>
+
+     <module name="net-next-sim-3.4.0">
+       <source type="git">
+         <attribute name="url" value="https://github.com/thehajime/net-next-sim.git"/>
+         <attribute name="module_directory" value="net-next-sim-3.4.0"/>
+         <attribute name="revision" value="sim-ns3-3.4.0-branch"/>
+       </source>
+       <build type="make" objdir="no">
+         <attribute name="configure_arguments" value="defconfig ARCH=sim"/>
+         <attribute name="build_arguments" value="library ARCH=sim"/>
+         <attribute name="no_installation" value="True"/>
+         <attribute name="post_installation" value="mkdir -p $INSTALLDIR/bin_dce; cd $INSTALLDIR/bin_dce; cp $SRCDIR/libsim-linux3.4.0.so ./; ln -s -f libsim-linux3.4.0.so liblinux.so"/>
+       </build>
+     </module>
+
+     <module name="net-next-sim-3.7.0">
+       <source type="git">
+         <attribute name="url" value="https://github.com/thehajime/net-next-sim.git"/>
+         <attribute name="module_directory" value="net-next-sim-3.7.0"/>
+         <attribute name="revision" value="sim-ns3-3.7.0-branch"/>
+       </source>
+       <build type="make" objdir="no">
+         <attribute name="configure_arguments" value="defconfig ARCH=sim"/>
+         <attribute name="build_arguments" value="library ARCH=sim"/>
+         <attribute name="no_installation" value="True"/>
+         <attribute name="post_installation" value="mkdir -p $INSTALLDIR/bin_dce; cd $INSTALLDIR/bin_dce; cp $SRCDIR/libsim-linux3.7.0.so ./; ln -s -f libsim-linux3.7.0.so liblinux.so"/>
+       </build>
+     </module>
 
      <module name="wget">
       <source type="archive">
