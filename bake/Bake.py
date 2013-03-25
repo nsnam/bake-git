@@ -848,6 +848,10 @@ class Bake:
         
         env = self._get_dummy_env(options)
         
+        sys.stdout.write ("Path searched for tools:")
+        for item in env.path_list():
+          sys.stdout.write (' ' + item)
+        print
         colorTool = ColorTool()
         for element in checkPrograms:
             if env.check_program(element[0]):

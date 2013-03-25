@@ -244,6 +244,7 @@ x  --without-included-regex --prefix=$INSTALLDIR"/>
 	<attribute name="configure_arguments" value="../configure --prefix=$INSTALLDIR --exec-prefix=$INSTALLDIR -enable-userlevel --disable-linuxmodule --enable-nsclick --enable-wifi"/>
 	<attribute name="post_installation" value="mkdir $INSTALLDIR/lib; cp -r $OBJDIR/include $INSTALLDIR/lib/."/> 
       </build>
+
     </module>
 
     <module name="libxml2-dev">
@@ -339,7 +340,7 @@ x  --without-included-regex --prefix=$INSTALLDIR"/>
 
     <module name="qt4">
       <source type="system_dependency">
-	<attribute name="dependency_test" value="(qmake or qmake-qt4)"/>
+	<attribute name="dependency_test" value="(qmakea or qmake-qt4a)"/>
 	<attribute name="try_to_install" value="True"/>
 	<attribute name="name_yum" value="qt4-devel"/>
 	<attribute name="name_apt-get" value="qt4-dev-tools"/>
@@ -391,42 +392,6 @@ x  --without-included-regex --prefix=$INSTALLDIR"/>
 	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
       </build>
   </module>
-
-
-  <module name="test1">
-      <source type="mercurial">
-	<attribute name="url" value="http://code.nsnam.org/bake"/>
-      </source>
-      <build type="waf" objdir="yes">
-	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
-      </build>
-  </module>
-
-    <module name="test2">
-      <source type="bazaar">
-	<attribute name="url" value="https://launchpad.net/pybindgen"/>
-	<attribute name="revision" value="revno:809"/>
-      </source>
-      <build type="waf" objdir="yes">
-	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR"/>
-	<attribute name="build_arguments" value="--generate-version"/>
-      </build>
-      <depends_on name="test1" optional="False"/>
-    </module>
-
-    <module name="test3">
-      <source type="bazaar">
-	<attribute name="url" value="https://launchpad.net/pybindgen"/>
-	<attribute name="revision" value="revno:809"/>
-      </source>
-      <build type="waf" objdir="yes">
-	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR"/>
-	<attribute name="build_arguments" value="--generate-version"/>
-      </build>
-      <depends_on name="test2" optional="True"/>
-      <depends_on name="pygccxml" optional="True"/>
-    </module>
-
 
 <!--
   <module name="ns-3-16">

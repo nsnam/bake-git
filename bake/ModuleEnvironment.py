@@ -198,6 +198,10 @@ class ModuleEnvironment:
         
         return os.path.exists(file)
 
+    def path_list(self):
+        ''' Return path that will be searched for executables '''
+        return os.environ["PATH"].split(os.pathsep) + [self._bin_path()]
+
     def _program_location(self, program):
         ''' Finds where the executable is located in the user's path.'''
         
@@ -212,7 +216,7 @@ class ModuleEnvironment:
                 return program
         else:
             # for all the directories in the path search for the executable
-            for path in os.environ["PATH"].split(os.pathsep) + [self._bin_path()]:
+            for path in self.path_list():
                 exe_file = os.path.join(path, program)
                 if is_exe(exe_file):
                     return exe_file
@@ -387,6 +391,32 @@ class ModuleEnvironment:
                     found = m.groups()
                     return self._check_version(found, version_required, match_type)
 
+
+    def append_to_path(self, env_vars):
+        """Sets the library and binary paths."""
+        
+        for libpath in self._libpaths:
+            self._append_path(env_vars, self._lib_var(), libpath, os.pathsep)
+            if self.debug:
+                print("  -> " + self._lib_var() + " " + libpath + " ")
+        
+        self._append_path(env_vars, self._lib_var(), self._lib_path(), os.pathsep)
+        for libpath in self._binpaths:
+            self._append_path(env_vars, self._bin_var(), libpath, os.pathsep)
+            if self.debug:
+                print("  -> " + self._bin_var() + " " + libpath + " ")
+        
+        self._append_path(env_vars, self._bin_var(), self._bin_path(), os.pathsep)
+        for libpath in self._pkgpaths:
+            self._append_path(env_vars, self._pkgconfig_var(), libpath, os.pathsep)
+            if self.debug:
+                print("  -> " + self._pkgconfig_var() + " " + libpath + " ")
+        
+        self._append_path(env_vars, self._pkgconfig_var(), self._pkgconfig_path(), os.pathsep)
+        self._append_path(env_vars, self._py_var(), self._py_path(), os.pathsep)
+        
+        return env_vars
+
     def run(self, args, directory = None, env = dict(), interactive = False):
         '''Executes a system program adding the libraries and over the correct 
         directories.
@@ -410,33 +440,12 @@ class ModuleEnvironment:
         else:
             stdin = sys.stdin
             stdout = sys.stdout
-            stderr = sys.stderr            
+            stderr = sys.stderr      
+                  
         tmp = dict(os.environ.items() + env.items())
         
         # sets the library and binary paths 
-        for libpath in self._libpaths:
-            self._append_path(tmp, self._lib_var(), libpath, os.pathsep)
-            if self.debug:
-                print("  -> " + self._lib_var() + " " + libpath + " ")  
-                        
-        self._append_path(tmp, self._lib_var(), self._lib_path(), os.pathsep)
-        
-        for libpath in self._binpaths:
-            self._append_path(tmp, self._bin_var(), libpath, os.pathsep)          
-            if self.debug:
-                print("  -> " + self._bin_var() + " " + libpath + " ")          
-                
-        self._append_path(tmp, self._bin_var(), self._bin_path(), os.pathsep)
-        
-        for libpath in self._pkgpaths:
-            self._append_path(tmp, self._pkgconfig_var(), libpath, os.pathsep)
-            if self.debug:
-                print("  -> " + self._pkgconfig_var() + " " + libpath + " ")         
-                 
-        self._append_path(tmp, self._pkgconfig_var(), self._pkgconfig_path(), 
-                          os.pathsep)
-
-        self._append_path(tmp, self._py_var(), self._py_path(), os.pathsep)
+        tmp = self.append_to_path(tmp)
         
         # Calls the third party executable with the whole context
         try:
