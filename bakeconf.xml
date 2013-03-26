@@ -130,6 +130,30 @@
       </build>
     </module>
 
+    <module name="libsysfs-dev">
+      <source type="system_dependency">
+        <attribute name="dependency_test" value="libsysfs.h"/>
+        <attribute name="try_to_install" value="True"/>
+        <attribute name="name_apt-get" value="libsysfs-dev"/>
+        <attribute name="name_yum" value="libsysfs-devel"/>
+        <attribute name="more_information" value="Didn't find libsysfs-dev package; please install it."/>
+      </source>
+      <build type="none" objdir="no">
+      </build>
+    </module>
+
+    <module name="libssl-dev">
+      <source type="system_dependency">
+        <attribute name="dependency_test" value="md5.h"/>
+        <attribute name="try_to_install" value="True"/>
+        <attribute name="name_apt-get" value="libssl-dev"/>
+        <attribute name="name_yum" value="openssl-devel"/>
+        <attribute name="more_information" value="Didn't find libssl-dev package; please install it."/>
+      </source>
+      <build type="none" objdir="no">
+      </build>
+    </module>
+
      <module name="iproute">
       <source type="archive">
 	<attribute name="url" value="http://www.linuxgrill.com/anonymous/iproute2/NEW-OSDL/iproute2-2.6.38.tar.bz2"/>
@@ -137,6 +161,8 @@
       <depends_on name="libdb-dev" optional="False"/>
       <depends_on name="bison" optional="False"/>
       <depends_on name="flex" optional="False"/>
+      <depends_on name="libsysfs-dev" optional="False"/>
+      <depends_on name="libssl-dev" optional="False"/>
       <build type="make" objdir="yes">
 	<attribute name="pre_installation" value="$SRCDIR/configure"/>
 	<attribute name="LDFLAGS" value="-pie"/>
@@ -291,6 +317,31 @@
      </build>
     </module>
 
+    <module name="indent">
+      <source type="system_dependency">
+        <attribute name="dependency_test" value="indent"/>
+        <attribute name="try_to_install" value="True"/>
+        <attribute name="name_apt-get" value="indent"/>
+        <attribute name="name_yum" value="indent"/>
+        <attribute name="more_information" value="The indent tool is not installed, try to install them (indent)"/>
+      </source>
+      <build type="none" objdir="no">
+      </build>
+    </module>
+
+    <module name="gawk">
+      <source type="system_dependency">
+        <attribute name="dependency_test" value="gawk"/>
+        <attribute name="try_to_install" value="True"/>
+        <attribute name="sudoer_install" value="True"/>
+        <attribute name="name_apt-get" value="gawk"/>
+        <attribute name="name_yum" value="gawk"/>
+        <attribute name="more_information" value="The gawk is not installed, try to install them (gawk)"/>
+      </source>
+      <build type="none" objdir="no">
+      </build>
+    </module>
+
      <module name="quagga">
        <source type="archive">
 	<!-- some of mirror sever of gnu.org isn't available.. -->
@@ -298,6 +349,7 @@
 	<attribute name="url" value="http://pkgs.fedoraproject.org/lookaside/pkgs/quagga/quagga-0.99.20.tar.gz/64cc29394eb8a4e24649d19dac868f64/quagga-0.99.20.tar.gz"/>
 	<attribute name="extract_directory" value="quagga-0.99.20"/>
        </source>
+       <depends_on name="indent" optional="False"/>
        <build type="make" objdir="yes">
 	 <attribute name="pre_installation" value="cd $SRCDIR; CFLAGS='-fPIC -g' LDFLAGS=-pie ./configure --disable-shared --enable-static --disable-user --disable-group --disable-capabilities --prefix=$INSTALLDIR"/>
          <attribute name="install_arguments" value="-n" />
@@ -421,10 +473,22 @@
       </build>
     </module>
 
+    <module name="libc-debug">
+      <source type="system_dependency">
+        <attribute name="try_to_install" value="False"/> <!-- should be fixed -->
+        <attribute name="name_apt-get" value="libc6-dbg"/>
+        <attribute name="name_yum" value="glibc-debuginfo"/>
+        <attribute name="more_information" value="Didn't find libc debug package; please install it."/>
+      </source>
+      <build type="none" objdir="no">
+      </build>
+    </module>
+
     <module name="elf-loader">
       <source type="mercurial">
 	<attribute name="url" value="http://code.nsnam.org/mathieu/elf-loader"/>
       </source>
+      <!-- depends_on name="libc-debug" optional="False"/ -->
       <build type="make" objdir="no">
 	<attribute name="configure_arguments" value="vdl-config.h"/>
 	<attribute name="install_arguments" value="PREFIX=$INSTALLDIR"/>
