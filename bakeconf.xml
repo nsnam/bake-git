@@ -80,10 +80,50 @@
       </build>
      </module>
 
+    <module name="libdb-dev">
+      <source type="system_dependency">
+        <attribute name="dependency_test" value="db_185.h"/>
+        <attribute name="try_to_install" value="True"/>
+        <attribute name="name_apt-get" value="libdb4.8-dev"/>
+        <attribute name="name_yum" value="libdb-devel"/>
+        <attribute name="more_information" value="Didn't find libdb-dev package; please install it."/>
+      </source>
+      <build type="none" objdir="no">
+      </build>
+    </module>
+
+    <module name="bison">
+      <source type="system_dependency">
+        <attribute name="dependency_test" value="bison"/>
+        <attribute name="try_to_install" value="True"/>
+        <attribute name="name_apt-get" value="bison"/>
+        <attribute name="name_yum" value="bison"/>
+        <attribute name="more_information" value="The bison tool is not installed, try to install them (bison)"/>
+      </source>
+      <build type="none" objdir="no">
+      </build>
+    </module>
+
+    <module name="flex">
+      <source type="system_dependency">
+        <attribute name="dependency_test" value="flex"/>
+        <attribute name="try_to_install" value="True"/>
+        <attribute name="sudoer_install" value="True"/>
+        <attribute name="name_apt-get" value="flex"/>
+        <attribute name="name_yum" value="flex"/>
+        <attribute name="more_information" value="The flex tool is not installed, try to install them (flex)"/>
+      </source>
+      <build type="none" objdir="no">
+      </build>
+    </module>
+
      <module name="iproute">
       <source type="archive">
 	<attribute name="url" value="http://www.linuxgrill.com/anonymous/iproute2/NEW-OSDL/iproute2-2.6.38.tar.bz2"/>
       </source>
+      <depends_on name="libdb-dev" optional="False"/>
+      <depends_on name="bison" optional="False"/>
+      <depends_on name="flex" optional="False"/>
       <build type="make" objdir="yes">
 	<attribute name="pre_installation" value="$SRCDIR/configure"/>
 	<attribute name="LDFLAGS" value="-pie"/>
