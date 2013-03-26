@@ -126,13 +126,11 @@
 
      <module name="wget">
       <source type="archive">
-    <attribute name="url" value="http://ftp.gnu.org/gnu/wget/wget-1.14.tar.gz"/>
-    <attribute name="extract_directory" value="wget-1.14"/>
+        <attribute name="url" value="http://ftp.gnu.org/gnu/wget/wget-1.14.tar.gz"/>
+        <attribute name="extract_directory" value="wget-1.14"/>
       </source>
       <build type="make" objdir="yes">
-    <attribute name="pre_installation" value="cd $SRCDIR; CFLAGS=-fPIC LDFLAGS=-pie ./configure --disable-opie  --disable-digest --disable-ntlm  --disable-largefile
- --disable-threads --disable-nls  --disable-rpath  --disable-iri --without-ssl --without-zlib  --without-libiconv-prefix --without-libintl-prefix --without-libpth-prefi
-x  --without-included-regex --prefix=$INSTALLDIR"/>
+        <attribute name="pre_installation" value="cd $SRCDIR; CFLAGS=-fPIC LDFLAGS=-pie ./configure --disable-opie --disable-digest --disable-ntlm --disable-largefile --disable-threads --disable-nls --disable-rpath --disable-iri --without-ssl --without-zlib --without-libiconv-prefix --without-libintl-prefix --without-libpth-prefix --without-included-regex --prefix=$INSTALLDIR"/>
       </build>
      </module>
 
