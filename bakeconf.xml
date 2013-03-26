@@ -37,6 +37,26 @@
       </build>
     </module>
 
+    <module name="dce-linux-gcov">
+      <source type="mercurial">
+	<attribute name="url" value="http://code.nsnam.org/ns-3-dce"/>
+ 	<attribute name="module_directory" value="dce"/>
+     </source>
+       <depends_on name="elf-loader" optional="False"/>
+       <depends_on name="net-next-sim-2.6.36" optional="False"/>
+       <depends_on name="iproute" optional="False"/>
+       <depends_on name="iperf" optional="True"/>
+       <depends_on name="ccnx" optional="True"/>
+       <depends_on name="wget" optional="True"/>
+       <depends_on name="thttpd" optional="True"/>
+       <depends_on name="dce-quagga" optional="False"/>
+       <depends_on name="dce-umip" optional="False"/>
+       <depends_on name="ns-3-dev-dce" optional="False"/>
+      <build type="waf" objdir="yes" sourcedir="dce">
+	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../net-next-sim-2.6.36/arch --enable-gcov"/>
+      </build>
+    </module>
+
     <module name="ccnx">
       <source type="archive">
 	<attribute name="url" value="http://www.ccnx.org/releases/ccnx-0.6.2.tar.gz"/>
