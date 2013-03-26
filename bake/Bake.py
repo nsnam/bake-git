@@ -848,17 +848,19 @@ class Bake:
         
         env = self._get_dummy_env(options)
         
-        sys.stdout.write ("Path searched for tools:")
-        for item in env.path_list():
-          sys.stdout.write (' ' + item)
-        print
         colorTool = ColorTool()
         for element in checkPrograms:
             if env.check_program(element[0]):
-                colorTool.cPrint(colorTool.OK, " > " + element[1] + " - OK")                    
+                colorTool.cPrintln(colorTool.OK, " > " + element[1] + " - OK")                    
             else:
-                colorTool.cPrint(colorTool.WARNING, " > " + element[1] + 
+                colorTool.cPrintln(colorTool.WARNING, " > " + element[1] + 
                                  " - is missing")
+        print
+        colorTool.cPrint(colorTool.OK, " > Path searched for tools:")
+        for item in env.path_list():
+            sys.stdout.write (' ' + item)
+        print
+          
     def _get_dummy_env(self, options):
         """ Returns a dummy environment just for verifying the user's system configuration. """
         configuration = Configuration("")

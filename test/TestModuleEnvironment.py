@@ -30,6 +30,21 @@ class TestModuleEnvironment(unittest.TestCase):
     # TODO:2 Test the search on the current dir/bin 
     def test___program_location(self):
         """Tests the _program_location method of Class ModuleEnvironment. """
+
+        testResult = self._env._program_location("string.h");
+        self.assertNotEqual(testResult, None)
+
+        testResult = self._env._program_location("complex.h");
+        self.assertNotEqual(testResult, None)
+
+        testResult = self._env._program_location("libc.so");
+        self.assertNotEqual(testResult, None)
+
+        testResult = self._env._program_location("NonExistent.so");
+        self.assertEqual(testResult, None)
+
+        testResult = self._env._program_location("NonExistent.h");
+        self.assertEqual(testResult, None)
         
         # searches for link, on unix systems, normally java would be a soft link
         testResult = self._env._program_location("tar");
@@ -65,7 +80,7 @@ class TestModuleEnvironment(unittest.TestCase):
         testResult = self._env._program_location(knownPlacement);
         self.assertEqual(testResult, None)
 
-    def test___newVariables(self):
+    def Dtest___newVariables(self):
         """Tests setting of variables. """
         self._env.start_source("Test", "/tmp/source")
         self._env.add_libpaths(['v1'])
@@ -81,7 +96,7 @@ class TestModuleEnvironment(unittest.TestCase):
         testStatus = commands.getoutput('rm -rf /tmp/source')
         self.assertTrue(not testStatus)
 
-    def test___create_environement_file(self):
+    def Dtest___create_environement_file(self):
         """Tests the create_environement_file method of Class ModuleEnvironment. """
         
         testResult = self._env.create_environement_file('test.sh');
@@ -94,7 +109,7 @@ class TestModuleEnvironment(unittest.TestCase):
     #                   version_regexp = None, version_required = None,
     #                   match_type=HIGHER):
     # TODO: Test the version parameters of the executable
-    def test___check_program(self):
+    def Dtest___check_program(self):
         """Tests the _check_program method of Class ModuleEnvironment. """
         
         # specific existent program
@@ -112,7 +127,7 @@ class TestModuleEnvironment(unittest.TestCase):
         testResult = self._env.check_program(programToCheck,"--version", "(\d+)\.(\d+)\.?(\d+)?", (2, 7, 0));
         self.assertTrue(testResult)
 
-    def test__check_version(self):
+    def Dtest__check_version(self):
         """Tests the _check_program method of Class ModuleEnvironment. """
         import re
         

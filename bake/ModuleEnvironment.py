@@ -221,12 +221,14 @@ class ModuleEnvironment:
                 if is_exe(exe_file):
                     return exe_file
                 
+            toFindIn=None 
             # search for libs with that name on the library path
-            if program.endswith(".so"):
-                tmp=['/usr/lib','/usr/lib64','/usr/lib32','/usr/local/lib',
+            index=program.find(".so")
+            if index>0 :
+                toFindIn=['/usr/lib','/usr/lib64','/usr/lib32','/usr/local/lib',
                      '/lib']
                 for libpath in self._libpaths:
-                    tmp.append(libpath)
+                    toFindIn.append(libpath)
                 stdLibs = []
                 try:
                     libPath = os.environ[self._lib_var()]
@@ -234,12 +236,28 @@ class ModuleEnvironment:
                         stdLibs=libPath.split(os.pathsep)
                 except:
                     pass
+                
+                tofindIn=toFindIn+stdLibs+[self._lib_path()]
 
-                for path in (stdLibs + tmp + 
-                             [self._lib_path()]):
-                    lib_file = os.path.join(path, program)
-                    if os.path.exists(lib_file):
-                        return lib_file
+            elif program.endswith(".h"):
+                toFindIn=['/usr/include', '/usr/local/include', '/usr/lib']  
+                 
+            if toFindIn : 
+                for eachdir in toFindIn:
+                    for dirname, dirnames, filenames in os.walk(eachdir):
+                    # print path to all filenames.
+                        for filename in filenames:
+                            if filename==name:
+                                return os.path.join(dirname, filename)
+#
+#
+#
+#
+#                for path in (stdLibs + tmp + 
+#                             [self._lib_path()]):
+#                    lib_file = os.path.join(path, program)
+#                    if os.path.exists(lib_file):
+#                        return lib_file
              
         return None
 

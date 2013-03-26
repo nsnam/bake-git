@@ -7,6 +7,7 @@
 
 import subprocess
 import os
+import sys
 from xml.etree import ElementTree
 from xml.dom import minidom
 from bake.Exceptions import TaskError
@@ -169,6 +170,11 @@ class ColorTool:
     def cPrint(self,color, message):
         """ Print the message with the defined color. """
         
-        print (color + message + self.ENDC)
+        sys.stdout.write(color + message + self.ENDC)
+        
+    def cPrintln(self,color, message):
+        """ Print the message with the defined color and ends with a new line. """
+        
+        sys.stdout.write(color + message + self.ENDC + os.linesep)
         
 
