@@ -682,7 +682,7 @@ class Bake:
                 module.printResult(env, "Download", module.FAIL)
                 tool = module._source.source_systemtool()
                 raise TaskError('    Unavailable Downloading tool (%s)'
-                                ') for module "%s". Try to call \"%s check\"\n' % 
+                                ' for module "%s". Try to call \"%s check\"\n' % 
                                 (tool, module.name(), 
                                  os.path.basename(sys.argv[0])))
         self._do_operation(config, options, _do_download)
@@ -850,12 +850,12 @@ class Bake:
         colorTool = ColorTool()
         for element in checkPrograms:
             if env.check_program(element[0]):
-                self.colorTool.cPrintln(self.colorTool.OK, " > " + element[1] + " - OK")                    
+                colorTool.cPrintln(colorTool.OK, " > " + element[1] + " - OK")                    
             else:
-                self.colorTool.cPrintln(self.colorTool.WARNING, " > " + element[1] + 
+                colorTool.cPrintln(self.colorTool.WARNING, " > " + element[1] + 
                                  " - is missing")
         print
-        self.colorTool.cPrint(self.colorTool.OK, " > Path searched for tools:")
+        colorTool.cPrint(colorTool.OK, " > Path searched for tools:")
         for item in env.path_list():
             sys.stdout.write (' ' + item)
         print
