@@ -671,17 +671,20 @@ class Bake:
         (options, args_left) = parser.parse_args(args)
 #        downloadTool2 = self._check_source_version(config, options)
         def _do_download(configuration, module, env):
-            print(" >> Downloading " + module.name() )
+            sys.stdout.write (" >> Downloading " + module.name() )
             env._sudoEnabled=options.call_with_sudo
             valueToReturn=module.check_source_version(env)
+            
             
             if valueToReturn: 
                 return module.download(env, options.force_download)
             else:
-                print(" >> Download " + module.name() + " - Problem")
-                raise TaskError('    Unavailable Downloading tool for'
-                                ' module "%s". Try to call \"%s check\"\n' % 
-                                (module.name(), os.path.basename(sys.argv[0])))
+                module.printResult(env, "Download", module.FAIL)
+                tool = module._source.source_systemtool()
+                raise TaskError('    Unavailable Downloading tool (%s)'
+                                ') for module "%s". Try to call \"%s check\"\n' % 
+                                (tool, module.name(), 
+                                 os.path.basename(sys.argv[0])))
         self._do_operation(config, options, _do_download)
 
     def _update(self, config, args):
@@ -748,7 +751,7 @@ class Bake:
         
         def _do_build(configuration, module, env):
            
-            print(" >> Building " + module.name() )
+            sys.stdout.write(" >> Building " + module.name() )
             env._sudoEnabled=options.call_with_sudo
             if module.check_build_version(env):
                 retval = module.build(env, options.jobs, options.force_clean)
@@ -756,10 +759,7 @@ class Bake:
                     module.update_libpath(env)
                 return retval
             else:
-                print(" >> Building " + module.name() + " - Problem")
-                raise TaskError('    Unavailable building tool for'
-                                ' module "%s". Try to call \"%s check\"' % 
-                                (module.name(), os.path.basename(sys.argv[0])))
+                module.printResult(env, "Building", module.FAIL)
 
         env = self._do_operation(config, options, _do_build)
         
@@ -847,16 +847,15 @@ class Bake:
             return True
         
         env = self._get_dummy_env(options)
-        
         colorTool = ColorTool()
         for element in checkPrograms:
             if env.check_program(element[0]):
-                colorTool.cPrintln(colorTool.OK, " > " + element[1] + " - OK")                    
+                self.colorTool.cPrintln(self.colorTool.OK, " > " + element[1] + " - OK")                    
             else:
-                colorTool.cPrintln(colorTool.WARNING, " > " + element[1] + 
+                self.colorTool.cPrintln(self.colorTool.WARNING, " > " + element[1] + 
                                  " - is missing")
         print
-        colorTool.cPrint(colorTool.OK, " > Path searched for tools:")
+        self.colorTool.cPrint(self.colorTool.OK, " > Path searched for tools:")
         for item in env.path_list():
             sys.stdout.write (' ' + item)
         print

@@ -11,8 +11,10 @@ import os
 import re
 import sys
 import shutil
+
 from bake.FilesystemMonitor import FilesystemMonitor
 from bake.Exceptions import TaskError
+from bake.Utils import ColorTool
 
 class ModuleDependency:
     """ Dependency information. """
@@ -29,6 +31,9 @@ class ModuleDependency:
 
 class Module:
     followOptional = None
+    FAIL = 0
+    OK = 1
+
     def __init__(self, name, 
                  source,
                  build,
@@ -86,6 +91,23 @@ class Module:
         for child, child_name in source.children():
             self._do_download(env, child, os.path.join(name, child_name))
 
+
+    def printResult(self, env, operation, result):
+        """Prints the result of the operation."""
+        colorTool = ColorTool()
+        resultStr = "OK"
+        color=colorTool.OK
+        if result == self.FAIL:
+            resultStr = "Problem"
+            color=colorTool.FAIL
+            
+        if env._logger._verbose > 0:
+            colorTool.cPrintln(color, " >> " + operation + " " + 
+                                    self._name + " - " +resultStr)
+        else:
+            sys.stdout.write (" - ")
+            colorTool.cPrintln(color, resultStr)
+
     def download(self, env, forceDownload):
         """ General download function. """
         
@@ -101,17 +123,17 @@ class Module:
             
         try:
             self._do_download(env, self._source, self._name, forceDownload)
-            print(" >> Download " + self._name + " - OK")
+            self.printResult(env, "Download", self.OK)
             return True
         except TaskError as e:
-            print(" >> Download " + self._name + " - Problem")
+            self.printResult(env, "Download", self.FAIL)
             print(e.reason)
             if env.debug :
                 import bake.Utils
                 bake.Utils.print_backtrace()           
             return False
         except:
-            print(" >> Download " + self._name + " - Problem")
+            self.printResult(env, "Download", self.FAIL)
             if env.debug :
                 import bake.Utils
                 bake.Utils.print_backtrace()
@@ -278,7 +300,7 @@ class Module:
                 import platform
                 osName = platform.system().lower()
                 (distname,version,ids)=platform.linux_distribution()
-                print(" >> Building " + self._name + " - Problem")
+                self.printResult(env, "Building", self.FAIL)
                 print('    This module works only on \"%s\"' 
                       ' platform(s), %s is not supported for \"%s %s %s %s\"' % 
                       (self._build.attribute('supported_os').value, 
@@ -305,10 +327,10 @@ class Module:
                 self._build.perform_post_installation(env)
             env.end_build()
             self._built_once = True
-            print(" >> Built " + self._name + " - OK")
+            self.printResult(env, "Built", self.OK)
             return True
         except TaskError as e:
-            print(" >> Building " + self._name + " - Problem")
+            self.printResult(env, "Building", self.FAIL)
             print("   > " + e.reason)
             if env.debug :
                 import bake.Utils
@@ -351,6 +373,7 @@ class Module:
         retval = os.path.isdir(env.srcdir)
         env.end_source()
         return retval
+
 
     def check_source_version(self, env):
         """ Checks if the version of the available version control tool. """

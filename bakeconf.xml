@@ -372,7 +372,7 @@
 
     <module name="libxml2-dev">
       <source type="system_dependency">
-	<attribute name="dependency_test" value="xmlIO.h"/>
+	<attribute name="dependency_test" value="xmlIO.hasdf"/>
 	<attribute name="try_to_install" value="True"/>
 	<attribute name="name_yum" value="libxml2-devel"/>
 	<attribute name="name_yast" value="libxml2-devel"/>

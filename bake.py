@@ -10,7 +10,7 @@ import bake
 try:
     b = bake.Bake()
     b.main(sys.argv)
-except SystemExit: 
-    pass
+except SystemExit as e: 
+    sys.exit(e)
 except: 
     print("  >Unexpected exception, please contact the bake developers!<")

@@ -11,6 +11,7 @@ from bake.Utils import ModuleAttributeBase
 import os
 import urlparse
 import re
+import platform
 from datetime import date
 from sets import Set
 
@@ -50,6 +51,31 @@ class ModuleSource(ModuleAttributeBase):
     def check_version(self, env):
         raise NotImplemented()
 
+    def source_systemtool(self):
+        """Returns the name of the system instalation tool for this machine."""
+        tools = dict()
+        tools['debian']= 'apt-get'
+        tools['ubuntu']= 'apt-get'
+        tools['fedora']= 'yum'
+        tools['redhat']= 'yum'
+        tools['centos']= 'yum'
+        tools['suse']= 'yast'
+        tools['darwin']= 'port'
+            
+        osName = platform.system().lower()
+        if osName.startswith('linux'):
+            (distribution, version, version_id) = platform.linux_distribution()
+            if not distribution:
+                distribution = osName
+            else:
+                distribution = distribution.lower()
+        else:
+            distribution = osName
+        
+        if tools.has_key(distribution):
+            return tools[distribution]
+        else :
+            return None
 
 class NoneModuleSource(ModuleSource):
     """ This class defines an empty source, i.e. no source code fetching is 
@@ -579,18 +605,18 @@ class SystemDependency(ModuleSource):
         """Verifies if the right program exists in the system to handle 
         the given compressed source file.
         """
-        
-        distributions = [
-            ['debian', 'apt-get'],
-            ['ubuntu', 'apt-get'],
-            ['fedora', 'yum'],
-            ['redhat', 'yum'],
-            ['centos', 'yum'],
-            ['suse', 'yast'],
-            ['darwin', 'port'],
-            ]
-
-        import platform 
+#        
+#        distributions = [
+#            ['debian', 'apt-get'],
+#            ['ubuntu', 'apt-get'],
+#            ['fedora', 'yum'],
+#            ['redhat', 'yum'],
+#            ['centos', 'yum'],
+#            ['suse', 'yast'],
+#            ['darwin', 'port'],
+#            ]
+#
+#        import platform 
         
         osName = platform.system().lower()
         if(not osName.startswith('linux') and not osName.startswith('darwin')):
@@ -598,19 +624,20 @@ class SystemDependency(ModuleSource):
                             " platforms, %s not supported for %s,  %s" % 
                             (osName, env._module_name, 
                              self.attribute('error_message').value))
-        
-        if osName.startswith('darwin'):
-                 return env.check_program('ports')
                
-        (distribution, version, version_id) = platform.linux_distribution()
-        if not distribution:
-            distribution = 'darwin' # osName
-        else:
-            distribution = distribution.lower()
+#        (distribution, version, version_id) = platform.linux_distribution()
+#        if not distribution:
+#            distribution = 'darwin' # osName
+#        else:
+#            distribution = distribution.lower()
             
-        for dist, program in distributions:
-            if distribution.startswith(dist):
-                return env.check_program(program)
+        program = self.source_systemtool()
+        
+        if program:
+            return env.check_program(program)
+#        for dist, program in distributions:
+#            if distribution.startswith(dist):
+#                return env.check_program(program)
         return False
 
 
