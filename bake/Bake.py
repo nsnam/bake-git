@@ -24,6 +24,7 @@ from bake.Dependencies import Dependencies, DependencyUnmet
 from bake.Exceptions import MetadataError
 from bake.Utils import ColorTool
 from bake.Exceptions import TaskError 
+from bake.ModuleSource import SystemDependency 
 
 def signal_handler(signal, frame):
     """ Handles Ctrl+C keyboard interruptions """
@@ -671,7 +672,8 @@ class Bake:
         (options, args_left) = parser.parse_args(args)
 #        downloadTool2 = self._check_source_version(config, options)
         def _do_download(configuration, module, env):
-            sys.stdout.write (" >> Downloading " + module.name() )
+            sys.stdout.write (" >> Downloading " + module.name() + " - ")
+            sys.stdout.flush()
             env._sudoEnabled=options.call_with_sudo
             valueToReturn=module.check_source_version(env)
             
@@ -680,7 +682,11 @@ class Bake:
                 return module.download(env, options.force_download)
             else:
                 module.printResult(env, "Download", module.FAIL)
-                tool = module._source.source_systemtool()
+                
+                if isinstance(module._source, SystemDependency):
+                    tool =  module._source.source_systemtool()
+                else:
+                    tool = module._source.name()
                 raise TaskError('    Unavailable Downloading tool (%s)'
                                 ' for module "%s". Try to call \"%s check\"\n' % 
                                 (tool, module.name(), 
@@ -750,8 +756,12 @@ class Bake:
         self._check_source_code(config, options)
         
         def _do_build(configuration, module, env):
-           
-            sys.stdout.write(" >> Building " + module.name() )
+            
+            if isinstance(module._source, SystemDependency):
+                return True
+            
+            sys.stdout.write(" >> Building " + module.name()  + " - ")
+            sys.stdout.flush()
             env._sudoEnabled=options.call_with_sudo
             if module.check_build_version(env):
                 retval = module.build(env, options.jobs, options.force_clean)
@@ -858,6 +868,7 @@ class Bake:
         colorTool.cPrint(colorTool.OK, " > Path searched for tools:")
         for item in env.path_list():
             sys.stdout.write (' ' + item)
+            sys.stdout.flush()
         print
           
     def _get_dummy_env(self, options):

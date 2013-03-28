@@ -341,7 +341,7 @@ class TestBake(unittest.TestCase):
 #</configuration>'
 
        
-#    def test_dependencies(self):
+#    def Dtest_dependencies(self):
 #        """Tests the Dependencies mechanism of Bake. """
 #        
 #        configuration = Configuration("bakefile")
@@ -374,6 +374,33 @@ class TestBake(unittest.TestCase):
 #        testStatus = commands.getoutput('mv bc.xml bakeconf.xml ')
 #        testStatus = commands.getoutput('mv bf.xml bakefile.xml ')
 #       
+
+    def test_systemReturnValues(self):
+        """Tests the values get from the system point of view. """
+
+        self._env._debug = True
+        pathname = os.path.dirname(compensate_third_runner()) 
+        if not pathname:
+            pathname="."
+ 
+        commandTmp = ('%s/../bake.py -f /tmp/myconf.xml configure -c %s/../bakeconf.xml --enable=openflow-ns3' 
+        ' --sourcedir=/tmp/source' 
+        ' --installdir=/tmp/source' %(pathname, pathname))
+        (status, output) = commands.getstatusoutput(commandTmp)    
+
+        (status, output) = commands.getstatusoutput('python ' + pathname + 
+                                        '/../bake.py --debug download -vvv')
+        self.assertFalse(status==0, 'Wrong system status return.')
+        
+#        (status, output) = commands.getstatusoutput('python ' + pathname + 
+#                                        '/../bake.py --debug download -vvv --sudo')
+#        self.assertTrue(status==0, 'Wrong system status return.')
+    
+
+        (status, output) = commands.getstatusoutput('python ' + pathname + 
+                                        '/../bake.py build')
+        self.assertTrue(status!=0, 'Wrong system status return.')    
+
 
 # main call for the tests        
 if __name__ == '__main__':

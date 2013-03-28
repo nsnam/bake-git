@@ -51,6 +51,7 @@ class ModuleSource(ModuleAttributeBase):
     def check_version(self, env):
         raise NotImplemented()
 
+    @classmethod
     def source_systemtool(self):
         """Returns the name of the system instalation tool for this machine."""
         tools = dict()
@@ -153,7 +154,7 @@ class BazaarModuleSource(ModuleSource):
         
         return env.check_program('bzr', version_arg='--version',
                                  version_regexp='(\d+)\.(\d+)',
-                                 version_required=(2, 4))
+                                 version_required=(2, 1))
 
     
 class MercurialModuleSource(ModuleSource):

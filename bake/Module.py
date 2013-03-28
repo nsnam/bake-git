@@ -105,7 +105,6 @@ class Module:
             colorTool.cPrintln(color, " >> " + operation + " " + 
                                     self._name + " - " +resultStr)
         else:
-            sys.stdout.write (" - ")
             colorTool.cPrintln(color, resultStr)
 
     def download(self, env, forceDownload):

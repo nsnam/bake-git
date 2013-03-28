@@ -171,10 +171,12 @@ class ColorTool:
         """ Print the message with the defined color. """
         
         sys.stdout.write(color + message + self.ENDC)
+        sys.stdout.flush()
         
     def cPrintln(self,color, message):
         """ Print the message with the defined color and ends with a new line. """
         
         sys.stdout.write(color + message + self.ENDC + os.linesep)
+        sys.stdout.flush()
         
 
