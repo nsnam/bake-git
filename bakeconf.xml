@@ -227,8 +227,10 @@
       <source type="mercurial">
 	<attribute name="url" value="http://code.nsnam.org/ns-3-dev"/>
       </source>
+      <depends_on name="pybindgen-user" optional="False"/>
       <build type="waf" objdir="yes">
-	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-tests"/>
+	<attribute name="patch" value="$SRCDIR/../dce/utils/pyviz-install.patch"/>
+	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-tests --with-pybindgen=$SRCDIR/../pybindgen-user"/>
       </build>
     </module>
 
@@ -474,6 +476,17 @@
       </build>
       <depends_on name="pygccxml" optional="True"/>
       <depends_on name="gccxml-ns3" optional="False"/>
+    </module>
+
+    <module name="pybindgen-user">
+      <source type="bazaar">
+	<attribute name="url" value="https://launchpad.net/pybindgen"/>
+	<attribute name="revision" value="revno:809"/>
+      </source>
+      <build type="waf" objdir="yes">
+	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --disable-pygccxml"/>
+	<attribute name="build_arguments" value="--generate-version"/>
+      </build>
     </module>
 
 
