@@ -57,6 +57,46 @@
       </build>
     </module>
 
+    <module name="dce-quagga-inkernel">
+      <source type="mercurial">
+	<attribute name="url" value="http://code.nsnam.org/thehajime/ns-3-dce-quagga"/>
+	<attribute name="module_directory" value="dce/myscripts/ns-3-dce-quagga/"/>
+      </source>
+      <depends_on name="dce-linux-inkernel" optional="False"/>
+      <depends_on name="quagga" optional="False"/>
+      <depends_on name="iputils" optional="False"/>
+      <build type="none">
+      </build>
+    </module>
+
+    <module name="dce-umip-inkernel">
+      <source type="mercurial">
+	<attribute name="url" value="http://code.nsnam.org/thehajime/ns-3-dce-umip"/>
+	<attribute name="module_directory" value="dce/myscripts/ns-3-dce-umip/"/>
+      </source>
+      <depends_on name="dce-linux-inkernel" optional="False"/>
+      <depends_on name="dce-quagga-inkernel" optional="False"/>
+      <depends_on name="umip" optional="False"/>
+      <build type="none">
+      </build>
+    </module>
+
+    <module name="dce-linux-inkernel">
+      <source type="mercurial">
+	<attribute name="url" value="http://code.nsnam.org/ns-3-dce"/>
+	<attribute name="module_directory" value="dce"/>
+      </source>
+      <depends_on name="elf-loader" optional="False"/>
+      <depends_on name="iproute" optional="False"/>
+      <depends_on name="iperf" optional="True"/>
+      <depends_on name="ccnx" optional="True"/>
+      <depends_on name="ns-3-dev-dce" optional="False"/>
+      <build type="waf" objdir="yes" sourcedir="dce">
+	<!-- assume the bake.py build is executed under arch/sim/test/buildtop/ -->
+	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../../../../../"/>
+      </build>
+    </module>
+
     <module name="mptcp_v0.86">
       <source type="git">
         <attribute name="url" value="git://github.com/multipath-tcp/mptcp"/>
@@ -105,6 +145,21 @@
        <depends_on name="ns-3-dev-dce" optional="False"/>
       <build type="waf" objdir="yes" sourcedir="dce">
 	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../mptcp/arch"/>
+      </build>
+    </module>
+
+    <module name="dce-linux-mptcp-inkernel">
+      <source type="mercurial">
+	<attribute name="url" value="http://code.nsnam.org/ns-3-dce"/>
+	<attribute name="module_directory" value="dce"/>
+      </source>
+      <depends_on name="elf-loader" optional="False"/>
+      <depends_on name="iproute-mptcp" optional="False"/>
+      <depends_on name="iperf" optional="True"/>
+      <depends_on name="ns-3-dev-dce" optional="False"/>
+      <build type="waf" objdir="yes" sourcedir="dce">
+	<!-- assume the bake.py build is executed under arch/sim/test/buildtop/ -->
+	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../../../../../"/>
       </build>
     </module>
 
