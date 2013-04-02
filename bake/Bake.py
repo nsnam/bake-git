@@ -520,6 +520,7 @@ class Bake:
                         
         try:
             deps.resolve(targets)
+#            deps.dump2(sys.stdout)
         except DependencyUnmet as error:
             self._error(' Unmet critical dependency on module: ' + error.failed().name())
 
@@ -584,11 +585,11 @@ class Bake:
        
         return parser
 
-    def _do_operation(self, config, options, functor, directory=None):
-        """Applies the function, passed as parameter, over the options."""
-        
+
+    def createEnvirornment(self, config, options, directory=None):
+        """ Auxiliary function to create an instance of the module environment"""
+         
         configuration = self._read_config(config, directory)
-                        
         if options.logdir == '' and options.logfile == '':
             logger = StdoutModuleLogger()
         elif options.logdir != '':
@@ -600,12 +601,17 @@ class Bake:
         verbose = options.verbose - options.quiet
         verbose = verbose if verbose >= 0 else 0
         logger.set_verbose(verbose)
+        env = ModuleEnvironment(logger, 
+            configuration.compute_installdir(), 
+            configuration.compute_sourcedir(), 
+            configuration.get_objdir(), 
+            Bake.main_options.debug)
+        return configuration, env
 
-        env = ModuleEnvironment(logger,
-                               configuration.compute_installdir(),
-                               configuration.compute_sourcedir(),
-                               configuration.get_objdir(), 
-                               Bake.main_options.debug)
+    def _do_operation(self, config, options, functor, directory=None):
+        """Applies the function, passed as parameter, over the options."""
+        
+        configuration, env = self.createEnvirornment(config, options, directory)
         must_disable = []
         if options.one != '':
             if options.all or options.start != '' or options.after != '':
@@ -953,27 +959,128 @@ class Bake:
             for build in ModuleBuild.subclasses():
                 self._show_one_builtin(build, 'build', options.variables)
 
-
-    def show_module(self, state, options, label):
+    systemDependencies=dict()
+   
+    def show_module(self, state, options, config, label):
         """ Handles the printing of the information of modules and dependencies."""
+        
+        depen=dict()
 
         if not state:
             return
         for mod in state:
             print('module: %s (%s)' % (mod.name(), label))
             dependencies = mod.dependencies()
+            
+            # Stores the system dependencies
+            if isinstance(mod._source, SystemDependency):
+                self.systemDependencies[mod.name()] = mod._source
+                
+            # Collects the dependencies
+            if not mod.name() in depen:
+                depen[mod.name()] = dict()
+            
             if dependencies:
                 print('  depends on:')
                 for dependsOn in mod.dependencies():
                     print('     %s (optional:%s)' % 
-                          (dependsOn.name(), dependsOn.is_optional()))      
+                          (dependsOn.name(), dependsOn.is_optional())) 
+                    depen[mod.name()][dependsOn.name()]=  dependsOn.is_optional()
             else:
                 print('  No dependencies!')
                 
+            
             if options.variables:
                 self._show_variables(mod)
 
+            #TODO print the list of dependencies from depen
+        if options.showTree and label=="enabled":
+            print("\n-- Dependency tree --")
+            self.deptree(depen, depen, label, dict(), " ")
+        
         return mod
+
+    def showSystemDependencies(self, systemDependencies,config):
+        """ Shows the System dependencies of the defined configuration. """
+        
+        if len(systemDependencies)<=0:
+            return
+        
+        print ("\n-- System Dependencies --")
+        
+        missing=False
+        returnValue=""
+        depend_keys = systemDependencies.keys()
+        depend_keys=sorted(depend_keys)
+
+        # creates the environment        
+        configuration = self._read_config(config)
+        logger = StdoutModuleLogger()
+        logger.set_verbose(0)
+        env = ModuleEnvironment(logger, "","", 
+            configuration.get_objdir())
+        
+        for this_key in depend_keys:
+            sysDep=systemDependencies[this_key]
+        
+            dependencTest = sysDep.attribute('dependency_test').value
+        
+            # If a test for dependencies exists for this module
+            if(dependencTest):
+
+                # tests if the dependency exists or not        
+                dependencyExists = sysDep._check_dependency_expression(env, dependencTest) 
+                if not dependencyExists:
+                    sys.stdout.write(" > " + this_key + " - ")
+                    ColorTool.cPrintln(ColorTool.FAIL, "Missing")
+                    print("   >> " + sysDep.attribute('more_information').value)
+                    missing = True
+                else:
+                    sys.stdout.write(" > " + this_key + " - ")
+                    ColorTool.cPrintln(ColorTool.OK, "OK")
+                
+                returnValue= returnValue + this_key
+        
+        # if there is a missing dependency the system error level is set to 1 
+        if missing:
+            sys.exit(1)
+        
+        return returnValue
+        
+    def deptree(self, fulldep, depen, key, has_passed, padding):
+        """ Shows the dependency tree. """
+        
+        print (padding[:-1] + '+-' + key + '/')
+        padding = padding + ' '
+        
+        # to avoid loops
+        if has_passed.has_key(key):
+            print(padding + "> Cyclic Dependency")
+            return "> Cyclic Dependency."
+        else:
+            has_passed[key]=True
+        
+        depend_keys = depen.keys()
+        depend_keys=sorted(depend_keys)
+        
+        # goes recursively over the list of keys reading the dictionaries with 
+        # the dependencies
+        count = 0
+        listStr = ''
+        for this_key in depend_keys:
+            count += 1
+            print (padding + '|')
+            if len(fulldep[this_key])>0:
+                if count == len(depend_keys):
+                    listStr = listStr + self.deptree(fulldep, fulldep[this_key], this_key, has_passed, padding + ' ')
+                else:
+                    listStr = listStr + self.deptree(fulldep, fulldep[this_key], this_key, has_passed, padding + '|')
+            else:
+                print (padding + '+-' + this_key)
+                listStr = this_key +'.'+ listStr
+                
+        del has_passed[key]
+        return key +'/'+ listStr
 
     def _show(self, config, args):
         """Handles the show command line option."""
@@ -1001,12 +1108,19 @@ class Bake:
         parser.add_option('--directories', action='store_true', dest='directories', 
                           default=False,
                           help='Display information about which directories have been configured')
+        parser.add_option('--showTree', action='store_true', dest='showTree', 
+                          default=False,
+                          help='Shows the dependency tree of the enabled/disabled modules')
+        parser.add_option('--showSystemDep', action='store_true', dest='showSystemDep', 
+                          default=True,
+                          help='Shows the dependency tree of the enabled/disabled modules')
         (options, args_left) = parser.parse_args(args)
 
         # adds a default value so that show will show something even if there is
         # no option 
-        if not args:
+        if not args or (len(args)==1 and args[0]=='--showTree'):
             options.enabled = True
+            options.showTree = True
 
         config= self.check_configuration_file(config, True);
 
@@ -1027,6 +1141,7 @@ class Bake:
             options.directories = True
             options.variables = True
             options.predefined = True
+            options.showTree = True
         elif options.available:
             options.enabled = True
             options.disabled = True
@@ -1046,10 +1161,14 @@ class Bake:
         disabled = filter(lambda module: not module in enabled, configuration.modules())
 
         if options.enabled:
-            self.show_module(enabled, options, 'enabled')
+            self.show_module(enabled, options, config, 'enabled')
 
         if options.disabled:
-            self.show_module(disabled, options, 'disabled')
+            self.show_module(disabled, options, config, 'disabled')
+            
+        if options.showSystemDep:
+            self.showSystemDependencies(self.systemDependencies, config)
+
 
     def check_configuration_file(self, configFile, considersTemplate=False):
         """ Checks if the configuration file exists, if not tries to use the

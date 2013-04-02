@@ -122,13 +122,30 @@ class Dependencies:
         # mark dirty target and its depending targets
         self._update_dirty(target)
 
+#    def rec_dump(self,target):
+#        """ Debugging purpose function to visualize the targets."""
+#        str = ""
+#        for src in target._dependencies:
+#            str = str + " -> " + self.rec_dump(src)
+#            
+#        return target._name
+#
+#    def dump2(self,f,dot=True):
+#        """ Debugging purpose function to visualize the targets."""
+#        
+#        f.write('digraph {\n')
+#        for target in self._targets.values():
+#            element = self.rec_dump(target.dst())
+#            f.write('"' + target.dst()._name + '" -> ' + element + ';\n')
+
+
     def dump(self,f,dot=True):
         """ Debugging purpose function to visualize the targets."""
         
         f.write('digraph {\n')
         for target in self._targets.values():
             for src in target.src ():
-                f.write('"' + src + '" -> "' + target.dst() + '";\n')
+                f.write('"' + src._name + '" -> "' + target.dst()._name + '";\n')
         f.write('}')
 
     def resolve(self, targets, callback = None, n=1):

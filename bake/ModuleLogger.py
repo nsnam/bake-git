@@ -14,6 +14,7 @@ class ModuleLogger:
     """ The logger class. The logger is responsible for logging the messages 
     and control the level of information showed to the user.
     """
+    sendToFile=None
     
     def __init__(self):
         """ Initializes the used variables."""
@@ -21,6 +22,7 @@ class ModuleLogger:
         self._verbose = None
         self._command_file = None
         self._std_file = None
+        self._dump_file = None
 
     def _update_file(self, f):
         """ Opens/changes the output devices accordingly to the verbose level."""
@@ -34,6 +36,9 @@ class ModuleLogger:
         elif self._verbose == 2:
             self._command_file = f
             self._std_file = f
+            
+        if self.sendToFile :
+            self._dump_file = open(self.sendToFile, 'w')
             
     def set_verbose(self, verbose):
         """ Sets verbosity level."""

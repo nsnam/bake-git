@@ -6,7 +6,7 @@ import commands
 import re
 
 from bake.Configuration import Configuration
-from bake.ModuleEnvironment import ModuleEnvironment
+from bake.ModuleSource import SystemDependency
 from bake.ModuleEnvironment import ModuleEnvironment
 from bake.ModuleLogger import StdoutModuleLogger
 from bake.ModuleSource import ModuleSource
@@ -51,7 +51,7 @@ class TestBake(unittest.TestCase):
         testStatus = commands.getoutput('mv bf.xml bakefile.xml ')
         testStatus = commands.getoutput('mv ~/.bakerc_saved ~/.bakerc')
 
-    def Dtest_simple_proceedings(self):
+    def test_simple_proceedings(self):
         """Tests the _check_source_code method of Class Bake. """
 
         mercurial = ModuleSource.create("mercurial")
@@ -75,7 +75,7 @@ class TestBake(unittest.TestCase):
                         "Should have worked the build of the code")
   
  
-    def Dtest_read_resource_file(self):
+    def test_read_resource_file(self):
         """Tests the _read_resource_file method of Class Bake."""
         
         configuration = Configuration("bakefile.xml")
@@ -96,7 +96,7 @@ class TestBake(unittest.TestCase):
         
         testStatus,testMessage = commands.getstatusoutput('mv ~/.bakerc_saved ~/.bakerc')
       
-    def Dtest_save_resource_configuration(self):
+    def test_save_resource_configuration(self):
         """Tests the _save_resource_configuration method of Class Bake."""
         
         pathname = os.path.dirname(compensate_third_runner())  
@@ -147,7 +147,7 @@ class TestBake(unittest.TestCase):
         testStatus,testMessage = commands.getstatusoutput('mv ~/.bakerc_saved ~/.bakerc')
   
    
-    def Dtest_check_source_code(self):
+    def test_check_source_code(self):
         """Tests the _check_source_code method of Class Bake. """
 
         # Environment settings        
@@ -204,7 +204,7 @@ class TestBake(unittest.TestCase):
         self.assertFalse(testResult, None)    
              
 
-    def Dtest_check_build_version(self):
+    def test_check_build_version(self):
         """Tests the _check_source_code method of Class Bake. """
 
         # Environment settings        
@@ -270,7 +270,7 @@ class TestBake(unittest.TestCase):
         testResult = bake._check_source_code(config, options);
         self.assertFalse(testResult, None)    
 
-    def Dtest_check_configuration_file(self):
+    def test_check_configuration_file(self):
         """Tests the check_configuration_file method of Class Bake. """
 
         bakeInstance = Bake() 
@@ -341,7 +341,7 @@ class TestBake(unittest.TestCase):
 #</configuration>'
 
        
-#    def Dtest_dependencies(self):
+#    def test_dependencies(self):
 #        """Tests the Dependencies mechanism of Bake. """
 #        
 #        configuration = Configuration("bakefile")
@@ -400,6 +400,119 @@ class TestBake(unittest.TestCase):
         (status, output) = commands.getstatusoutput('python ' + pathname + 
                                         '/../bake.py build')
         self.assertTrue(status!=0, 'Wrong system status return.')    
+        
+
+    def test_printTree(self):
+        """Tests tree visualization mechanism. """
+        
+        first = dict()
+        second = dict()
+        third = dict()
+        bake = Bake()
+        
+        mainDep = {'first': first, 'second':second, 'third': third}
+        
+        keys = bake.deptree(mainDep, mainDep, 'main', dict(), ' ')
+        self.assertTrue(keys!=None, 'Error during tree processing')    
+        self.assertTrue(len(mainDep)>0, 'Error during tree processing')
+        self.assertTrue(keys=='main/third.second.first.', 'Error during tree processing')
+
+        first={'second':True}
+        second={'third':True}
+        mainDep = {'first': first, 'second':second, 'third': third}
+        keys = bake.deptree(mainDep, mainDep, 'main', dict(), ' ')
+        self.assertTrue(keys!=None, 'Error during tree processing')    
+        self.assertTrue(len(mainDep)>0, 'Error during tree processing')
+        self.assertTrue(keys=='main/third.first/second/third.second/third.')
+
+        # One more level
+        fourth = dict()
+        second={'third':True, 'fourth':True}
+        mainDep = {'first': first, 'second':second, 'third': third,'fourth':fourth};
+        keys = bake.deptree(mainDep, mainDep, 'main', dict(), ' ')
+        self.assertTrue(keys!=None, 'Error during tree processing')    
+        self.assertTrue(len(mainDep)>0, 'Error during tree processing')
+        self.assertTrue(keys=='main/third.fourth.first/second/third.fourth.second/third.fourth.')
+
+        # the loops
+        # simple to self
+        first={'first':True}
+        mainDep = {'first': first}
+        keys = bake.deptree(mainDep, mainDep, 'main', dict(), ' ')
+        self.assertTrue(keys!=None, 'Error during tree processing')    
+        self.assertTrue(len(mainDep)>0, 'Error during tree processing')
+        self.assertTrue(keys== 'main/first/> Cyclic Dependency.')
+
+
+        # two levels loop
+        first={'second':True}
+        second={'first':True}
+        mainDep = {'first': first, 'second':second};
+        keys = bake.deptree(mainDep, mainDep, 'main', dict(), ' ')
+        self.assertTrue(keys!=None, 'Error during tree processing')    
+        self.assertTrue(len(mainDep)>0, 'Error during tree processing')
+        self.assertTrue(keys== 'main/first/second/> Cyclic Dependency.'
+                        'second/first/> Cyclic Dependency.')
+
+        # the same as before, but now with loop
+        second={'third':True, 'first':first}
+        mainDep = {'first': first, 'second':second, 'third': third}
+        keys = bake.deptree(mainDep, mainDep, 'main', dict(), ' ')
+        self.assertTrue(keys!=None, 'Error during tree processing')    
+        self.assertTrue(len(mainDep)>0, 'Error during tree processing')
+        self.assertTrue(keys==
+                        'main/third.first/second/third.> Cyclic Dependency.'
+                        'second/third.first/> Cyclic Dependency.')
+
+        # multyLayer loop
+        fourth = {'first':True}
+        third = {'second':True}
+        second={'third':True, 'fourth':True}
+        mainDep = {'first': first, 'second':second, 'third': third,'fourth':fourth}
+        keys = bake.deptree(mainDep, mainDep, 'main', dict(), ' ')
+        self.assertTrue(keys!=None, 'Error during tree processing')    
+        self.assertTrue(len(mainDep)>0, 'Error during tree processing')
+        self.assertTrue(keys=='main/first/second/fourth/> Cyclic'
+                        ' Dependency.third/> Cyclic Dependency.fourth/first/second/>'
+                        ' Cyclic Dependency.third/> Cyclic '
+                        'Dependency.second/fourth/first/> Cyclic '
+                        'Dependency.third/> Cyclic Dependency.third/second/fourth/first/>'
+                        ' Cyclic Dependency.> Cyclic Dependency.')
+        
+    def test_printDependencies(self):
+        """Tests the print of dependencies mechanism. """
+        
+        bake = Bake()
+        first = SystemDependency()
+        first.attribute('dependency_test').value ='passwd'
+        first.attribute('more_information').value ='Has not the required dependency'
+        
+        mainDep = {'passwd': first};
+        returnValue = bake.showSystemDependencies(mainDep, 'bakeconf.xml')
+        self.assertTrue(returnValue!=None, 'Error during dependencies processing')    
+        self.assertTrue(returnValue=='passwd')
+        
+        first.attribute('dependency_test').value ='nononononononononon'
+        
+        mainDep = {'nononononononononon': first}
+        returnValue=None
+        try:
+            returnValue = bake.showSystemDependencies(mainDep, 'bakeconf.xml')
+            self.fail("Should have stoped")
+        except SystemExit as e: 
+            self.assertTrue(returnValue==None, 'Error during dependencies processing')    
+         
+        second = SystemDependency()
+        second.attribute('dependency_test').value ='passwd'
+        second.attribute('more_information').value ='Has not the required dependency'
+        mainDep = {'nononononononononon': first, 'passwd':second}
+        returnValue=None
+        try:
+            returnValue = bake.showSystemDependencies(mainDep, 'bakeconf.xml')
+            self.fail("Should have stoped")
+        except SystemExit as e: 
+            self.assertTrue(returnValue==None, 'Error during dependencies processing')    
+ 
 
 
 # main call for the tests        

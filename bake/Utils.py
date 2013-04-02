@@ -159,20 +159,22 @@ class ColorTool:
     WARNING = '\033[33m'
     FAIL = '\033[91m'
     ENDC = '\033[0m'
-
+    
     def disable(self):
         """ Disables the color print. """
         
         self.WARNING = ''
         self.FAIL = ''
         self.ENDC = ''
-    
+        
+    @classmethod
     def cPrint(self,color, message):
         """ Print the message with the defined color. """
         
         sys.stdout.write(color + message + self.ENDC)
         sys.stdout.flush()
         
+    @classmethod    
     def cPrintln(self,color, message):
         """ Print the message with the defined color and ends with a new line. """
         

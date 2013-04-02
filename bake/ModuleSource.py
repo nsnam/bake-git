@@ -520,9 +520,11 @@ class SystemDependency(ModuleSource):
 
         selfInstalation = self.attribute('try_to_install').value
         
-        # even if should try to install, if it is not a supported mahine we will not be able
+        # even if should try to install, if it is not a supported machine 
+        # we will not be able to
         osName = platform.system().lower().strip()
-        if((osName.startswith('linux') or osName.startswith('darwin')) and selfInstalation):
+        if((osName.startswith('linux') or osName.startswith('darwin')) and 
+           selfInstalation == 'True'):
             (distribution, version, version_id) = platform.linux_distribution()
             
             if not distribution:
