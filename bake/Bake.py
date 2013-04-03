@@ -869,7 +869,7 @@ class Bake:
             if env.check_program(element[0]):
                 colorTool.cPrintln(colorTool.OK, " > " + element[1] + " - OK")                    
             else:
-                colorTool.cPrintln(self.colorTool.WARNING, " > " + element[1] + 
+                colorTool.cPrintln(colorTool.WARNING, " > " + element[1] + 
                                  " - is missing")
         print
         colorTool.cPrint(colorTool.OK, " > Path searched for tools:")

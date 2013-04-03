@@ -480,7 +480,7 @@
 
     <module name="libxml2-dev">
       <source type="system_dependency">
-	<attribute name="dependency_test" value="xmlIO.hasdf"/>
+	<attribute name="dependency_test" value="xmlIO.h"/>
 	<attribute name="try_to_install" value="True"/>
 	<attribute name="name_yum" value="libxml2-devel"/>
 	<attribute name="name_yast" value="libxml2-devel"/>
@@ -647,8 +647,7 @@
       </build>
   </module>
 
-<!--
-  <module name="ns-3-16">
+  <module name="ns-3.16">
       <source type="mercurial">
 	<attribute name="url" value="http://code.nsnam.org/ns-3.16"/>
       </source>
@@ -661,7 +660,6 @@
 	<attribute name="configure_arguments" value="configure \-\-prefix=$INSTALLDIR \-\-enable-examples \-\-enable-tests \-\-with-nsclick=$SRCDIR/click \-\-with-pybindgen=$SRCDIR/pybindgen \-\-with-openflow=$SRCDIR/openflow-ns3 \-\-with-nsc=$SRCDIR/nsc"/>
       </build>
   </module>
--->
 
   </modules>
 
