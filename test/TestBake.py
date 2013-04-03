@@ -52,7 +52,7 @@ class TestBake(unittest.TestCase):
         testStatus = commands.getoutput('mv ~/.bakerc_saved ~/.bakerc')
 
     def test_simple_proceedings(self):
-        """Tests the _check_source_code method of Class Bake. """
+        """Tests a simple download and build of Bake. """
 
         mercurial = ModuleSource.create("mercurial")
         testResult = mercurial.check_version(self._env)
@@ -192,7 +192,11 @@ class TestBake(unittest.TestCase):
         # if the user has no permission to see the file
         testStatus = commands.getoutput('chmod 000 /tmp/source')
         testResult=None
-        testResult = bake._check_source_code(config, options);
+        try:
+            testResult = bake._check_source_code(config, options);
+        except SystemExit as e:
+            self.assertTrue(e.code==1,"Wrong error code received")
+            
         self.assertFalse(testResult, None)    
         
         testStatus = commands.getoutput('chmod 755 /tmp/source')
@@ -200,7 +204,11 @@ class TestBake(unittest.TestCase):
         # if the folder is not where it should be
         testStatus = commands.getoutput('rm -rf /tmp/source')
         testResult=None
-        testResult = bake._check_source_code(config, options);
+        try:
+            testResult = bake._check_source_code(config, options);
+        except SystemExit as e:
+            self.assertTrue(e.code==1,"Wrong error code received")
+            
         self.assertFalse(testResult, None)    
              
 
@@ -258,8 +266,13 @@ class TestBake(unittest.TestCase):
  
         # if the user has no permission to see the file
         testStatus = commands.getoutput('chmod 000 /tmp/source')
+
         testResult=None
-        testResult = bake._check_source_code(config, options);
+        try:
+            testResult = bake._check_source_code(config, options);
+        except SystemExit as e:
+            self.assertTrue(e.code==1,"Wrong error code received")
+            
         self.assertFalse(testResult, None)    
         
         testStatus = commands.getoutput('chmod 755 /tmp/source')
@@ -267,7 +280,12 @@ class TestBake(unittest.TestCase):
         # if the folder is not where it should be
         testStatus = commands.getoutput('rm -rf /tmp/source')
         testResult=None
-        testResult = bake._check_source_code(config, options);
+        testResult=None
+        try:
+            testResult = bake._check_source_code(config, options);
+        except SystemExit as e:
+            self.assertTrue(e.code==1,"Wrong error code received")
+            
         self.assertFalse(testResult, None)    
 
     def test_check_configuration_file(self):
