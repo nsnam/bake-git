@@ -65,13 +65,13 @@ class TestBake(unittest.TestCase):
         testResult = mercurial.download(self._env)
         self.assertFalse(testResult)
 
-        testStatus = commands.getoutput('cd /tmp/source/bake;./bake.py configure -e openflow-ns3')
+        testStatus = commands.getoutput('cd /tmp/source/bake;./bake.py configure -p ns3-min')
         self.assertEquals(testStatus, "", "Should have worked the download of the code")
         testStatus = commands.getoutput('cd /tmp/source/bake;./bake.py download')
-        self.assertTrue(testStatus.endswith(">> Download openflow-ns3 - OK"), 
+        self.assertFalse("Problem" in testStatus, 
                         "Should have worked the download of the code")
         testStatus = commands.getoutput('cd /tmp/source/bake;./bake.py build')
-        self.assertTrue(testStatus.endswith(">> Built openflow-ns3 - OK"), 
+        self.assertFalse("Problem" in testStatus, 
                         "Should have worked the build of the code")
   
  
@@ -485,8 +485,10 @@ class TestBake(unittest.TestCase):
         bake = Bake()
         first = SystemDependency()
         first.attribute('dependency_test').value ='passwd'
-        first.attribute('more_information').value ='Has not the required dependency'
-        
+        first.attribute('more_information').value ='Missing the required dependency'
+        first.attribute('name_apt-get').value = 'libpcap-dev'
+        first.attribute('name_yum').value = 'libpcap-devel'
+       
         mainDep = {'passwd': first};
         returnValue = bake.showSystemDependencies(mainDep, 'bakeconf.xml')
         self.assertTrue(returnValue!=None, 'Error during dependencies processing')    

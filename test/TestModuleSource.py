@@ -203,8 +203,8 @@ class TestModuleSource(unittest.TestCase):
         
         # Unknown file type
         installer.attribute('more_information').value = "Just a test"
-        installer.attribute('sudoer_install').value = False
-        installer.attribute("try_to_install").value=True
+        installer.attribute('sudoer_install').value = 'False'
+        installer.attribute("try_to_install").value='True'
 
         installer.attribute("dependency_test").value = "NonExistentSoftForTest"
 
@@ -283,8 +283,8 @@ class TestModuleSource(unittest.TestCase):
         # Unknown file type
         installer.attribute("dependency_test").value = "NonExistentSoftForTest"
         installer.attribute('more_information').value = "Message test for inexistent module"
-        installer.attribute("try_to_install").value=True
-        installer.attribute("sudoer_install").value=True
+        installer.attribute("try_to_install").value='True'
+        installer.attribute("sudoer_install").value='True'
         testResult = None
         try :
             testResult = installer.download(self._env)
@@ -310,7 +310,7 @@ class TestModuleSource(unittest.TestCase):
         installer.attribute("dependency_test").value = "erlang"
         installer.attribute('more_information').value = "You miss erlang, "
         "download it from your linux distribution website"
-        installer.attribute('sudoer_install').value = True
+        installer.attribute('sudoer_install').value = 'True'
         
         testResult = None
         try :

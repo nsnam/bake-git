@@ -13,6 +13,7 @@ except ImportError:
  from xml.parsers.expat import ExpatError as ParseError
 import sys
 import os
+import platform
 import signal
 import copy
 import bake.Utils
@@ -973,7 +974,7 @@ class Bake:
             dependencies = mod.dependencies()
             
             # Stores the system dependencies
-            if isinstance(mod._source, SystemDependency):
+            if isinstance(mod._source, SystemDependency) and label=="enabled":
                 self.systemDependencies[mod.name()] = mod._source
                 
             # Collects the dependencies
@@ -993,11 +994,10 @@ class Bake:
             if options.variables:
                 self._show_variables(mod)
 
-            #TODO print the list of dependencies from depen
-        if options.showTree and label=="enabled":
-            print("\n-- Dependency tree --")
+        if options.enabledTree and label=="enabled":
+            print("\n-- Enabled modules dependency tree --")
             self.deptree(depen, depen, label, dict(), " ")
-        
+       
         return mod
 
     def showSystemDependencies(self, systemDependencies,config):
@@ -1008,6 +1008,13 @@ class Bake:
         
         print ("\n-- System Dependencies --")
         
+        (distribution, version, version_id) = platform.linux_distribution()
+
+        if not distribution:
+            distribution = 'darwin' # osName
+        else:
+            distribution = distribution.lower()
+
         missing=False
         returnValue=""
         depend_keys = systemDependencies.keys()
@@ -1034,6 +1041,16 @@ class Bake:
                     sys.stdout.write(" > " + this_key + " - ")
                     ColorTool.cPrintln(ColorTool.FAIL, "Missing")
                     print("   >> " + sysDep.attribute('more_information').value)
+                    command = sysDep._get_command(distribution)
+                    command = command.strip()
+                    installerName = sysDep.attribute('name_' + command.split()[0]).value
+            
+                    # if didn't find the specific installer name uses the default one
+                    if(not installerName):
+                        installerName = this_key
+                        
+                    print("   >> Try: " + command + " " + installerName)
+
                     missing = True
                 else:
                     sys.stdout.write(" > " + this_key + " - ")
@@ -1108,7 +1125,7 @@ class Bake:
         parser.add_option('--directories', action='store_true', dest='directories', 
                           default=False,
                           help='Display information about which directories have been configured')
-        parser.add_option('--showTree', action='store_true', dest='showTree', 
+        parser.add_option('--enabledTree', action='store_true', dest='enabledTree', 
                           default=False,
                           help='Shows the dependency tree of the enabled/disabled modules')
         parser.add_option('--showSystemDep', action='store_true', dest='showSystemDep', 
@@ -1118,9 +1135,11 @@ class Bake:
 
         # adds a default value so that show will show something even if there is
         # no option 
-        if not args or (len(args)==1 and args[0]=='--showTree'):
+        if not args:
             options.enabled = True
-            options.showTree = True
+        elif (len(args)==1 and args[0]=='--enabledTree') : 
+            options.enabled = True
+            options.enabledTree = True
 
         config= self.check_configuration_file(config, True);
 
@@ -1141,7 +1160,7 @@ class Bake:
             options.directories = True
             options.variables = True
             options.predefined = True
-            options.showTree = True
+            options.enabledTree = True
         elif options.available:
             options.enabled = True
             options.disabled = True

@@ -396,7 +396,9 @@ class SystemDependency(ModuleSource):
             installerName = env._module_name
 
         # if should try to remove as sudoer
-        if(self.attribute('sudoer_install').value and (not env.sudoEnabled)):
+        sudoer=self.attribute('sudoer_install').value
+        if sudoer: sudoer = sudoer.lower()
+        if(sudoer =='true' and (not env.sudoEnabled)):
             raise TaskError('    Module: \"%s\" requires sudo rights, if' 
                             ' you have the right, call bake with the'
                             ' --sudo option, or ask your system admin'
@@ -519,12 +521,13 @@ class SystemDependency(ModuleSource):
             return True
 
         selfInstalation = self.attribute('try_to_install').value
+        if selfInstalation: selfInstalation = selfInstalation.lower()
         
         # even if should try to install, if it is not a supported machine 
         # we will not be able to
         osName = platform.system().lower().strip()
         if((osName.startswith('linux') or osName.startswith('darwin')) and 
-           selfInstalation == 'True'):
+           selfInstalation == 'true'):
             (distribution, version, version_id) = platform.linux_distribution()
             
             if not distribution:
@@ -541,17 +544,19 @@ class SystemDependency(ModuleSource):
                 installerName = env._module_name
             
             if(not command):
-                selfInstalation = False
+                selfInstalation = 'false'
             
         else :
-            selfInstalation = False
+            selfInstalation = 'false'
         
         errorTmp = None
-        if(not dependencyExists and selfInstalation):
+        if(not dependencyExists and selfInstalation=='true'):
             # Try to install if possible
             
             # if should try to install as sudoer
-            if(self.attribute('sudoer_install').value and (not env.sudoEnabled)):
+            sudoer=self.attribute('sudoer_install').value
+            if sudoer: sudoer = sudoer.lower()
+            if(sudoer=='true' and (not env.sudoEnabled)):
                 raise TaskError('    Module: \"%s\" requires sudo rights, if' 
                                 ' you have the right, call bake with the'
                                 ' --sudo option, or ask your system admin'
