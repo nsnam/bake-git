@@ -531,7 +531,7 @@ class SystemDependency(ModuleSource):
             (distribution, version, version_id) = platform.linux_distribution()
             
             if not distribution:
-                distribution = 'darwin' # osName
+                distribution = osName.split()[0] # osName
             else:
                 distribution = distribution.lower()
                 
