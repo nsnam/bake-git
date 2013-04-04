@@ -583,7 +583,7 @@ class Bake:
                           dest="call_with_sudo", default=False, 
                           help='Attempts to install dependencies and modules, when'
                           ' required,  using sudo. The user has to have sudo rights.')
-       
+      
         return parser
 
 
@@ -996,7 +996,7 @@ class Bake:
 
         if options.enabledTree and label=="enabled":
             print("\n-- Enabled modules dependency tree --")
-            self.deptree(depen, depen, label, dict(), " ")
+            self.deptree(depen, depen, label, dict(), "", " ")
        
         return mod
 
@@ -1064,15 +1064,20 @@ class Bake:
         
         return returnValue
         
-    def deptree(self, fulldep, depen, key, has_passed, padding):
+    def deptree(self, fulldep, depen, key, has_passed, optionalModule, padding):
         """ Shows the dependency tree. """
         
-        print (padding[:-1] + '+-' + key + '/')
+        sys.stdout.write(padding[:-1] + '+-' + key + '/')
+        color=ColorTool.FAIL
+        if 'optional' in optionalModule:
+            color=ColorTool.OK
+        ColorTool.cPrintln(color, optionalModule)
         padding = padding + ' '
         
         # to avoid loops
         if has_passed.has_key(key):
-            print(padding + "> Cyclic Dependency")
+            sys.stdout.write(padding)
+            ColorTool.cPrintln(ColorTool.FAIL, "> Cyclic Dependency")
             return "> Cyclic Dependency."
         else:
             has_passed[key]=True
@@ -1087,15 +1092,26 @@ class Bake:
         for this_key in depend_keys:
             count += 1
             print (padding + '|')
-            if len(fulldep[this_key])>0:
-                if count == len(depend_keys):
-                    listStr = listStr + self.deptree(fulldep, fulldep[this_key], this_key, has_passed, padding + ' ')
+            optional=""
+            color=ColorTool.FAIL
+            if depen.has_key(this_key) and isinstance(depen[this_key],bool)>0:
+                if depen[this_key]:
+                    optional = " (optional)"
+                    color=ColorTool.OK
                 else:
-                    listStr = listStr + self.deptree(fulldep, fulldep[this_key], this_key, has_passed, padding + '|')
+                    optional = " (mandatory)"
+
+            if len(fulldep[this_key])>0:
+                        
+                if count == len(depend_keys):
+                    listStr = listStr + self.deptree(fulldep, fulldep[this_key], this_key, has_passed, optional, padding + ' ')
+                else:
+                    listStr = listStr + self.deptree(fulldep, fulldep[this_key], this_key, has_passed, optional, padding + '|')
             else:
-                print (padding + '+-' + this_key)
+                sys.stdout.write(padding + '+-' + this_key)
+                ColorTool.cPrintln(color, optional)
                 listStr = this_key +'.'+ listStr
-                
+               
         del has_passed[key]
         return key +'/'+ listStr
 
@@ -1268,6 +1284,9 @@ To get more help about each command, try:
         parser.add_option("--debug", action="store_true",
                           dest="debug", default=False,
                           help="Prints out all the error messages and problems.")
+        parser.add_option("--noColor", action="store_true",
+                          dest="noColor", default=False, 
+                          help='Print messages with no color')
         parser.disable_interspersed_args()
         (options, args_left) = parser.parse_args(argv[1:])
         
@@ -1276,6 +1295,11 @@ To get more help about each command, try:
 
 
         Bake.main_options = options
+        
+        # if asked to not having collors, useful for non iteractive
+        # use and users that do not have a color enabled terminal 
+        if options.noColor:
+            ColorTool.disable()
 
         if len(args_left) == 0:
             parser.print_help()
