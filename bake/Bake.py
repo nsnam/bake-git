@@ -681,6 +681,9 @@ class Bake:
         def _do_download(configuration, module, env):
             sys.stdout.write (" >> Downloading " + module.name() + " - ")
             sys.stdout.flush()
+            if env._logger._verbose > 0:
+                print
+
             env._sudoEnabled=options.call_with_sudo
             valueToReturn=module.check_source_version(env)
             
@@ -769,6 +772,9 @@ class Bake:
             
             sys.stdout.write(" >> Building " + module.name()  + " - ")
             sys.stdout.flush()
+            if env._logger._verbose > 0:
+                print
+
             env._sudoEnabled=options.call_with_sudo
             if module.check_build_version(env):
                 retval = module.build(env, options.jobs, options.force_clean)
@@ -1143,10 +1149,10 @@ class Bake:
                           help='Display information about which directories have been configured')
         parser.add_option('--enabledTree', action='store_true', dest='enabledTree', 
                           default=False,
-                          help='Shows the dependency tree of the enabled/disabled modules')
+                          help='Shows the enabled modules dependency tree')
         parser.add_option('--showSystemDep', action='store_true', dest='showSystemDep', 
                           default=True,
-                          help='Shows the dependency tree of the enabled/disabled modules')
+                          help='Shows the system dependency of the enabled/disabled modules')
         (options, args_left) = parser.parse_args(args)
 
         # adds a default value so that show will show something even if there is
@@ -1300,6 +1306,11 @@ To get more help about each command, try:
         # use and users that do not have a color enabled terminal 
         if options.noColor:
             ColorTool.disable()
+        else:
+            has_colours = ColorTool.has_colours(sys.stdout)
+            if not has_colours:
+                ColorTool.disable()
+
 
         if len(args_left) == 0:
             parser.print_help()

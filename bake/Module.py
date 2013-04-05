@@ -102,6 +102,7 @@ class Module:
             color=colorTool.FAIL
             
         if env._logger._verbose > 0:
+            print
             colorTool.cPrintln(color, " >> " + operation + " " + 
                                     self._name + " - " +resultStr)
         else:

@@ -159,6 +159,20 @@ class ColorTool:
     WARNING = '\033[33m'
     FAIL = '\033[91m'
     ENDC = '\033[0m'
+
+    @classmethod
+    def has_colours(self, stream):
+        if not hasattr(stream, "isatty"):
+            return False
+        if not stream.isatty():
+            return False # auto color only on TTYs
+        try:
+            import curses
+            curses.setupterm()
+            return curses.tigetnum("colors") > 2
+        except:
+            # guess false in case of error
+            return False
     
     @classmethod
     def disable(self):

@@ -346,7 +346,15 @@ class ModuleEnvironment:
         if len(self._pkgpaths) > 0:
             script = script + self.add_onPath("PKG_CONFIG_PATH", self._pkgpaths) + "\n"
 
-        script = script + self.add_onPath("PYTHONPATH", [sys.path[0]]) + "\n"
+        from distutils.sysconfig import get_python_lib
+        localLibPath=''
+        libDir=get_python_lib()
+        if libDir:
+            begin=libDir.lower().index('python')
+            localLibPath=os.path.join(self._lib_path(),libDir[begin:])
+             
+        
+        script = script + self.add_onPath("PYTHONPATH", [sys.path[0],self._lib_path(),localLibPath]) + "\n"
         
         for element in self._variables:
             script = script + " export " + element  + "\n"
