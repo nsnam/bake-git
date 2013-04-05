@@ -294,6 +294,7 @@
          <attribute name="url" value="https://github.com/thehajime/net-next-sim.git"/>
          <attribute name="module_directory" value="net-next-sim-2.6.36"/>
          <attribute name="revision" value="sim-ns3-2.6.36-branch"/>
+         <attribute name="fetch_option" value="--depth=1"/>
        </source>
        <build type="make" objdir="no">
          <attribute name="configure_arguments" value="defconfig ARCH=sim"/>
