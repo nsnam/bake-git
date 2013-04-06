@@ -284,7 +284,6 @@
       </source>
       <depends_on name="pybindgen-user" optional="True"/>
       <build type="waf" objdir="yes">
-	<attribute name="patch" value="$SRCDIR/../dce/utils/pyviz-install.patch"/>
 	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-tests --with-pybindgen=$SRCDIR/../pybindgen-user"/>
       </build>
     </module>
