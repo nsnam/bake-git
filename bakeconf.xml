@@ -4,7 +4,7 @@
     <module name="dce-ns3">
       <source type="mercurial">
 	<attribute name="url" value="http://code.nsnam.org/ns-3-dce"/>
- 	<attribute name="module_directory" value="dce"/>
+ 	<attribute name="module_directory" value="ns-3-dce"/>
       </source>
        <depends_on name="ns-3-dev-dce" optional="False"/>
        <depends_on name="elf-loader" optional="False"/>
@@ -21,7 +21,7 @@
     <module name="dce-linux">
       <source type="mercurial">
 	<attribute name="url" value="http://code.nsnam.org/ns-3-dce"/>
- 	<attribute name="module_directory" value="dce"/>
+ 	<attribute name="module_directory" value="ns-3-dce"/>
      </source>
        <depends_on name="elf-loader" optional="False"/>
        <depends_on name="net-next-sim-2.6.36" optional="False"/>
@@ -31,7 +31,7 @@
        <depends_on name="wget" optional="True"/>
        <depends_on name="thttpd" optional="True"/>
        <depends_on name="ns-3-dev-dce" optional="False"/>
-      <build type="waf" objdir="yes" sourcedir="dce">
+      <build type="waf" objdir="yes" sourcedir="ns-3-dce">
 	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../net-next-sim-2.6.36/arch"/>
 	<!-- attribute name="post_installation" value="cd $SRCDIR; ./test.py"/ -->
       </build>
@@ -40,7 +40,7 @@
     <module name="dce-linux-gcov">
       <source type="mercurial">
 	<attribute name="url" value="http://code.nsnam.org/ns-3-dce"/>
- 	<attribute name="module_directory" value="dce"/>
+ 	<attribute name="module_directory" value="ns-3-dce"/>
      </source>
        <depends_on name="elf-loader" optional="False"/>
        <depends_on name="net-next-sim-2.6.36" optional="False"/>
@@ -52,7 +52,7 @@
        <depends_on name="dce-quagga" optional="False"/>
        <depends_on name="dce-umip" optional="False"/>
        <depends_on name="ns-3-dev-dce" optional="False"/>
-      <build type="waf" objdir="yes" sourcedir="dce">
+      <build type="waf" objdir="yes" sourcedir="ns-3-dce">
 	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../net-next-sim-2.6.36/arch --enable-gcov"/>
       </build>
     </module>
@@ -60,7 +60,7 @@
     <module name="dce-quagga-inkernel">
       <source type="mercurial">
 	<attribute name="url" value="http://code.nsnam.org/thehajime/ns-3-dce-quagga"/>
-	<attribute name="module_directory" value="dce/myscripts/ns-3-dce-quagga/"/>
+	<attribute name="module_directory" value="ns-3-dce/myscripts/ns-3-dce-quagga/"/>
       </source>
       <depends_on name="dce-linux-inkernel" optional="False"/>
       <depends_on name="quagga" optional="False"/>
@@ -72,7 +72,7 @@
     <module name="dce-umip-inkernel">
       <source type="mercurial">
 	<attribute name="url" value="http://code.nsnam.org/thehajime/ns-3-dce-umip"/>
-	<attribute name="module_directory" value="dce/myscripts/ns-3-dce-umip/"/>
+	<attribute name="module_directory" value="ns-3-dce/myscripts/ns-3-dce-umip/"/>
       </source>
       <depends_on name="dce-linux-inkernel" optional="False"/>
       <depends_on name="dce-quagga-inkernel" optional="False"/>
@@ -84,14 +84,14 @@
     <module name="dce-linux-inkernel">
       <source type="mercurial">
 	<attribute name="url" value="http://code.nsnam.org/ns-3-dce"/>
-	<attribute name="module_directory" value="dce"/>
+	<attribute name="module_directory" value="ns-3-dce"/>
       </source>
       <depends_on name="elf-loader" optional="False"/>
       <depends_on name="iproute" optional="False"/>
       <depends_on name="iperf" optional="True"/>
       <depends_on name="ccnx" optional="True"/>
       <depends_on name="ns-3-dev-dce" optional="False"/>
-      <build type="waf" objdir="yes" sourcedir="dce">
+      <build type="waf" objdir="yes" sourcedir="ns-3-dce">
 	<!-- assume the bake.py build is executed under arch/sim/test/buildtop/ -->
 	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../../../../../"/>
       </build>
@@ -124,7 +124,7 @@
       <depends_on name="libsysfs-dev" optional="False"/>
       <depends_on name="libssl-dev" optional="False"/>
       <build type="make" objdir="yes">
-	<attribute name="patch" value="$SRCDIR/../dce/utils/iproute-mptcp.patch"/>
+	<attribute name="patch" value="$SRCDIR/../ns-3-dce/utils/iproute-mptcp.patch"/>
 	<attribute name="pre_installation" value="$SRCDIR/configure"/>
 	<attribute name="LDFLAGS" value="-pie"/>
 	<attribute name="ignore_predefined_flags" value="True"/>
@@ -136,14 +136,14 @@
     <module name="dce-linux-mptcp">
       <source type="mercurial">
 	<attribute name="url" value="http://code.nsnam.org/ns-3-dce"/>
- 	<attribute name="module_directory" value="dce"/>
+ 	<attribute name="module_directory" value="ns-3-dce"/>
      </source>
        <depends_on name="elf-loader" optional="False"/>
        <depends_on name="mptcp_v0.86" optional="False"/>
        <depends_on name="iproute-mptcp" optional="False"/>
        <depends_on name="iperf" optional="True"/>
        <depends_on name="ns-3-dev-dce" optional="False"/>
-      <build type="waf" objdir="yes" sourcedir="dce">
+      <build type="waf" objdir="yes" sourcedir="ns-3-dce">
 	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../mptcp/arch"/>
       </build>
     </module>
@@ -151,13 +151,13 @@
     <module name="dce-linux-mptcp-inkernel">
       <source type="mercurial">
 	<attribute name="url" value="http://code.nsnam.org/ns-3-dce"/>
-	<attribute name="module_directory" value="dce"/>
+	<attribute name="module_directory" value="ns-3-dce"/>
       </source>
       <depends_on name="elf-loader" optional="False"/>
       <depends_on name="iproute-mptcp" optional="False"/>
       <depends_on name="iperf" optional="True"/>
       <depends_on name="ns-3-dev-dce" optional="False"/>
-      <build type="waf" objdir="yes" sourcedir="dce">
+      <build type="waf" objdir="yes" sourcedir="ns-3-dce">
 	<!-- assume the bake.py build is executed under arch/sim/test/buildtop/ -->
 	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../../../../../"/>
       </build>
@@ -195,7 +195,7 @@
       </source>
       <build type="make" objdir="yes">
 	<attribute name="pre_installation" value="cd $SRCDIR;./configure --prefix=$INSTALLDIR"/>
-	<attribute name="patch" value="$SRCDIR/../dce/utils/iperf_4_dce.patch"/>
+	<attribute name="patch" value="$SRCDIR/../ns-3-dce/utils/iperf_4_dce.patch"/>
       </build>
      </module>
 
@@ -227,7 +227,6 @@
       <source type="system_dependency">
         <attribute name="dependency_test" value="flex"/>
         <attribute name="try_to_install" value="True"/>
-        <attribute name="sudoer_install" value="True"/>
         <attribute name="name_apt-get" value="flex"/>
         <attribute name="name_yum" value="flex"/>
         <attribute name="more_information" value="The flex tool is not installed, try to install them (flex)"/>
@@ -348,7 +347,7 @@
       </source>
       <build type="make" objdir="yes">
     <attribute name="pre_installation" value="cd $SRCDIR;./configure --prefix=$INSTALLDIR"/>
-    <attribute name="patch" value="$SRCDIR/../dce/myscripts/httpd/dce-thttpd.patch"/>
+    <attribute name="patch" value="$SRCDIR/../ns-3-dce/myscripts/httpd/dce-thttpd.patch"/>
          <attribute name="install_arguments" value="-n" />
     <attribute name="build_arguments" value="thttpd"/>
          <attribute name="post_installation" value="cd $SRCDIR; mkdir $INSTALLDIR/bin_dce; /bin/cp -f thttpd-2.25b/thttpd  $INSTALLDIR/bin_dce"/>
@@ -362,7 +361,7 @@
        </source>
        <!-- note: iputils does not have 'make install' -->
        <build type="inline"  classname="IputilsModuleBuild">
-	 <attribute name="patch" value="$SRCDIR/../dce/myscripts/ns-3-dce-quagga/utils/iputils-ping6.patch"/>
+	 <attribute name="patch" value="$SRCDIR/../ns-3-dce/myscripts/ns-3-dce-quagga/utils/iputils-ping6.patch"/>
 	 <attribute name="supported_os" value="linux;linux2"/>
 	 <code>class IputilsModuleBuild(InlineModuleBuild):
     def __init__(self):
@@ -389,7 +388,7 @@
      <module name="dce-umip">
        <source type="mercurial">
 	 <attribute name="url" value="http://code.nsnam.org/thehajime/ns-3-dce-umip"/>
-	 <attribute name="module_directory" value="dce/myscripts/ns-3-dce-umip/"/>
+	 <attribute name="module_directory" value="ns-3-dce/myscripts/ns-3-dce-umip/"/>
        </source>
        <depends_on name="dce-linux" optional="False"/>
        <depends_on name="dce-quagga" optional="False"/>
@@ -415,7 +414,7 @@
     <module name="dce-quagga">
       <source type="mercurial">
 	<attribute name="url" value="http://code.nsnam.org/thehajime/ns-3-dce-quagga"/>
-	<attribute name="module_directory" value="dce/myscripts/ns-3-dce-quagga/"/>
+	<attribute name="module_directory" value="ns-3-dce/myscripts/ns-3-dce-quagga/"/>
       </source>
        <depends_on name="dce-linux" optional="False"/>
        <depends_on name="quagga" optional="False"/>
@@ -441,7 +440,6 @@
       <source type="system_dependency">
         <attribute name="dependency_test" value="gawk"/>
         <attribute name="try_to_install" value="True"/>
-        <attribute name="sudoer_install" value="True"/>
         <attribute name="name_apt-get" value="gawk"/>
         <attribute name="name_yum" value="gawk"/>
         <attribute name="more_information" value="The gawk is not installed, try to install them (gawk)"/>
