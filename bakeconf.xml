@@ -7,7 +7,7 @@
  	<attribute name="module_directory" value="ns-3-dce"/>
       </source>
        <depends_on name="ns-3-dev-dce" optional="False"/>
-       <depends_on name="elf-loader" optional="False"/>
+       <depends_on name="elf-loader" optional="True"/>
        <depends_on name="iperf" optional="True"/>
        <depends_on name="ccnx" optional="True"/>
        <depends_on name="wget" optional="True"/>
@@ -23,7 +23,7 @@
 	<attribute name="url" value="http://code.nsnam.org/ns-3-dce"/>
  	<attribute name="module_directory" value="ns-3-dce"/>
      </source>
-       <depends_on name="elf-loader" optional="False"/>
+       <depends_on name="elf-loader" optional="True"/>
        <depends_on name="net-next-sim-2.6.36" optional="False"/>
        <depends_on name="iproute" optional="False"/>
        <depends_on name="iperf" optional="True"/>
@@ -42,7 +42,7 @@
 	<attribute name="url" value="http://code.nsnam.org/ns-3-dce"/>
  	<attribute name="module_directory" value="ns-3-dce"/>
      </source>
-       <depends_on name="elf-loader" optional="False"/>
+       <depends_on name="elf-loader" optional="True"/>
        <depends_on name="net-next-sim-2.6.36" optional="False"/>
        <depends_on name="iproute" optional="False"/>
        <depends_on name="iperf" optional="True"/>
@@ -86,7 +86,7 @@
 	<attribute name="url" value="http://code.nsnam.org/ns-3-dce"/>
 	<attribute name="module_directory" value="ns-3-dce"/>
       </source>
-      <depends_on name="elf-loader" optional="False"/>
+      <depends_on name="elf-loader" optional="True"/>
       <depends_on name="iproute" optional="False"/>
       <depends_on name="iperf" optional="True"/>
       <depends_on name="ccnx" optional="True"/>
@@ -138,7 +138,7 @@
 	<attribute name="url" value="http://code.nsnam.org/ns-3-dce"/>
  	<attribute name="module_directory" value="ns-3-dce"/>
      </source>
-       <depends_on name="elf-loader" optional="False"/>
+       <depends_on name="elf-loader" optional="True"/>
        <depends_on name="mptcp_v0.86" optional="False"/>
        <depends_on name="iproute-mptcp" optional="False"/>
        <depends_on name="iperf" optional="True"/>
@@ -153,7 +153,7 @@
 	<attribute name="url" value="http://code.nsnam.org/ns-3-dce"/>
 	<attribute name="module_directory" value="ns-3-dce"/>
       </source>
-      <depends_on name="elf-loader" optional="False"/>
+      <depends_on name="elf-loader" optional="True"/>
       <depends_on name="iproute-mptcp" optional="False"/>
       <depends_on name="iperf" optional="True"/>
       <depends_on name="ns-3-dev-dce" optional="False"/>
