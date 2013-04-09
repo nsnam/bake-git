@@ -605,7 +605,7 @@
       <source type="mercurial">
 	<attribute name="url" value="http://code.nsnam.org/thehajime/elf-loader"/>
       </source>
-      <!-- depends_on name="libc-debug" optional="False"/ -->
+      <depends_on name="libc-debug" optional="False"/>
       <build type="make" objdir="no">
 	<attribute name="configure_arguments" value="vdl-config.h"/>
 	<attribute name="install_arguments" value="PREFIX=$INSTALLDIR"/>
