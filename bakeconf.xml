@@ -603,7 +603,7 @@
 
     <module name="elf-loader">
       <source type="mercurial">
-	<attribute name="url" value="http://code.nsnam.org/mathieu/elf-loader"/>
+	<attribute name="url" value="http://code.nsnam.org/thehajime/elf-loader"/>
       </source>
       <!-- depends_on name="libc-debug" optional="False"/ -->
       <build type="make" objdir="no">
