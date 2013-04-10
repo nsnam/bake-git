@@ -175,12 +175,25 @@
       </build>
     </module>
 
+    <module name="libexpat-dev">
+      <source type="system_dependency">
+        <attribute name="dependency_test" value="expat.h"/>
+        <attribute name="try_to_install" value="True"/>
+        <attribute name="name_apt-get" value="libexpat1-dev"/>
+        <attribute name="name_yum" value="expat-devel"/>
+        <attribute name="more_information" value="Didn't find libexpat-dev package; please install it."/>
+      </source>
+      <build type="none" objdir="no">
+      </build>
+    </module>
+
     <module name="ccnx">
       <source type="archive">
 	<attribute name="url" value="http://www.ccnx.org/releases/ccnx-0.6.2.tar.gz"/>
 	<attribute name="extract_directory" value="ccnx-0.6.2"/>
       </source>
       <depends_on name="libpcap-dev" optional="False"/>
+      <depends_on name="libexpat-dev" optional="False"/>
       <build type="make" objdir="yes">
 	<attribute name="pre_installation" value="cd $SRCDIR;INSTALL_BASE=$INSTALLDIR ./configure;mkdir $INSTALLDIR/include;mkdir $INSTALLDIR/lib;mkdir $INSTALLDIR/bin"/>
 	<attribute name="build_arguments" value="MORE_LDLIBS=-pie"/>
