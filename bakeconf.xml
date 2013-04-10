@@ -456,6 +456,7 @@
 	<attribute name="extract_directory" value="quagga-0.99.20"/>
        </source>
        <depends_on name="indent" optional="False"/>
+       <depends_on name="gawk" optional="False"/>
        <build type="make" objdir="yes">
 	 <attribute name="pre_installation" value="cd $SRCDIR; CFLAGS='-fPIC -g' LDFLAGS=-pie ./configure --disable-shared --enable-static --disable-user --disable-group --disable-capabilities --prefix=$INSTALLDIR"/>
          <attribute name="install_arguments" value="-n" />
