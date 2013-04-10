@@ -532,6 +532,42 @@
       <depends_on name="gccxml-ns3" optional="True"/>
     </module>
 
+    <module name="python-dev">
+      <source type="system_dependency">
+        <attribute name="dependency_test" value="Python.h"/>
+        <attribute name="try_to_install" value="True"/>
+        <attribute name="name_apt-get" value="python-dev"/>
+        <attribute name="name_yum" value="python-devel"/>
+        <attribute name="more_information" value="The python-dev is not installed, try to install it."/>
+      </source>
+      <build type="none" objdir="no">
+      </build>
+    </module>
+
+    <module name="pygraphviz">
+      <source type="system_dependency">
+        <attribute name="dependency_test" value="(_gv.so or _graphviz.so)"/>
+        <attribute name="try_to_install" value="False"/>
+        <attribute name="name_apt-get" value="python-pygraphviz"/>
+        <attribute name="name_yum" value="graphviz-python"/>
+        <attribute name="more_information" value="The pygraphviz is not installed, try to install it."/>
+      </source>
+      <build type="none" objdir="no">
+      </build>
+    </module>
+
+    <module name="pygoocanvas">
+      <source type="system_dependency">
+        <attribute name="dependency_test" value="goocanvasmodule.so"/>
+        <attribute name="try_to_install" value="True"/>
+        <attribute name="name_apt-get" value="python-pygoocanvas"/>
+        <attribute name="name_yum" value="pygoocanvas"/>
+        <attribute name="more_information" value="The pygoocanvas is not installed, try to install it."/>
+      </source>
+      <build type="none" objdir="no">
+      </build>
+    </module>
+
     <module name="pybindgen">
       <source type="bazaar">
 	<attribute name="url" value="https://launchpad.net/pybindgen"/>
@@ -541,6 +577,9 @@
 	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR"/>
 	<attribute name="build_arguments" value="--generate-version"/>
       </build>
+      <depends_on name="python-dev" optional="False"/>
+      <depends_on name="pygraphviz" optional="False"/>
+      <depends_on name="pygoocanvas" optional="False"/>
       <depends_on name="pygccxml" optional="True"/>
       <depends_on name="gccxml-ns3" optional="False"/>
     </module>
@@ -550,6 +589,9 @@
 	<attribute name="url" value="https://launchpad.net/pybindgen"/>
 	<attribute name="revision" value="revno:809"/>
       </source>
+      <depends_on name="python-dev" optional="False"/>
+      <depends_on name="pygraphviz" optional="False"/>
+      <depends_on name="pygoocanvas" optional="False"/>
       <build type="waf" objdir="yes">
 	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --disable-pygccxml"/>
 	<attribute name="build_arguments" value="--generate-version"/>
