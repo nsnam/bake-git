@@ -571,7 +571,7 @@
     <module name="pybindgen">
       <source type="bazaar">
 	<attribute name="url" value="https://launchpad.net/pybindgen"/>
-	<attribute name="revision" value="revno:809"/>
+	<attribute name="revision" value="revno:825"/>
       </source>
       <build type="waf" objdir="yes">
 	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR"/>
@@ -587,7 +587,7 @@
     <module name="pybindgen-user">
       <source type="bazaar">
 	<attribute name="url" value="https://launchpad.net/pybindgen"/>
-	<attribute name="revision" value="revno:809"/>
+	<attribute name="revision" value="revno:825"/>
       </source>
       <depends_on name="python-dev" optional="False"/>
       <depends_on name="pygraphviz" optional="False"/>
