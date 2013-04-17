@@ -264,15 +264,24 @@ class PythonModuleBuild(ModuleBuild):
         if self.attribute('patch').value != '':
             self.threat_patch(env)
        
-        sudoOp=[]
-        if(env.sudoEnabled):
-            sudoOp = ['sudo']
-
         # TODO: Add the options, there is no space for the configure_arguments
-        env.run(sudoOp + ['python', os.path.join(env.srcdir, 'setup.py'), 'build',
-                  '--build-base=' + env.objdir,
-                  'install', '--prefix=' + env.installdir],
-                 directory=env.srcdir)
+        env.run(['python', os.path.join(env.srcdir, 'setup.py'), 'build',
+                  '--build-base=' + env.objdir], directory=env.srcdir)
+        
+        if self.attribute('no_installation').value != True:
+            sudoOp=[]
+            if(env.sudoEnabled):
+                sudoOp = ['sudo']
+                
+            env.run(sudoOp + ['python', os.path.join(env.srcdir, 'setup.py'), 'install', 
+                              '--install-base=' + env.installdir, 
+                              '--install-purelib=' + env.installdir + '/lib',
+#                             --install-platlib=' + env.installdir + '/lib.$PLAT,
+                              '--install-scripts=' + env.installdir + '/scripts',
+                              '--install-headers=' + env.installdir + '/include',
+                              '--install-data=' + env.installdir + '/data',
+                              ],
+                    directory=env.srcdir)
 
     def clean(self, env):
         """ Call the code with the setup.py with the clean option, 

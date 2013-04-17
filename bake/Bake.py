@@ -108,8 +108,12 @@ class Bake:
         else:
             new_config = Configuration(config,
                                    relative_directory_root=old_config.get_relative_directory_root())
+        
             
-        new_config.read_metadata(options.bakeconf)
+        try:
+            new_config.read_metadata(options.bakeconf)
+        except Exception as e:
+            self._error('Problem reading Configuration file "%s" \n Error: %s'  % (options.bakeconf, str(e)))
         
         # Checks if the directories where set and if so set the new config file
         # with the new parameters, or let the old ones
@@ -405,7 +409,11 @@ class Bake:
             options.bakeconf = self.check_configuration_file(options.bakeconf, False);
 
         configuration = Configuration(config)
-        configuration.read_metadata(options.bakeconf)
+        try:
+            configuration.read_metadata(options.bakeconf)
+        except Exception as e:
+            self._error('Problem reading Configuration file "%s" \n Error: %s'  % (options.bakeconf, str(e)))
+                   
         configuration.set_sourcedir(options.sourcedir)
         configuration.set_objdir(options.objdir)
         configuration.set_installdir(options.installdir)

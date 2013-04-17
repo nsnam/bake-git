@@ -1,0 +1,188 @@
+<configuration>
+  <modules>
+
+  <!-- Click -->   
+    <module name="click-2.0.1">
+      <source type="git">
+	<attribute name="url" value="git://read.cs.ucla.edu/git/click"/>
+	<attribute name="revision" value="8847f68461856418c409f4de4165412b3ec2cade"/>
+
+      </source>
+      <build type="autotools" objdir="no">
+	<attribute name="configure_arguments" value="../configure -enable-userlevel --disable-linuxmodule --enable-nsclick --enable-wifi"/>
+	<!--	<attribute name="post_installation" value="mkdir $INSTALLDIR/lib; cp -r $OBJDIR/include $INSTALLDIR/lib/.; cp -r $SRCDIR/include $INSTALLDIR/lib"/> 
+	--> 
+      </build>
+
+    </module>
+    
+  <!-- Openflow -->   
+    <module name="libxml2-dev">
+      <source type="system_dependency">
+	<attribute name="dependency_test" value="xmlIO.h"/>
+	<attribute name="try_to_install" value="True"/>
+	<attribute name="name_yum" value="libxml2-devel"/>
+	<attribute name="name_yast" value="libxml2-devel"/>
+	<attribute name="name_apt-get" value="libxml2-dev"/>
+	<attribute name="more_information" value="Didn't find the libxml2-dev library, try to install it!"/>
+      </source>
+      <build type="none" objdir="no">
+      </build>
+    </module>
+
+    <module name="openflow-ns3">
+      <source type="mercurial">
+	<attribute name="url" value="http://code.nsnam.org/jpelkey3/openflow"/>
+	<attribute name="revision" value="6219326604a3"/>
+      </source>
+      <build type="waf" objdir="no">
+	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR"/>
+      </build>
+	<depends_on name="libxml2-dev" optional="False"/>
+    </module>
+
+
+  <!-- Pybindgen -->   
+  
+   <!--  apt-get install python-pygccxml 
+         macports py27-pygccxml-devel 
+	 -->
+    
+    <module name="pygccxml-1.0.0">
+      <source type="archive">
+	<attribute name="url" value="http://downloads.sourceforge.net/project/pygccxml/pygccxml/pygccxml-1.0/pygccxml-1.0.0.zip"/>
+      </source>
+      <build type="python" objdir="yes">
+      </build>
+      <depends_on name="gccxml" optional="True"/>
+    </module>
+    
+    <module name="gccxml">
+      <source type="cvs">
+	<attribute name="root" value=":pserver:anoncvs:@www.gccxml.org:/cvsroot/GCC_XML"/>
+	<attribute name="module" value="gccxml"/>
+	<attribute name="date" value="2009-09-21"/>
+      </source>
+      <build type="cmake" objdir="no">
+      </build>
+    </module>
+    
+    <module name="pybindgen-0.15.0.809">
+      <source type="bazaar">
+	<attribute name="url" value="https://launchpad.net/pybindgen"/>
+	<attribute name="revision" value="revno:809"/>
+      </source>
+      <build type="waf" objdir="no">
+	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR"/>
+	<attribute name="build_arguments" value="--generate-version"/>
+      </build>
+      <depends_on name="pygccxml-1.0.0" optional="True"/>
+      <depends_on name="gccxml" optional="False"/>
+    </module>
+
+
+  <!-- NSC -->
+   <module name="nsc-0.5.3">
+      <source type="mercurial">
+	<attribute name="url" value="https://secure.wand.net.nz/mercurial/nsc"/>
+	<attribute name="revision" value="08c391d0660a"/>
+      </source>
+      <!-- problem: scons has no generic command-line support for builddir and installdir -->
+      <build type="inline"  classname="NscModuleBuild">
+	<attribute name="supported_os" value="linux;linux2"/>
+	<code>class NscModuleBuild(InlineModuleBuild):
+    def __init__(self):
+        InlineModuleBuild.__init__(self)
+    def build(self, env, jobs):
+        import os
+        import shutil
+
+        env.run(['python', os.path.join(env.srcdir, 'scons.py'), 
+                 '-j', str(jobs), 'prefix=' + env.installdir, 'install'],
+                directory=env.srcdir )
+        srcLib = os.path.join(env.srcdir, 'lib')
+        files = os.listdir(srcLib)
+        destination = os.path.join(env.installdir, 'lib')
+        for file in files:
+             try:
+                 shutil.copy2(os.path.join(srcLib, file), destination)
+             except Exception as e:
+                 print ("   > Error executing copy : " + str(e) + "\n")
+       
+    def clean(self, env):
+        env.run(['python', os.path.join(env.srcdir, 'scons.py'), '-c'],
+                directory=env.srcdir)
+    def check_version(self, env):
+        return True</code>
+      </build>
+    </module>
+    
+  <!-- NetAnim -->
+    <module name="qt4">
+      <source type="system_dependency">
+	<attribute name="dependency_test" value="(qmake or qmake-qt4)"/>
+	<attribute name="try_to_install" value="True"/>
+	<attribute name="name_yum" value="qt4-devel"/>
+	<attribute name="name_apt-get" value="qt4-dev-tools"/>
+	<attribute name="more_information" value="Didn't find QT 4, download and install it from http://qt.nokia.com/downloads/"/>
+      </source>
+      <build type="none" objdir="no">
+      </build>
+    </module>
+
+    <module name="netanim-3.103">
+      <source type="mercurial">
+	<attribute name="url" value="http://code.nsnam.org/netanim"/>
+	<attribute name="revision" value="4990cf2177a1"/>
+      </source>
+      <build type="make" objdir="no">
+	<attribute name="pre_installation" value="cd $SRCDIR;qmake NetAnim.pro or cd $SRCDIR;qmake-qt4 NetAnim.pro or cd $SRCDIR;qmake -spec macx-g++ NetAnim.pro"/>
+      </build>
+      <depends_on name="qt4" optional="False"/>
+    </module>
+
+  <!-- ns-3.16 main module definition -->
+    <module name="ns-3.16">
+      <source type="mercurial">
+	<attribute name="url" value="http://code.nsnam.org/ns-3.16"/>
+      </source>
+      <depends_on name="netanim-3.103" optional="True"/>
+      <depends_on name="nsc-0.5.3" optional="True"/>
+      <depends_on name="pybindgen-0.15.0.809" optional="True"/>
+      <depends_on name="click-2.0.1" optional="True"/>
+      <depends_on name="openflow-ns3" optional="True"/>
+      <build type="waf" objdir="no">
+	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests --with-nsclick=$SRCDIR/../click-2.0.1 --with-pybindgen=$SRCDIR/../pybindgen-0.15.0.809 --with-openflow=$SRCDIR/../openflow-ns3 --with-nsc=$SRCDIR/../nsc-0.5.3"/>
+      </build>
+    </module>
+
+  </modules>
+
+  <!-- Predefines -->
+  <predefined name="dbg">
+    <append name="CFLAGS" value="-g"/>
+    <append name="CXXFLAGS" value="-g"/>
+    <configuration objdir="dbg"/>
+    <configuration installdir="build_dbg"/>
+  </predefined>
+
+  <predefined name="opt">
+    <configuration objdir="opt"/>
+    <configuration installdir="build_opt"/>
+<!--   <append name="configure_arguments" value=" -d optimized"/> -->
+    <append name="CFLAGS" value="-O3"/>
+    <append name="CXXFLAGS" value="-O3"/>
+  </predefined>
+  
+  <predefined name="ns-3.16-examples">
+    <enable name="ns-3.16"/>
+    <!--    <configuration installdir="." sourcedir="../source"/> -->
+    <append module="ns-3.16" name="configure_arguments" value="--enable-examples --enable-tests"/>
+  </predefined>
+
+  <predefined name="ns3.16-min">
+    <enable name="ns-3.16"/>
+    <append module="ns-3.16" name="configure_arguments" value=" --enable-modules=core,network,wifi"/> -->
+  </predefined>
+
+</configuration>
