@@ -141,8 +141,8 @@ class ModuleEnvironment:
         ''' Returns the value of the python path for the in-use module.'''
         
         return os.path.join(self._installdir, 'lib', 
-                            'python'  
-                            '.'.join(platform.python_version_tuple()[0:2]), 
+                            'python'+platform.python_version_tuple()[0]+  
+                            '.'+platform.python_version_tuple()[1], 
                             'site-packages')
         
     def _append_path(self, d, name, value, sep):
@@ -440,6 +440,7 @@ class ModuleEnvironment:
         
         self._append_path(env_vars, self._pkgconfig_var(), self._pkgconfig_path(), os.pathsep)
         self._append_path(env_vars, self._py_var(), self._py_path(), os.pathsep)
+        self._append_path(env_vars, self._py_var(), os.path.join(self._installdir, 'lib'), os.pathsep)
         
         return env_vars
 

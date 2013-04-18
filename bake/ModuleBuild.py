@@ -140,7 +140,7 @@ class ModuleBuild(ModuleAttributeBase):
         
         hasPatch = env.check_program('patch')
         if hasPatch == False:
-            raise TaskError('Path tool is not present and it is required for'
+            raise TaskError('Patch tool is not present and it is required for'
                             ' applying: %s, in: %s' 
                             % (self.attribute('patch').value, env._module_name))
 
@@ -148,7 +148,7 @@ class ModuleBuild(ModuleAttributeBase):
         for item in vectorPath:
       
             if not env.exist_file(item) :
-                raise TaskError('Path file is not present! missing file:'
+                raise TaskError('Patch file is not present! missing file:'
                                 ' %s, in: %s' % (item, env._module_name))
 
             try:
