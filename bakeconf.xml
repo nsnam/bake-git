@@ -538,7 +538,7 @@
              thing is that it try to install things by default, so the instalation is not required-->
         
 	<attribute name="pre_installation" value="mv $INSTALLDIR/lib $INSTALLDIR/libTmp"/>
-	<attribute name="post_installation" value="mv $INSTALLDIR/libTmp/* $INSTALLDIR/lib; rm -rf $INSTALLDIR/libTmp" />
+	<attribute name="post_installation" value="mkdir $INSTALLDIR/lib; mv $INSTALLDIR/libTmp/* $INSTALLDIR/lib/.; rm -rf $INSTALLDIR/libTmp" />
       </build>
 	<depends_on name="libxml2-dev" optional="False"/>
     </module>
@@ -738,9 +738,15 @@
                  '-j', str(jobs), 'prefix=' + env.installdir, 'install'],
                 directory=env.srcdir )
         srcLib = os.path.join(env.srcdir, 'lib')
-        files = os.listdir(srcLib)
+        env._logger.commands.write("LibDir: " + srcLib +"\n")
         destination = os.path.join(env.installdir, 'lib')
+        env._logger.commands.write("DstDir: " + destination +"\n")
+	if not os.path.exists(destination):
+    		os.makedirs(destination)
+        files = os.listdir(srcLib)
+        env._logger.commands.write("Files:"+str(files)+"\n")
         for file in files:
+             env._logger.commands.write(file + "->" + destination +"\n")
              try:
                  shutil.copy2(os.path.join(srcLib, file), destination)
              except Exception as e:

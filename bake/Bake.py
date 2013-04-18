@@ -665,10 +665,10 @@ class Bake:
             self._iterate(configuration, _iterator, configuration.enabled())
         return env
 
-    def _install(self, config, args):
+    def _doItall(self, config, args):
         """Handles the install command line option."""
 
-        print("Installing selected module and dependencies.")
+        print("Downloading, building and installing the selected modules and dependencies.")
         print("Please, be patient, this may take a while!")
         returnValue = self._download(config, args);
         if not returnValue:
@@ -1272,7 +1272,7 @@ class Bake:
         
         parser = MyOptionParser(usage='usage: %prog [options] command [command options]',
                                 description="""Where command is one of:
-  install      : Downloads the configured modules AND makes the build in one step
+  doItAll      : Downloads the configured modules AND makes the build in one step
   configure    : Setup the build configuration (source, build, install directory,
                  and per-module build options) from the module descriptions
   fix-config  : Update the build configuration from a newer module description
@@ -1323,7 +1323,7 @@ To get more help about each command, try:
         if len(args_left) == 0:
             parser.print_help()
             sys.exit(1)
-        ops = [ ['install', self._install],
+        ops = [ ['doitall', self._doItall],
                 ['configure', self._configure],
                 ['fix-config', self._fix_config],
                 ['download', self._download],
@@ -1341,7 +1341,7 @@ To get more help about each command, try:
         recognizedCommand = False
         
         for name, function in ops: 
-            if args_left[0] == name:
+            if args_left[0].lower() == name:
                 recognizedCommand = True
                 if options.debug:
                     function(config=options.config_file, args=args_left[1:])
