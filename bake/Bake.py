@@ -1162,14 +1162,14 @@ class Bake:
                           default=True,
                           help='Shows the system dependency of the enabled/disabled modules')
         (options, args_left) = parser.parse_args(args)
-
         # adds a default value so that show will show something even if there is
         # no option 
         if not args:
             options.enabled = True
-        elif (len(args)==1 and args[0]=='--enabledTree') : 
-            options.enabled = True
-            options.enabledTree = True
+            options.showSystemDep = True
+        else:
+            if not options.disabled and not options.enabled:
+                options.enabled=True
 
         config= self.check_configuration_file(config, True);
 
@@ -1194,8 +1194,7 @@ class Bake:
         elif options.available:
             options.enabled = True
             options.disabled = True
-
-            
+           
         if options.directories:
             print ('installdir   : ' + configuration.compute_installdir())
             print ('sourcedir    : ' + configuration.compute_sourcedir())
