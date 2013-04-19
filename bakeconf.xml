@@ -859,10 +859,9 @@
 	<attribute name="url" value="http://code.nsnam.org/ns-3-dev"/>
       </source>
       <depends_on name="netanim-3.103" optional="True"/>
-      <depends_on name="nsc-0.5.3" optional="True"/>
       <depends_on name="pybindgen-0.16.0.825" optional="True"/>
       <build type="waf" objdir="yes">
-	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests --with-nsclick=$SRCDIR/../click-for-ns3-17 --with-pybindgen=$SRCDIR/../pybindgen-0.15.0.809 --with-openflow=$SRCDIR/../openflow-for-ns3-17 --with-nsc=$SRCDIR/../nsc-0.5.3"/>
+	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
       </build>
     </module>
 
