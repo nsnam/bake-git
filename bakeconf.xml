@@ -489,7 +489,7 @@
       </build>
     </module>
 
-    <module name="click-for-ns3-17">
+    <module name="click-ns-3.17">
       <source type="git">
 	<attribute name="url" value="git://read.cs.ucla.edu/git/click"/>
 	<attribute name="revision" value="806126cb73f3600570204b538fb5201725a3a5ce"/>
@@ -543,7 +543,7 @@
 	<depends_on name="libxml2-dev" optional="False"/>
     </module>
 
-    <module name="openflow-ns3-dev">
+    <module name="openflow-dev">
       <source type="mercurial">
 	<attribute name="url" value="http://code.nsnam.org/openflow"/>
       </source>
@@ -553,7 +553,7 @@
 	<depends_on name="libxml2-dev" optional="False"/>
     </module>
 
-    <module name="openflow-for-ns3-17">
+    <module name="openflow-ns-3.17">
       <source type="mercurial">
 	<attribute name="url" value="http://code.nsnam.org/openflow"/>
         <attribute name="revision" value="bb2869a6bbe1"/>
@@ -842,12 +842,12 @@
       <depends_on name="netanim-3.103" optional="True"/>
       <depends_on name="nsc-0.5.3" optional="True"/>
       <depends_on name="pybindgen-0.16.0.825" optional="True"/>
-      <depends_on name="click-for-ns3-17" optional="True"/>
-      <depends_on name="openflow-for-ns3-17" optional="True"/>
+      <depends_on name="click-ns-3.17" optional="True"/>
+      <depends_on name="openflow-ns-3.17" optional="True"/>
       <depends_on name="pygccxml-1.0.0" optional="True"/>
       <depends_on name="gccxml-ns3" optional="True"/>
       <build type="waf" objdir="yes">
-	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests --with-nsclick=$SRCDIR/../click-for-ns3-17 --with-pybindgen=$SRCDIR/../pybindgen-0.16.0.825 --with-openflow=$SRCDIR/../openflow-for-ns3-17 --with-nsc=$SRCDIR/../nsc-0.5.3"/>
+	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests --with-nsclick=$SRCDIR/../click-ns-3.17 --with-pybindgen=$SRCDIR/../pybindgen-0.16.0.825 --with-openflow=$SRCDIR/../openflow-ns-3.17 --with-nsc=$SRCDIR/../nsc-0.5.3"/>
       </build>
     </module>
   </modules>
