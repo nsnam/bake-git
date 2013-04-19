@@ -668,8 +668,6 @@
 	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR"/>
 	<attribute name="build_arguments" value="--generate-version"/>
       </build>
-      <depends_on name="pygccxml-1.0.0" optional="True"/>
-      <depends_on name="gccxml-ns3" optional="False"/>
     </module>
 
     <module name="pybindgen-0.16.0.825">
@@ -681,8 +679,6 @@
 	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR"/>
 	<attribute name="build_arguments" value="--generate-version"/>
       </build>
-      <depends_on name="pygccxml-1.0.0" optional="True"/>
-      <depends_on name="gccxml-ns3" optional="False"/>
     </module>
 
     <module name="nsc-dev">
@@ -874,8 +870,10 @@
       <depends_on name="pybindgen-0.16.0.825" optional="True"/>
       <depends_on name="click-for-ns3-17" optional="True"/>
       <depends_on name="openflow-for-ns3-17" optional="True"/>
+      <depends_on name="pygccxml-1.0.0" optional="True"/>
+      <depends_on name="gccxml-ns3" optional="True"/>
       <build type="waf" objdir="yes">
-	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests --with-nsclick=$SRCDIR/../click-for-ns3-17 --with-pybindgen=$SRCDIR/../pybindgen-0.15.0.809 --with-openflow=$SRCDIR/../openflow-for-ns3-17 --with-nsc=$SRCDIR/../nsc-0.5.3"/>
+	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests --with-nsclick=$SRCDIR/../click-for-ns3-17 --with-pybindgen=$SRCDIR/../pybindgen-0.16.0.825 --with-openflow=$SRCDIR/../openflow-for-ns3-17 --with-nsc=$SRCDIR/../nsc-0.5.3"/>
       </build>
     </module>
   </modules>
