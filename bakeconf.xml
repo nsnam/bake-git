@@ -659,17 +659,6 @@
       </build>
     </module>
 
-    <module name="pybindgen-0.15.0.809">
-      <source type="bazaar">
-	<attribute name="url" value="https://launchpad.net/pybindgen"/>
-	<attribute name="revision" value="revno:809"/>
-      </source>
-      <build type="waf" objdir="yes">
-	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR"/>
-	<attribute name="build_arguments" value="--generate-version"/>
-      </build>
-    </module>
-
     <module name="pybindgen-0.16.0.825">
       <source type="bazaar">
 	<attribute name="url" value="https://launchpad.net/pybindgen"/>
@@ -831,21 +820,6 @@
       </source>
       <build type="waf" objdir="yes">
 	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
-      </build>
-  </module>
-
-  <!-- ns-3.16 main module definition -->
-  <module name="ns-3.16">
-      <source type="mercurial">
-	<attribute name="url" value="http://code.nsnam.org/ns-3.16"/>
-      </source>
-      <depends_on name="netanim-3.103" optional="True"/>
-      <depends_on name="nsc-0.5.3" optional="True"/>
-      <depends_on name="pybindgen-0.15.0.809" optional="True"/>
-      <depends_on name="click-2.0.1" optional="True"/>
-      <depends_on name="openflow-jpelkey" optional="True"/>
-      <build type="waf" objdir="yes">
-	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests --with-nsclick=$SRCDIR/../click-2.0.1 --with-pybindgen=$SRCDIR/../pybindgen-0.15.0.809 --with-openflow=$SRCDIR/../openflow-jpelkey --with-nsc=$SRCDIR/../nsc-0.5.3"/>
       </build>
   </module>
 
