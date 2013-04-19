@@ -366,6 +366,9 @@ class Module:
         if self._source.name() is 'system_dependency' :
             return True
         
+        if self._source.name() is 'none' :
+            return True
+
         if self._source.attribute('module_directory').value :
             srcDirTmp = self._source.attribute('module_directory').value
 
