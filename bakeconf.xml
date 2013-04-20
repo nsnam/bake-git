@@ -808,9 +808,9 @@
       <depends_on name="nsc-dev" optional="True"/>
       <depends_on name="pybindgen-dev" optional="True"/>
       <depends_on name="click-dev" optional="True"/>
-      <depends_on name="openflow-ns3-dev" optional="True"/>
+      <depends_on name="openflow-dev" optional="True"/>
       <build type="waf" objdir="yes">
-	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests --with-nsclick=$SRCDIR/click-dev --with-pybindgen=$SRCDIR/pybindgen --with-openflow=$SRCDIR/openflow-ns3-dev --with-nsc=$SRCDIR/nsc-dev"/>
+	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests --with-nsclick=$SRCDIR/click-dev --with-pybindgen=$SRCDIR/pybindgen --with-openflow=$SRCDIR/openflow-dev --with-nsc=$SRCDIR/nsc-dev"/>
       </build>
   </module>
 
@@ -836,9 +836,7 @@
     </module>
 
     <module name="ns-allinone-3.17">
-      <source type="mercurial">
-	<attribute name="url" value="http://code.nsnam.org/ns-3-dev"/>
-      </source>
+      <source type="none"/>
       <depends_on name="netanim-3.103" optional="True"/>
       <depends_on name="nsc-0.5.3" optional="True"/>
       <depends_on name="pybindgen-0.16.0.825" optional="True"/>
@@ -846,9 +844,8 @@
       <depends_on name="openflow-ns-3.17" optional="True"/>
       <depends_on name="pygccxml-1.0.0" optional="True"/>
       <depends_on name="gccxml-ns3" optional="True"/>
-      <build type="waf" objdir="yes">
-	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests --with-nsclick=$SRCDIR/../click-ns-3.17 --with-pybindgen=$SRCDIR/../pybindgen-0.16.0.825 --with-openflow=$SRCDIR/../openflow-ns-3.17 --with-nsc=$SRCDIR/../nsc-0.5.3"/>
-      </build>
+      <depends_on name="ns-3.17" optional="False"/>
+      <build type="none"/>
     </module>
   </modules>
 
