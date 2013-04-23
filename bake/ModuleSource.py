@@ -323,7 +323,7 @@ class SystemDependency(ModuleSource):
         ModuleSource.__init__(self)
         self.add_attribute('dependency_test', None, 'The name of the installer',
                            mandatory=False)
-        self.add_attribute('try_to_install', None, 
+        self.add_attribute('try_to_install', 'false', 
                            'If should try to install or not',
                            mandatory=True)
         self.add_attribute('sudoer_install', None, 

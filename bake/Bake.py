@@ -1279,7 +1279,7 @@ class Bake:
             version_regexp='(\d+)\.(\d+)\.(\d+)', 
             version_required=(2, 6, 6))
         if (not validPython):
-            print(">>> Old Python version detected, please install a newer one (above 2.7.0)")
+            print(">>> Old Python version detected, please install a newer one")
 
     def main(self, argv):
         """Main Bake function."""
