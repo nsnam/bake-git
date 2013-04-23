@@ -827,10 +827,10 @@
 
     <module name="netanim-dev">
       <source type="mercurial">
-	<attribute name="url" value="http://code.nsnam.org/netanim"/>
+	 <attribute name="url" value="http://code.nsnam.org/netanim"/>
       </source>
       <build type="make" objdir="no">
-	<attribute name="pre_installation" value="cd $SRCDIR;qmake NetAnim.pro or cd $SRCDIR;qmake-qt4 NetAnim.pro or cd $SRCDIR;qmake -spec macx-g++ NetAnim.pro"/>
+	 <attribute name="pre_installation" value="cd $SRCDIR;qmake NetAnim.pro or cd $SRCDIR;qmake-qt4 NetAnim.pro or cd $SRCDIR;qmake -spec macx-g++ NetAnim.pro"/>
       </build>
       <depends_on name="qt4" optional="False"/>
     </module>
