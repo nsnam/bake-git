@@ -397,8 +397,11 @@ class WafModuleBuild(ModuleBuild):
         if self.attribute('build_arguments').value != '':
             extra_build_options = [env.replace_variables(tmp) for tmp in
                                    bake.Utils.split_args(env.replace_variables(self.attribute('build_arguments').value))]
+        jobsrt=[]
+        if not jobs == -1:
+            jobsrt = ['-j', str(jobs)]
             
-        env.run([self._binary(env.srcdir)] + extra_build_options + ['-j', str(jobs)],
+        env.run([self._binary(env.srcdir)] + extra_build_options + jobsrt,
                 directory=env.srcdir,
                 env=self._env(env.objdir))
         
@@ -522,10 +525,14 @@ class Cmake(ModuleBuild):
             if not "error 1" in e._reason :
                 raise TaskError(e._reason)
 
+        jobsrt=[]
+        if not jobs == -1:
+            jobsrt = ['-j', str(jobs)]
+
         env.run(['cmake', env.srcdir, '-DCMAKE_INSTALL_PREFIX:PATH=' + env.installdir] + 
                 self._variables() + options,
                 directory=env.objdir)
-        env.run(['make', '-j', str(jobs)], directory=env.objdir)
+        env.run(['make']+ jobsrt, directory=env.objdir)
         
         if self.attribute('build_arguments').value != '':
             env.run(['make'] + bake.Utils.split_args(env.replace_variables(self.attribute('build_arguments').value)),
@@ -626,8 +633,13 @@ class Make(ModuleBuild):
             options = bake.Utils.split_args(env.replace_variables(self.attribute('configure_arguments').value))
             env.run(['make'] + self._flags() + options,  directory=env.srcdir)
         
+        
+        jobsrt=[]
+        if not jobs == -1:
+            jobsrt = ['-j', str(jobs)]
+
         options = bake.Utils.split_args(env.replace_variables(self.attribute('build_arguments').value))
-        env.run(['make', '-j', str(jobs)] + self._flags() + options, directory=env.srcdir)
+        env.run(['make']+jobsrt + self._flags() + options, directory=env.srcdir)
            
         if self.attribute('no_installation').value != str(True):
 
@@ -727,8 +739,13 @@ class Autotools(ModuleBuild):
                 
             command= bake.Utils.split_args(command)
             env.run(command, directory=env.objdir)
-            
-        env.run(['make', '-j', str(jobs)], directory=env.objdir)
+        
+        
+        jobsrt=[]
+        if not jobs == -1:
+            jobsrt = ['-j', str(jobs)]
+    
+        env.run(['make']+jobsrt, directory=env.objdir)
         
         if self.attribute('no_installation').value != True:
 

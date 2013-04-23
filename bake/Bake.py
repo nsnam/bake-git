@@ -665,8 +665,8 @@ class Bake:
             self._iterate(configuration, _iterator, configuration.enabled())
         return env
 
-    def _doItall(self, config, args):
-        """Handles the install command line option."""
+    def _deploy(self, config, args):
+        """Handles the deploy command line option."""
 
         print("Downloading, building and installing the selected modules and dependencies.")
         print("Please, be patient, this may take a while!")
@@ -698,8 +698,10 @@ class Bake:
                     dependencyExists = module._source._check_dependency_expression(env, dependencTest) 
                     # if the dependency exists there is nothing else to do
                     if(dependencyExists) :
-                        env._logger.commands.write("   >> Not downloading " + env._module_name + 
+                        env.start_source(module.name(), ".")
+                        env._logger.commands.write("   >> Not downloading " + module.name() + 
                                                    " as it is already installed on the system\n")
+                        env.end_source()
                         return True
         
             if not dependencyExists:
@@ -780,8 +782,8 @@ class Bake:
         
         parser = self._option_parser('build')
         parser.add_option('-j', '--jobs', help='Allow N jobs at once.'
-                          ' Default is 1.',type='int', action='store', 
-                          dest='jobs', default=1)
+                          ,type='int', action='store', 
+                          dest='jobs', default=-1)
         parser.add_option('--force_clean', help='Forces the call of the clean'
                           ' option for the build.', action="store_true", 
                           default=False, dest='force_clean')
@@ -1289,10 +1291,10 @@ class Bake:
         
         parser = MyOptionParser(usage='usage: %prog [options] command [command options]',
                                 description="""Where command is one of:
-  doItAll      : Downloads the configured modules AND makes the build in one step
+  deploy       : Downloads the configured modules AND makes the build in one step
   configure    : Setup the build configuration (source, build, install directory,
                  and per-module build options) from the module descriptions
-  fix-config  : Update the build configuration from a newer module description
+  fix-config   : Update the build configuration from a newer module description
   download     : Download all modules enabled during configure
   update       : Update the source tree of all modules enabled during configure
   build        : Build all modules enabled during configure
@@ -1340,7 +1342,7 @@ To get more help about each command, try:
         if len(args_left) == 0:
             parser.print_help()
             sys.exit(1)
-        ops = [ ['doitall', self._doItall],
+        ops = [ ['deploy', self._deploy],
                 ['configure', self._configure],
                 ['fix-config', self._fix_config],
                 ['download', self._download],
