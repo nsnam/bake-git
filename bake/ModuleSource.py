@@ -504,22 +504,6 @@ class SystemDependency(ModuleSource):
         the dependency.  
         """
         
-        import platform 
-        import re
-        dependencyExists = None
-        
-        dependencTest = self.attribute('dependency_test').value
-        
-        if(dependencTest):
-            # tests if the dependency exists or not        
-            dependencyExists = self._check_dependency_expression(env, dependencTest) 
-        
-        # if the dependency exists there is nothing else to do
-        if(dependencyExists) :
-            env._logger.commands.write("   >> Not downloading " + env._module_name + 
-                       " as it is already installed on the system\n")
-            return True
-
         selfInstalation = self.attribute('try_to_install').value
         if selfInstalation: selfInstalation = selfInstalation.lower()
         
@@ -550,7 +534,7 @@ class SystemDependency(ModuleSource):
             selfInstalation = 'false'
         
         errorTmp = None
-        if(not dependencyExists and selfInstalation=='true'):
+        if(selfInstalation=='true'):
             # Try to install if possible
             
             # if should try to install as sudoer
@@ -599,7 +583,7 @@ class SystemDependency(ModuleSource):
                                self.attribute('more_information').value))
                 raise e1
             
-        return dependencyExists
+        return True
     
     def update(self, env):
         """Empty, no Update available for system dependency. """       

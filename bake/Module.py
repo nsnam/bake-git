@@ -302,7 +302,7 @@ class Module:
                 (distname,version,ids)=platform.linux_distribution()
                 self.printResult(env, "Building", self.FAIL)
                 print('    This module works only on \"%s\"' 
-                      ' platform(s), %s is not supported for \"%s %s %s %s\"' % 
+                      ' platform(s), %s is not supported for %s %s %s %s' % 
                       (self._build.attribute('supported_os').value, 
                        self._name, platform.system(), distname,version,ids))
                 return

@@ -687,25 +687,41 @@ class Bake:
         (options, args_left) = parser.parse_args(args)
 #        downloadTool2 = self._check_source_version(config, options)
         def _do_download(configuration, module, env):
-            sys.stdout.write (" >> Downloading " + module.name() + " - ")
-            sys.stdout.flush()
-            if env._logger._verbose > 0:
-                print
+            
+            dependencyExists = None
+            if isinstance(module._source, SystemDependency):  
+       
+                dependencTest = module._source.attribute('dependency_test').value
+        
+                if(dependencTest):
+                    # tests if the dependency exists or not        
+                    dependencyExists = module._source._check_dependency_expression(env, dependencTest) 
+                    # if the dependency exists there is nothing else to do
+                    if(dependencyExists) :
+                        env._logger.commands.write("   >> Not downloading " + env._module_name + 
+                                                   " as it is already installed on the system\n")
+                        return True
+        
+            if not dependencyExists:
+                sys.stdout.write (" >> Downloading " + module.name() + " - ")
+                sys.stdout.flush()
+                if env._logger._verbose > 0:
+                    print
 
-            env._sudoEnabled=options.call_with_sudo
-            valueToReturn=module.check_source_version(env)
+                env._sudoEnabled=options.call_with_sudo
+                valueToReturn=module.check_source_version(env)
             
             
-            if valueToReturn: 
-                return module.download(env, options.force_download)
-            else:
-                module.printResult(env, "Download", module.FAIL)
-                
-                if isinstance(module._source, SystemDependency):
-                    tool =  module._source.source_systemtool()
+                if valueToReturn: 
+                    return module.download(env, options.force_download)
                 else:
-                    tool = module._source.name()
-                raise TaskError('    Unavailable Downloading tool (%s)'
+                    module.printResult(env, "Download", module.FAIL)
+                
+                    if isinstance(module._source, SystemDependency):
+                        tool =  module._source.source_systemtool()
+                    else:
+                        tool = module._source.name()
+                    raise TaskError('    Unavailable Downloading tool (%s)'
                                 ' for module "%s". Try to call \"%s check\"\n' % 
                                 (tool, module.name(), 
                                  os.path.basename(sys.argv[0])))
@@ -791,6 +807,8 @@ class Bake:
                 return retval
             else:
                 module.printResult(env, "Building", module.FAIL)
+                print("   >> Unavailable building tool for module %s, install %s" 
+                      %(module.name(),module._build.name()))
 
         env = self._do_operation(config, options, _do_build)
         
@@ -869,7 +887,7 @@ class Bake:
                          ['unxz', 'XZ data compression utility'],
                          ['make', 'Make'],
                          ['cmake', 'cMake'],
-                         ['patch', 'path tool'],
+                         ['patch', 'patch tool'],
                          ['autoreconf', 'Autotools']
                          ]
         parser = self._option_parser('build')
