@@ -14,6 +14,7 @@
        <depends_on name="wget" optional="True"/>
        <depends_on name="thttpd" optional="True"/>
       <build type="waf" objdir="build">
+        <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="configure_arguments" value="configure --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --prefix=$INSTALLDIR"/>
         <!-- attribute name="post_installation" value="cd $SRCDIR; ./test.py" -->
      </build>
@@ -34,6 +35,7 @@
        <depends_on name="thttpd" optional="True"/>
        <depends_on name="ns-3-dev-dce" optional="False"/>
       <build type="waf" objdir="yes" sourcedir="ns-3-dce">
+        <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../net-next-sim-2.6.36/arch"/>
         <!-- attribute name="post_installation" value="cd $SRCDIR; ./test.py"/ -->
       </build>
@@ -56,6 +58,7 @@
        <depends_on name="dce-umip" optional="False"/>
        <depends_on name="ns-3-dev-dce" optional="False"/>
       <build type="waf" objdir="yes" sourcedir="ns-3-dce">
+        <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../net-next-sim-2.6.36/arch --enable-gcov"/>
       </build>
     </module>
@@ -70,6 +73,7 @@
       <depends_on name="quagga" optional="False"/>
       <depends_on name="iputils" optional="False"/>
       <build type="none">
+        <attribute name="supported_os" value="linux;linux2"/>
       </build>
     </module>
 
@@ -83,6 +87,7 @@
       <depends_on name="dce-quagga-inkernel" optional="False"/>
       <depends_on name="umip" optional="False"/>
       <build type="none">
+        <attribute name="supported_os" value="linux;linux2"/>
       </build>
     </module>
 
@@ -98,6 +103,7 @@
       <depends_on name="ccnx" optional="True"/>
       <depends_on name="ns-3-dev-dce" optional="False"/>
       <build type="waf" objdir="yes" sourcedir="ns-3-dce">
+        <attribute name="supported_os" value="linux;linux2"/>
         <!-- assume the bake.py build is executed under arch/sim/test/buildtop/ -->
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../../../../../"/>
       </build>
@@ -110,6 +116,7 @@
         <attribute name="revision" value="mptcp_v0.86"/>
       </source>
       <build type="make" objdir="no">
+        <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="pre_installation" value="cd $SRCDIR;git remote add dce git://github.com/thehajime/net-next-sim.git; git fetch dce; git merge dce/sim-ns3-3.5.0-branch; echo 'CONFIG_MPTCP=y' >> arch/sim/defconfig; sed 's/CONFIG_SYN_COOKIES=y/\#CONFIG_SYN_COOKIES=y/' arch/sim/defconfig >a; mv a arch/sim/defconfig"/>
         <attribute name="configure_arguments" value="defconfig ARCH=sim"/>
         <attribute name="build_arguments" value="library ARCH=sim"/>
@@ -130,6 +137,7 @@
       <depends_on name="libsysfs-dev" optional="False"/>
       <depends_on name="libssl-dev" optional="False"/>
       <build type="make" objdir="yes">
+        <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="patch" value="$SRCDIR/../ns-3-dce/utils/iproute-mptcp.patch"/>
         <attribute name="pre_installation" value="$SRCDIR/configure"/>
         <attribute name="LDFLAGS" value="-pie"/>
@@ -151,6 +159,7 @@
        <depends_on name="iperf" optional="True"/>
        <depends_on name="ns-3-dev-dce" optional="False"/>
       <build type="waf" objdir="yes" sourcedir="ns-3-dce">
+        <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../mptcp/arch"/>
       </build>
     </module>
@@ -166,6 +175,7 @@
       <depends_on name="iperf" optional="True"/>
       <depends_on name="ns-3-dev-dce" optional="False"/>
       <build type="waf" objdir="yes" sourcedir="ns-3-dce">
+        <attribute name="supported_os" value="linux;linux2"/>
         <!-- assume the bake.py build is executed under arch/sim/test/buildtop/ -->
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../../../../../"/>
       </build>
@@ -290,6 +300,7 @@
       <depends_on name="libsysfs-dev" optional="False"/>
       <depends_on name="libssl-dev" optional="False"/>
       <build type="make" objdir="yes">
+        <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="pre_installation" value="$SRCDIR/configure"/>
         <attribute name="LDFLAGS" value="-pie"/>
         <attribute name="ignore_predefined_flags" value="True"/>
@@ -317,6 +328,7 @@
          <attribute name="fetch_option" value="--depth=1"/>
        </source>
        <build type="make" objdir="no">
+         <attribute name="supported_os" value="linux;linux2"/>
          <attribute name="configure_arguments" value="defconfig ARCH=sim"/>
          <attribute name="build_arguments" value="library ARCH=sim"/>
          <attribute name="no_installation" value="True"/>
@@ -331,6 +343,7 @@
          <attribute name="revision" value="sim-ns3-3.4.0-branch"/>
        </source>
        <build type="make" objdir="no">
+         <attribute name="supported_os" value="linux;linux2"/>
          <attribute name="configure_arguments" value="defconfig ARCH=sim"/>
          <attribute name="build_arguments" value="library ARCH=sim"/>
          <attribute name="no_installation" value="True"/>
@@ -345,6 +358,7 @@
          <attribute name="revision" value="sim-ns3-3.7.0-branch"/>
        </source>
        <build type="make" objdir="no">
+         <attribute name="supported_os" value="linux;linux2"/>
          <attribute name="configure_arguments" value="defconfig ARCH=sim"/>
          <attribute name="build_arguments" value="library ARCH=sim"/>
          <attribute name="no_installation" value="True"/>
@@ -420,6 +434,7 @@
        <depends_on name="dce-quagga" optional="False"/>
        <depends_on name="umip" optional="False"/>
        <build type="none">
+         <attribute name="supported_os" value="linux;linux2"/>
          <!-- attribute name="configure_arguments" value="configure -prefix=$INSTALLDIR"/ -->
        </build>
      </module>
@@ -430,6 +445,7 @@
          <attribute name="revision" value="v1.0"/>
        </source>
        <build type="autotools" objdir="no">
+         <attribute name="supported_os" value="linux;linux2"/>
          <attribute name="maintainer" value="yes" />
          <attribute name="configure_arguments" value="./configure CFLAGS=-fPIC  LDFLAGS=-pie --prefix=$INSTALLDIR --enable-vt --with-builtin-crypto"/>
          <attribute name="install_arguments" value="-n" />
@@ -448,6 +464,7 @@
        <depends_on name="quagga" optional="False"/>
        <depends_on name="iputils" optional="False"/>
       <build type="none">
+        <attribute name="supported_os" value="linux;linux2"/>
         <!-- attribute name="configure_arguments" value="configure -prefix=$INSTALLDIR"/ -->
      </build>
     </module>
