@@ -391,9 +391,12 @@
     def build(self, env, jobs):
            if self.attribute('patch').value != '':
                self.threat_patch(env)
+           jobstr=[]
+           if not jobs == -1:
+               jobstr = ['-j', str(jobs)]
            env.run(['make', 'CFLAGS=-fpic', 'CFLAGS+=-D_GNU_SOURCE', 'CFLAGS+=-g',
            'CFLAGS+=-Wstrict-prototypes', 'CFLAGS+=-Wall', 'LDFLAGS=-pie', 
-           'ping', 'ping6', '-j', str(jobs)],
+           'ping', 'ping6'] + jobstr,
            directory=env.srcdir)
            env.run(['mkdir', '-p' , env.installdir + '/bin_dce/'],
            directory=env.srcdir)
@@ -696,8 +699,11 @@
         import os
         import shutil
 
+        jobstr=[]
+        if not jobs == -1:
+            jobstr = ['-j', str(jobs)]
         env.run(['python', os.path.join(env.srcdir, 'scons.py'), 
-                 '-j', str(jobs), 'prefix=' + env.installdir, 'install'],
+                 'prefix=' + env.installdir, 'install'] + jobstr,
                 directory=env.srcdir )
         srcLib = os.path.join(env.srcdir, 'lib')
         files = os.listdir(srcLib)
@@ -731,8 +737,11 @@
         import os
         import shutil
 
-        env.run(['python', os.path.join(env.srcdir, 'scons.py'), 
-                 '-j', str(jobs), 'prefix=' + env.installdir, 'install'],
+        jobstr=[]
+        if not jobs == -1:
+            jobstr = ['-j', str(jobs)]
+        env.run(['python', os.path.join(env.srcdir, 'scons.py'),
+                 'prefix=' + env.installdir, 'install'] + jobstr,
                 directory=env.srcdir )
         srcLib = os.path.join(env.srcdir, 'lib')
         env._logger.commands.write("LibDir: " + srcLib +"\n")
