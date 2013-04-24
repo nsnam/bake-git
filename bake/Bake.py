@@ -890,7 +890,7 @@ class Bake:
                          ['make', 'Make'],
                          ['cmake', 'cMake'],
                          ['patch', 'patch tool'],
-                         ['autoreconf', 'Autotools']
+                         ['autoreconf', 'autoreconf tool']
                          ]
         parser = self._option_parser('build')
         (options, args_left) = parser.parse_args(args)
