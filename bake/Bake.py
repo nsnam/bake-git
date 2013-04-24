@@ -878,6 +878,7 @@ class Bake:
         """Handles the check command line option."""
         
         checkPrograms = [['python', 'Python'],
+                         ['g++', 'GNU C++ compiler'],
                          ['hg', 'Mercurial'],
                          ['cvs', 'CVS'],
                          ['git', 'GIT'],
