@@ -1,13 +1,12 @@
 <configuration>
   <modules>
 
-    <module name="dce-ns3">
+    <module name="dce-ns3-dev">
       <source type="mercurial">
         <attribute name="url" value="http://code.nsnam.org/ns-3-dce"/>
         <attribute name="module_directory" value="ns-3-dce"/>
-        <attribute name="revision" value="dce-1.0-rc1"/>
       </source>
-       <depends_on name="ns-3-dev-dce" optional="False"/>
+       <depends_on name="ns-3-dev" optional="False"/>
        <depends_on name="elf-loader" optional="True"/>
        <depends_on name="iperf" optional="True"/>
        <depends_on name="ccnx" optional="True"/>
@@ -16,15 +15,13 @@
       <build type="waf" objdir="build">
         <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="configure_arguments" value="configure --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --prefix=$INSTALLDIR"/>
-        <!-- attribute name="post_installation" value="cd $SRCDIR; ./test.py" -->
      </build>
     </module>
 
-    <module name="dce-linux">
+    <module name="dce-linux-dev">
       <source type="mercurial">
         <attribute name="url" value="http://code.nsnam.org/ns-3-dce"/>
         <attribute name="module_directory" value="ns-3-dce"/>
-        <attribute name="revision" value="dce-1.0-rc1"/>
      </source>
        <depends_on name="elf-loader" optional="True"/>
        <depends_on name="net-next-sim-2.6.36" optional="False"/>
@@ -33,19 +30,17 @@
        <depends_on name="ccnx" optional="True"/>
        <depends_on name="wget" optional="True"/>
        <depends_on name="thttpd" optional="True"/>
-       <depends_on name="ns-3-dev-dce" optional="False"/>
+       <depends_on name="ns-3-dev" optional="False"/>
       <build type="waf" objdir="yes" sourcedir="ns-3-dce">
         <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../net-next-sim-2.6.36/arch"/>
-        <!-- attribute name="post_installation" value="cd $SRCDIR; ./test.py"/ -->
       </build>
     </module>
 
-    <module name="dce-linux-gcov">
+    <module name="dce-linux-dev-gcov">
       <source type="mercurial">
         <attribute name="url" value="http://code.nsnam.org/ns-3-dce"/>
         <attribute name="module_directory" value="ns-3-dce"/>
-        <attribute name="revision" value="dce-1.0-rc1"/>
      </source>
        <depends_on name="elf-loader" optional="True"/>
        <depends_on name="net-next-sim-2.6.36" optional="False"/>
@@ -54,40 +49,12 @@
        <depends_on name="ccnx" optional="True"/>
        <depends_on name="wget" optional="True"/>
        <depends_on name="thttpd" optional="True"/>
-       <depends_on name="dce-quagga" optional="False"/>
-       <depends_on name="dce-umip" optional="False"/>
-       <depends_on name="ns-3-dev-dce" optional="False"/>
+       <depends_on name="dce-quagga-dev" optional="False"/>
+       <depends_on name="dce-umip-dev" optional="False"/>
+       <depends_on name="ns-3-dev" optional="False"/>
       <build type="waf" objdir="yes" sourcedir="ns-3-dce">
         <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../net-next-sim-2.6.36/arch --enable-gcov"/>
-      </build>
-    </module>
-
-    <module name="dce-quagga-inkernel">
-      <source type="mercurial">
-        <attribute name="url" value="http://code.nsnam.org/thehajime/ns-3-dce-quagga"/>
-        <attribute name="module_directory" value="ns-3-dce/myscripts/ns-3-dce-quagga/"/>
-        <attribute name="revision" value="dce-1.0-rc1"/>
-      </source>
-      <depends_on name="dce-linux-inkernel" optional="False"/>
-      <depends_on name="quagga" optional="False"/>
-      <depends_on name="iputils" optional="False"/>
-      <build type="none">
-        <attribute name="supported_os" value="linux;linux2"/>
-      </build>
-    </module>
-
-    <module name="dce-umip-inkernel">
-      <source type="mercurial">
-        <attribute name="url" value="http://code.nsnam.org/thehajime/ns-3-dce-umip"/>
-        <attribute name="module_directory" value="ns-3-dce/myscripts/ns-3-dce-umip/"/>
-        <attribute name="revision" value="dce-1.0-rc1"/>
-      </source>
-      <depends_on name="dce-linux-inkernel" optional="False"/>
-      <depends_on name="dce-quagga-inkernel" optional="False"/>
-      <depends_on name="umip" optional="False"/>
-      <build type="none">
-        <attribute name="supported_os" value="linux;linux2"/>
       </build>
     </module>
 
@@ -101,7 +68,7 @@
       <depends_on name="iproute" optional="False"/>
       <depends_on name="iperf" optional="True"/>
       <depends_on name="ccnx" optional="True"/>
-      <depends_on name="ns-3-dev-dce" optional="False"/>
+      <depends_on name="ns-3.17" optional="False"/>
       <build type="waf" objdir="yes" sourcedir="ns-3-dce">
         <attribute name="supported_os" value="linux;linux2"/>
         <!-- assume the bake.py build is executed under arch/sim/test/buildtop/ -->
@@ -157,7 +124,7 @@
        <depends_on name="mptcp_v0.86" optional="False"/>
        <depends_on name="iproute-mptcp" optional="False"/>
        <depends_on name="iperf" optional="True"/>
-       <depends_on name="ns-3-dev-dce" optional="False"/>
+       <depends_on name="ns-3.17" optional="False"/>
       <build type="waf" objdir="yes" sourcedir="ns-3-dce">
         <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../mptcp/arch"/>
@@ -173,7 +140,7 @@
       <depends_on name="elf-loader" optional="True"/>
       <depends_on name="iproute-mptcp" optional="False"/>
       <depends_on name="iperf" optional="True"/>
-      <depends_on name="ns-3-dev-dce" optional="False"/>
+      <depends_on name="ns-3.17" optional="False"/>
       <build type="waf" objdir="yes" sourcedir="ns-3-dce">
         <attribute name="supported_os" value="linux;linux2"/>
         <!-- assume the bake.py build is executed under arch/sim/test/buildtop/ -->
@@ -312,11 +279,9 @@
     <module name="ns-3-dev-dce">
       <source type="mercurial">
         <attribute name="url" value="http://code.nsnam.org/ns-3-dev"/>
-        <!-- attribute name="revision" value="ns-3.17"/ -->
       </source>
-      <depends_on name="pybindgen-user" optional="True"/>
       <build type="waf" objdir="yes">
-        <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-tests --with-pybindgen=$SRCDIR/../pybindgen-user"/>
+        <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-tests"/>
       </build>
     </module>
 
@@ -378,14 +343,14 @@
 
     <module name="thttpd">
       <source type="archive">
-    <attribute name="url" value="http://www.acme.com/software/thttpd/thttpd-2.25b.tar.gz"/>
-    <attribute name="extract_directory" value="thttpd-2.25b"/>
+        <attribute name="url" value="http://www.acme.com/software/thttpd/thttpd-2.25b.tar.gz"/>
+        <attribute name="extract_directory" value="thttpd-2.25b"/>
       </source>
       <build type="make" objdir="yes">
-    <attribute name="pre_installation" value="cd $SRCDIR;./configure --prefix=$INSTALLDIR"/>
-    <attribute name="patch" value="$SRCDIR/../ns-3-dce/myscripts/httpd/dce-thttpd.patch"/>
+        <attribute name="pre_installation" value="cd $SRCDIR;./configure --prefix=$INSTALLDIR"/>
+        <attribute name="patch" value="$SRCDIR/../ns-3-dce/myscripts/httpd/dce-thttpd.patch"/>
          <attribute name="install_arguments" value="-n" />
-    <attribute name="build_arguments" value="thttpd"/>
+         <attribute name="build_arguments" value="thttpd"/>
          <attribute name="post_installation" value="cd $SRCDIR; mkdir $INSTALLDIR/bin_dce; /bin/cp -f thttpd-2.25b/thttpd  $INSTALLDIR/bin_dce"/>
       </build>
      </module>
@@ -424,14 +389,13 @@
      </module>
 
      <!-- umip related modules -->
-     <module name="dce-umip">
+     <module name="dce-umip-dev">
        <source type="mercurial">
         <attribute name="url" value="http://code.nsnam.org/thehajime/ns-3-dce-umip"/>
         <attribute name="module_directory" value="ns-3-dce/myscripts/ns-3-dce-umip/"/>
-        <attribute name="revision" value="dce-1.0-rc1"/>
        </source>
-       <depends_on name="dce-linux" optional="False"/>
-       <depends_on name="dce-quagga" optional="False"/>
+       <depends_on name="dce-linux-dev" optional="False"/>
+       <depends_on name="dce-quagga-dev" optional="False"/>
        <depends_on name="umip" optional="False"/>
        <build type="none">
          <attribute name="supported_os" value="linux;linux2"/>
@@ -454,13 +418,11 @@
      </module>
 
     <!-- quagga related modules -->
-    <module name="dce-quagga">
+    <module name="dce-quagga-dev">
       <source type="mercurial">
         <attribute name="url" value="http://code.nsnam.org/thehajime/ns-3-dce-quagga"/>
         <attribute name="module_directory" value="ns-3-dce/myscripts/ns-3-dce-quagga/"/>
-        <attribute name="revision" value="dce-1.0-rc1"/>
       </source>
-       <depends_on name="dce-linux" optional="False"/>
        <depends_on name="quagga" optional="False"/>
        <depends_on name="iputils" optional="False"/>
       <build type="none">
@@ -670,25 +632,11 @@
 	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR"/>
 	<attribute name="build_arguments" value="--generate-version"/>
       </build>
-      <depends_on name="python-dev" optional="False"/>
-      <depends_on name="pygraphviz" optional="False"/>
-      <depends_on name="pygoocanvas" optional="False"/>
+      <depends_on name="python-dev" optional="True"/>
+      <depends_on name="pygraphviz" optional="True"/>
+      <depends_on name="pygoocanvas" optional="True"/>
       <depends_on name="pygccxml" optional="True"/>
       <depends_on name="gccxml-ns3" optional="False"/>
-    </module>
-
-    <module name="pybindgen-user">
-      <source type="bazaar">
-        <attribute name="url" value="https://launchpad.net/pybindgen"/>
-        <attribute name="revision" value="revno:825"/>
-      </source>
-      <depends_on name="python-dev" optional="False"/>
-      <depends_on name="pygraphviz" optional="False"/>
-      <depends_on name="pygoocanvas" optional="False"/>
-      <build type="waf" objdir="yes">
-        <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --disable-pygccxml"/>
-        <attribute name="build_arguments" value="--generate-version"/>
-      </build>
     </module>
 
     <module name="pybindgen-0.16.0.825">
@@ -696,6 +644,9 @@
 	<attribute name="url" value="https://launchpad.net/pybindgen"/>
 	<attribute name="revision" value="revno:825"/>
       </source>
+      <depends_on name="python-dev" optional="True"/>
+      <depends_on name="pygraphviz" optional="True"/>
+      <depends_on name="pygoocanvas" optional="True"/>
       <build type="waf" objdir="yes">
 	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR"/>
 	<attribute name="build_arguments" value="--generate-version"/>
@@ -898,7 +849,73 @@
       <depends_on name="ns-3.17" optional="False"/>
       <build type="none"/>
     </module>
+
+    <module name="dce-ns3-1.0">
+      <source type="mercurial">
+	<attribute name="url" value="http://code.nsnam.org/ns-3-dce"/>
+	<attribute name="module_directory" value="ns-3-dce"/>
+	<attribute name="revision" value="dce-1.0-rc1"/>
+      </source>
+      <depends_on name="ns-3.17" optional="False"/>
+      <depends_on name="elf-loader" optional="True"/>
+      <depends_on name="iperf" optional="True"/>
+      <depends_on name="ccnx" optional="True"/>
+      <depends_on name="wget" optional="True"/>
+      <depends_on name="thttpd" optional="True"/>
+      <build type="waf" objdir="build">
+	<attribute name="supported_os" value="linux;linux2"/>
+	<attribute name="configure_arguments" value="configure --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --prefix=$INSTALLDIR"/>
+      </build>
+    </module>
+
+    <module name="dce-linux-1.0">
+      <source type="mercurial">
+	<attribute name="url" value="http://code.nsnam.org/ns-3-dce"/>
+	<attribute name="module_directory" value="ns-3-dce"/>
+	<attribute name="revision" value="dce-1.0-rc1"/>
+      </source>
+      <depends_on name="elf-loader" optional="True"/>
+      <depends_on name="net-next-sim-2.6.36" optional="True"/>
+      <depends_on name="iproute" optional="False"/>
+      <depends_on name="iperf" optional="True"/>
+      <depends_on name="ccnx" optional="True"/>
+      <depends_on name="wget" optional="True"/>
+      <depends_on name="thttpd" optional="True"/>
+      <depends_on name="ns-3.17" optional="False"/>
+      <build type="waf" objdir="yes" sourcedir="ns-3-dce">
+	<attribute name="supported_os" value="linux;linux2"/>
+	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../net-next-sim-2.6.36/arch"/>
+      </build>
+    </module>
+
+    <module name="dce-quagga-1.0">
+      <source type="mercurial">
+	<attribute name="url" value="http://code.nsnam.org/thehajime/ns-3-dce-quagga"/>
+	<attribute name="module_directory" value="ns-3-dce/myscripts/ns-3-dce-quagga/"/>
+	<attribute name="revision" value="dce-1.0-rc1"/>
+      </source>
+      <depends_on name="quagga" optional="False"/>
+      <depends_on name="iputils" optional="False"/>
+      <build type="none">
+	<attribute name="supported_os" value="linux;linux2"/>
+      </build>
+    </module>
+
+    <module name="dce-umip-1.0">
+      <source type="mercurial">
+	<attribute name="url" value="http://code.nsnam.org/thehajime/ns-3-dce-umip"/>
+	<attribute name="module_directory" value="ns-3-dce/myscripts/ns-3-dce-umip/"/>
+	<attribute name="revision" value="dce-1.0-rc1"/>
+      </source>
+      <depends_on name="dce-linux-1.0" optional="False"/>
+      <depends_on name="dce-quagga-1.0" optional="False"/>
+      <depends_on name="umip" optional="False"/>
+      <build type="none">
+	<attribute name="supported_os" value="linux;linux2"/>
+      </build>
+    </module>
   </modules>
+
 
   <predefined name="dbg">
     <append name="CFLAGS" value="-g"/>
