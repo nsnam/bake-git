@@ -454,7 +454,7 @@ class SystemDependency(ModuleSource):
         
         for element in elements:
             stringToChange= re.sub(element + "(\s|\)|$)" , 
-                                   'env.check_program(\'' + element + 
+                                   'env.check_program(\'' + element.replace('\\','') + 
                                    '\')\\1', stringToChange)
         return stringToChange
 
@@ -492,7 +492,7 @@ class SystemDependency(ModuleSource):
             elementsSet.add(element) 
         
         
-        stringToChange = self._add_command_calls(valueToTest,elementsSet)
+        stringToChange = self._add_command_calls(valueToTest.replace('\\',''),elementsSet)
                
         # Evaluate if all the programs exist
         returnValue = eval(stringToChange)
