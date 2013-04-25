@@ -705,7 +705,10 @@ class Bake:
                         return True
         
             if not dependencyExists:
-                sys.stdout.write (" >> Downloading " + module.name() + " - ")
+                targetDir=''
+                if module._source.attribute('module_directory'):
+                    targetDir=' (target directory:%s)'%module._source.attribute('module_directory').value
+                sys.stdout.write (" >> Downloading " + module.name() + targetDir + " - ")
                 sys.stdout.flush()
                 if env._logger._verbose > 0:
                     print

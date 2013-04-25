@@ -715,6 +715,7 @@
     <module name="nsc-dev">
       <source type="mercurial">
 	<attribute name="url" value="https://secure.wand.net.nz/mercurial/nsc"/>
+        <attribute name="module_directory" value="nsc"/>
       </source>
       <depends_on name="g++" optional="False"/>
       <!-- problem: scons has no generic command-line support for builddir and installdir -->
