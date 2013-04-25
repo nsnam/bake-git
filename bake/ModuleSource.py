@@ -57,6 +57,7 @@ class ModuleSource(ModuleAttributeBase):
         tools = dict()
         tools['debian']= 'apt-get'
         tools['ubuntu']= 'apt-get'
+        tools['mint']= 'apt-get'
         tools['fedora']= 'yum'
         tools['redhat']= 'yum'
         tools['centos']= 'yum'
@@ -356,6 +357,7 @@ class SystemDependency(ModuleSource):
         distributions = [
             ['debian', 'apt-get -y install '],
             ['ubuntu', 'apt-get -y install '],
+            ['mint', 'apt-get -y install '],
             ['fedora', 'yum -y install '],
             ['redhat', 'yum -y install '],
             ['centos', 'yum -y install '],
