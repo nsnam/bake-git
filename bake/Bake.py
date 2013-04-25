@@ -706,7 +706,7 @@ class Bake:
         
             if not dependencyExists:
                 targetDir=''
-                if module._source.attribute('module_directory'):
+                if module._source.attribute('module_directory') and not module._source.attribute('module_directory').value.strip() =='':
                     targetDir=' (target directory:%s)'%module._source.attribute('module_directory').value
                 sys.stdout.write (" >> Downloading " + module.name() + targetDir + " - ")
                 sys.stdout.flush()
