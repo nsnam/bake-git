@@ -13,7 +13,6 @@ import urlparse
 import re
 import platform
 from datetime import date
-from sets import Set
 
 class ModuleSource(ModuleAttributeBase):
     """ Generic Source class, stores the generic methods for the source 
@@ -489,7 +488,7 @@ class SystemDependency(ModuleSource):
             elementsToChange = [stringToChange]
         
         # add the call to the function that verifies if the program exist
-        elementsSet = Set([])
+        elementsSet = set([])
         for element in elementsToChange:
             elementsSet.add(element) 
         

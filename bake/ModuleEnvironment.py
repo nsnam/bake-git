@@ -12,7 +12,6 @@ import sys
 import platform
 
 from bake.Exceptions import TaskError 
-from sets import Set
 
 class ModuleEnvironment:
     ''' Main class to interact with the host system to execute the external 
@@ -31,10 +30,10 @@ class ModuleEnvironment:
         self._module_name = None
         self._module_dir = None
         self._module_supports_objdir = None
-        self._libpaths = Set([])
-        self._binpaths = Set([])
-        self._pkgpaths =  Set([])
-        self._variables =  Set([])
+        self._libpaths = set([])
+        self._binpaths = set([])
+        self._pkgpaths =  set([])
+        self._variables =  set([])
         self._debug = debug
         self._sudoEnabled = False
 

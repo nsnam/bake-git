@@ -1275,13 +1275,13 @@ class Bake:
 
     def checkPythonVersion(self):
         """ Checks the version  of the user's machine python. For now we just guarantee
-        the compatibility with python above 2.7.0. """
+        the compatibility with python above 2.6.0. """
 
         #Temporary environment variable to check the pyton version available
         envTmp = ModuleEnvironment("", ".", ".", ".")
         validPython = envTmp.check_program("python", version_arg='--version', 
             version_regexp='(\d+)\.(\d+)\.(\d+)', 
-            version_required=(2, 6, 6))
+            version_required=(2, 6, 0))
         if (not validPython):
             print(">>> Old Python version detected, please install a newer one")
 
