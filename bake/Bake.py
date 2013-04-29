@@ -1082,13 +1082,14 @@ class Bake:
                     print("   >> " + sysDep.attribute('more_information').value)
                     command = sysDep._get_command(distribution)
                     command = command.strip()
-                    installerName = sysDep.attribute('name_' + command.split()[0]).value
+                    if not command == '':
+                        installerName = sysDep.attribute('name_' + command.split()[0]).value
             
-                    # if didn't find the specific installer name uses the default one
-                    if(not installerName):
-                        installerName = this_key
+                        # if didn't find the specific installer name uses the default one
+                        if(not installerName):
+                            installerName = this_key
                         
-                    print("   >> Try: " + command + " " + installerName)
+                        print("   >> Try: " + command + " " + installerName)
 
                     missing = True
                 else:
