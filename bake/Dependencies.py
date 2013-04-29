@@ -341,8 +341,8 @@ class Dependencies:
                                 print (' > Problem: Unmet dependency'
                                              ' on module: %s.\n'
                                              '   Bake will continue since'
-                                             ' this module is not in the'
-                                             ' critical path. For more'
+                                             ' this module is optional.'
+                                             ' For more'
                                              ' information call bake with -vv.\n' 
                                              % (i.dst()._name))
                                 self.dependencies[i.dst()._name].moduleProblem = True

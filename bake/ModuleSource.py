@@ -56,7 +56,7 @@ class ModuleSource(ModuleAttributeBase):
         tools = dict()
         tools['debian']= 'apt-get'
         tools['ubuntu']= 'apt-get'
-        tools['mint']= 'apt-get'
+        tools['linuxmint']= 'apt-get'
         tools['fedora']= 'yum'
         tools['redhat']= 'yum'
         tools['centos']= 'yum'
@@ -312,7 +312,7 @@ class ArchiveModuleSource(ModuleSource):
         
         
 class SystemDependency(ModuleSource):
-    """Handles the system dependencies for a given module, if the module 
+    """Handles the system dependencies for a given module, if the m/home/dcamara/workspaceodule 
     is missing, and it is a supported box, try to install the missing module 
     using one of the default tools  i.e. yum apt-get.
     """
@@ -356,7 +356,7 @@ class SystemDependency(ModuleSource):
         distributions = [
             ['debian', 'apt-get -y install '],
             ['ubuntu', 'apt-get -y install '],
-            ['mint', 'apt-get -y install '],
+            ['linuxmint', 'apt-get -y install '],
             ['fedora', 'yum -y install '],
             ['redhat', 'yum -y install '],
             ['centos', 'yum -y install '],
@@ -507,6 +507,13 @@ class SystemDependency(ModuleSource):
         
         selfInstalation = self.attribute('try_to_install').value
         if selfInstalation: selfInstalation = selfInstalation.lower()
+
+        if not selfInstalation == 'true' :
+             raise TaskError(' Module: \"%s\" is required by other modules but it is not available on your system.\n' 
+                    '  Ask your system admin or review your library database to add \"%s\"\n'
+                    ' More information from the module: \"%s\"' 
+                            % (env._module_name, env._module_name,
+                               self.attribute('more_information').value))
         
         # even if should try to install, if it is not a supported machine 
         # we will not be able to
@@ -534,12 +541,20 @@ class SystemDependency(ModuleSource):
         else :
             selfInstalation = 'false'
         
+        if not env._sudoEnabled :
+            raise TaskError(' Module: \"%s\" is required by other modules and is not available on your system.\n' 
+                            ' Ask your system admin or try to call bake with --sudo if you have sudo rights.\n'
+                            '   > More information from the module: \"%s\"' 
+                            % (env._module_name, 
+                               self.attribute('more_information').value))
+
+        
         errorTmp = None
-        if(selfInstalation=='true'):
+        sudoer=self.attribute('sudoer_install').value
+        if selfInstalation=='true':
             # Try to install if possible
             
             # if should try to install as sudoer
-            sudoer=self.attribute('sudoer_install').value
             if sudoer: sudoer = sudoer.lower()
             if(sudoer=='true' and (not env.sudoEnabled)):
                 raise TaskError('    Module: \"%s\" requires sudo rights, if' 

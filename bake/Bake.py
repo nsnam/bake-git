@@ -703,6 +703,7 @@ class Bake:
                                                    " as it is already installed on the system\n")
                         env.end_source()
                         return True
+                           
         
             if not dependencyExists:
                 targetDir=''
