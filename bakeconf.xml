@@ -748,30 +748,6 @@
       </build>
     </module>
 
-    <module name="qttest">
-      <source type="system_dependency">
-	<attribute name="dependency_test" value="(qmake34 or qmake-qt34)"/>
-	<attribute name="try_to_install" value="true"/>
-	<attribute name="name_yum" value="qt4-devel"/>
-	<attribute name="name_apt-get" value="qt4-dev-tools"/>
-	<attribute name="more_information" value="Didn't find QT 4, download and install it from http://qt.nokia.com/downloads/"/>
-      </source>
-      <build type="none" objdir="no">
-      </build>
-      <depends_on name="test2" optional="False"/>
-    </module>
-
-    <module name="test2">
-      <source type="system_dependency">
-	<attribute name="dependency_test" value="(qmake34 or qmake-qt34)"/>
-	<attribute name="try_to_install" value="true"/>
-	<attribute name="name_yum" value="qt4-devel"/>
-	<attribute name="name_apt-get" value="qt4-dev-tools"/>
-	<attribute name="more_information" value="Didn't find QT 4, download and install it from http://qt.nokia.com/downloads/"/>
-      </source>
-      <build type="none" objdir="no">
-      </build>
-    </module>
 
     <module name="qt4">
       <source type="system_dependency">
