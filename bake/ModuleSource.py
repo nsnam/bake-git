@@ -509,7 +509,7 @@ class SystemDependency(ModuleSource):
         if selfInstalation: selfInstalation = selfInstalation.lower()
 
         if not selfInstalation == 'true' :
-             raise TaskError(' Module: \"%s\" is required by other modules but it is not available on your system.\n' 
+            raise TaskError(' Module: \"%s\" is required by other modules but it is not available on your system.\n' 
                     '  Ask your system admin or review your library database to add \"%s\"\n'
                     ' More information from the module: \"%s\"' 
                             % (env._module_name, env._module_name,
@@ -528,6 +528,14 @@ class SystemDependency(ModuleSource):
                 distribution = distribution.lower()
                 
             command = self._get_command(distribution)
+            
+            # didn't recognize the distribution, asks user to install by himself
+            if command == '' : 
+                raise TaskError(' Module: \"%s\" is required by other modules but it is not available on your system.\n' 
+                    '  Ask your system admin\n'
+                    ' More information from the module: \"%s\"' 
+                            % (env._module_name, 
+                               self.attribute('more_information').value))
             
             installerName = self.attribute('name_' + command.split()[0]).value
             
