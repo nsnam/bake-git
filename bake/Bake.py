@@ -699,8 +699,8 @@ class Bake:
                     # if the dependency exists there is nothing else to do
                     if(dependencyExists) :
                         env.start_source(module.name(), ".")
-                        env._logger.commands.write("   >> Not downloading " + module.name() + 
-                                                   " as it is already installed on the system\n")
+                        sys.stdout.write ("   >> Module " + module.name() + 
+                                                   " is already installed on the system\n")
                         env.end_source()
                         return True
                            
