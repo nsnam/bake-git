@@ -77,7 +77,7 @@ class Module:
                     shutil.rmtree(env.srcdir)
             except OSError as e:
                 env._logger.commands.write('Could not remove source files'
-                                            ' %s for module: %s \n Error: %s' % 
+                                            ' %s for module: %s \n Error: %s\n' % 
                                             (env.srcdir, env._module_name, 
                                              str(e)))
         
@@ -127,7 +127,7 @@ class Module:
             return True
         except TaskError as e:
             self.printResult(env, "Download", self.FAIL)
-            print(e.reason)
+            env._logger.commands.write(e.reason+'\n')
             if env.debug :
                 import bake.Utils
                 bake.Utils.print_backtrace()           
@@ -196,7 +196,7 @@ class Module:
             return True
         except TaskError as e:
             print(" >> Distcleaning " + self._name + " - Problem")
-            print(e.reason)
+            env._logger.commands.write(e.reason+'\n')
             if env.debug :
                 import bake.Utils
                 bake.Utils.print_backtrace()           
@@ -222,7 +222,7 @@ class Module:
             print(" >> Source removed - OK ")
         except Exception as e:
             err = re.sub(r'\[\w+ \w+\]+', ' ', str(e)).strip()
-            print("    > " + err )
+            env._logger.commands.write("    > " + err +'\n')
 #            print (e)
             pass
 
@@ -233,7 +233,7 @@ class Module:
                 print(" >> Build removed - OK ")
             except Exception as e:
                 err = re.sub(r'\[\w+ \w+\]+', ' ', str(e)).strip()
-                print("    > " + err )
+                env._logger.commands.write("    > " + err +'\n')
  
         if os.path.isdir(env.installdir):
             print(" >> Removing installation: " + env.installdir)
@@ -242,7 +242,7 @@ class Module:
                 print(" >> Installation removed - OK ")
             except Exception as e:
                 err = re.sub(r'\[\w+ \w+\]+', ' ', str(e)).strip()
-                print("    > " + err )
+                env._logger.commands.write("    > " + err +'\n')
            
         return True
          
@@ -331,7 +331,7 @@ class Module:
             return True
         except TaskError as e:
             self.printResult(env, "Building", self.FAIL)
-            print("   > " + e.reason)
+            env._logger.commands.write("   > " + e.reason+'\n')
             if env.debug :
                 import bake.Utils
                 bake.Utils.print_backtrace()           
@@ -424,7 +424,7 @@ class Module:
         except TaskError as e:
             print(" >> Cleaning " + self._name + " - Problem")
             err = re.sub(r'\[\w+ \w+\]+', ' ', str(e)).strip()
-            print(err)
+            env._logger.commands.write(err+'\n')
             if env.debug :
                 import bake.Utils
                 bake.Utils.print_backtrace()           

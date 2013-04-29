@@ -60,7 +60,7 @@ class Bake:
             bake.Utils.print_backtrace()           
         else:
             print('   For more information call Bake with --debug and/or'
-                  ' -vvv (bake --help)')
+                  ' -v, -vvv (bake --help)')
         sys.exit(1)
         
     def _fix_config(self, config, args):
@@ -531,7 +531,7 @@ class Bake:
             deps.resolve(targets)
 #            deps.dump2(sys.stdout)
         except DependencyUnmet as error:
-            self._error(' Unmet critical dependency on module: ' + error.failed().name())
+            self._error(' Critical dependency, module "' + error.failed().name() + '" failed.')
 
     def _read_config(self, config, directory=None):
         """Reads the configuration file."""
@@ -699,12 +699,11 @@ class Bake:
                     # if the dependency exists there is nothing else to do
                     if(dependencyExists) :
                         env.start_source(module.name(), ".")
-                        sys.stdout.write ("   >> Module " + module.name() + 
+                        sys.stdout.write (" >> Module " + module.name() + 
                                                    " is already installed on the system\n")
                         env.end_source()
                         return True
-                           
-        
+
             if not dependencyExists:
                 targetDir=''
                 if module._source.attribute('module_directory') and not module._source.attribute('module_directory').value.strip() =='':

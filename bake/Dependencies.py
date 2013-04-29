@@ -338,13 +338,15 @@ class Dependencies:
                                 raise DependencyUnmet(i.dst())
                             
                             if not self.dependencies[i.dst()._name].moduleProblem:
-                                print (' > Problem: Unmet dependency'
-                                             ' on module: %s.\n'
-                                             '   Bake will continue since'
-                                             ' this module is optional.'
-                                             ' For more'
-                                             ' information call bake with -vv.\n' 
-                                             % (i.dst()._name))
+                                print (' > Problem: Optional dependency,'
+                                             ' module "%s" failed.\n'
+                                             '   This may reduce the  '
+                                             'functionalities of the final build. \n'
+                                             '   However, bake will continue since'
+                                             ' "%s" is not an essential dependency.\n'
+                                             '   For more'
+                                             ' information call bake with -v.\n' 
+                                             % (i.dst()._name,i.dst()._name))
                                 self.dependencies[i.dst()._name].moduleProblem = True
             if self._dirty:
                 self._dirty = False

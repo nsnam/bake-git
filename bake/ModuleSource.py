@@ -509,9 +509,9 @@ class SystemDependency(ModuleSource):
         if selfInstalation: selfInstalation = selfInstalation.lower()
 
         if not selfInstalation == 'true' :
-            raise TaskError(' Module: \"%s\" is required by other modules but it is not available on your system.\n' 
-                    '  Ask your system admin or review your library database to add \"%s\"\n'
-                    ' More information from the module: \"%s\"' 
+            raise TaskError('    Module: \"%s\" is required by other modules but it is not available on your system.\n' 
+                    '     Ask your system admin or review your library database to add \"%s\"\n'
+                    '    More information from the module: \"%s\"' 
                             % (env._module_name, env._module_name,
                                self.attribute('more_information').value))
         
@@ -531,9 +531,9 @@ class SystemDependency(ModuleSource):
             
             # didn't recognize the distribution, asks user to install by himself
             if command == '' : 
-                raise TaskError(' Module: \"%s\" is required by other modules but it is not available on your system.\n' 
-                    '  Ask your system admin\n'
-                    ' More information from the module: \"%s\"' 
+                raise TaskError('    Module: \"%s\" is required by other modules but it is not available on your system.\n' 
+                    '    Ask your system admin\n'
+                    '    > More information from the module: \"%s\"' 
                             % (env._module_name, 
                                self.attribute('more_information').value))
             
@@ -550,9 +550,9 @@ class SystemDependency(ModuleSource):
             selfInstalation = 'false'
         
         if not env._sudoEnabled :
-            raise TaskError(' Module: \"%s\" is required by other modules and is not available on your system.\n' 
-                            ' Ask your system admin or try to call bake with --sudo if you have sudo rights.\n'
-                            '   > More information from the module: \"%s\"' 
+            raise TaskError('    Module: \"%s\" is required by other modules and is not available on your system.\n' 
+                            '    Ask your system admin or try to call bake with --sudo if you have sudo rights.\n'
+                            '    > More information from the module: \"%s\"' 
                             % (env._module_name, 
                                self.attribute('more_information').value))
 
@@ -565,11 +565,11 @@ class SystemDependency(ModuleSource):
             # if should try to install as sudoer
             if sudoer: sudoer = sudoer.lower()
             if(sudoer=='true' and (not env.sudoEnabled)):
-                raise TaskError('    Module: \"%s\" requires sudo rights, if' 
+                raise TaskError('   Module: \"%s\" requires sudo rights, if' 
                                 ' you have the right, call bake with the'
                                 ' --sudo option, or ask your system admin'
                                 ' to install \"%s\" in your machine.\n'
-                                '    More information from the module: \"%s\"' 
+                                '    > More information from the module: \"%s\"' 
                             % (env._module_name, installerName, 
                                self.attribute('more_information').value))
 
@@ -592,7 +592,7 @@ class SystemDependency(ModuleSource):
                             " not present on your package management databases."
                             "\n    Try to either talk to your system admin or review your "
                             "library database to add \"%s\"\n"
-                            "    More information from the module: \"%s\"" 
+                            "    > More information from the module: \"%s\"" 
                             % (env._module_name, installerName, 
                                self.attribute('more_information').value))
                 else:
@@ -602,7 +602,7 @@ class SystemDependency(ModuleSource):
                             " not present on your package management databases."
                             "\n    Try calling bake with the --sudo option and/or " 
                             "review your library database to add \"%s\"\n"
-                            "    More information from the module: \"%s\"" 
+                            "    > More information from the module: \"%s\"" 
                             % (env._module_name, installerName, 
                                self.attribute('more_information').value))
                 raise e1

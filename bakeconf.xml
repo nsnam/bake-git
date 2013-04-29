@@ -559,10 +559,10 @@
     </module>
 
     <module name="gccxml-ns3">
-      <source type="cvs">
-	<attribute name="root" value=":pserver:anoncvs:@www.gccxml.org:/cvsroot/GCC_XML"/>
-	<attribute name="module" value="gccxml"/>
-	<attribute name="date" value="2009-09-21"/>
+      <source type="git">
+        <attribute name="url" value="git://github.com/gccxml/gccxml.git"/>
+        <attribute name="module_directory" value="gccxml"/>
+        <attribute name="revision" value="1bfbbe93ae16e97b010fb111305d169e3dcfd5a4"/>
       </source>
       <build type="cmake" objdir="yes">
       </build>
@@ -777,7 +777,7 @@
       <source type="mercurial">
         <attribute name="url" value="http://code.nsnam.org/thehajime/elf-loader"/>
       </source>
-      <depends_on name="libc-debug" optional="False"/>
+      <depends_on name="libc-debug" optional="True"/>
       <build type="make" objdir="no">
         <attribute name="configure_arguments" value="vdl-config.h"/>
         <attribute name="install_arguments" value="PREFIX=$INSTALLDIR"/>
