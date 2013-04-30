@@ -883,7 +883,7 @@
 	<attribute name="revision" value="dce-1.0-rc1"/>
       </source>
       <depends_on name="elf-loader" optional="True"/>
-      <depends_on name="net-next-sim-2.6.36" optional="True"/>
+      <depends_on name="net-next-sim-2.6.36" optional="False"/>
       <depends_on name="iproute" optional="False"/>
       <depends_on name="iperf" optional="True"/>
       <depends_on name="ccnx" optional="True"/>
