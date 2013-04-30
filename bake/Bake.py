@@ -26,6 +26,7 @@ from bake.Exceptions import MetadataError
 from bake.Utils import ColorTool
 from bake.Exceptions import TaskError 
 from bake.ModuleSource import SystemDependency 
+from bake.ModuleBuild import NoneModuleBuild 
 
 def signal_handler(signal, frame):
     """ Handles Ctrl+C keyboard interruptions """
@@ -806,7 +807,7 @@ class Bake:
         
         def _do_build(configuration, module, env):
             
-            if isinstance(module._source, SystemDependency):
+            if isinstance(module._build, NoneModuleBuild):
                 return True
             
             sys.stdout.write(" >> Building " + module.name()  + " - ")
@@ -1098,7 +1099,8 @@ class Bake:
                         if(not installerName):
                             installerName = this_key
                         
-                        print("   >> Try: " + command + " " + installerName)
+                        print('   >> Try: "sudo ' + command + ' ' + 
+                              installerName + '", if you have sudo rights.')
 
                     missing = True
                 else:
