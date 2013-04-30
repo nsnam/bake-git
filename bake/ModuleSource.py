@@ -76,7 +76,7 @@ class ModuleSource(ModuleAttributeBase):
         if tools.has_key(distribution):
             return tools[distribution]
         else :
-            return None
+            return ''
 
 class NoneModuleSource(ModuleSource):
     """ This class defines an empty source, i.e. no source code fetching is 
@@ -649,7 +649,7 @@ class SystemDependency(ModuleSource):
             
         program = self.source_systemtool()
         
-        if program:
+        if not program == '':
             return env.check_program(program)
 #        for dist, program in distributions:
 #            if distribution.startswith(dist):

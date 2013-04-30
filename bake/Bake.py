@@ -692,6 +692,16 @@ class Bake:
             if isinstance(module._source, SystemDependency):  
        
                 dependencTest = module._source.attribute('dependency_test').value
+                
+#                tool=module._source.source_systemtool()
+#                if tool=='':
+#                    sys.stdout.write (" >> Downloading " + module.name() + targetDir + " - ")
+#                    module.printResult(env, "Download", module.FAIL)
+#                    raise TaskError('    Unavailable Downloading tool %s'
+#                                ' for module "%s".\n 
+#                                '    More information from the module: \"%s\"\n' % 
+#                                (tool, module.name(), 
+#                                 )
         
                 if(dependencTest):
                     # tests if the dependency exists or not        
@@ -723,10 +733,15 @@ class Bake:
                     module.printResult(env, "Download", module.FAIL)
                 
                     if isinstance(module._source, SystemDependency):
-                        tool =  module._source.source_systemtool()
+                        env._logger.commands.write(' Module: \"%s\" is required by other modules but it is not available on your system.\n' 
+                                        '     Ask your system admin or review your library database to add \"%s\"\n'
+                                        '     More information from the module: \"%s\"\n'% (module.name(), module.name(),
+                               module._source.attribute('more_information').value))
+                        return False
+
                     else:
                         tool = module._source.name()
-                    raise TaskError('    Unavailable Downloading tool (%s)'
+                        raise TaskError('    Unavailable Downloading tool %s'
                                 ' for module "%s". Try to call \"%s check\"\n' % 
                                 (tool, module.name(), 
                                  os.path.basename(sys.argv[0])))
