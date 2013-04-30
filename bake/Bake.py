@@ -693,24 +693,14 @@ class Bake:
        
                 dependencTest = module._source.attribute('dependency_test').value
                 
-#                tool=module._source.source_systemtool()
-#                if tool=='':
-#                    sys.stdout.write (" >> Downloading " + module.name() + targetDir + " - ")
-#                    module.printResult(env, "Download", module.FAIL)
-#                    raise TaskError('    Unavailable Downloading tool %s'
-#                                ' for module "%s".\n 
-#                                '    More information from the module: \"%s\"\n' % 
-#                                (tool, module.name(), 
-#                                 )
-        
+                sys.stdout.write (" >> Searching for system dependency " + module.name() + " - ")
                 if(dependencTest):
                     # tests if the dependency exists or not        
                     dependencyExists = module._source._check_dependency_expression(env, dependencTest) 
                     # if the dependency exists there is nothing else to do
                     if(dependencyExists) :
                         env.start_source(module.name(), ".")
-                        sys.stdout.write (" >> Module " + module.name() + 
-                                                   " is already installed on the system\n")
+                        module.printResult(env, "Search", module.OK)
                         env.end_source()
                         return True
 
@@ -718,7 +708,9 @@ class Bake:
                 targetDir=''
                 if module._source.attribute('module_directory') and not module._source.attribute('module_directory').value.strip() =='':
                     targetDir=' (target directory:%s)'%module._source.attribute('module_directory').value
-                sys.stdout.write (" >> Downloading " + module.name() + targetDir + " - ")
+                
+                if not isinstance(module._source, SystemDependency):
+                    sys.stdout.write (" >> Downloading " + module.name() + targetDir + " - ")
                 sys.stdout.flush()
                 if env._logger._verbose > 0:
                     print
@@ -730,8 +722,11 @@ class Bake:
                 if valueToReturn: 
                     return module.download(env, options.force_download)
                 else:
-                    module.printResult(env, "Download", module.FAIL)
-                
+                    if isinstance(module._source, SystemDependency):
+                        module.printResult(env, "Dependency ", module.FAIL)
+                    else:
+                        module.printResult(env, "Download", module.FAIL)
+               
                     if isinstance(module._source, SystemDependency):
                         env._logger.commands.write(' Module: \"%s\" is required by other modules but it is not available on your system.\n' 
                                         '     Ask your system admin or review your library database to add \"%s\"\n'

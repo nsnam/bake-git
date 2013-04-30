@@ -400,10 +400,8 @@ class SystemDependency(ModuleSource):
         sudoer=self.attribute('sudoer_install').value
         if sudoer: sudoer = sudoer.lower()
         if(sudoer =='true' and (not env.sudoEnabled)):
-            raise TaskError('    Module: \"%s\" requires sudo rights, if' 
-                            ' you have the right, call bake with the'
-                            ' --sudo option, or ask your system admin'
-                            ' to install \"%s\" in your machine.\n'
+            raise TaskError('    Module: \"%s\" requires sudo rights, ask your'
+                            ' system admin to remove \"%s\" from your machine.\n'
                             '    More information from the module: \"%s\"' 
                             % (env._module_name, installerName, 
                                self.attribute('more_information').value))
@@ -423,7 +421,7 @@ class SystemDependency(ModuleSource):
         except TaskError as e1:
             if(env.sudoEnabled):
                 e1.reason = ("    Removing problem for module: \"%s\", "
-                            "\n    Probably either you miss sudo rights or the module is"
+                            "\n    Probably either you miss rights or the module is"
                             " not present on your package management databases."
                             "\n    Try to either talk to your system admin or review your "
                             "library database to add \"%s\"\n"
@@ -551,7 +549,7 @@ class SystemDependency(ModuleSource):
         
         if not env._sudoEnabled :
             raise TaskError('    Module: \"%s\" is required by other modules and is not available on your system.\n' 
-                            '    Ask your system admin or try to call bake with --sudo if you have sudo rights.\n'
+                            '    Ask your system admin to install it.\n'
                             '    > More information from the module: \"%s\"' 
                             % (env._module_name, 
                                self.attribute('more_information').value))

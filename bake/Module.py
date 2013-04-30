@@ -15,6 +15,7 @@ import shutil
 from bake.FilesystemMonitor import FilesystemMonitor
 from bake.Exceptions import TaskError
 from bake.Utils import ColorTool
+from bake.ModuleSource import SystemDependency
 
 class ModuleDependency:
     """ Dependency information. """
@@ -123,17 +124,26 @@ class Module:
             
         try:
             self._do_download(env, self._source, self._name, forceDownload)
-            self.printResult(env, "Download", self.OK)
+            if isinstance(self._source, SystemDependency):
+                self.printResult(env, "Dependency ", self.OK)
+            else:
+                self.printResult(env, "Download", self.OK)
             return True
         except TaskError as e:
-            self.printResult(env, "Download", self.FAIL)
+            if isinstance(self._source, SystemDependency):
+                self.printResult(env, "Dependency ", self.FAIL)
+            else:
+                self.printResult(env, "Download", self.FAIL)
             env._logger.commands.write(e.reason+'\n')
             if env.debug :
                 import bake.Utils
                 bake.Utils.print_backtrace()           
             return False
         except:
-            self.printResult(env, "Download", self.FAIL)
+            if isinstance(self._source, SystemDependency):
+                self.printResult(env, "Install", self.FAIL)
+            else:
+                self.printResult(env, "Download", self.FAIL)
             if env.debug :
                 import bake.Utils
                 bake.Utils.print_backtrace()
