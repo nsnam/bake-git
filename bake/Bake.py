@@ -589,8 +589,8 @@ class Bake:
                           help='Do not create the environment file for this run')
         parser.add_option("--sudo", action="store_true",
                           dest="call_with_sudo", default=False, 
-                          help='Attempts to install dependencies and modules, when'
-                          ' required,  using sudo. The user has to have sudo rights.')
+                          help='Best effort attempt to install dependencies and modules, when'
+                          ' required,  using sudo. The user has to have sudo rights (be careful using it).')
       
         return parser
 
