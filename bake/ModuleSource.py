@@ -77,6 +77,45 @@ class ModuleSource(ModuleAttributeBase):
             return tools[distribution]
         else :
             return ''
+        
+    def _check_dependency_expression(self, env, valueToTest):
+        """Verifies if the preconditions exist or not."""
+        
+        # if there is no test to do, return true
+        if(not valueToTest):
+            return True
+        
+        import re  
+           
+        stringToChange = valueToTest
+        
+        ### Clean expression
+        # elements to ignore
+        lib_var = [r'\b(or)\b', r'\b(not)\b', r'\b(and)\b',r'\b(if)\b']
+        
+        stringToChange = re.sub(r'(\(|\))',' ',stringToChange)
+        for element in lib_var :
+            stringToChange = re.sub(element,'',stringToChange) 
+        
+        stringToChange = re.sub(' +',' ', stringToChange)
+        
+        # split the command names
+        if re.search(' ', stringToChange):
+            elementsToChange = stringToChange.split()
+        else :
+            elementsToChange = [stringToChange]
+        
+        # add the call to the function that verifies if the program exist
+        elementsSet = set([])
+        for element in elementsToChange:
+            elementsSet.add(element) 
+        
+        
+        stringToChange = self._add_command_calls(valueToTest.replace('\\',''),elementsSet)
+               
+        # Evaluate if all the programs exist
+        returnValue = eval(stringToChange)
+        return returnValue     
 
 class NoneModuleSource(ModuleSource):
     """ This class defines an empty source, i.e. no source code fetching is 
@@ -181,7 +220,7 @@ class MercurialModuleSource(ModuleSource):
         
         env.run(['hg', 'clone', '-U', self.attribute('url').value, env.srcdir])
         env.run(['hg', 'update', '-r', self.attribute('revision').value],
-                directory=env.srcdir)
+                    directory=env.srcdir)
         
     def update(self, env):
         """ Updates the code using a specific version from the repository."""
@@ -458,44 +497,6 @@ class SystemDependency(ModuleSource):
         return stringToChange
 
 
-    def _check_dependency_expression(self, env, valueToTest):
-        """Verifies if the preconditions exist or not."""
-        
-        # if there is no test to do, return true
-        if(not valueToTest):
-            return True
-        
-        import re  
-           
-        stringToChange = valueToTest
-        
-        ### Clean expression
-        # elements to ignore
-        lib_var = [r'\b(or)\b', r'\b(not)\b', r'\b(and)\b',r'\b(if)\b']
-        
-        stringToChange = re.sub(r'(\(|\))',' ',stringToChange)
-        for element in lib_var :
-            stringToChange = re.sub(element,'',stringToChange) 
-        
-        stringToChange = re.sub(' +',' ', stringToChange)
-        
-        # split the command names
-        if re.search(' ', stringToChange):
-            elementsToChange = stringToChange.split()
-        else :
-            elementsToChange = [stringToChange]
-        
-        # add the call to the function that verifies if the program exist
-        elementsSet = set([])
-        for element in elementsToChange:
-            elementsSet.add(element) 
-        
-        
-        stringToChange = self._add_command_calls(valueToTest.replace('\\',''),elementsSet)
-               
-        # Evaluate if all the programs exist
-        returnValue = eval(stringToChange)
-        return returnValue     
 
     def download(self, env):
         """ Verifies if the system dependency exists, if exists returns true, 

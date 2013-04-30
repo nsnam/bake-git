@@ -26,7 +26,7 @@ from bake.Exceptions import MetadataError
 from bake.Utils import ColorTool
 from bake.Exceptions import TaskError 
 from bake.ModuleSource import SystemDependency 
-from bake.ModuleBuild import NoneModuleBuild 
+from bake.ModuleBuild import NoneModuleBuild
 
 def signal_handler(signal, frame):
     """ Handles Ctrl+C keyboard interruptions """
@@ -807,7 +807,7 @@ class Bake:
         
         def _do_build(configuration, module, env):
             
-            if isinstance(module._build, NoneModuleBuild):
+            if isinstance(module._source, SystemDependency) or isinstance(module._build, NoneModuleBuild):
                 return True
             
             sys.stdout.write(" >> Building " + module.name()  + " - ")

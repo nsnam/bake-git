@@ -284,7 +284,7 @@ class Module:
         """ Main build function. """
         
         # if there is no build we do not need to proceed 
-        if self._build.name() == 'none':
+        if self._build.name() == 'none' or self._source.name() == 'system_dependency':
             return True
         
         # delete in case this is a new build configuration
