@@ -6,6 +6,7 @@
 
 import sys
 import bake
+import traceback
 
 try:
     b = bake.Bake()
@@ -13,4 +14,8 @@ try:
 except SystemExit as e: 
     sys.exit(e)
 except: 
-    print("  >Unexpected exception, please contact the bake developers!<")
+    print("  > Unexpected exception!\n" 
+          "    Please register the error at https://www.nsnam.org/bugzilla, \n"
+          "    with a copy of the trace below and, if possible, a list of steps to reproduce the error!<")
+    sys.stdout.flush()
+    bake.Utils.print_backtrace()
