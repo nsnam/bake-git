@@ -1341,9 +1341,9 @@ To get more help about each command, try:
         parser.add_option("--noColor", action="store_true",
                           dest="noColor", default=False, 
                           help='Print messages with no color')
-        parser.add_option("-v", action="store_true",
+        parser.add_option("--version", action="store_true",
                           dest="version", default=False, 
-                          help='Print messages with no color')
+                          help='Prints the version of Bake' )
         parser.disable_interspersed_args()
         (options, args_left) = parser.parse_args(argv[1:])
         
