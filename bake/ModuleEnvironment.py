@@ -162,7 +162,7 @@ class ModuleEnvironment:
         
         # ensure source directory exists
         if not os.path.isdir(self._sourcedir):
-            os.mkdir(self._sourcedir)
+            os.makedirs(self._sourcedir)
 
     def end_source(self):
         ''' Cleans the environment regarding the informations of the last used
@@ -181,6 +181,11 @@ class ModuleEnvironment:
         self._module_dir = dir
         self._module_supports_objdir = supports_objdir
         self._logger.set_current_module(name)
+
+        if not os.path.isdir(self.installdir):
+            os.makedirs(self.installdir)
+        if not os.path.isdir(self.objdir):
+            os.makedirs(self.objdir)
 
     def end_build(self):
         ''' Cleans the environment regarding the informations of the last used
