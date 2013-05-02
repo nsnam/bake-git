@@ -61,7 +61,7 @@ class Bake:
             bake.Utils.print_backtrace()           
         else:
             print('   For more information call Bake with --debug and/or'
-                  ' -v, -vvv (bake --help)')
+                  ' -v, -vvv, for full verbose mode (bake --help)')
         sys.exit(1)
         
     def _fix_config(self, config, args):
@@ -1166,6 +1166,9 @@ class Bake:
         del has_passed[key]
         return key +'/'+ listStr
 
+    def _print_version(self):
+        print(" > Bake Version 0.1")
+        
     def _show(self, config, args):
         """Handles the show command line option."""
         
@@ -1337,8 +1340,14 @@ To get more help about each command, try:
         parser.add_option("--noColor", action="store_true",
                           dest="noColor", default=False, 
                           help='Print messages with no color')
+        parser.add_option("-v", action="store_true",
+                          dest="version", default=False, 
+                          help='Print messages with no color')
         parser.disable_interspersed_args()
         (options, args_left) = parser.parse_args(argv[1:])
+        
+        if options.version:
+            self._print_version()
         
 #        if options.config_file == "bakefile.xml":
 #            options.config_file = self.check_configuration_file(options.config_file, False)

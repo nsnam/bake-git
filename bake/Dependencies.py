@@ -345,7 +345,7 @@ class Dependencies:
                                              '   However, bake will continue since'
                                              ' "%s" is not an essential dependency.\n'
                                              '   For more'
-                                             ' information call bake with -v.\n' 
+                                             ' information call bake with -v or -vvv, for full verbose mode.\n' 
                                              % (i.dst()._name,i.dst()._name))
                                 self.dependencies[i.dst()._name].moduleProblem = True
             if self._dirty:

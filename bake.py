@@ -6,7 +6,6 @@
 
 import sys
 import bake
-import traceback
 
 try:
     b = bake.Bake()
