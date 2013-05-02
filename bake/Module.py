@@ -118,7 +118,7 @@ class Module:
                 osName = platform.system().lower()
                 (distname,version,ids)=platform.linux_distribution()
                 print('    Downloading, but this module works only on \"%s\"' 
-                      ' platform(s), %s is not supported for \"%s %s %s %s\"' % 
+                      ' platform(s), %s is not supported for %s %s %s %s' % 
                       (self._build.attribute('supported_os').value, 
                        self._name, platform.system(), distname,version,ids))
             

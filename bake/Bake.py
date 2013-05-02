@@ -695,6 +695,7 @@ class Bake:
                 dependencTest = module._source.attribute('dependency_test').value
                 
                 sys.stdout.write (" >> Searching for system dependency " + module.name() + " - ")
+                sys.stdout.flush()
                 if(dependencTest):
                     # tests if the dependency exists or not        
                     dependencyExists = module._source._check_dependency_expression(env, dependencTest) 

@@ -204,7 +204,15 @@ class ModuleEnvironment:
 
     def path_list(self):
         ''' Return path that will be searched for executables '''
-        return os.environ["PATH"].split(os.pathsep) + [self._bin_path()]
+        pythonpath=[]
+        
+        try:
+            if os.environ["PYTHONPATH"]:
+                pythonpath=os.environ["PYTHONPATH"].split(os.pathsep)                
+        except:
+            pass
+            
+        return os.environ["PATH"].split(os.pathsep) + [self._bin_path()] + pythonpath
 
     def _program_location(self, program):
         ''' Finds where the executable is located in the user's path.'''
@@ -227,10 +235,10 @@ class ModuleEnvironment:
                 
             toFindIn=None 
             # search for libs with that name on the library path
-            index=program.find(".so")
+            index=program.find(".so") + program.find(".a")
             if index>0 :
                 toFindIn=['/usr/lib','/usr/lib64','/usr/lib32','/usr/local/lib',
-                     '/lib']
+                     '/lib','/opt/local/lib','/opt/local/Library']
                 for libpath in self._libpaths:
                     toFindIn.append(libpath)
                 stdLibs = []
@@ -244,11 +252,12 @@ class ModuleEnvironment:
                 tofindIn=toFindIn+stdLibs+[self._lib_path()]
 
             elif program.endswith(".h"):
-                toFindIn=['/usr/include', '/usr/local/include', '/usr/lib']  
+                toFindIn=['/usr/include', '/usr/local/include', '/usr/lib','/opt/local/include']  
                  
             if toFindIn : 
                 for eachdir in toFindIn:
                     for dirname, dirnames, filenames in os.walk(eachdir):
+#                        print (dirname)
                     # print path to all filenames.
                         for filename in filenames:
                             if filename==name:

@@ -598,6 +598,7 @@
         <attribute name="try_to_install" value="False"/>
         <attribute name="name_apt-get" value="python-pygraphviz"/>
         <attribute name="name_yum" value="graphviz-python"/>
+        <attribute name="name_yum" value="py27-pygraphviz"/> 
         <attribute name="more_information" value="The pygraphviz is not installed, try to install it."/>
       </source>
       <build type="none" objdir="no">
@@ -606,10 +607,11 @@
 
     <module name="pygoocanvas">
       <source type="system_dependency">
-        <attribute name="dependency_test" value="goocanvasmodule.so"/>
+        <attribute name="dependency_test" value="goocanvasmodule.so or libgoocanvas.a"/>
         <attribute name="try_to_install" value="True"/>
         <attribute name="name_apt-get" value="python-pygoocanvas"/>
         <attribute name="name_yum" value="pygoocanvas"/>
+        <attribute name="name_port" value="pygoocanvas"/>
         <attribute name="more_information" value="The pygoocanvas is not installed, try to install it."/>
       </source>
       <build type="none" objdir="no">
@@ -925,9 +927,8 @@
       </build>
     </module>
   </modules>
-
-
-  <predefined name="dbg">
+ 
+ <predefined name="dbg">
     <append name="CFLAGS" value="-g"/>
     <append name="CXXFLAGS" value="-g"/>
     <configuration objdir="dbg"/>
