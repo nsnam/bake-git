@@ -532,7 +532,12 @@ class Bake:
             deps.resolve(targets)
 #            deps.dump2(sys.stdout)
         except DependencyUnmet as error:
-            self._error(' Critical dependency, module "' + error.failed().name() + '" failed.')
+            if not error.method() =='':
+                errorAppend = ' ' + error.method()
+            else:
+                 errorAppend = ' failed'
+               
+            self._error(' Critical dependency, module "' + error.failed().name()+'"' + errorAppend)
 
     def _read_config(self, config, directory=None):
         """Reads the configuration file."""
@@ -1341,7 +1346,7 @@ To get more help about each command, try:
         parser.add_option("--noColor", action="store_true",
                           dest="noColor", default=False, 
                           help='Print messages with no color')
-        parser.add_option("--version", action="store_true",
+        parser.add_option("-V", action="store_true",
                           dest="version", default=False, 
                           help='Prints the version of Bake' )
         parser.disable_interspersed_args()

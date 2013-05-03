@@ -18,14 +18,19 @@
 import copy
 import sys
 from bake.Exceptions import TaskError 
+from bake.ModuleSource import SystemDependency
 
 class CycleDetected:
     def __init__(self):
         return
 
 class DependencyUnmet:
-    def __init__(self, failed):
+    def __init__(self, failed, method=''):
         self._failed = failed
+        self._method = method
+    def method(self):
+        return self._method
+
     def failed(self):
         return self._failed
 
@@ -334,19 +339,25 @@ class Dependencies:
                     for j in self._sources[i.dst()]:
                         dependencyTmp= self.dependencies.get(i.dst()._name)
                         if dependencyTmp:
+                            if isinstance(i.dst()._source, SystemDependency):
+                                tailError =  'not available'
+                            else:
+                                tailError =  'failed'
+                                
                             if not dependencyTmp.optionalChain:
-                                raise DependencyUnmet(i.dst())
+                                raise DependencyUnmet(i.dst(), tailError)
                             
                             if not self.dependencies[i.dst()._name].moduleProblem:
+                                
                                 print (' > Problem: Optional dependency,'
-                                             ' module "%s" failed.\n'
+                                             ' module "%s" %s\n'
                                              '   This may reduce the  '
-                                             'functionalities of the final build. \n'
+                                             'functionality of the final build. \n'
                                              '   However, bake will continue since'
                                              ' "%s" is not an essential dependency.\n'
                                              '   For more'
                                              ' information call bake with -v or -vvv, for full verbose mode.\n' 
-                                             % (i.dst()._name,i.dst()._name))
+                                             % (i.dst()._name,tailError, i.dst()._name))
                                 self.dependencies[i.dst()._name].moduleProblem = True
             if self._dirty:
                 self._dirty = False
