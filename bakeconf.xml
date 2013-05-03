@@ -568,7 +568,7 @@
       </source>
       <build type="python" objdir="yes">
       </build>
-      <depends_on name="gccxml-ns3" optional="True"/>
+      <depends_on name="gccxml-ns3" optional="False"/>
     </module>
 
     <module name="pygccxml-1.0.0">
@@ -577,7 +577,7 @@
       </source>
       <build type="python" objdir="yes">
       </build>
-      <depends_on name="gccxml-ns3" optional="True"/>
+      <depends_on name="gccxml-ns3" optional="False"/>
     </module>
 
     <module name="python-dev">
@@ -639,7 +639,7 @@
 	<attribute name="build_arguments" value="--generate-version"/>
       </build>
       <depends_on name="pygccxml" optional="True"/>
-      <depends_on name="gccxml-ns3" optional="False"/>
+      <depends_on name="python-dev" optional="True"/>
     </module>
 
     <module name="pybindgen-0.16.0.825">
