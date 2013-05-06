@@ -694,6 +694,9 @@ class Bake:
 #        downloadTool2 = self._check_source_version(config, options)
         def _do_download(configuration, module, env):
             
+            if module._source.name() == 'none':
+                return True  
+
             dependencyExists = None
             if isinstance(module._source, SystemDependency):  
        
@@ -758,6 +761,9 @@ class Bake:
 
         
         def _do_update(configuration, module, env):
+            if module._source.name() == 'none':
+                return True  
+
             targetDir=''
             if module._source.attribute('module_directory') and not module._source.attribute('module_directory').value.strip() =='':
                 targetDir=' (target directory:%s)'%module._source.attribute('module_directory').value
