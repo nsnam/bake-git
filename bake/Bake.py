@@ -755,8 +755,21 @@ class Bake:
         parser = self._option_parser('update')
         (options, args_left) = parser.parse_args(args)
         self._check_source_version(config, options)
+
+        
         def _do_update(configuration, module, env):
+            targetDir=''
+            if module._source.attribute('module_directory') and not module._source.attribute('module_directory').value.strip() =='':
+                targetDir=' (target directory:%s)'%module._source.attribute('module_directory').value
+
+            if not isinstance(module._source, SystemDependency):
+                sys.stdout.write (" >> Updating " + module.name() + targetDir + " - ")
+            sys.stdout.flush()
+            if env._logger._verbose > 0:
+                print
+                
             return module.update(env)
+
         self._do_operation(config, options, _do_update)
 
     def _check_build_version(self, config, options):

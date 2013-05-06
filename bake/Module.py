@@ -172,15 +172,18 @@ class Module:
         
         try:
             self._do_update(env, self._source, self._name)
-            print(" Update " + self._name + " - OK")
+            self.printResult(env, " Update ", self.OK)
             return True
         except TaskError as e:
-            print(e.reason)
+            self.printResult(env, " Update ", self.FAIL)
+            env._logger.commands.write(e.reason+'\n')
             if env.debug :
                 import bake.Utils
                 bake.Utils.print_backtrace()           
             return False
         except:
+            self.printResult(env, " Update ", self.FAIL)
+            env._logger.commands.write(e.reason+'\n')
             if env.debug :
                 import bake.Utils
                 bake.Utils.print_backtrace()
