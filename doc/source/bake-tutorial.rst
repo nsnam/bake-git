@@ -6,14 +6,14 @@ Introduction
 
 This tutorial will present a walk through over all the steps to set, configure, download and build a new module using Bake. 
 
-Bake is a tool for distributed buildings, developed for the ns-3 project, but it is general and could be used to help on the development of any open-source project.  First of all, Bake is developed in python, so you have to have python on your machine.  This walk-through will consider that the user is using a Linux, fedora or Ubuntu distributions, with bash.  
+Bake is a tool for distributed buildings, developed for the ns-3 project, but it is general and could be used to help on the development of any open-source project.  First of all, Bake is developed in python, so you have to have python on your machine.  This walk-through will consider that the user is using a Linux, Fedora or Ubuntu distributions, with bash.  
 
 Conventions: 
 ************
 |    During the tutorial we will use the following conventions:
 |     **> [command]** - For now, bake is only Linux compatible, the “>” means the prompt into a Linux machine, and what comes next, [command] , is the command that should be executed on a bash shell screen. It also means that the operation is distribution independent.
 |     **Ubuntu >**  - Designates commands that are specific for Ubuntu distributions
-|     **fedora >**  - Designates commands that are specific for fedora distributions
+|     **Fedora >**  - Designates commands that are specific for Fedora distributions
 |     **$BAKE_HOME** -  is the home directory for bake
 |     **$HOME** - the user home directory, this tutorial considers that, by default, all the actions will be performed from this directory. Whenever one need a relative path, it will be given regarding the HOME directory.  For example, if  HOME=/home/username  $HOME/bake would be /home/username/bake. 
 
@@ -36,7 +36,7 @@ If as answer you receive the version of the installed python, preferably above 2
  
  Ubuntu > sudo apt-get install python 
  or
- fedora > sudo yum install python
+ Fedora > sudo yum install python
 
 After solving any python related issues, you can check the third party tools bake relies on by  calling:
 
@@ -56,7 +56,7 @@ You can get the bake code from the ns-3 code repository.
 
 ::
  
-  > hg clone http://code.nsnam.org/daniel/bake bake
+  > hg clone http://code.nsnam.org/bake bake
 
 This should create a bake repository on the directory you are in now
 
@@ -76,48 +76,53 @@ Now, from any place of your machine you can call bake.py.
 ::
  
  > bake.py 
- Usage: bake.py [options] command [command options]
+Usage: bake.py [options] command [command options]
 
- Where command is one of:
-  install      	: Downloads the configured modules AND makes the build in one step
-  configure    	: Setup the build configuration (source, build, install directory,
-                 	and per-module build options) from the module descriptions
-  fix-config  	: Update the build configuration from a newer module description
-  download     	: Download all modules enabled during configure
-  update       	: Update the source tree of all modules enabled during configure
-  build        	: Build all modules enabled during configure
-  clean        	: Cleanup the source tree of all modules built previously
-  shell        	: Start a shell and setup relevant environment variables
-  uninstall    	: Remove all files that were installed during build
-  distclean    	: Remove build AND source files
-  show         	: Report on build configuration
-  show-builtin 	: Report on builtin source and build commands
-  check        	: Checks if all the required tools are available on the system
- To get more help about each command, try:
-   bake.py command --help
+Where command is one of:
+  deploy       : Downloads the configured modules AND makes the build in one step
+  configure    : Setup the build configuration (source, build, install directory,
+                 and per-module build options) from the module descriptions
+  fix-config   : Update the build configuration from a newer module description
+  download     : Download all modules enabled during configure
+  update       : Update the source tree of all modules enabled during configure
+  build        : Build all modules enabled during configure
+  clean        : Cleanup the source tree of all modules built previously
+  shell        : Start a shell and setup relevant environment variables
+  uninstall    : Remove all files that were installed during build
+  distclean    : Call the modules distclean option, if available
+  fullclean    : Remove all the build AND source files
+  show         : Report on build configuration
+  show-builtin : Report on builtin source and build commands
+  check        : Checks if all the required tools are available on the system
 
- Options:
-   -h, --help            show this help message and exit
-   -f CONFIG_FILE, --file=CONFIG_FILE
-                        The Bake file to use. Default: bakefile.xml.
-   --debug               Should we enable extra Bake debugging output ?
+To get more help about each command, try:
+  bake.py command --help
+
+Options:
+  -h, --help            show this help message and exit
+  -f CONFIG_FILE, --file=CONFIG_FILE
+                        The Bake file to use, and the target
+                        configuration/reconfiguration. Default: bakefile.xml.
+  --debug               Prints out all the error messages and problems.
+  --noColor             Print messages with no color
+  -V                    Prints the version of Bake
 
 Basic Bake usage
 ****************
 
 To run bake, first of all,  you need the configuration file, that describes how the modules should be built. By default this file is called bakefile.xml. Bake includes a generic configuration filed, called bakeconf.xml that is shipped with bake ($HOME/bake/bakeconf.xml) or with the standard ns-3 distribution.  This file contains the generic information for all the available modules that bakes can handle.  We will see later how to create a new input to this generic configuration file. But for now it is important to understand that the bakeconf.xml will work as a template for your personal and specific configuration. On the bakeconf.xml we have all the available module for ns-3 and more, you should choose a subset of these to be installed on your system. 
  
-To configure bake to install, for example, ns-3-dev, you can:
+To configure bake to build, for example, ns-3-dev, you can:
 
 ::
  
- > bake.py configure -c $BAKE_HOME/bakeconf.xml -e ns-3-dev  
+ > bake.py configure -e ns-3-dev  
 
 This command will create a specific configuration file on the local directory called bakefile.xml. This file has ns-3-dev and all the optional modules enabled to download and build. By default the file will be configured to download the required source files at the “source” directory and install them at the “build” directory. Optionally one can do something like this  
 
 ::
  
- > bake.py -f nonStandardName.xml configure -c $BAKE_HOME/bakefile.xml -e ns-3-dev --installdir=/tmp/installBake --sourcedir=/tmp/sourceBake
+ > bake.py -f nonStandardName.xml configure -c $BAKE_HOME/bakefile.xml -e ns-3-allinone --installdir=/tmp/installBake --sourcedir=/tmp/sourceBake
 
 This will create the nonStandardName.xml configuration file on the local directory and will set the sources to be stored at “/tmp/sourceBake” and the installation directory to be “/tmp/installBake”. 
 
@@ -125,9 +130,9 @@ To create the executable instance of ns-3 you can either call:
 
 ::
  
-  > bake.py install
+  > bake.py deploy
 
-this will make the download and build of the selected modules, alternatively you can use bake to download all the required files and install ns-3 afterwards even in offline mode.  To do this you should call: 
+this will make the download and build of the selected modules in one step. Alternatively you can use bake to download all the required files and install ns-3 afterwards even in offline mode.  To do this you should call: 
 
 ::
  
@@ -154,41 +159,186 @@ Bake has a template file, where we store the configuration of all the modules ba
 
 ::
  
- > bake.py -f myPersonalConfig.xml configure -c nonStandardName.xml -e ns-3-dev -d net_anim 
+ > bake.py -f myPersonalConfig.xml configure -c nonStandardName.xml -e ns-3-allinone -d netanim-dev 
 
 This command will use nonStandardName.xml as a template to create the user’s configuration file, myPersonalConfig.xml. To see the activated modules on myPersonalConfig.xml do the following: 
 
 ::
  
   > bake.py -f myPersonalConfig.xml show 
- module: click (enabled)
-   No dependencies!
- module: openflow-ns3 (enabled)
-   No dependencies!
- module: gccxml-ns3 (enabled)
-   No dependencies!
- module: nsc (enabled)
-   No dependencies!
- module: qt4 (enabled)
-   No dependencies!
- module: pygccxml (enabled)
-   depends on:
-      gccxml-ns3 (optional:True)
- module: net_anim (enabled)
-   depends on:
-      qt4 (optional:True)
- module: pybindgen (enabled)
-   depends on:
-      pygccxml (optional:True)
- module: ns-3-dev (enabled)
-   depends on:
-      net_anim (optional:True)
-      nsc (optional:True)
-      pybindgen (optional:True)
-      click (optional:True)
-      openflow-ns3 (optional:True)
+module: python-dev (enabled)
+  No dependencies!
+module: pygraphviz (enabled)
+  No dependencies!
+module: pygoocanvas (enabled)
+  No dependencies!
+module: gccxml-ns3 (enabled)
+  No dependencies!
+module: nsc-dev (enabled)
+  No dependencies!
+module: click-dev (enabled)
+  No dependencies!
+module: libxml2-dev (enabled)
+  No dependencies!
+module: pygccxml (enabled)
+  depends on:
+     gccxml-ns3 (optional:False)
+module: pyviz-prerequisites (enabled)
+  depends on:
+     python-dev (optional:True)
+     pygraphviz (optional:True)
+     pygoocanvas (optional:True)
+module: openflow-dev (enabled)
+  depends on:
+     libxml2-dev (optional:False)
+module: pybindgen-dev (enabled)
+  depends on:
+     pygccxml (optional:True)
+     python-dev (optional:True)
+module: ns-3-allinone (enabled)
+  depends on:
+     netanim-dev (optional:True)
+     nsc-dev (optional:True)
+     pybindgen-dev (optional:True)
+     pyviz-prerequisites (optional:True)
+     click-dev (optional:True)
+     openflow-dev (optional:True)
 
-Pay attention that the results bake show for myPersonalConfig.xml and nonStandardName.xml are different, since we disabled net_anim (-d net_anim).
+-- System Dependencies --
+ > libxml2-dev - OK
+ > pygoocanvas - Missing
+   >> The pygoocanvas is not installed, try to install it.
+   >> Try: "sudo yum -y install pygoocanvas", if you have sudo rights.
+ > pygraphviz - Missing
+   >> The pygraphviz is not installed, try to install it.
+   >> Try: "sudo yum -y install py27-pygraphviz", if you have sudo rights.
+ > python-dev - OK
+
+Pay attention that the results bake show for myPersonalConfig.xml and 
+nonStandardName.xml are different, since we disabled netanim-dev
+(-d netanim-dev).  Some dependencies are missing (pygoocanvas and pygraphviz). 
+These are refered at pyviz-prerequisites, that is by its turn an optional module
+of ns-3-allinone. To have a more visual description of the enabled module you can also 
+call: 
+ 
+::
+ 
+  > bake.py -f myPersonalConfig.xml show 
+module: click-dev (enabled)
+  No dependencies!
+module: libxml2-dev (enabled)
+  No dependencies!
+module: gccxml-ns3 (enabled)
+  No dependencies!
+module: python-dev (enabled)
+  No dependencies!
+module: pygraphviz (enabled)
+  No dependencies!
+module: pygoocanvas (enabled)
+  No dependencies!
+module: nsc-dev (enabled)
+  No dependencies!
+module: openflow-dev (enabled)
+  depends on:
+     libxml2-dev (optional:False)
+module: pygccxml (enabled)
+  depends on:
+     gccxml-ns3 (optional:False)
+module: pyviz-prerequisites (enabled)
+  depends on:
+     python-dev (optional:True)
+     pygraphviz (optional:True)
+     pygoocanvas (optional:True)
+module: pybindgen-dev (enabled)
+  depends on:
+     pygccxml (optional:True)
+     python-dev (optional:True)
+module: ns-3-allinone (enabled)
+  depends on:
+     netanim-dev (optional:True)
+     nsc-dev (optional:True)
+     pybindgen-dev (optional:True)
+     pyviz-prerequisites (optional:True)
+     click-dev (optional:True)
+     openflow-dev (optional:True)
+
+-- Enabled modules dependency tree --
++-enabled/
+  |
+  +-click-dev
+  |
+  +-gccxml-ns3
+  |
+  +-libxml2-dev
+  |
+  +-ns-3-allinone/
+  | |
+  | +-click-dev (optional)
+  | |
+  | |
+  | +-nsc-dev (optional)
+  | |
+  | +-openflow-dev/ (optional)
+  | | |
+  | | +-libxml2-dev (mandatory)
+  | |
+  | +-pybindgen-dev/ (optional)
+  | | |
+  | | +-pygccxml/ (optional)
+  | | | |
+  | | | +-gccxml-ns3 (mandatory)
+  | | |
+  | | +-python-dev (optional)
+  | |
+  | +-pyviz-prerequisites/ (optional)
+  |   |
+  |   +-pygoocanvas (optional)
+  |   |
+  |   +-pygraphviz (optional)
+  |   |
+  |   +-python-dev (optional)
+  |
+  +-nsc-dev
+  |
+  +-openflow-dev/
+  | |
+  | +-libxml2-dev (mandatory)
+  |
+  +-pybindgen-dev/
+  | |
+  | +-pygccxml/ (optional)
+  | | |
+  | | +-gccxml-ns3 (mandatory)
+  | |
+  | +-python-dev (optional)
+  |
+  +-pygccxml/
+  | |
+  | +-gccxml-ns3 (mandatory)
+  |
+  +-pygoocanvas
+  |
+  +-pygraphviz
+  |
+  +-python-dev
+  |
+  +-pyviz-prerequisites/
+    |
+    +-pygoocanvas (optional)
+    |
+    +-pygraphviz (optional)
+    |
+    +-python-dev (optional)
+
+-- System Dependencies --
+ > libxml2-dev - OK
+ > pygoocanvas - Missing
+   >> The pygoocanvas is not installed, try to install it.
+   >> Try: "sudo yum -y install pygoocanvas", if you have sudo rights.
+ > pygraphviz - Missing
+   >> The pygraphviz is not installed, try to install it.
+   >> Try: "sudo yum -y install py27-pygraphviz", if you have sudo rights.
+ > python-dev - OK
 
 
 The configuration file

@@ -28,20 +28,83 @@ Prerequisites
 =============
  First of all Bake is implemented in Python, so Python is required. Bake wraps a series of commands to make the life of the user's easier.  However, it is required to have installed in the machine the third part tools used to download and build the modules. The user can verify the missing tools by calling 'bake.py check'. 
 | > bake.py check
-|  > Python - Ok
-|  > Mercurial - Ok
-|  > CVS - Ok
-|  > GIT - Ok
-|  > Bazaar - Ok
-|  > Tar tool - Ok
-|  > Unzip tool - Ok
-|  > Unrar tool - Ok
-|  > 7z  data compression utility - Ok
-|  > XZ data compression utility - Ok
-|  > Make - Ok
-|  > cMake - Ok
-|  > path tool - Ok
-|  > Autotools - Ok
+ First of all, Bake is developed in python, so to run Bake you have to have python on your machine. 
+
+To check if you have python installed you can open a shell window and call: 
+:: 
+
+   > python -V
+
+If as answer you receive the version of the installed python, preferably above 2.6.0, you do have python installed on your machine.   If you received a "command not found"  kind of message, you do not have python on your machine, or it is not on your path.  Try to talk to your administrator, or, if you have root rights,  you should try to:
+
+::
+
+  ubuntu > sudo apt-get install python 
+  or
+  fedora > sudo yum install python
+
+To check if you have mercurial installed you can open a shell window and call:
+
+:: 
+
+    > hg version
+
+If as answer you receive the version of the installed mercurial, preferably above 1.9.3, you do have mercurial installed on your machine.   If you received a "command not found" try to talk to your administrator, or, if you have root rights try:
+
+::
+ 
+   ubuntu > sudo apt-get install mercurial 
+   or
+   fedora > sudo yum install mercurial
+
+
+After solving any mercurial related issues, you can download and install Bake by:
+
+
+| **1. Downloading Bake**
+|   You can get the bake code from the |ns3| code repository. 
+
+::
+    > hg clone http://code.nsnam.org/bake bake
+
+This should create a bake repository on the directory you are in now
+
+| **2. Put bake on the path**
+
+::
+
+   > export BAKE_HOME=`pwd`/bake
+   > export PATH=$PATH:$BAKE_HOME
+   > export PYTHONPATH=$PYTHONPATH:$BAKE_HOME
+
+Bake utilizes a series of third party tools,  you can check if they exist in your system by calling:
+
+::
+
+  > bake.py check
+ 
+After configuring one specific building scenario, you can check the modules selected and if the system dependencies are present by calling:
+
+::
+
+  > bake.py show
+|  > Python - OK
+|  > GNU C++ compiler - OK
+|  > Mercurial - OK
+|  > CVS - OK
+|  > GIT - OK
+|  > Bazaar - OK
+|  > Tar tool - OK
+|  > Unzip tool - OK
+|  > Unrar tool - OK
+|  > 7z  data compression utility - OK
+|  > XZ data compression utility - OK
+|  > Make - OK
+|  > cMake - OK
+|  > patch tool - OK
+|  > autoreconf tool - OK
+
+ > Path searched for tools: /usr/lib64/qt-3.3/bin /usr/lib64/ccache /usr/local/bin /usr/bin /bin /usr/local/sbin /usr/sbin /sbin 
 
 Basic usage
 ===========
@@ -50,14 +113,14 @@ A typical user session should be:::
   > wget http://code.nsnam.org/bake/raw-file/tip/bakeconf.xml
   > bake.py show --available
   > bake.py configure -e <one of the available modules>
-  > bake.py install
+  > bake.py deploy
 
 The result:
 
 * The wget command will download the last version of the bake configuration file
 * **bake.py show **available** will show all the available modules
 * After configuring bake with **bake.py configure** a bakefile.xml, containing the output of configuration step should be created on the same directory the user called bake configure
-* After calling **bake.py install** two directories, build and source should have been created. Source will have one directory for each module downloaded and the build will contains the installed object files for all the built modules. 
+* After calling **bake.py deploy** two directories, build and source should have been created. Source will have one directory for each module downloaded and the build will contains the installed object files for all the built modules. 
 
 The installation process may be broken into download and build, in this way the user just need to be online to perform the download and the build may be done later, even offline. 
 

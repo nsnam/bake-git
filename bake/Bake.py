@@ -1177,15 +1177,16 @@ class Bake:
                 else:
                     optional = " (mandatory)"
 
-            if len(fulldep[this_key])>0:
+            if this_key in fulldep and len(fulldep[this_key])>0:
                         
                 if count == len(depend_keys):
                     listStr = listStr + self.deptree(fulldep, fulldep[this_key], this_key, has_passed, optional, padding + ' ')
                 else:
                     listStr = listStr + self.deptree(fulldep, fulldep[this_key], this_key, has_passed, optional, padding + '|')
             else:
-                sys.stdout.write(padding + '+-' + this_key)
-                ColorTool.cPrintln(color, optional)
+                if this_key in fulldep:
+                    sys.stdout.write(padding + '+-' + this_key)
+                    ColorTool.cPrintln(color, optional)
                 listStr = this_key +'.'+ listStr
                
         del has_passed[key]
@@ -1391,7 +1392,8 @@ To get more help about each command, try:
 
 
         if len(args_left) == 0:
-            parser.print_help()
+            if not options.version:
+                parser.print_help()
             sys.exit(1)
         ops = [ ['deploy', self._deploy],
                 ['configure', self._configure],
