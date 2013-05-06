@@ -338,8 +338,8 @@
         <attribute name="url" value="http://www.acme.com/software/thttpd/thttpd-2.25b.tar.gz"/>
         <attribute name="extract_directory" value="thttpd-2.25b"/>
       </source>
-      <build type="make" objdir="yes">
-        <attribute name="pre_installation" value="cd $SRCDIR;./configure --prefix=$INSTALLDIR"/>
+      <build type="make" objdir="yes">/"
+        <attribute name="pre_installation" value="cd $SRCDIR; sed &quot;s/rm conftest.c/rm -f conftests.c/&quot; configure >a; mv a configure; chmod 755 configure;./configure --prefix=$INSTALLDIR"/>
         <attribute name="patch" value="$SRCDIR/../ns-3-dce/myscripts/httpd/dce-thttpd.patch"/>
          <attribute name="install_arguments" value="-n" />
          <attribute name="build_arguments" value="thttpd"/>
