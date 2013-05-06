@@ -65,7 +65,8 @@ After solving any mercurial related issues, you can download and install Bake by
 |   You can get the bake code from the |ns3| code repository. 
 
 ::
-    > hg clone http://code.nsnam.org/bake bake
+
+  > hg clone http://code.nsnam.org/bake bake
 
 This should create a bake repository on the directory you are in now
 
@@ -73,9 +74,9 @@ This should create a bake repository on the directory you are in now
 
 ::
 
-   > export BAKE_HOME=`pwd`/bake
-   > export PATH=$PATH:$BAKE_HOME
-   > export PYTHONPATH=$PYTHONPATH:$BAKE_HOME
+  > export BAKE_HOME=`pwd`/bake
+  > export PATH=$PATH:$BAKE_HOME
+  > export PYTHONPATH=$PYTHONPATH:$BAKE_HOME
 
 Bake utilizes a series of third party tools,  you can check if they exist in your system by calling:
 
@@ -103,8 +104,8 @@ After configuring one specific building scenario, you can check the modules sele
 |  > cMake - OK
 |  > patch tool - OK
 |  > autoreconf tool - OK
-
- > Path searched for tools: /usr/lib64/qt-3.3/bin /usr/lib64/ccache /usr/local/bin /usr/bin /bin /usr/local/sbin /usr/sbin /sbin 
+|
+|  > Path searched for tools: /usr/lib64/qt-3.3/bin /usr/lib64/ccache /usr/local/bin /usr/bin /bin /usr/local/sbin /usr/sbin /sbin 
 
 Basic usage
 ===========
@@ -118,7 +119,7 @@ A typical user session should be:::
 The result:
 
 * The wget command will download the last version of the bake configuration file
-* **bake.py show **available** will show all the available modules
+* **bake.py show available** will show all the available modules
 * After configuring bake with **bake.py configure** a bakefile.xml, containing the output of configuration step should be created on the same directory the user called bake configure
 * After calling **bake.py deploy** two directories, build and source should have been created. Source will have one directory for each module downloaded and the build will contains the installed object files for all the built modules. 
 
