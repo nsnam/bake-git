@@ -828,10 +828,9 @@
       </build>
   </module>
 
-  <!-- ns-3.17 main module definition; for now, pulling ns-3-dev -->
     <module name="ns-3.17">
       <source type="mercurial">
-	<attribute name="url" value="http://code.nsnam.org/ns-3-dev"/>
+	<attribute name="url" value="http://code.nsnam.org/ns-3.17"/>
       </source>
       <depends_on name="netanim-3.103" optional="True"/>
       <depends_on name="pybindgen-0.16.0.825" optional="True"/>
