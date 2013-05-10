@@ -4,9 +4,9 @@ BAKE - Introduction
 About Bake
 ==========
 
-Bake is not a make, autoconf, or automake replacement. Bake is not a replacement for the package management tool that can be found on your how system. In short, Bake is not quite like what you are used to see around. Instead, Bake is an integration tool which is used by software developers to automate the reproducible build of a number of projects which depend on each other and which might be developed, and hosted by unrelated parties.
+Bake is not a make, autoconf, or automake replacement. Bake is not a replacement for the package management tool that can be found on your home system. In short, Bake is not quite like what you are used to see around. Instead, Bake is an integration tool which is used by software developers to automate the reproducible build of a number of projects which depend on each other and which might be developed, and hosted by unrelated parties.
 
-Bake was developed to automate the reproducible build of ns-3 taking into account that this build may be composed by a number of interdependent projects. Bake was developed to simplify the assembly of these pieces of software in a coherent and useful way.  This tutorial will show how to use bake and how to perform small configurations. Bake is an open source tool implemented in python, a deeper documentation of it can be found at `Bake's main page <http://planete.inria.fr/software/bake/index.html>`_. 
+Bake was developed to automate the reproducible build of ns-3 taking into account that this build may be composed of a number of interdependent projects. Bake was developed to simplify the assembly of these pieces of software in a coherent and useful way.  This tutorial will show how to use bake and how to perform small configurations. Bake is an open source tool implemented in python, a deeper documentation of it can be found at `Bake's main page <http://planete.inria.fr/software/bake/index.html>`_. 
 
 Features
 ========
@@ -26,7 +26,7 @@ Limitations
 
 Prerequisites
 =============
- First of all Bake is implemented in Python, so Python is required. Bake wraps a series of commands to make the life of the user's easier.  However, it is required to have installed in the machine the third part tools used to download and build the modules. The user can verify the missing tools by calling 'bake.py check'. 
+ First of all Bake is implemented in Python, so Python is required. Bake wraps a series of commands to make the life of the user easier.  However, it is required to have installed in the machine the third party tools used to download and build the modules. The user can verify the missing tools by calling 'bake.py check'. 
 | > bake.py check
  First of all, Bake is developed in python, so to run Bake you have to have python on your machine. 
 

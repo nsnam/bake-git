@@ -2,9 +2,9 @@
 BAKE Documentation
 ******************
 
-The bake documentation was done using Sphinx (http://sphinx-doc.org/) 
+The bake documentation was written using Sphinx (http://sphinx-doc.org/) 
 and Pygments (http://pygments.org/). To generate the documentation, 
-first please be sure you Be sure you have Sphinx and Pygments on your 
+first please be sure you have Sphinx and Pygments on your 
 machine. If it is not installed you can, for example, call:
 
  > sudo yum install python-sphinx 
@@ -15,17 +15,16 @@ and
  
  > easy_install Pygments
    or
- > sudo yum install pygments
+ > sudo yum install python-pygments
    or
- > sudo apt-get install pygments
+ > sudo apt-get install python-pygments
    or
  > hg clone http://bitbucket.org/birkenfeld/pygments-main pygments
  > cd pygments
  > sudo python setup.py develop
  
-
- Depending on the system you are using. After that just call make 
-on the doc directory choosing one the of the available formats. I.e: 
+depending on the system you are using. After that, just call make 
+on the doc directory, choosing one the of the available formats: 
 
   html       to make standalone HTML files
   dirhtml    to make HTML files named index.html in directories

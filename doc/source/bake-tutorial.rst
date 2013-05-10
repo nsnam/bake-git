@@ -7,7 +7,7 @@ Introduction
 
 This tutorial will present a walk through over all the steps to set, configure, download and build a new module using Bake.
 
-Bake is a tool for distributed buildings, developed for the ns-3 project, but it is general and could be used to help on the development of any open-source project.  First of all, Bake is developed in python, so you have to have python on your machine.  This walk-through will consider that the user is using a Linux, Fedora or Ubuntu distributions, with bash. 
+Bake is a tool for distributed software builds, developed for the ns-3 project, but it is general and could be used to help on the development of other open-source projects requiring integration of multiple projects.  First of all, Bake is developed in python, so you have to have python on your machine.  This walk-through will consider that the user is using a Linux, Fedora or Ubuntu distributions, with bash. 
 
 Conventions:
 ************
@@ -123,7 +123,7 @@ Now, from any place of your machine you can call bake.py.
 Basic Bake usage
 ****************
 
-To run bake, first of all,  you need the configuration file, that describes how the modules should be built. By default this file is called bakefile.xml. Bake includes a generic configuration filed, called bakeconf.xml that is shipped with bake ($HOME/bake/bakeconf.xml) or with the standard ns-3 distribution.  This file contains the generic information for all the available modules that bakes can handle.  We will see later how to create a new input to this generic configuration file. But for now it is important to understand that the bakeconf.xml will work as a template for your personal and specific configuration. On the bakeconf.xml we have all the available module for ns-3 and more, you should choose a subset of these to be installed on your system.
+To run bake, first of all,  you need the configuration file, that describes how the modules should be built. By default this file is called bakefile.xml. Bake includes a generic configuration file, called bakeconf.xml that is shipped with bake ($HOME/bake/bakeconf.xml) or with the standard ns-3 distribution.  This file contains the generic information for all the available modules that bakes can handle.  We will see later how to create a new input to this generic configuration file. But for now it is important to understand that the bakeconf.xml will work as a template for your personal and specific configuration. On the bakeconf.xml we have all the available modules for ns-3 and more, you should choose a subset of these to be installed on your system.
  
 To configure bake to build, for example, ns-3-dev, you can:
 
