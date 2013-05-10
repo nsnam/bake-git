@@ -61,7 +61,7 @@
       <source type="mercurial">
         <attribute name="url" value="http://code.nsnam.org/ns-3-dce"/>
         <attribute name="module_directory" value="ns-3-dce"/>
-        <attribute name="revision" value="dce-1.0-rc1"/>
+        <attribute name="revision" value="dce-1.0"/>
       </source>
       <depends_on name="dce-meta-1.0" optional="False"/>
       <depends_on name="iproute" optional="False"/>
@@ -114,7 +114,7 @@
       <source type="mercurial">
         <attribute name="url" value="http://code.nsnam.org/ns-3-dce"/>
         <attribute name="module_directory" value="ns-3-dce"/>
-        <attribute name="revision" value="dce-1.0-rc1"/>
+        <attribute name="revision" value="dce-1.0"/>
       </source>
       <depends_on name="dce-linux-1.0" optional="False"/>
       <depends_on name="mptcp_v0.86" optional="False"/>
@@ -129,7 +129,7 @@
       <source type="mercurial">
         <attribute name="url" value="http://code.nsnam.org/ns-3-dce"/>
         <attribute name="module_directory" value="ns-3-dce"/>
-        <attribute name="revision" value="dce-1.0-rc1"/>
+        <attribute name="revision" value="dce-1.0"/>
       </source>
       <depends_on name="elf-loader" optional="True"/>
       <depends_on name="iproute-mptcp" optional="False"/>
@@ -863,7 +863,7 @@
       <source type="mercurial">
         <attribute name="url" value="http://code.nsnam.org/ns-3-dce"/>
         <attribute name="module_directory" value="ns-3-dce"/>
-        <attribute name="revision" value="dce-1.0-rc1"/>
+        <attribute name="revision" value="dce-1.0"/>
       </source>
       <depends_on name="ns-3.17" optional="False"/>
       <depends_on name="elf-loader" optional="True"/>
@@ -878,7 +878,7 @@
       <source type="mercurial">
         <attribute name="url" value="http://code.nsnam.org/ns-3-dce"/>
         <attribute name="module_directory" value="ns-3-dce"/>
-        <attribute name="revision" value="dce-1.0-rc1"/>
+        <attribute name="revision" value="dce-1.0"/>
       </source>
       <depends_on name="dce-meta-1.0" optional="False"/>
       <build type="waf" objdir="yes" sourcedir="ns-3-dce">
@@ -891,7 +891,7 @@
       <source type="mercurial">
         <attribute name="url" value="http://code.nsnam.org/ns-3-dce"/>
         <attribute name="module_directory" value="ns-3-dce"/>
-        <attribute name="revision" value="dce-1.0-rc1"/>
+        <attribute name="revision" value="dce-1.0"/>
       </source>
       <depends_on name="dce-meta-1.0" optional="False"/>
       <depends_on name="net-next-sim-2.6.36" optional="False"/>
@@ -906,7 +906,7 @@
       <source type="mercurial">
 	<attribute name="url" value="http://code.nsnam.org/thehajime/ns-3-dce-quagga"/>
 	<attribute name="module_directory" value="ns-3-dce/myscripts/ns-3-dce-quagga/"/>
-	<attribute name="revision" value="dce-1.0-rc1"/>
+	<attribute name="revision" value="dce-1.0"/>
       </source>
       <depends_on name="quagga" optional="False"/>
       <depends_on name="dce-meta-1.0" optional="False"/>
@@ -920,7 +920,7 @@
       <source type="mercurial">
 	<attribute name="url" value="http://code.nsnam.org/thehajime/ns-3-dce-umip"/>
 	<attribute name="module_directory" value="ns-3-dce/myscripts/ns-3-dce-umip/"/>
-	<attribute name="revision" value="dce-1.0-rc1"/>
+	<attribute name="revision" value="dce-1.0"/>
       </source>
       <depends_on name="dce-linux-1.0" optional="False"/>
       <depends_on name="dce-quagga-1.0" optional="False"/>
