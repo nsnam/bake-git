@@ -205,10 +205,10 @@ class Module:
             self._build.distclean(env)
             env.end_build()
             self._built_once = False
-            print(" >> Distcleaning " + self._name + " - OK")
+            self.printResult(env, "Distclean ", self.OK)
             return True
         except TaskError as e:
-            print(" >> Distcleaning " + self._name + " - Problem")
+            self.printResult(env, "Distclean ", self.FAIL)
             env._logger.commands.write(e.reason+'\n')
             if env.debug :
                 import bake.Utils
@@ -229,10 +229,10 @@ class Module:
             srcDirTmp = self._source.attribute('module_directory').value
             
         env.start_build(self._name, srcDirTmp, True)
-        print(" >> Removing source of " + self._name + ": " + env.srcdir)
+        sys.stdout.write(" >> Removing source: " + self._name + ": " + env.srcdir)
         try: 
             shutil.rmtree(env.srcdir)
-            print(" >> Source removed - OK ")
+            self.printResult(env, "Removing source: ", self.OK)
         except Exception as e:
             err = re.sub(r'\[\w+ \w+\]+', ' ', str(e)).strip()
             env._logger.commands.write("    > " + err +'\n')
@@ -240,20 +240,22 @@ class Module:
             pass
 
         if os.path.isdir(env.objdir):
-            print(" >> Removing build: " + env.objdir)
+            sys.stdout.write(" >> Removing build: " + env.objdir)
             try: 
                 shutil.rmtree(env.objdir)
-                print(" >> Build removed - OK ")
+                self.printResult(env, "Removing build: ", self.OK)
             except Exception as e:
+                self.printResult(env, "Removing build: ", self.FAIL)
                 err = re.sub(r'\[\w+ \w+\]+', ' ', str(e)).strip()
                 env._logger.commands.write("    > " + err +'\n')
  
         if os.path.isdir(env.installdir):
-            print(" >> Removing installation: " + env.installdir)
+            sys.stdout.write(" >> Removing installation: " + env.installdir)
             try: 
                 shutil.rmtree(env.installdir)
-                print(" >> Installation removed - OK ")
+                self.printResult(env, "Installation removed", self.OK)
             except Exception as e:
+                self.printResult(env, "Installation removed", self.FAIL)
                 err = re.sub(r'\[\w+ \w+\]+', ' ', str(e)).strip()
                 env._logger.commands.write("    > " + err +'\n')
            
@@ -432,10 +434,10 @@ class Module:
             self._build.clean(env)
             env.end_build()
             self._built_once = False
-            print(" >> Cleaning " + self._name + " - OK")
+            self.printResult(env, "Clean ", self.OK)
             return True
         except TaskError as e:
-            print(" >> Cleaning " + self._name + " - Problem")
+            self.printResult(env, "Clean ", self.FAIL)
             err = re.sub(r'\[\w+ \w+\]+', ' ', str(e)).strip()
             env._logger.commands.write(err+'\n')
             if env.debug :

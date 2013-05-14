@@ -864,6 +864,10 @@ class Bake:
         self._check_build_version(config, options)
         
         def _do_clean(configuration, module, env):
+            if isinstance(module._source, SystemDependency) or isinstance(module._build, NoneModuleBuild):
+                return True
+
+            sys.stdout.write(" >> Clean " + module.name()  + " - ")
             module.clean(env)
             return True
         self._do_operation(config, options, _do_clean)
@@ -874,7 +878,12 @@ class Bake:
         parser = self._option_parser('distclean')
         (options, args_left) = parser.parse_args(args)
 
+
         def _do_distclean(configuration, module, env):
+            if isinstance(module._source, SystemDependency) or isinstance(module._build, NoneModuleBuild):
+                return True
+
+            sys.stdout.write(" >> Distribution clean " + module.name()  + " - ")
             returnValue = module.distclean(env)
             return True
         self._do_operation(config, options, _do_distclean)
@@ -886,6 +895,9 @@ class Bake:
         (options, args_left) = parser.parse_args(args)
 
         def _do_fullclean(configuration, module, env):
+            if isinstance(module._source, SystemDependency) or isinstance(module._build, NoneModuleBuild):
+                return True
+
             returnValue = module.fullclean(env)
             return returnValue
         self._do_operation(config, options, _do_fullclean)
@@ -896,6 +908,7 @@ class Bake:
         parser = self._option_parser('uninstall')
         (options, args_left) = parser.parse_args(args)
         def _do_uninstall(configuration, module, env):
+            sys.stdout.write(" >> Uninstall " + module.name()  + " - ")
             module.uninstall(env)
             return True
         self._do_operation(config, options, _do_uninstall)
@@ -1421,7 +1434,7 @@ To get more help about each command, try:
                     try:
                         function(config=options.config_file, args=args_left[1:])
                     except Exception as e:
-                        print ('\n'+e.message)
+                        print ('\n'+ str(e))
                         sys.exit(1)
                     except TaskError as e:
                         print ('\n'+e.reason)
