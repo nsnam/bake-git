@@ -97,7 +97,6 @@
       <depends_on name="libdb-dev" optional="False"/>
       <depends_on name="bison" optional="False"/>
       <depends_on name="flex" optional="False"/>
-      <depends_on name="libsysfs-dev" optional="False"/>
       <depends_on name="libssl-dev" optional="False"/>
       <build type="make" objdir="yes">
         <attribute name="supported_os" value="linux;linux2"/>
@@ -258,7 +257,6 @@
       <depends_on name="libdb-dev" optional="False"/>
       <depends_on name="bison" optional="False"/>
       <depends_on name="flex" optional="False"/>
-      <depends_on name="libsysfs-dev" optional="False"/>
       <depends_on name="libssl-dev" optional="False"/>
       <build type="make" objdir="yes">
         <attribute name="supported_os" value="linux;linux2"/>
@@ -354,6 +352,7 @@
        <source type="archive">
          <attribute name="url" value="http://www.skbuff.net/iputils/iputils-s20101006.tar.bz2"/>
        </source>
+       <depends_on name="libsysfs-dev" optional="False"/>
        <!-- note: iputils does not have 'make install' -->
        <build type="inline"  classname="IputilsModuleBuild">
          <attribute name="patch" value="$SRCDIR/../ns-3-dce/myscripts/ns-3-dce-quagga/utils/iputils-ping6.patch"/>
