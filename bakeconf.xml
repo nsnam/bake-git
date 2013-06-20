@@ -61,9 +61,9 @@
       <source type="mercurial">
         <attribute name="url" value="http://code.nsnam.org/ns-3-dce"/>
         <attribute name="module_directory" value="ns-3-dce"/>
-        <attribute name="revision" value="dce-1.0"/>
+        <!-- attribute name="revision" value="dce-1.0"/ -->
       </source>
-      <depends_on name="dce-meta-1.0" optional="False"/>
+      <depends_on name="dce-meta-dev" optional="False"/>
       <depends_on name="iproute" optional="False"/>
       <build type="waf" objdir="yes" sourcedir="ns-3-dce">
         <attribute name="supported_os" value="linux;linux2"/>
@@ -387,7 +387,6 @@
         <attribute name="url" value="http://code.nsnam.org/thehajime/ns-3-dce-umip"/>
         <attribute name="module_directory" value="ns-3-dce/myscripts/ns-3-dce-umip/"/>
        </source>
-       <depends_on name="dce-linux-dev" optional="False"/>
        <depends_on name="dce-quagga-dev" optional="False"/>
        <depends_on name="dce-meta-dev" optional="False"/>
        <depends_on name="umip" optional="False"/>
