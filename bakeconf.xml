@@ -8,6 +8,7 @@
       </source>
       <depends_on name="ns-3-dev" optional="False"/>
       <depends_on name="elf-loader" optional="True"/>
+      <depends_on name="libaspect" optional="True"/>
       <depends_on name="iperf" optional="True"/>
       <depends_on name="ccnx" optional="True"/>
       <depends_on name="wget" optional="True"/>
@@ -23,7 +24,7 @@
       <depends_on name="dce-meta-dev" optional="False"/>
       <build type="waf" objdir="build">
         <attribute name="supported_os" value="linux;linux2"/>
-        <attribute name="configure_arguments" value="configure --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --prefix=$INSTALLDIR"/>
+        <attribute name="configure_arguments" value="configure --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --with-libaspect=$INSTALLDIR --prefix=$INSTALLDIR"/>
      </build>
     </module>
 
@@ -37,7 +38,7 @@
       <depends_on name="iproute" optional="False"/>
       <build type="waf" objdir="yes" sourcedir="ns-3-dce">
         <attribute name="supported_os" value="linux;linux2"/>
-        <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../net-next-sim-2.6.36/arch"/>
+        <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --with-libaspect=$INSTALLDIR --enable-kernel-stack=$SRCDIR/../net-next-sim-2.6.36/arch"/>
       </build>
     </module>
 
@@ -53,7 +54,7 @@
       <depends_on name="dce-umip-dev" optional="False"/>
       <build type="waf" objdir="yes" sourcedir="ns-3-dce">
         <attribute name="supported_os" value="linux;linux2"/>
-        <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../net-next-sim-2.6.36/arch --enable-gcov"/>
+        <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --with-libaspect=$INSTALLDIR --enable-kernel-stack=$SRCDIR/../net-next-sim-2.6.36/arch --enable-gcov"/>
       </build>
     </module>
 
@@ -68,7 +69,7 @@
       <build type="waf" objdir="yes" sourcedir="ns-3-dce">
         <attribute name="supported_os" value="linux;linux2"/>
         <!-- assume the bake.py build is executed under arch/sim/test/buildtop/ -->
-        <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../../../../../"/>
+        <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --with-libaspect=$INSTALLDIR --enable-kernel-stack=$SRCDIR/../../../../../"/>
          <attribute name="post_installation" value="mkdir -p $INSTALLDIR/bin_dce; cd $INSTALLDIR/bin_dce ; ln -s -f $SRCDIR/../../../../../../liblinux.so"/>
       </build>
     </module>
@@ -779,6 +780,15 @@
       <depends_on name="libc-debug" optional="False"/>
       <build type="make" objdir="no">
         <attribute name="configure_arguments" value="vdl-config.h"/>
+        <attribute name="install_arguments" value="PREFIX=$INSTALLDIR"/>
+      </build>
+    </module>
+
+    <module name="libaspect">
+      <source type="mercurial">
+        <attribute name="url" value="http://code.nsnam.org/thehajime/libaspect"/>
+      </source>
+      <build type="make" objdir="no">
         <attribute name="install_arguments" value="PREFIX=$INSTALLDIR"/>
       </build>
     </module>
