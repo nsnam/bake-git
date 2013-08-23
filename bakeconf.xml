@@ -656,6 +656,17 @@
       </build>
     </module>
 
+    <module name="pybindgen-0.16.0.831">
+      <source type="bazaar">
+	<attribute name="url" value="https://launchpad.net/pybindgen"/>
+	<attribute name="revision" value="revno:831"/>
+      </source>
+      <build type="waf" objdir="yes">
+	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR"/>
+	<attribute name="build_arguments" value="--generate-version"/>
+      </build>
+    </module>
+
     <module name="g++">
       <source type="system_dependency">
         <attribute name="dependency_test" value="g\+\+"/>
@@ -807,7 +818,7 @@
    <module name="netanim-3.103">
       <source type="mercurial">
         <attribute name="url" value="http://code.nsnam.org/netanim"/>
-        <attribute name="revision" value="a898a19d5b9f"/>
+        <attribute name="revision" value="3ff51fed9b57"/>
       </source>
       <build type="make" objdir="no">
         <attribute name="pre_installation" value="cd $SRCDIR;qmake NetAnim.pro or cd $SRCDIR;qmake-qt4 NetAnim.pro or cd $SRCDIR;qmake -spec macx-g++ NetAnim.pro"/>
@@ -866,6 +877,32 @@
       <depends_on name="pygccxml-1.0.0" optional="True"/>
       <depends_on name="gccxml-ns3" optional="True"/>
       <depends_on name="ns-3.17" optional="False"/>
+      <build type="none"/>
+    </module>
+
+    <module name="ns-3.18">
+      <source type="mercurial">
+	<attribute name="url" value="http://code.nsnam.org/ns-3.18"/>
+      </source>
+      <depends_on name="netanim-3.103" optional="True"/>
+      <depends_on name="pybindgen-0.16.0.831" optional="True"/>
+      <depends_on name="pyviz-prerequisites" optional="True"/>
+      <build type="waf" objdir="yes">
+	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
+      </build>
+    </module>
+
+    <module name="ns-allinone-3.18">
+      <source type="none"/>
+      <depends_on name="netanim-3.103" optional="True"/>
+      <depends_on name="nsc-0.5.3" optional="True"/>
+      <depends_on name="pybindgen-0.16.0.831" optional="True"/>
+      <depends_on name="pyviz-prerequisites" optional="True"/>
+      <depends_on name="click-ns-3.17" optional="True"/>
+      <depends_on name="openflow-ns-3.17" optional="True"/>
+      <depends_on name="pygccxml-1.0.0" optional="True"/>
+      <depends_on name="gccxml-ns3" optional="True"/>
+      <depends_on name="ns-3.18" optional="False"/>
       <build type="none"/>
     </module>
 
