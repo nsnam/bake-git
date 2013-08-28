@@ -818,7 +818,7 @@
    <module name="netanim-3.103">
       <source type="mercurial">
         <attribute name="url" value="http://code.nsnam.org/netanim"/>
-        <attribute name="revision" value="3ff51fed9b57"/>
+        <attribute name="revision" value="9840cae80112"/>
       </source>
       <build type="make" objdir="no">
         <attribute name="pre_installation" value="cd $SRCDIR;qmake NetAnim.pro or cd $SRCDIR;qmake-qt4 NetAnim.pro or cd $SRCDIR;qmake -spec macx-g++ NetAnim.pro"/>
