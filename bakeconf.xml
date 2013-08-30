@@ -62,7 +62,6 @@
       <source type="mercurial">
         <attribute name="url" value="http://code.nsnam.org/ns-3-dce"/>
         <attribute name="module_directory" value="ns-3-dce"/>
-        <!-- attribute name="revision" value="dce-1.0"/ -->
       </source>
       <depends_on name="dce-meta-dev" optional="False"/>
       <depends_on name="iproute" optional="False"/>
@@ -87,6 +86,22 @@
         <attribute name="build_arguments" value="library ARCH=sim"/>
         <attribute name="no_installation" value="True"/>
         <attribute name="post_installation" value="mkdir -p $INSTALLDIR/bin_dce; cd $INSTALLDIR/bin_dce; cp $SRCDIR/libsim-linux3.5.7.so ./libsim-linux3.5.7-mptcp.so; ln -s -f libsim-linux3.5.7-mptcp.so liblinux.so"/>
+      </build>
+    </module>
+
+    <module name="mptcp_v0.87">
+      <source type="git">
+        <attribute name="url" value="git://github.com/multipath-tcp/mptcp"/>
+        <attribute name="module_directory" value="mptcp"/>
+        <attribute name="revision" value="mptcp_v0.87"/>
+      </source>
+      <build type="make" objdir="no">
+        <attribute name="supported_os" value="linux;linux2"/>
+        <attribute name="pre_installation" value="cd $SRCDIR;git remote add dce git://github.com/thehajime/net-next-sim.git; git fetch dce; git merge dce/sim-ns3-3.10.0-branch; echo 'CONFIG_MPTCP=y' >> arch/sim/defconfig; sed 's/CONFIG_SYN_COOKIES=y/\#CONFIG_SYN_COOKIES=y/' arch/sim/defconfig >a; mv a arch/sim/defconfig"/>
+        <attribute name="configure_arguments" value="defconfig ARCH=sim"/>
+        <attribute name="build_arguments" value="library ARCH=sim"/>
+        <attribute name="no_installation" value="True"/>
+        <attribute name="post_installation" value="mkdir -p $INSTALLDIR/bin_dce; cd $INSTALLDIR/bin_dce; cp $SRCDIR/libsim-linux3.10.9.so ./libsim-linux3.10.9-mptcp.so; ln -s -f libsim-linux3.10.9-mptcp.so liblinux.so"/>
       </build>
     </module>
 
@@ -115,32 +130,14 @@
       <source type="mercurial">
         <attribute name="url" value="http://code.nsnam.org/ns-3-dce"/>
         <attribute name="module_directory" value="ns-3-dce"/>
-        <attribute name="revision" value="dce-1.0"/>
+        <attribute name="revision" value="dce-1.1"/>
       </source>
-      <depends_on name="dce-linux-1.0" optional="False"/>
-      <depends_on name="mptcp_v0.86" optional="False"/>
+      <depends_on name="dce-linux-1.1" optional="False"/>
+      <depends_on name="mptcp_v0.87" optional="False"/>
       <depends_on name="iproute-mptcp" optional="False"/>
       <build type="waf" objdir="yes" sourcedir="ns-3-dce">
         <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../mptcp/arch"/>
-      </build>
-    </module>
-
-    <module name="dce-linux-mptcp-inkernel">
-      <source type="mercurial">
-        <attribute name="url" value="http://code.nsnam.org/ns-3-dce"/>
-        <attribute name="module_directory" value="ns-3-dce"/>
-        <attribute name="revision" value="dce-1.0"/>
-      </source>
-      <depends_on name="elf-loader" optional="True"/>
-      <depends_on name="iproute-mptcp" optional="False"/>
-      <depends_on name="iperf" optional="True"/>
-      <depends_on name="ns-3.17" optional="False"/>
-      <build type="waf" objdir="yes" sourcedir="ns-3-dce">
-        <attribute name="supported_os" value="linux;linux2"/>
-        <!-- assume the bake.py build is executed under arch/sim/test/buildtop/ -->
-        <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../../../../../"/>
-         <attribute name="post_installation" value="mkdir -p $INSTALLDIR/bin_dce; cd $INSTALLDIR/bin_dce ; ln -s -f $SRCDIR/../../../../../../liblinux.so"/>
       </build>
     </module>
 
@@ -972,6 +969,79 @@
       <depends_on name="dce-linux-1.0" optional="False"/>
       <depends_on name="dce-quagga-1.0" optional="False"/>
       <depends_on name="dce-meta-1.0" optional="False"/>
+      <depends_on name="umip" optional="False"/>
+      <build type="none">
+	<attribute name="supported_os" value="linux;linux2"/>
+      </build>
+    </module>
+
+    <!-- dce-1.1 -->
+    <module name="dce-meta-1.1">
+      <source type="mercurial">
+        <attribute name="url" value="http://code.nsnam.org/ns-3-dce"/>
+        <attribute name="module_directory" value="ns-3-dce"/>
+        <attribute name="revision" value="dce-1.1"/>
+      </source>
+      <depends_on name="ns-3.18" optional="False"/>
+      <depends_on name="elf-loader" optional="True"/>
+      <depends_on name="iperf" optional="True"/>
+      <depends_on name="ccnx" optional="True"/>
+      <depends_on name="wget" optional="True"/>
+      <depends_on name="thttpd" optional="True"/>
+      <build type="none" />
+    </module>
+
+    <module name="dce-ns3-1.1">
+      <source type="mercurial">
+        <attribute name="url" value="http://code.nsnam.org/ns-3-dce"/>
+        <attribute name="module_directory" value="ns-3-dce"/>
+        <attribute name="revision" value="dce-1.1"/>
+      </source>
+      <depends_on name="dce-meta-1.1" optional="False"/>
+      <build type="waf" objdir="yes" sourcedir="ns-3-dce">
+	<attribute name="supported_os" value="linux;linux2"/>
+	<attribute name="configure_arguments" value="configure --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --prefix=$INSTALLDIR"/>
+      </build>
+    </module>
+
+    <module name="dce-linux-1.1">
+      <source type="mercurial">
+        <attribute name="url" value="http://code.nsnam.org/ns-3-dce"/>
+        <attribute name="module_directory" value="ns-3-dce"/>
+        <attribute name="revision" value="dce-1.1"/>
+      </source>
+      <depends_on name="dce-meta-1.1" optional="False"/>
+      <depends_on name="net-next-sim-2.6.36" optional="False"/>
+      <depends_on name="iproute" optional="False"/>
+      <build type="waf" objdir="yes" sourcedir="ns-3-dce">
+	<attribute name="supported_os" value="linux;linux2"/>
+	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../net-next-sim-2.6.36/arch"/>
+      </build>
+    </module>
+
+    <module name="dce-quagga-1.1">
+      <source type="mercurial">
+	<attribute name="url" value="http://code.nsnam.org/thehajime/ns-3-dce-quagga"/>
+	<attribute name="module_directory" value="ns-3-dce/myscripts/ns-3-dce-quagga/"/>
+	<attribute name="revision" value="dce-1.1"/>
+      </source>
+      <depends_on name="quagga" optional="False"/>
+      <depends_on name="dce-meta-1.1" optional="False"/>
+      <depends_on name="iputils" optional="False"/>
+      <build type="none">
+	<attribute name="supported_os" value="linux;linux2"/>
+      </build>
+    </module>
+
+    <module name="dce-umip-1.1">
+      <source type="mercurial">
+	<attribute name="url" value="http://code.nsnam.org/thehajime/ns-3-dce-umip"/>
+	<attribute name="module_directory" value="ns-3-dce/myscripts/ns-3-dce-umip/"/>
+	<attribute name="revision" value="dce-1.1"/>
+      </source>
+      <depends_on name="dce-linux-1.1" optional="False"/>
+      <depends_on name="dce-quagga-1.1" optional="False"/>
+      <depends_on name="dce-meta-1.1" optional="False"/>
       <depends_on name="umip" optional="False"/>
       <build type="none">
 	<attribute name="supported_os" value="linux;linux2"/>
