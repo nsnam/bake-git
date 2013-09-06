@@ -50,7 +50,7 @@ from bake.ModuleBuild import NoneModuleBuild
 def signal_handler(signal, frame):
     """ Handles Ctrl+C keyboard interruptions """
     
-    print (' > Bake was aborted! (Ctrl+C)')
+    print (os.linesep + ' > Bake was aborted! (Ctrl+C)')
     os._exit(0)
         
 class MyOptionParser(OptionParser):
@@ -70,8 +70,7 @@ class Bake:
     
     def _error(self, string):
         """ Handles hard exceptions, the kind of exceptions Bake should not 
-        recover from.
-        """
+        recover from."""
 
         import sys
         print(' > Error: %s ' % string)
@@ -598,6 +597,9 @@ class Bake:
         parser.add_option("-a", "--all", action="store_true",
                           dest="all", default=False,
                           help="Process all modules")
+        parser.add_option("--stop_on_error", action="store_true", 
+                          dest="stopOnError", default=False,
+                          help="Stop on the first error found and do not advance while the error is not corrected.")
         parser.add_option("-s", "--start", action="store", type="string",
                           dest="start", default="",
                           help="Process all modules enabled starting from the module specified.")
@@ -745,6 +747,7 @@ class Bake:
                     print
 
                 env._sudoEnabled=options.call_with_sudo
+                ModuleEnvironment._stopOnError=options.stopOnError
                 valueToReturn=module.check_source_version(env)
             
             
@@ -860,6 +863,8 @@ class Bake:
                 print
 
             env._sudoEnabled=options.call_with_sudo
+            ModuleEnvironment._stopOnError=options.stopOnError
+                
             if module.check_build_version(env):
                 retval = module.build(env, options.jobs, options.force_clean)
                 if retval:

@@ -31,11 +31,13 @@ import sys
 import platform
 
 from bake.Exceptions import TaskError 
+from bake.Utils import ColorTool
 
 class ModuleEnvironment:
     ''' Main class to interact with the host system to execute the external 
     tools.
     '''
+    _stopOnError = False
      
     (HIGHER, LOWER, EQUAL) = range(0,3)
 
@@ -118,6 +120,12 @@ class ModuleEnvironment:
         ''' Returns the setting of the --sudo option'''
         
         return self._sudoEnabled
+
+    @property
+    def stopOnErrorEnabled(self):
+        ''' Returns the setting of the --stop_on_error option'''
+        
+        return ModuleEnvironment._stopOnError
 
     def _pkgconfig_var(self):
         ''' Returns the PKG_CONFIG_PATH configured environment variable.'''

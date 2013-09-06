@@ -80,6 +80,16 @@ class Module:
     def _directory(self):
         return self._name
 
+    def handleStopOnError(self, e):
+        """Handles the stop on error parameter, prints the standard 
+        message and calls exist."""
+        colorTool = ColorTool()
+        colorTool.cPrintln(colorTool.OK, " > Stop on error enabled (for more information call bake with -vv or -vvv)")
+        colorTool.cPrintln(colorTool.FAIL, "   >> " + e._reason)
+        er = sys.exc_info()[1]
+        os._exit(1)
+
+
     def _do_download(self, env, source, name, forceDownload):
         """ Recursive download function, do the download for each 
         target module. """
@@ -157,6 +167,8 @@ class Module:
             if env.debug :
                 import bake.Utils
                 bake.Utils.print_backtrace()           
+            if env.stopOnErrorEnabled:
+                self.handleStopOnError(e)
             return False
         except:
             if isinstance(self._source, SystemDependency):
@@ -166,6 +178,9 @@ class Module:
             if env.debug :
                 import bake.Utils
                 bake.Utils.print_backtrace()
+            if env.stopOnErrorEnabled:
+                er = sys.exc_info()[1]
+                self.handleStopOnError(TaskError('Error: %s' % (er)))
             return False
 
 
@@ -199,6 +214,8 @@ class Module:
             if env.debug :
                 import bake.Utils
                 bake.Utils.print_backtrace()           
+            if env.stopOnErrorEnabled:
+                self.handleStopOnError(e)
             return False
         except:
             self.printResult(env, " Update ", self.FAIL)
@@ -206,6 +223,9 @@ class Module:
             if env.debug :
                 import bake.Utils
                 bake.Utils.print_backtrace()
+            if env.stopOnErrorEnabled:
+                er = sys.exc_info()[1]
+                self.handleStopOnError(TaskError('Error: %s' % (er)))
             return False
       
     def distclean(self, env):
@@ -304,6 +324,7 @@ class Module:
                 pass
         self._installed = []
 
+
     def build(self, env, jobs, force_clean):
         """ Main build function. """
         
@@ -370,6 +391,10 @@ class Module:
                 import bake.Utils
                 bake.Utils.print_backtrace()           
             env.end_build()
+            
+            if env.stopOnErrorEnabled:
+                self.handleStopOnError(e)
+
             return False
         except:
             self._installed = monitor.end()
@@ -377,6 +402,9 @@ class Module:
             if env.debug :
                 import bake.Utils
                 bake.Utils.print_backtrace()
+            if env.stopOnErrorEnabled:
+                er = sys.exc_info()[1]
+                self.handleStopOnError(TaskError('Error: %s' % (er)))
             return False
 
     def check_build_version(self, env):
@@ -462,12 +490,17 @@ class Module:
             if env.debug :
                 import bake.Utils
                 bake.Utils.print_backtrace()           
+            if env.stopOnErrorEnabled:
+                self.handleStopOnError(e)
             return False
         except:
             env.end_build()
             if env.debug :
                 import bake.Utils
                 bake.Utils.print_backtrace()
+            if env.stopOnErrorEnabled:
+                er = sys.exc_info()[1]
+                self.handleStopOnError(TaskError('Error: %s' % (er)))
             return False
 
     def is_built_once(self):

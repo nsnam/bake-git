@@ -332,13 +332,20 @@ class Dependencies:
                 except TaskError as e:
                     success = False
                     print ("  > Error: " + e._reason)
+#                except SystemExit as e:
+#                    print(sys.exc_info())
+#
+#                    success = False
+#                    print ("  > Error: " + e._reason)
                 except:
                     success = False
                     import sys
                     er = sys.exc_info()[1]
-#                    import bake.Utils
-#                    bake.Utils.print_backtrace()           
                     print ("  > Error: " + str(er))
+                    from bake.ModuleEnvironment import ModuleEnvironment
+                    if ModuleEnvironment._stopOnError:
+                        er = sys.exc_info()[1]
+                        sys.exit(1)
                     
             elif callback is not None:
                 try:
@@ -346,11 +353,19 @@ class Dependencies:
                 except TaskError as e:
                     success = False
                     print ("  > Error: " + e._reason)
+                    from bake.ModuleEnvironment import ModuleEnvironment
+                    if ModuleEnvironment._stopOnError:
+                        er = sys.exc_info()[1]
+                        sys.exit(1)
                 except:
                     success = False
                     import sys
                     er = sys.exc_info()[1]
                     print ("  > Unexpected error: " + str(er))
+                    from bake.ModuleEnvironment import ModuleEnvironment
+                    if ModuleEnvironment._stopOnError:
+                        er = sys.exc_info()[1]
+                        sys.exit(1)
             if not success:
                 if not self._sources.has_key(i.dst()):
                     raise DependencyUnmet(i.dst())
