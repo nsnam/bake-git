@@ -89,6 +89,21 @@ class Module:
         er = sys.exc_info()[1]
         os._exit(1)
 
+    def printResult(self, env, operation, result):
+        """Prints the result of the operation."""
+        colorTool = ColorTool()
+        resultStr = "OK"
+        color=colorTool.OK
+        if result == self.FAIL:
+            resultStr = "Problem"
+            color=colorTool.FAIL
+            
+        if env._logger._verbose > 0:
+            print
+            colorTool.cPrintln(color, " >> " + operation + " " + 
+                                    self._name + " - " +resultStr)
+        else:
+            colorTool.cPrintln(color, resultStr)
 
     def _do_download(self, env, source, name, forceDownload):
         """ Recursive download function, do the download for each 
@@ -112,6 +127,14 @@ class Module:
                                              str(e)))
         
         if os.path.isdir(env.srcdir):
+            colorTool = ColorTool()
+            if env._logger._verbose == 0:
+                colorTool.cPrint(colorTool.OK, "(Nothing to do, source directory already exists) - ")
+            else:      
+                colorTool.cPrintln(colorTool.OK, "  >>> No actions needed, the source directory for " + 
+                               self._name + " already exists.")
+                sys.stdout.write ("      If you want to update the module, use update instead download, or, if you want a fresh copy," + os.linesep
+                      +"      either remove it from the source directory, or use the --force_download option.")
             env.end_source()
         else:
             try:
@@ -120,23 +143,6 @@ class Module:
                 env.end_source()
         for child, child_name in source.children():
             self._do_download(env, child, os.path.join(name, child_name))
-
-
-    def printResult(self, env, operation, result):
-        """Prints the result of the operation."""
-        colorTool = ColorTool()
-        resultStr = "OK"
-        color=colorTool.OK
-        if result == self.FAIL:
-            resultStr = "Problem"
-            color=colorTool.FAIL
-            
-        if env._logger._verbose > 0:
-            print
-            colorTool.cPrintln(color, " >> " + operation + " " + 
-                                    self._name + " - " +resultStr)
-        else:
-            colorTool.cPrintln(color, resultStr)
 
     def download(self, env, forceDownload):
         """ General download function. """
