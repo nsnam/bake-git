@@ -51,7 +51,7 @@ def signal_handler(signal, frame):
     """ Handles Ctrl+C keyboard interruptions """
     
     print (os.linesep + ' > Bake was aborted! (Ctrl+C)')
-    os._exit(0)
+    os._exit(130)
         
 class MyOptionParser(OptionParser):
     def format_description(self, formatter):

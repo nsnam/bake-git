@@ -387,10 +387,11 @@ class Module:
             if self._build.attribute('pre_installation').value != '':
                 self._build.perform_pre_installation(env)
                 
+            self._build.threat_variables(env)
+
             if self._build.attribute('patch').value != '':
                 self._build.threat_patch(env, self._build.attribute('patch').value)
 
-            self._build.threat_variables(env)
             self._build.build(env, jobs)
             self._installed = monitor.end()
             if self._build.attribute('post_installation').value != '':
