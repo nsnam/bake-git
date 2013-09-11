@@ -154,7 +154,7 @@ class ModuleBuild(ModuleAttributeBase):
                 print ("   > Error executing post installation : " + e )
 
     # applies a patch if available
-    def threat_patch(self, env):
+    def threat_patch(self, env, patchStr):
         """ Applies a patch, or a series of patches, over the source code.  """
         
         hasPatch = env.check_program('patch')
@@ -163,7 +163,7 @@ class ModuleBuild(ModuleAttributeBase):
                             ' applying: %s, in: %s' 
                             % (self.attribute('patch').value, env._module_name))
 
-        vectorPath = env.replace_variables(self.attribute('patch').value).split(';')      
+        vectorPath = env.replace_variables(patchStr).split(';')      
         for item in vectorPath:
       
             if not env.exist_file(item) :
@@ -280,8 +280,8 @@ class PythonModuleBuild(ModuleBuild):
         """ Specific build implementation method. Basically call the setup.py 
         program passed as parameter."""
         
-        if self.attribute('patch').value != '':
-            self.threat_patch(env)
+#        if self.attribute('patch').value != '':
+#            self.threat_patch(env)
        
         # TODO: Add the options, there is no space for the configure_arguments
         env.run(['python', os.path.join(env.srcdir, 'setup.py'), 'build',
@@ -395,8 +395,8 @@ class WafModuleBuild(ModuleBuild):
         4. Call waf with the install parameter. 
         """
         
-        if self.attribute('patch').value != '':
-            self.threat_patch(env)
+#        if self.attribute('patch').value != '':
+#            self.threat_patch(env)
         
         extra_configure_options = []
         if self.attribute('configure_arguments').value != '':
@@ -524,8 +524,8 @@ class Cmake(ModuleBuild):
         5. Call make with the install parameters. 
         """
 
-        if self.attribute('patch').value != '':
-            self.threat_patch(env)
+#        if self.attribute('patch').value != '':
+#            self.threat_patch(env)
 
         options = []
         if self.attribute('cmake_arguments').value != '':
@@ -631,8 +631,8 @@ class Make(ModuleBuild):
         4. Call make with the install arguments.
         """
 
-        if self.attribute('patch').value != '':
-            self.threat_patch(env)
+#        if self.attribute('patch').value != '':
+#            self.threat_patch(env)
     
         # if the object directory does not exist, it should create it, to
         # avoid build error, since the make does not create the directory
@@ -742,8 +742,8 @@ class Autotools(ModuleBuild):
         4. Call make with the install arguments.
         """
 
-        if self.attribute('patch').value != '':
-            self.threat_patch(env)
+#        if self.attribute('patch').value != '':
+#            self.threat_patch(env)
 
         if self.attribute('maintainer').value != 'no':
             env.run(['autoreconf', '--install'],

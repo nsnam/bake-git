@@ -203,7 +203,14 @@ In this case the steps should be::
      ( Later, even if the user is offline )
    > bake.py build
 
+If something goes wrong:
 
+* Sometimes the download, build or installation of some of the modules
+  may fail in that case there are a --stop-on-error parameter may be
+  passed so that the process stops on the first error it founds so
+  that the user can analyze it and find a solution. The stop on error
+  feature is best used  with -v or -vvv so that more information about
+  the error.
 
 Bake - Tutorial
 ***************

@@ -86,7 +86,6 @@ class Module:
         colorTool = ColorTool()
         colorTool.cPrintln(colorTool.OK, " > Stop on error enabled (for more information call bake with -vv or -vvv)")
         colorTool.cPrintln(colorTool.FAIL, "   >> " + e._reason)
-        er = sys.exc_info()[1]
         os._exit(1)
 
     def printResult(self, env, operation, result):
@@ -125,8 +124,11 @@ class Module:
                                             ' %s for module: %s \n Error: %s\n' % 
                                             (env.srcdir, env._module_name, 
                                              str(e)))
-        
-        if os.path.isdir(env.srcdir):
+        aditionalModule=False
+        if source.attribute('additional-module'):
+            aditionalModule = source.attribute('additional-module').value
+                 
+        if os.path.isdir(env.srcdir) and not aditionalModule :
             colorTool = ColorTool()
             if env._logger._verbose == 0:
                 colorTool.cPrint(colorTool.OK, "(Nothing to do, source directory already exists) - ")
@@ -139,6 +141,8 @@ class Module:
         else:
             try:
                 source.download(env)
+                if self._source.attribute('patch').value != '':
+                    self._build.threat_patch(env, self._source.attribute('patch').value)
             finally:
                 env.end_source()
         for child, child_name in source.children():
@@ -159,6 +163,7 @@ class Module:
             
         try:
             self._do_download(env, self._source, self._name, forceDownload)
+
             if isinstance(self._source, SystemDependency):
                 self.printResult(env, "Dependency ", self.OK)
             else:
@@ -381,6 +386,10 @@ class Module:
 
             if self._build.attribute('pre_installation').value != '':
                 self._build.perform_pre_installation(env)
+                
+            if self._build.attribute('patch').value != '':
+                self._build.threat_patch(env, self._build.attribute('patch').value)
+
             self._build.threat_variables(env)
             self._build.build(env, jobs)
             self._installed = monitor.end()

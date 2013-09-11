@@ -26,6 +26,7 @@
 
 import subprocess
 import os
+import shutil
 import sys
 from xml.etree import ElementTree
 from xml.dom import minidom
@@ -90,7 +91,7 @@ def split_args(stringP):
     return returnValue
 
 def prettify(elem):
-    """Return a pretty-printed XML string for the Element.
+    """ Returns a pretty-printed XML string for the Element.
     """
     rough_string = ElementTree.tostring(elem, 'utf-8')
     reparsed = minidom.parseString(rough_string)
@@ -101,6 +102,39 @@ def prettify(elem):
                 new_string += line + '\n'
 
     return new_string
+
+def mergeDirs(sourcePath, destPath):
+    """ Merge two folders, creating the structure and copying the files from
+        source to destination, when these are missing, and skipping files when
+        these are already present on the destination. Pay attention that what
+        this function does is a merge of directories contents not of file 
+        content.
+    """
+    
+    for root, dirs, files in os.walk(sourcePath):
+
+        #figure out where we're going
+        dest = destPath + root.replace(sourcePath, '')
+
+        #if we're in a directory that doesn't exist in the destination folder
+        #then create a new folder
+        if not os.path.isdir(dest):
+            os.mkdir(dest)
+#            print 'Directory created at: ' + dest
+
+        #loop through all files in the directory
+        for f in files:
+            #compute current (old) & new file locations
+            oldLoc = root + '/' + f
+            newLoc = dest + '/' + f
+
+            if not os.path.isfile(newLoc):
+                try:
+                    shutil.copy2(oldLoc, newLoc)
+#                    print 'File ' + f + ' copied.'
+                except IOError:
+#                    print 'file "' + f + '" already exists'
+                    pass
 
 
 class ModuleAttribute:
@@ -214,5 +248,6 @@ class ColorTool:
         """ Print the message with the defined color and ends with a new line. """
         
         self.cPrint(color, message + os.linesep)
+        
         
 

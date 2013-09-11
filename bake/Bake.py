@@ -105,7 +105,7 @@ class Bake:
                           dest="installdir", default=None,
                           help="The directory where all modules will be installed.")
 
-        parser.add_option("-t", "--target_file", action="store", type="string",
+        parser.add_option("-t", "--target-file", action="store", type="string",
                           dest="targetfile", default=None,
                           help="New target file, if not defined Bake"
                           " overwrites the present configuration file.")
@@ -597,7 +597,7 @@ class Bake:
         parser.add_option("-a", "--all", action="store_true",
                           dest="all", default=False,
                           help="Process all modules")
-        parser.add_option("--stop_on_error", action="store_true", 
+        parser.add_option("--stop-on-error", action="store_true", 
                           dest="stopOnError", default=False,
                           help="Stop on the first error found and do not advance while the error is not corrected.")
         parser.add_option("-s", "--start", action="store", type="string",
@@ -606,12 +606,12 @@ class Bake:
         parser.add_option("--after", action="store", type="string",
                           dest="after", default="",
                           help="Process all modules enabled starting after the module specified.")
-        parser.add_option("-i", "--environment_file_identification", 
+        parser.add_option("-i", "--environment-file-identification", 
                           action="store", type="string",
                           dest="environment_file_identification", 
                           default="bakeSetEnv.sh",
                           help="Name of the environment setting file")
-        parser.add_option("-x", "--no_environment_file", action='store_true', 
+        parser.add_option("-x", "--no-environment-file", action='store_true', 
                           dest='no_environment_file', default=False,
                           help='Do not create the environment file for this run')
         parser.add_option("--sudo", action="store_true",
@@ -720,7 +720,6 @@ class Bake:
 
             dependencyExists = None
             if isinstance(module._source, SystemDependency):  
-       
                 dependencTest = module._source.attribute('dependency_test').value
                 
                 sys.stdout.write (" >> Searching for system dependency " + module.name() + " - ")
@@ -845,7 +844,7 @@ class Bake:
         parser.add_option('-j', '--jobs', help='Allow N jobs at once.'
                           ,type='int', action='store', 
                           dest='jobs', default=-1)
-        parser.add_option('--force_clean', help='Forces the call of the clean'
+        parser.add_option('--force-clean', help='Forces the call of the clean'
                           ' option for the build.', action="store_true", 
                           default=False, dest='force_clean')
         (options, args_left) = parser.parse_args(args)
@@ -854,11 +853,12 @@ class Bake:
         
         def _do_build(configuration, module, env):
             
-            if isinstance(module._source, SystemDependency) or isinstance(module._build, NoneModuleBuild):
+            if isinstance(module._source, SystemDependency) or isinstance(module._build, NoneModuleBuild) :
                 return True
             
             sys.stdout.write(" >> Building " + module.name()  + " - ")
-            sys.stdout.flush()
+
+            sys.stdout.flush()                
             if env._logger._verbose > 0:
                 print
 

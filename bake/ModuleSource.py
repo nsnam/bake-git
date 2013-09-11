@@ -24,7 +24,7 @@
  the handled source code repository tools. It is this class that defines how 
  a download of a zip file, or a mercurial repository will be made.  
 ''' 
-
+import bake.Utils
 from bake.Exceptions import TaskError
 from bake.Utils import ModuleAttributeBase
 import os
@@ -43,6 +43,8 @@ class ModuleSource(ModuleAttributeBase):
 
         ModuleAttributeBase.__init__(self)
         self.add_attribute('module_directory', '', 'Source module directory', 
+                           mandatory=False)
+        self.add_attribute('patch', '', 'code to patch after download', 
                            mandatory=False)
     @classmethod
     def subclasses(self):
@@ -130,7 +132,8 @@ class ModuleSource(ModuleAttributeBase):
             elementsSet.add(element) 
         
         
-        stringToChange = self._add_command_calls(valueToTest.replace('\\',''),elementsSet)
+        stringToChange = self._add_command_calls(valueToTest.replace('\\',''),
+                                                 elementsSet)
                
         # Evaluate if all the programs exist
         returnValue = eval(stringToChange)
@@ -265,6 +268,10 @@ class ArchiveModuleSource(ModuleSource):
         ModuleSource.__init__(self)
         self.add_attribute('url', None, 'The url to clone from',
                            mandatory=True)
+        self.add_attribute('additional-module', None, 
+                           "Tags this module as an additional sub-module to be"
+                           " added to another module.",
+                           mandatory=False)
         self.add_attribute('extract_directory', None,
                            "The name of the directory the source code will "
                            "be extracted to naturally. If no value is "
@@ -306,8 +313,13 @@ class ArchiveModuleSource(ModuleSource):
                 # finally, rename the extraction directory to the target 
                 # directory name.
                 try:
-                    os.rename(os.path.join(tempdir, actual_extract_dir), 
-                              env.srcdir)
+                    destDir=os.path.join(tempdir, actual_extract_dir)
+                    
+                    if os.path.isdir(env.srcdir):         
+                        bake.Utils.mergeDirs(destDir, env.srcdir)
+                    else:
+                        os.rename(destDir, env.srcdir)
+                        
                     shutil.rmtree(tempdir) # delete directory
                 except (OSError, IOError) as e:
                     raise TaskError("Rename problem for module: %s, from: %s, " 

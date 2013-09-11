@@ -23,6 +23,7 @@ Limitations
 
 * Currently it works under Linux like systems
 * The required missing system tools have to be installed by the user
+  - Even though a --sudo option exists, to try to install dependencies, but should be used carefully and at the user's own risk
 
 Prerequisites
 =============
@@ -133,4 +134,8 @@ In this case the steps should be:::
   > bake.py download
     <-- Later, even if the user is offline -->
   > bake.py build
+
+If something goes wrong:
+
+* Sometimes the download, build or installation of some of the modules may fail in that case there are a --stop-on-error parameter may be passed so that the process stops on the first error it founds so that the user can analyze it and find a solution. The stop on error feature is best used  with -v or -vvv so that more information about the error.
 
