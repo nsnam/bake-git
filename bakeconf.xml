@@ -362,7 +362,7 @@
         InlineModuleBuild.__init__(self)
     def build(self, env, jobs):
            if self.attribute('patch').value != '':
-               self.threat_patch(env)
+               self.threat_patch(env, self.attribute('patch').value)
            jobstr=[]
            if not jobs == -1:
                jobstr = ['-j', str(jobs)]
