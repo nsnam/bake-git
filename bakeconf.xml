@@ -122,7 +122,7 @@
         <attribute name="LDFLAGS" value="-pie"/>
         <attribute name="ignore_predefined_flags" value="True"/>
         <attribute name="install_arguments" value="DESTDIR=$INSTALLDIR" />
-        <attribute name="build_arguments" value="CCOPTS+=-fpic CCOPTS+=-D_GNU_SOURCE CCOPTS+=-O0 CCOPTS+=-U_FORTIFY_SOURCE LDFLAGS=-pie DEFINES+=-I$SRCDIR/../mptcp/include"/>
+        <attribute name="build_arguments" value="CCOPTS+=-fpic CCOPTS+=-D_GNU_SOURCE CCOPTS+=-O0 CCOPTS+=-U_FORTIFY_SOURCE LDFLAGS=-pie DEFINES+=-I$SRCDIR/../mptcp/arch/sim/include/ DEFINES+=-I$SRCDIR/../mptcp/include/uapi/ DEFINES+=-I$SRCDIR/../mptcp/include"/>
       </build>
     </module>
 
@@ -132,7 +132,7 @@
         <attribute name="module_directory" value="ns-3-dce"/>
         <attribute name="revision" value="dce-1.1"/>
       </source>
-      <depends_on name="dce-linux-1.1" optional="False"/>
+      <depends_on name="dce-meta-1.1" optional="False"/>
       <depends_on name="mptcp_v0.87" optional="False"/>
       <depends_on name="iproute-mptcp" optional="False"/>
       <build type="waf" objdir="yes" sourcedir="ns-3-dce">
