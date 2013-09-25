@@ -340,10 +340,10 @@
       </source>
       <build type="make" objdir="yes">/"
         <attribute name="pre_installation" value="cd $SRCDIR; sed &quot;s/rm conftest.c/rm -f conftests.c/&quot; configure >a; mv a configure; chmod 755 configure;./configure --prefix=$INSTALLDIR"/>
-        <attribute name="patch" value="$SRCDIR/../ns-3-dce/myscripts/httpd/dce-thttpd.patch"/>
+        <attribute name="patch" value="$SRCDIR/../ns-3-dce/utils/dce-thttpd.patch"/>
          <attribute name="install_arguments" value="-n" />
          <attribute name="build_arguments" value="thttpd"/>
-         <attribute name="post_installation" value="cd $SRCDIR; mkdir $INSTALLDIR/bin_dce; /bin/cp -f thttpd-2.25b/thttpd  $INSTALLDIR/bin_dce"/>
+         <attribute name="post_installation" value="cd $SRCDIR; mkdir $INSTALLDIR/bin_dce; /bin/cp -f thttpd  $INSTALLDIR/bin_dce"/>
       </build>
      </module>
 
