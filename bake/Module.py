@@ -137,12 +137,20 @@ class Module:
                                self._name + " already exists.")
                 sys.stdout.write ("      If you want to update the module, use update instead download, or, if you want a fresh copy," + os.linesep
                       +"      either remove it from the source directory, or use the --force_download option.")
+                
+            if self._source.attribute('new_variable').value != '':
+                elements = env.replace_variables(self._source.attribute('new_variable').value).split(";")
+                env.add_variables(elements)
+
             env.end_source()
         else:
             try:
                 source.download(env)
                 if self._source.attribute('patch').value != '':
                     self._build.threat_patch(env, self._source.attribute('patch').value)
+                if self._source.attribute('new_variable').value != '':
+                    elements = env.replace_variables(self._source.attribute('new_variable').value).split(";")
+                    env.add_variables(elements)
             finally:
                 env.end_source()
         for child, child_name in source.children():
@@ -341,6 +349,21 @@ class Module:
         
         # if there is no build we do not need to proceed 
         if self._build.name() == 'none' or self._source.name() == 'system_dependency':
+            srcDirTmp = self._name
+            if self._source.attribute('module_directory').value :
+                srcDirTmp = self._source.attribute('module_directory').value
+            
+            env.start_build(self._name, srcDirTmp,self._build.supports_objdir)
+
+            if self._build.attribute('pre_installation').value != '':
+                self._build.perform_pre_installation(env)
+            if self._build.attribute('patch').value != '':
+                self._build.threat_patch(env, self._build.attribute('patch').value)
+            if self._build.attribute('post_installation').value != '':
+                self._build.perform_post_installation(env)
+                
+            self._build.threat_variables(env)
+
             return True
         
         # delete in case this is a new build configuration

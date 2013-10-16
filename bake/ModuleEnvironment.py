@@ -38,6 +38,10 @@ class ModuleEnvironment:
     tools.
     '''
     _stopOnError = False
+    _libpaths = set([])
+    _binpaths = set([])
+    _pkgpaths =  set([])
+    _variables =  set([])
      
     (HIGHER, LOWER, EQUAL) = range(0,3)
 
@@ -51,10 +55,10 @@ class ModuleEnvironment:
         self._module_name = None
         self._module_dir = None
         self._module_supports_objdir = None
-        self._libpaths = set([])
-        self._binpaths = set([])
-        self._pkgpaths =  set([])
-        self._variables =  set([])
+#         self._libpaths = set([])
+#         self._binpaths = set([])
+#         self._pkgpaths =  set([])
+#         self._variables =  set([])
         self._debug = debug
         self._sudoEnabled = False
 

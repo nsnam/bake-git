@@ -46,6 +46,10 @@ class ModuleSource(ModuleAttributeBase):
                            mandatory=False)
         self.add_attribute('patch', '', 'code to patch after download', 
                            mandatory=False)
+        
+        self.add_attribute('new_variable', '', 'Appends the value to the'
+                           ' system variable on the format VARIABLE1=value1'
+                           ';VARIABLE2=value2', mandatory=False)
     @classmethod
     def subclasses(self):
         return ModuleSource.__subclasses__()
@@ -298,6 +302,7 @@ class ArchiveModuleSource(ModuleSource):
             ['xz', ['unxz']],
             ['tar.xz', ['tar', 'Jxf']],
             ['7z', ['7z', 'x']],
+            ['tgz', ['tar', 'xzvf']],
             ['tbz2', ['tar', 'jxf']]
            ]
         
@@ -364,6 +369,7 @@ class ArchiveModuleSource(ModuleSource):
             ['tar.gz', 'tar'],
             ['tar.Z', 'tar'],
             ['tar.bz2', 'tar'],
+            ['tgz', 'tar'],
             ['zip', 'unzip'],
             ['rar', 'unrar'],
             ['7z', '7z'],

@@ -854,6 +854,10 @@ class Bake:
         def _do_build(configuration, module, env):
             
             if isinstance(module._source, SystemDependency) or isinstance(module._build, NoneModuleBuild) :
+                if isinstance(module._build, NoneModuleBuild):
+                    # Only to threat the variables and pre and post instalation
+                    # that may be set even for none build kind of modules
+                    module.build(env, options.jobs, options.force_clean)
                 return True
             
             sys.stdout.write(" >> Building " + module.name()  + " - ")

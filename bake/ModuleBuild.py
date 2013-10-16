@@ -264,6 +264,10 @@ class InlineModuleBuild(ModuleBuild):
                 return m.groupdict()['class_name']
         
         return self.__class__.__name__
+    
+    def check_version(self, env):
+        return True
+
 
 class PythonModuleBuild(ModuleBuild):
     """ Performs the build for python based projects."""
