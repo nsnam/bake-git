@@ -1059,7 +1059,7 @@
   <predefined name="opt">
     <configuration objdir="opt"/>
     <configuration installdir="build_opt"/>
-<!--   <append name="configure_arguments" value=" -d optimized"/> -->
+<!--     <append name="configure_arguments" value=" -d optimized"/> -->
     <append name="CFLAGS" value="-O3"/>
     <append name="CXXFLAGS" value="-O3"/>
   </predefined>
