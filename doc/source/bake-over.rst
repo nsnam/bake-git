@@ -108,6 +108,14 @@ After configuring one specific building scenario, you can check the modules sele
 |
 |  > Path searched for tools: /usr/lib64/qt-3.3/bin /usr/lib64/ccache /usr/local/bin /usr/bin /bin /usr/local/sbin /usr/sbin /sbin 
 
+You may use bake to check and install the requirements if you call:
+::
+
+  > bake.py configure -p set-bake-env
+  > bake.py show
+  > bake.py download <--sudo> # if you are in the sudoers group and you want bake to try, in a best effort way, to install it own dependencies. 
+
+
 Basic usage
 ===========
 A typical user session should be:::
