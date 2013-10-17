@@ -5,3 +5,4 @@ bakefile.xml$
 source/*
 build/*
 ^bakeSetEnv.sh
+^.pydevproject
