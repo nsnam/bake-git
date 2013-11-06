@@ -939,6 +939,7 @@
       <depends_on name="gccxml-ns3" optional="True"/>
       <depends_on name="ns-3.18.1" optional="False"/>
       <build type="none"/>
+    </module>
 
     <module name="dce-meta-1.0">
       <source type="mercurial">
