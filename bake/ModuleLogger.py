@@ -39,7 +39,7 @@ class ModuleLogger:
         """ Initializes the used variables."""
 
         self._verbose = None
-        self._command_file = None
+        self._command_file = open(os.devnull, 'w')
         self._std_file = None
         self._dump_file = None
 
@@ -92,7 +92,8 @@ class StdoutModuleLogger(ModuleLogger):
         """ Initializes the used variables."""
 
         ModuleLogger.__init__(self)
-        self._update_file(sys.__stdout__)
+        self._file=sys.__stdout__
+        self._update_file(self._file)
         
     def set_current_module(self, name):
         """ Sets stdout as the output as the output for the module."""

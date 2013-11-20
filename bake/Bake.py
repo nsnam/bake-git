@@ -404,8 +404,8 @@ class Bake:
         parser.add_option("--append", action="append", type="string", 
                           dest="append", default=[],
                           help="Format: module:name=value. A variable to"
-                          " append to in the Bake "
-                          "configuration for the matching module.")
+                          " append to in the Bake build "
+                          "configuration for the especified module.")
         parser.add_option("--objdir", action="store", type="string",
                           dest="objdir", default="objdir",
                           help="The per-module directory where the object"
@@ -420,6 +420,18 @@ class Bake:
         parser.add_option("-p", "--predefined", action="store", type="string",
                           dest="predefined", default=None,
                           help="A predefined configuration to apply")
+
+        parser.add_option('--logfile', help='File in which we want to store log output '
+                          'of requested operation', action="store", type="string", dest="logfile",
+                          default='')
+        parser.add_option('--logdir', help='Directory in which we want to store log output '
+                          'of requested operation. One file per module.', action="store",
+                          type="string", dest="logdir",
+                          default='')
+        parser.add_option('-v', '--verbose', action='count', dest='verbose', 
+                          default=0, help='Increase the log verbosity level')
+        parser.add_option('-q', '--quiet', action='count', dest='quiet', 
+                          default=0, help='Increase the log quietness level')
 
         # sets the configuration values got from the line command
         (options, args_left) = parser.parse_args(args)
@@ -497,6 +509,13 @@ class Bake:
                 module.get_build().attribute(name).value = current_value + ' ' + value
         configuration.write()
         
+        if not configuration._enabled and not options.append :
+            env =  self._get_dummy_env(options)
+            env._logger.commands.write(' > No module enabled: Bake configuration requires at least one module to be enabled'
+                                       ' (enable, predefined), or appended.\n'
+                                       '   Argument(s) %s is not enough for an unambiguous action.\n' % (args_left))
+            self._error('No module enabled, please use -e <name of the module>, -p <predefined modules> or -a, to activate all modules.')
+
         self._save_resource_configuration(configuration)
         
         
@@ -1008,6 +1027,7 @@ class Bake:
         verbose = options.verbose - options.quiet
         verbose = verbose if verbose >= 0 else 0
         logger.set_verbose(verbose)
+        logger._update_file(logger._file)
 
         return ModuleEnvironment(logger, "","","", Bake.main_options.debug)
 
