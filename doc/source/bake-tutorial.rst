@@ -76,13 +76,23 @@ This should create a bake repository on the directory you are in now
 2. Putting bake on the path
 ###########################
 
+bake will, by default, use a ``build`` directory to install components
+locally (rather than trying to install them in system places).  This
+``build`` directory will contain ``bin`` and ``lib`` directories.  These
+should be put into your environment variables for PATH and PYTHONPATH:
+
+Change directory into the ``bake`` directory (the directory including
+the file ``bake.py``) and type these commands:
+
 ::
  
- > export BAKE_HOME=`pwd`/bake
- > export PATH=$PATH:$BAKE_HOME
- > export PYTHONPATH=$PYTHONPATH:$BAKE_HOME
+ > export BAKE_HOME=`pwd`
+ > export PATH=$PATH:$BAKE_HOME:$BAKE_HOME/build/bin
+ > export PYTHONPATH=$PYTHONPATH:$BAKE_HOME:$BAKE_HOME/build/lib
 
-For this whole shell section bake will be found on the path, to make this permanent add the bake root to the path on your configuration file (e.g. ~/.bashrc).
+For this whole documentation section, bake will be assumed to be found on 
+the path.  These path extensions can also be adapted and added to a local
+shell file (e.g. ~/.bashrc).
 
 Now, from any place of your machine you can call bake.py.
 
