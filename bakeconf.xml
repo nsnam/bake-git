@@ -35,7 +35,7 @@
       </source>
       <depends_on name="dce-meta-dev" optional="False"/>
       <depends_on name="net-next-sim-2.6.36" optional="False"/>
-      <depends_on name="iproute" optional="False"/>
+      <depends_on name="iproute-2.6.38" optional="False"/>
       <build type="waf" objdir="yes" sourcedir="ns-3-dce">
         <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --with-libaspect=$INSTALLDIR --enable-kernel-stack=$SRCDIR/../net-next-sim-2.6.36/arch"/>
@@ -49,7 +49,7 @@
       </source>
       <depends_on name="dce-meta-dev" optional="False"/>
       <depends_on name="net-next-sim-2.6.36" optional="False"/>
-      <depends_on name="iproute" optional="False"/>
+      <depends_on name="iproute-2.6.38" optional="False"/>
       <depends_on name="dce-quagga-dev" optional="False"/>
       <depends_on name="dce-umip-dev" optional="False"/>
       <build type="waf" objdir="yes" sourcedir="ns-3-dce">
@@ -64,7 +64,7 @@
         <attribute name="module_directory" value="ns-3-dce"/>
       </source>
       <depends_on name="dce-meta-dev" optional="False"/>
-      <depends_on name="iproute" optional="False"/>
+      <depends_on name="iproute-2.6.38" optional="False"/>
       <build type="waf" objdir="yes" sourcedir="ns-3-dce">
         <attribute name="supported_os" value="linux;linux2"/>
         <!-- assume the bake.py build is executed under arch/sim/test/buildtop/ -->
@@ -250,7 +250,7 @@
       </build>
     </module>
 
-     <module name="iproute">
+     <module name="iproute-2.6.38">
       <source type="archive">
         <attribute name="url" value="http://www.linuxgrill.com/anonymous/iproute2/NEW-OSDL/iproute2-2.6.38.tar.bz2"/>
       </source>
@@ -1015,7 +1015,7 @@
       </source>
       <depends_on name="dce-meta-1.0" optional="False"/>
       <depends_on name="net-next-sim-2.6.36" optional="False"/>
-      <depends_on name="iproute" optional="False"/>
+      <depends_on name="iproute-2.6.38" optional="False"/>
       <build type="waf" objdir="yes" sourcedir="ns-3-dce">
 	<attribute name="supported_os" value="linux;linux2"/>
 	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../net-next-sim-2.6.36/arch"/>
@@ -1098,7 +1098,7 @@
       </source>
       <depends_on name="dce-meta-1.1.1" optional="False"/>
       <depends_on name="net-next-sim-2.6.36" optional="False"/>
-      <depends_on name="iproute" optional="False"/>
+      <depends_on name="iproute-2.6.38" optional="False"/>
       <build type="waf" objdir="yes" sourcedir="ns-3-dce">
 	<attribute name="supported_os" value="linux;linux2"/>
 	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../net-next-sim-2.6.36/arch"/>
@@ -1172,7 +1172,7 @@
       </source>
       <depends_on name="dce-meta-1.1" optional="False"/>
       <depends_on name="net-next-sim-2.6.36" optional="False"/>
-      <depends_on name="iproute" optional="False"/>
+      <depends_on name="iproute-2.6.38" optional="False"/>
       <build type="waf" objdir="yes" sourcedir="ns-3-dce">
 	<attribute name="supported_os" value="linux;linux2"/>
 	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../net-next-sim-2.6.36/arch"/>
@@ -1202,6 +1202,80 @@
       <depends_on name="dce-linux-1.1" optional="False"/>
       <depends_on name="dce-quagga-1.1" optional="False"/>
       <depends_on name="dce-meta-1.1" optional="False"/>
+      <depends_on name="umip" optional="False"/>
+      <build type="none">
+	<attribute name="supported_os" value="linux;linux2"/>
+      </build>
+    </module>
+
+    <!-- dce-1.2 -->
+    <module name="dce-meta-1.2">
+      <source type="mercurial">
+        <attribute name="url" value="http://code.nsnam.org/ns-3-dce"/>
+        <attribute name="module_directory" value="ns-3-dce"/>
+        <attribute name="revision" value="dce-1.2"/>
+      </source>
+      <depends_on name="ns-3.19" optional="False"/>
+      <depends_on name="elf-loader" optional="True"/>
+      <depends_on name="iperf" optional="True"/>
+      <depends_on name="ccnx" optional="True"/>
+      <depends_on name="wget" optional="True"/>
+      <depends_on name="thttpd" optional="True"/>
+      <build type="none">
+      </build>
+    </module>
+
+    <module name="dce-ns3-1.2">
+      <source type="mercurial">
+        <attribute name="url" value="http://code.nsnam.org/ns-3-dce"/>
+        <attribute name="module_directory" value="ns-3-dce"/>
+        <attribute name="revision" value="dce-1.2"/>
+      </source>
+      <depends_on name="dce-meta-1.2" optional="False"/>
+      <build type="waf" objdir="yes" sourcedir="ns-3-dce">
+	<attribute name="supported_os" value="linux;linux2"/>
+	<attribute name="configure_arguments" value="configure --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --prefix=$INSTALLDIR"/>
+      </build>
+    </module>
+
+    <module name="dce-linux-1.2">
+      <source type="mercurial">
+        <attribute name="url" value="http://code.nsnam.org/ns-3-dce"/>
+        <attribute name="module_directory" value="ns-3-dce"/>
+        <attribute name="revision" value="dce-1.2"/>
+      </source>
+      <depends_on name="dce-meta-1.2" optional="False"/>
+      <depends_on name="net-next-sim-2.6.36" optional="False"/>
+      <depends_on name="iproute-2.6.38" optional="False"/>
+      <build type="waf" objdir="yes" sourcedir="ns-3-dce">
+	<attribute name="supported_os" value="linux;linux2"/>
+	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../net-next-sim-2.6.36/arch"/>
+      </build>
+    </module>
+
+    <module name="dce-quagga-1.2">
+      <source type="mercurial">
+	<attribute name="url" value="http://code.nsnam.org/thehajime/ns-3-dce-quagga"/>
+	<attribute name="module_directory" value="ns-3-dce/myscripts/ns-3-dce-quagga/"/>
+	<attribute name="revision" value="dce-1.2"/>
+      </source>
+      <depends_on name="quagga" optional="False"/>
+      <depends_on name="dce-meta-1.2" optional="False"/>
+      <depends_on name="iputils" optional="False"/>
+      <build type="none">
+	<attribute name="supported_os" value="linux;linux2"/>
+      </build>
+    </module>
+
+    <module name="dce-umip-1.2">
+      <source type="mercurial">
+	<attribute name="url" value="http://code.nsnam.org/thehajime/ns-3-dce-umip"/>
+	<attribute name="module_directory" value="ns-3-dce/myscripts/ns-3-dce-umip/"/>
+	<attribute name="revision" value="dce-1.2"/>
+      </source>
+      <depends_on name="dce-linux-1.2" optional="False"/>
+      <depends_on name="dce-quagga-1.2" optional="False"/>
+      <depends_on name="dce-meta-1.2" optional="False"/>
       <depends_on name="umip" optional="False"/>
       <build type="none">
 	<attribute name="supported_os" value="linux;linux2"/>
