@@ -925,6 +925,18 @@
       </build>
     </module>
 
+    <module name="ns-3.19">
+      <source type="mercurial">
+	<attribute name="url" value="http://code.nsnam.org/ns-3.19"/>
+      </source>
+      <depends_on name="netanim-3.104" optional="True"/>
+      <depends_on name="pybindgen-0.16.0.834" optional="True"/>
+      <depends_on name="pyviz-prerequisites" optional="True"/>
+      <build type="waf" objdir="yes">
+	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
+      </build>
+    </module>
+
     <module name="ns-allinone-3.18">
       <source type="none"/>
       <depends_on name="netanim-3.103" optional="True"/>
