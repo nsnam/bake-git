@@ -6,7 +6,7 @@
         <attribute name="url" value="http://code.nsnam.org/ns-3-dce"/>
         <attribute name="module_directory" value="ns-3-dce"/>
       </source>
-      <depends_on name="ns-3-dev" optional="False"/>
+      <depends_on name="ns-3-dev-dce" optional="False"/>
       <depends_on name="elf-loader" optional="True"/>
       <depends_on name="libaspect" optional="True"/>
       <depends_on name="iperf" optional="True"/>
@@ -14,7 +14,6 @@
       <depends_on name="wget" optional="True"/>
       <depends_on name="thttpd" optional="True"/>
       <build type="none">
-        <attribute name="patch" value="$SRCDIR/utils/ipv6-linux-stack.patch"/>
       </build>
     </module>
 
@@ -274,7 +273,11 @@
       <source type="mercurial">
         <attribute name="url" value="http://code.nsnam.org/ns-3-dev"/>
       </source>
+      <depends_on name="netanim-dev" optional="True"/>
+      <depends_on name="pybindgen-dev" optional="True"/>
+      <depends_on name="pyviz-prerequisites" optional="True"/>
       <build type="waf" objdir="yes">
+        <attribute name="patch" value="$SRCDIR/../ns-3-dce/utils/ipv6-linux-stack.patch"/>
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-tests"/>
       </build>
     </module>
