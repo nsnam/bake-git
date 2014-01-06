@@ -13,7 +13,9 @@
       <depends_on name="ccnx" optional="True"/>
       <depends_on name="wget" optional="True"/>
       <depends_on name="thttpd" optional="True"/>
-      <build type="none"/>
+      <build type="none">
+        <attribute name="patch" value="$SRCDIR/utils/ipv6-linux-stack.patch"/>
+      </build>
     </module>
 
     <module name="dce-ns3-dev">
