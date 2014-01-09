@@ -37,6 +37,7 @@
       <depends_on name="dce-meta-dev" optional="False"/>
       <depends_on name="net-next-sim-2.6.36" optional="False"/>
       <depends_on name="iproute-2.6.38" optional="False"/>
+      <depends_on name="lksctp-dev" optional="True"/>
       <build type="waf" objdir="yes" sourcedir="ns-3-dce">
         <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --with-libaspect=$INSTALLDIR --enable-kernel-stack=$SRCDIR/../net-next-sim-2.6.36/arch"/>
@@ -246,6 +247,18 @@
         <attribute name="name_apt-get" value="libssl-dev"/>
         <attribute name="name_yum" value="openssl-devel"/>
         <attribute name="more_information" value="Didn't find:   libssl-dev package; please install it."/>
+      </source>
+      <build type="none" objdir="no">
+      </build>
+    </module>
+
+    <module name="lksctp-dev">
+      <source type="system_dependency">
+        <attribute name="dependency_test" value="sctp.h"/>
+        <attribute name="try_to_install" value="True"/>
+        <attribute name="name_apt-get" value="lksctp-dev"/>
+        <attribute name="name_yum" value="lksctp-tools-devel"/>
+        <attribute name="more_information" value="Didn't find:   lksctp-dev package; please install it."/>
       </source>
       <build type="none" objdir="no">
       </build>
