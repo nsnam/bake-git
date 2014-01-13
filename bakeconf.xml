@@ -290,7 +290,6 @@
       <depends_on name="pybindgen-dev" optional="True"/>
       <depends_on name="pyviz-prerequisites" optional="True"/>
       <build type="waf" objdir="yes">
-        <attribute name="patch" value="$SRCDIR/../ns-3-dce/utils/ipv6-linux-stack.patch"/>
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-tests"/>
       </build>
     </module>
