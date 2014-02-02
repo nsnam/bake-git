@@ -484,9 +484,7 @@
 
     <module name="click-dev">
       <source type="git">
-	<attribute name="url" value="git://read.cs.ucla.edu/git/click"/>
-<!--	<attribute name="revision" value="724412626833df5c13384be5cce4da52c601371f"/>
--->
+	<attribute name="url" value="git://github.com/kohler/click.git"/>
       </source>
       <build type="autotools" objdir="yes">
 	<attribute name="configure_arguments" value="../configure --prefix=$INSTALLDIR --exec-prefix=$INSTALLDIR -enable-userlevel --disable-linuxmodule --enable-nsclick --enable-wifi"/>
