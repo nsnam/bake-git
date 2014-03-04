@@ -31,6 +31,7 @@ import platform
 import commands
 import re
 import sys
+import shlex
 from bake.Utils import ModuleAttributeBase
 from bake.Exceptions import NotImplemented
 from bake.Exceptions import TaskError 
@@ -760,7 +761,7 @@ class Autotools(ModuleBuild):
             if not "--prefix" in command:
                 command = command + ' --prefix=' + env.objdir
                 
-            command= bake.Utils.split_args(command)
+            command = shlex.split(command)
             env.run(command, directory=env.objdir)
         
         
