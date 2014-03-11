@@ -142,6 +142,7 @@ class Module:
                 elements = env.replace_variables(self._source.attribute('new_variable').value).split(";")
                 env.add_variables(elements)
 
+
             env.end_source()
         else:
             try:
@@ -151,6 +152,8 @@ class Module:
                 if self._source.attribute('new_variable').value != '':
                     elements = env.replace_variables(self._source.attribute('new_variable').value).split(";")
                     env.add_variables(elements)
+                if self._source.attribute('post_download').value != '':
+                    self._source.perform_post_download(env)
             finally:
                 env.end_source()
         for child, child_name in source.children():
@@ -176,6 +179,8 @@ class Module:
                 self.printResult(env, "Dependency ", self.OK)
             else:
                 self.printResult(env, "Download", self.OK)
+                
+ 
             return True
         except TaskError as e:
             if isinstance(self._source, SystemDependency):

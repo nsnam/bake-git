@@ -31,6 +31,7 @@ import os
 import urlparse
 import re
 import platform
+import commands
 from datetime import date
 
 class ModuleSource(ModuleAttributeBase):
@@ -50,6 +51,10 @@ class ModuleSource(ModuleAttributeBase):
         self.add_attribute('new_variable', '', 'Appends the value to the'
                            ' system variable on the format VARIABLE1=value1'
                            ';VARIABLE2=value2', mandatory=False)
+
+        self.add_attribute('post_download', '', 'UNIX Command to run'
+                           ' after the download', mandatory=False)
+
     @classmethod
     def subclasses(self):
         return ModuleSource.__subclasses__()
@@ -74,6 +79,20 @@ class ModuleSource(ModuleAttributeBase):
         raise NotImplemented()
     def check_version(self, env):
         raise NotImplemented()
+    
+    def perform_post_download(self, env):
+        """ Executes a list of Linux commands AFTER the download is finished """
+        
+        if self.attribute('post_download').value != '':
+            try:
+                env._logger.commands.write(" > " + env.replace_variables(self.attribute('post_download').value))
+                var = commands.getoutput(env.replace_variables(self.attribute('post_download').value))
+                
+                if env.debug:
+                    print("  -> " +  var)
+            except Exception as e:
+                print ("   > Error executing post download : " + e )
+
 
     @classmethod
     def source_systemtool(self):
