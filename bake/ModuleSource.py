@@ -818,8 +818,11 @@ class GitModuleSource(ModuleSource):
         env.run(['git', 'init'], directory=tempdir)
         env.run(['git', 'remote', 'add', 'origin', self.attribute('url').value],
                 directory=tempdir)
-        env.run(['git', 'fetch', self.attribute('fetch_option').value],
-                directory=tempdir)
+        if self.attribute('fetch_option').value is not '':
+            env.run(['git', 'fetch', self.attribute('fetch_option').value],
+                    directory=tempdir)
+        else:
+            env.run(['git', 'fetch'], directory=tempdir)
         env.run(['git', 'checkout', self.attribute('revision').value],
                 directory=tempdir)
         os.rename(tempdir, env.srcdir)
