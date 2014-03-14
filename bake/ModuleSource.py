@@ -798,7 +798,7 @@ class GitModuleSource(ModuleSource):
         self.add_attribute('revision', 'refs/remotes/origin/master',
                            "Revision to checkout. Defaults to origin/master"
                            " reference.")
-        self.add_attribute('fetch_option', '--depth=0', 'Options to add git fetch command.')
+        self.add_attribute('fetch_option', '', 'Options to add git fetch command.')
     @classmethod
     def name(cls):
         """ Identifier of the type of the tool used."""
