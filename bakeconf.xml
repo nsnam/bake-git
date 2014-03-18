@@ -341,6 +341,49 @@
        </build>
      </module>
 
+     <module name="dce-freebsd-dev">
+       <source type="mercurial">
+         <attribute name="url" value="http://code.nsnam.org/ns-3-dce"/>
+         <attribute name="module_directory" value="ns-3-dce"/>
+       </source>
+       <depends_on name="dce-meta-dev" optional="False"/>
+       <depends_on name="freebsd-sim-10.0.0" optional="False"/>
+       <build type="waf" objdir="yes" sourcedir="ns-3-dce">
+         <attribute name="supported_os" value="linux;linux2"/>
+         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --with-libaspect=$INSTALLDIR --enable-kernel-stack=$SRCDIR/../freebsd-sim/sys"/>
+       </build>
+     </module>
+
+     <module name="freebsd-sim-dev">
+       <source type="git">
+         <attribute name="url" value="git://github.com/direct-code-execution/freebsd-sim.git"/>
+         <attribute name="module_directory" value="freebsd-sim"/>
+         <attribute name="revision" value="sim-ns3-dev-branch"/>
+         <attribute name="fetch_option" value="--depth=1"/>
+       </source>
+       <build type="make" objdir="no">
+         <attribute name="supported_os" value="linux;linux2"/>
+         <attribute name="build_arguments" value="buildkernel -C sys/sim"/>
+         <attribute name="no_installation" value="True"/>
+         <attribute name="post_installation" value="mkdir -p $INSTALLDIR/bin_dce; cd $INSTALLDIR/bin_dce; cp $SRCDIR/libsim-freebsd.git.so ./; ln -s -f libsim-freebsd.git.so libfreebsd.so"/>
+       </build>
+     </module>
+
+     <module name="freebsd-sim-10.0.0">
+       <source type="git">
+         <attribute name="url" value="git://github.com/direct-code-execution/freebsd-sim.git"/>
+         <attribute name="module_directory" value="freebsd-sim"/>
+         <attribute name="revision" value="sim-ns3-10.0.0"/>
+         <attribute name="fetch_option" value="--depth=1"/>
+       </source>
+       <build type="make" objdir="no">
+         <attribute name="supported_os" value="linux;linux2"/>
+         <attribute name="build_arguments" value="buildkernel -C sys/sim"/>
+         <attribute name="no_installation" value="True"/>
+         <attribute name="post_installation" value="mkdir -p $INSTALLDIR/bin_dce; cd $INSTALLDIR/bin_dce; cp $SRCDIR/libsim-freebsd.git.so ./; ln -s -f libsim-freebsd.git.so libfreebsd.so"/>
+       </build>
+     </module>
+
      <module name="wget">
       <source type="archive">
         <attribute name="url" value="http://ftp.gnu.org/gnu/wget/wget-1.14.tar.gz"/>
