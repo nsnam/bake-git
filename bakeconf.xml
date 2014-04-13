@@ -538,7 +538,7 @@
 
     <module name="click-ns-3.17">
       <source type="git">
-	<attribute name="url" value="git://read.cs.ucla.edu/git/click"/>
+	<attribute name="url" value="git://github.com/kohler/click.git"/>
 	<attribute name="revision" value="056d2c0a75baaf196fca2622ff9eb80f28038bc0"/>
       </source>
       <build type="autotools" objdir="yes">
@@ -896,8 +896,7 @@
 
    <module name="netanim-3.104">
       <source type="mercurial">
-        <attribute name="url" value="http://code.nsnam.org/netanim"/>
-        <attribute name="revision" value="56a2bf659be7"/>
+        <attribute name="url" value="http://code.nsnam.org/jabraham3/netanim-3.104"/>
       </source>
       <build type="make" objdir="no">
         <attribute name="pre_installation" value="cd $SRCDIR;qmake NetAnim.pro or cd $SRCDIR;qmake-qt4 NetAnim.pro or cd $SRCDIR;qmake -spec macx-g++ NetAnim.pro"/>
