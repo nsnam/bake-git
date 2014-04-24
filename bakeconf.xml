@@ -547,6 +547,17 @@
       </build>
     </module>
 
+    <module name="click-ns-3.20">
+      <source type="git">
+	<attribute name="url" value="git://github.com/kohler/click.git"/>
+	<attribute name="revision" value="0ac37dc30b0386f3c3d2d990f3d855b8887b4a13"/>
+      </source>
+      <build type="autotools" objdir="yes">
+	<attribute name="configure_arguments" value="../configure --prefix=$INSTALLDIR --exec-prefix=$INSTALLDIR -enable-userlevel --disable-linuxmodule --enable-nsclick --enable-wifi"/>
+	<attribute name="post_installation" value="mkdir $INSTALLDIR/lib; cp -r $OBJDIR/include $INSTALLDIR/lib/."/> 
+      </build>
+    </module>
+
     <module name="click-2.0.1">
       <source type="git">
 	<attribute name="url" value="git://read.cs.ucla.edu/git/click"/>
@@ -734,6 +745,17 @@
       </build>
     </module>
 
+    <module name="pybindgen-0.17.0.868">
+      <source type="bazaar">
+	<attribute name="url" value="https://launchpad.net/pybindgen"/>
+	<attribute name="revision" value="revno:868"/>
+      </source>
+      <build type="waf" objdir="yes">
+	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR"/>
+	<attribute name="build_arguments" value="--generate-version"/>
+      </build>
+    </module>
+
     <module name="g++">
       <source type="system_dependency">
         <attribute name="dependency_test" value="g\+\+"/>
@@ -896,7 +918,20 @@
 
    <module name="netanim-3.104">
       <source type="mercurial">
-        <attribute name="url" value="http://code.nsnam.org/jabraham3/netanim-3.104"/>
+        <attribute name="url" value="http://code.nsnam.org/netanim"/>
+        <attribute name="revision" value="56a2bf659be7"/>
+      </source>
+      <build type="make" objdir="no">
+        <attribute name="pre_installation" value="cd $SRCDIR;qmake NetAnim.pro or cd $SRCDIR;qmake-qt4 NetAnim.pro or cd $SRCDIR;qmake -spec macx-g++ NetAnim.pro"/>
+      </build>
+      <depends_on name="qt4" optional="False"/>
+      <depends_on name="g++" optional="False"/>
+    </module>
+
+   <module name="netanim-3.105">
+      <source type="mercurial">
+        <attribute name="url" value="http://code.nsnam.org/netanim"/>
+        <attribute name="revision" value="c9866156ebf3"/>
       </source>
       <build type="make" objdir="no">
         <attribute name="pre_installation" value="cd $SRCDIR;qmake NetAnim.pro or cd $SRCDIR;qmake-qt4 NetAnim.pro or cd $SRCDIR;qmake -spec macx-g++ NetAnim.pro"/>
@@ -995,6 +1030,18 @@
       </build>
     </module>
 
+    <module name="ns-3.20">
+      <source type="mercurial">
+	<attribute name="url" value="http://code.nsnam.org/ns-3-dev"/>
+      </source>
+      <depends_on name="netanim-3.105" optional="True"/>
+      <depends_on name="pybindgen-0.17.0.868" optional="True"/>
+      <depends_on name="pyviz-prerequisites" optional="True"/>
+      <build type="waf" objdir="yes">
+	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
+      </build>
+    </module>
+
     <module name="ns-allinone-3.18">
       <source type="none"/>
       <depends_on name="netanim-3.103" optional="True"/>
@@ -1034,6 +1081,20 @@
       <depends_on name="pygccxml-1.0.0" optional="True"/>
       <depends_on name="gccxml-ns3" optional="True"/>
       <depends_on name="ns-3.19" optional="False"/>
+      <build type="none"/>
+    </module>
+
+    <module name="ns-allinone-3.20">
+      <source type="none"/>
+      <depends_on name="netanim-3.105" optional="True"/>
+      <depends_on name="nsc-0.5.3" optional="True"/>
+      <depends_on name="pybindgen-0.17.0.868" optional="True"/>
+      <depends_on name="pyviz-prerequisites" optional="True"/>
+      <depends_on name="click-ns-3.20" optional="True"/>
+      <depends_on name="openflow-ns-3.17" optional="True"/>
+      <depends_on name="pygccxml-1.0.0" optional="True"/>
+      <depends_on name="gccxml-ns3" optional="True"/>
+      <depends_on name="ns-3.20" optional="False"/>
       <build type="none"/>
     </module>
 
