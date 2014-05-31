@@ -1042,7 +1042,7 @@
 
     <module name="ns-3.20">
       <source type="mercurial">
-	<attribute name="url" value="http://code.nsnam.org/ns-3-dev"/>
+	<attribute name="url" value="http://code.nsnam.org/ns-3.20"/>
       </source>
       <depends_on name="netanim-3.105" optional="True"/>
       <depends_on name="pybindgen-0.17.0.868" optional="True"/>
