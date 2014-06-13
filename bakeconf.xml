@@ -287,8 +287,8 @@
       <source type="mercurial">
         <attribute name="url" value="http://code.nsnam.org/ns-3-dev"/>
       </source>
-      <depends_on name="netanim-dev" optional="True"/>
-      <depends_on name="pybindgen-dev" optional="True"/>
+      <depends_on name="netanim" optional="True"/>
+      <depends_on name="pybindgen" optional="True"/>
       <depends_on name="pyviz-prerequisites" optional="True"/>
       <build type="waf" objdir="yes">
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-tests"/>
@@ -698,7 +698,7 @@
       </build>
     </module>
 
-    <module name="pybindgen-dev">
+    <module name="pybindgen">
       <source type="bazaar">
 	<attribute name="url" value="https://launchpad.net/pybindgen"/>
 <!--	<attribute name="revision" value="revno:825"/>
@@ -902,7 +902,7 @@
       </build>
     </module>
 
-    <module name="netanim-dev">
+    <module name="netanim">
       <source type="mercurial">
 	<attribute name="url" value="http://code.nsnam.org/netanim"/>
       </source>
@@ -950,27 +950,26 @@
     </module>
 
   <module name="ns-3-allinone">
-      <source type="mercurial">
-	<attribute name="url" value="http://code.nsnam.org/ns-3-dev"/>
-      </source>
-      <depends_on name="netanim-dev" optional="True"/>
+      <source type="none"/>
+      <depends_on name="netanim" optional="True"/>
       <depends_on name="nsc-dev" optional="True"/>
-      <depends_on name="pybindgen-dev" optional="True"/>
+      <depends_on name="pybindgen" optional="True"/>
       <depends_on name="pyviz-prerequisites" optional="True"/>
       <depends_on name="click-dev" optional="True"/>
       <depends_on name="openflow-dev" optional="True"/>
+      <depends_on name="pygccxml-1.0.0" optional="True"/>
+      <depends_on name="gccxml-ns3" optional="True"/>
       <depends_on name="BRITE" optional="True"/>
-      <build type="waf" objdir="yes">
-	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests --with-nsclick=$SRCDIR/click-dev --with-pybindgen=$SRCDIR/pybindgen --with-openflow=$SRCDIR/openflow-dev --with-nsc=$SRCDIR/nsc-dev"/>
-      </build>
+      <depends_on name="ns-3-dev" optional="False"/>
+      <build type="none"/>
   </module>
 
   <module name="ns-3-dev">
       <source type="mercurial">
 	<attribute name="url" value="http://code.nsnam.org/ns-3-dev"/>
       </source>
-      <depends_on name="netanim-dev" optional="True"/>
-      <depends_on name="pybindgen-dev" optional="True"/>
+      <depends_on name="netanim" optional="True"/>
+      <depends_on name="pybindgen" optional="True"/>
       <depends_on name="pyviz-prerequisites" optional="True"/>
       <build type="waf" objdir="yes">
 	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
