@@ -899,6 +899,7 @@
       </source>
       <build type="make" objdir="no">
         <attribute name="no_installation" value="True"/>
+        <attribute name="supported_os" value="linux;linux2;darwin"/>
       </build>
     </module>
 
