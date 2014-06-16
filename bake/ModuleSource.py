@@ -689,13 +689,6 @@ class SystemDependency(ModuleSource):
 #
 #        import platform 
         
-        osName = platform.system().lower()
-        if(not osName.startswith('linux') and not osName.startswith('darwin')):
-            raise TaskError("This installation model works only on Linux/Mac OS"
-                            " platforms, %s not supported for %s,  %s" % 
-                            (osName, env._module_name, 
-                             self.attribute('error_message').value))
-               
 #        (distribution, version, version_id) = platform.linux_distribution()
 #        if not distribution:
 #            distribution = 'darwin' # osName

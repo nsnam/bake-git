@@ -145,6 +145,7 @@ class ModuleEnvironment:
         ''' Returns the value of the system configured library path.'''
 
         lib_var = {'Linux' : 'LD_LIBRARY_PATH',
+                    'FreeBSD' : 'LD_LIBRARY_PATH',
                     'Darwin' : 'DYLD_LIBRARY_PATH',
                     'Windows' : 'PATH'}
         if not lib_var.has_key(platform.system()):
@@ -237,13 +238,9 @@ class ModuleEnvironment:
         ''' Return path that will be searched for executables '''
         pythonpath=[]
         
-        try:
-            if os.environ["PYTHONPATH"]:
-                pythonpath=os.environ["PYTHONPATH"].split(os.pathsep)                
-        except:
-            pass
-            
-        return os.environ["PATH"].split(os.pathsep) + [self._bin_path()] + pythonpath
+        if os.environ.get('PYTHONPATH'):
+            pythonpath=os.environ.get('PYTHONPATH').split(os.pathsep)                
+        return os.environ.get('PATH').split(os.pathsep) + [self._bin_path()] + pythonpath
 
     def _program_location(self, program):
         ''' Finds where the executable is located in the user's path.'''

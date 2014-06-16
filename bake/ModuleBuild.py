@@ -698,6 +698,14 @@ class Make(ModuleBuild):
     def check_version(self, env):
         """ Verifies if Make are available and its versions."""
         
+        if platform.system() == 'FreeBSD':
+            # FreeBSD make program does not identify version the same way
+            # as does GNU make, so we just check for availability of make
+            if not env.check_program('make'):
+                return False
+            else:
+                return True
+
         if not env.check_program('make', version_arg='--version',
                                  version_regexp='(\d+)\.(\d+)',
                                  version_required=(3, 80)):
