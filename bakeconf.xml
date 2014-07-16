@@ -13,6 +13,7 @@
       <depends_on name="ccnx" optional="True"/>
       <depends_on name="wget" optional="True"/>
       <depends_on name="thttpd" optional="True"/>
+      <depends_on name="bash" optional="True"/>
       <build type="none">
       </build>
     </module>
@@ -409,6 +410,15 @@
       </build>
      </module>
 
+    <module name="bash">
+      <source type="archive">
+        <attribute name="url" value="http://ftp.gnu.org/gnu/bash/bash-4.1.tar.gz"/>
+        <attribute name="extract_directory" value="bash-4.1"/>
+      </source>
+      <build type="make" objdir="yes">
+	<attribute name="pre_installation" value="cd $SRCDIR; CFLAGS='-g -fPIC' LDFLAGS='-pie -rdynamic' CFLAGS_FOR_BUILD='-g -fPIC' ./configure --without-bash-malloc --prefix=$INSTALLDIR"/>
+      </build>
+     </module>
 
      <module name="iputils">
        <source type="archive">
