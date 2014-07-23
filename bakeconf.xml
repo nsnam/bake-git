@@ -275,7 +275,7 @@
       <depends_on name="flex" optional="False"/>
       <depends_on name="libssl-dev" optional="False"/>
       <build type="make" objdir="yes">
-        <attribute name="patch" value="$SRCDIR/../ns-3-dce/utils/iproute-2.6.38.patch"/>
+        <!-- attribute name="patch" value="$SRCDIR/../ns-3-dce/utils/iproute-2.6.38.patch"/ -->
         <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="pre_installation" value="$SRCDIR/configure"/>
         <attribute name="LDFLAGS" value="-pie"/>
