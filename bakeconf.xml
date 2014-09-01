@@ -84,7 +84,7 @@
       </source>
       <build type="make" objdir="no">
         <attribute name="supported_os" value="linux;linux2"/>
-        <attribute name="pre_installation" value="cd $SRCDIR;git remote add dce git://github.com/thehajime/net-next-sim.git; git fetch dce; git merge dce/sim-ns3-3.5.0-branch; echo 'CONFIG_MPTCP=y' >> arch/sim/defconfig; sed 's/CONFIG_SYN_COOKIES=y/\#CONFIG_SYN_COOKIES=y/' arch/sim/defconfig >a; mv a arch/sim/defconfig"/>
+        <attribute name="pre_installation" value="cd $SRCDIR;git remote add dce git://github.com/direct-code-execution/net-next-sim.git; git fetch dce; git merge dce/sim-ns3-3.5.0-branch; echo 'CONFIG_MPTCP=y' >> arch/sim/defconfig; sed 's/CONFIG_SYN_COOKIES=y/\#CONFIG_SYN_COOKIES=y/' arch/sim/defconfig >a; mv a arch/sim/defconfig"/>
         <attribute name="configure_arguments" value="defconfig ARCH=sim"/>
         <attribute name="build_arguments" value="library ARCH=sim"/>
         <attribute name="no_installation" value="True"/>
@@ -100,7 +100,7 @@
       </source>
       <build type="make" objdir="no">
         <attribute name="supported_os" value="linux;linux2"/>
-        <attribute name="pre_installation" value="cd $SRCDIR;git remote add dce git://github.com/thehajime/net-next-sim.git; git fetch dce; git merge dce/sim-ns3-3.10.0-branch; echo 'CONFIG_MPTCP=y' >> arch/sim/defconfig; sed 's/CONFIG_SYN_COOKIES=y/\#CONFIG_SYN_COOKIES=y/' arch/sim/defconfig >a; mv a arch/sim/defconfig"/>
+        <attribute name="pre_installation" value="cd $SRCDIR;git remote add dce git://github.com/direct-code-execution/net-next-sim.git; git fetch dce; git merge dce/sim-ns3-3.10.0-branch; echo 'CONFIG_MPTCP=y' >> arch/sim/defconfig; sed 's/CONFIG_SYN_COOKIES=y/\#CONFIG_SYN_COOKIES=y/' arch/sim/defconfig >a; mv a arch/sim/defconfig"/>
         <attribute name="configure_arguments" value="defconfig ARCH=sim"/>
         <attribute name="build_arguments" value="library ARCH=sim"/>
         <attribute name="no_installation" value="True"/>
@@ -299,7 +299,7 @@
 
      <module name="net-next-sim-2.6.36">
        <source type="git">
-         <attribute name="url" value="https://github.com/thehajime/net-next-sim.git"/>
+         <attribute name="url" value="https://github.com/direct-code-execution/net-next-sim.git"/>
          <attribute name="module_directory" value="net-next-sim-2.6.36"/>
          <attribute name="revision" value="sim-ns3-2.6.36-branch"/>
          <attribute name="fetch_option" value="--depth=1"/>
@@ -315,7 +315,7 @@
 
      <module name="net-next-sim-3.4.0">
        <source type="git">
-         <attribute name="url" value="https://github.com/thehajime/net-next-sim.git"/>
+         <attribute name="url" value="https://github.com/direct-code-execution/net-next-sim.git"/>
          <attribute name="module_directory" value="net-next-sim-3.4.0"/>
          <attribute name="revision" value="sim-ns3-3.4.0-branch"/>
        </source>
@@ -330,7 +330,7 @@
 
      <module name="net-next-sim-3.7.0">
        <source type="git">
-         <attribute name="url" value="https://github.com/thehajime/net-next-sim.git"/>
+         <attribute name="url" value="https://github.com/direct-code-execution/net-next-sim.git"/>
          <attribute name="module_directory" value="net-next-sim-3.7.0"/>
          <attribute name="revision" value="sim-ns3-3.7.0-branch"/>
        </source>
