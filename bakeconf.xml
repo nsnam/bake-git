@@ -1580,6 +1580,7 @@
       <depends_on name="ccnx" optional="True"/>
       <depends_on name="wget" optional="True"/>
       <depends_on name="thttpd" optional="True"/>
+      <depends_on name="bash" optional="True"/>
       <build type="none">
       </build>
     </module>
