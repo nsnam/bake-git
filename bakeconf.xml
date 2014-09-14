@@ -37,7 +37,7 @@
       </source>
       <depends_on name="dce-meta-dev" optional="False"/>
       <depends_on name="net-next-sim-2.6.36" optional="False"/>
-      <depends_on name="iproute-2.6.38" optional="False"/>
+      <depends_on name="iproute-2.6.38-fix-01" optional="False"/>
       <depends_on name="lksctp-dev" optional="True"/>
       <build type="waf" objdir="yes" sourcedir="ns-3-dce">
         <attribute name="supported_os" value="linux;linux2"/>
@@ -52,7 +52,7 @@
       </source>
       <depends_on name="dce-meta-dev" optional="False"/>
       <depends_on name="net-next-sim-2.6.36" optional="False"/>
-      <depends_on name="iproute-2.6.38" optional="False"/>
+      <depends_on name="iproute-2.6.38-fix-01" optional="False"/>
       <depends_on name="dce-quagga-dev" optional="False"/>
       <depends_on name="dce-umip-dev" optional="False"/>
       <build type="waf" objdir="yes" sourcedir="ns-3-dce">
@@ -67,7 +67,7 @@
         <attribute name="module_directory" value="ns-3-dce"/>
       </source>
       <depends_on name="dce-meta-dev" optional="False"/>
-      <depends_on name="iproute-2.6.38" optional="False"/>
+      <depends_on name="iproute-2.6.38-fix-01" optional="False"/>
       <build type="waf" objdir="yes" sourcedir="ns-3-dce">
         <attribute name="supported_os" value="linux;linux2"/>
         <!-- assume the bake.py build is executed under arch/sim/test/buildtop/ -->
@@ -275,7 +275,25 @@
       <depends_on name="flex" optional="False"/>
       <depends_on name="libssl-dev" optional="False"/>
       <build type="make" objdir="yes">
-        <!-- attribute name="patch" value="$SRCDIR/../ns-3-dce/utils/iproute-2.6.38.patch"/ -->
+        <attribute name="supported_os" value="linux;linux2"/>
+        <attribute name="pre_installation" value="$SRCDIR/configure"/>
+        <attribute name="LDFLAGS" value="-pie"/>
+        <attribute name="ignore_predefined_flags" value="True"/>
+         <attribute name="install_arguments" value="DESTDIR=$INSTALLDIR" />
+        <attribute name="build_arguments" value="CCOPTS+=-fpic CCOPTS+=-D_GNU_SOURCE CCOPTS+=-O0 CCOPTS+=-U_FORTIFY_SOURCE CCOPTS+=-g LDFLAGS=-pie LDFLAGS+=-rdynamic"/>
+      </build>
+     </module>
+
+     <module name="iproute-2.6.38-fix-01">
+      <source type="archive">
+        <attribute name="url" value="http://www.linuxgrill.com/anonymous/iproute2/NEW-OSDL/iproute2-2.6.38.tar.bz2"/>
+      </source>
+      <depends_on name="libdb-dev" optional="False"/>
+      <depends_on name="bison" optional="False"/>
+      <depends_on name="flex" optional="False"/>
+      <depends_on name="libssl-dev" optional="False"/>
+      <build type="make" objdir="yes">
+        <attribute name="patch" value="$SRCDIR/../ns-3-dce/utils/iproute-2.6.38-fix-01.patch"/>
         <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="pre_installation" value="$SRCDIR/configure"/>
         <attribute name="LDFLAGS" value="-pie"/>
@@ -1499,7 +1517,7 @@
       </source>
       <depends_on name="dce-meta-1.3" optional="False"/>
       <depends_on name="net-next-sim-2.6.36" optional="False"/>
-      <depends_on name="iproute-2.6.38" optional="False"/>
+      <depends_on name="iproute-2.6.38-fix-01" optional="False"/>
       <build type="waf" objdir="yes" sourcedir="ns-3-dce">
 	<attribute name="supported_os" value="linux;linux2"/>
 	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../net-next-sim-2.6.36/arch"/>
