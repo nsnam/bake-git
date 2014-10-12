@@ -589,7 +589,7 @@
 
     <module name="click-2.0.1">
       <source type="git">
-	<attribute name="url" value="git://read.cs.ucla.edu/git/click"/>
+	<attribute name="url" value="git://github.com/kohler/click.git"/>
 	<attribute name="revision" value="8847f68461856418c409f4de4165412b3ec2cade"/>
 
       </source>
