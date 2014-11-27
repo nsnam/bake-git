@@ -76,8 +76,8 @@ This should create a bake repository on the directory you are in now
 ::
 
   > export BAKE_HOME=`pwd`/bake
-  > export PATH=$PATH:$BAKE_HOME
-  > export PYTHONPATH=$PYTHONPATH:$BAKE_HOME
+  > export PATH=$PATH:$BAKE_HOME:$BAKE_HOME/build/bin
+  > export PYTHONPATH=$PYTHONPATH:$BAKE_HOME:$BAKE_HOME/build/lib
 
 Bake utilizes a series of third party tools,  you can check if they exist in your system by calling:
 
