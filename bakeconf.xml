@@ -496,7 +496,7 @@
        <build type="autotools" objdir="no">
          <attribute name="supported_os" value="linux;linux2"/>
          <attribute name="maintainer" value="yes" />
-         <attribute name="configure_arguments" value="./configure CFLAGS=-fPIC  LDFLAGS='-pie -rdynamic' --prefix=$INSTALLDIR --enable-vt --with-builtin-crypto"/>
+         <attribute name="configure_arguments" value="./configure CFLAGS='-fPIC -g'  LDFLAGS='-pie -rdynamic' --prefix=$INSTALLDIR --enable-vt --with-builtin-crypto"/>
          <attribute name="install_arguments" value="-n" />
          <attribute name="post_installation" value="cd $SRCDIR; mkdir $INSTALLDIR/bin_dce; /bin/cp -f src/mip6d  $INSTALLDIR/bin_dce"/>
        </build>
