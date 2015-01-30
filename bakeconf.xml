@@ -336,6 +336,7 @@
          <attribute name="url" value="https://github.com/direct-code-execution/net-next-sim.git"/>
          <attribute name="module_directory" value="net-next-sim-3.4.0"/>
          <attribute name="revision" value="sim-ns3-3.4.0-branch"/>
+         <attribute name="fetch_option" value="--depth=1"/>
        </source>
        <build type="make" objdir="no">
          <attribute name="supported_os" value="linux;linux2"/>
@@ -351,6 +352,7 @@
          <attribute name="url" value="https://github.com/direct-code-execution/net-next-sim.git"/>
          <attribute name="module_directory" value="net-next-sim-3.7.0"/>
          <attribute name="revision" value="sim-ns3-3.7.0-branch"/>
+         <attribute name="fetch_option" value="--depth=1"/>
        </source>
        <build type="make" objdir="no">
          <attribute name="supported_os" value="linux;linux2"/>
