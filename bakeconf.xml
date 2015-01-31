@@ -1139,7 +1139,6 @@
     </module>
 
     <module name="ns-allinone-3.18">
-    <module name="ns-allinone-3.18">
       <source type="none"/>
       <depends_on name="netanim-3.103" optional="True"/>
       <depends_on name="nsc-0.5.3" optional="True"/>
