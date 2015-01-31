@@ -670,6 +670,7 @@
       <build type="python" objdir="yes">
       </build>
       <depends_on name="gccxml-ns3" optional="False"/>
+      <depends_on name="setuptools" optional="False"/>
     </module>
 
     <module name="pygccxml-1.0.0">
@@ -679,6 +680,7 @@
       <build type="python" objdir="yes">
       </build>
       <depends_on name="gccxml-ns3" optional="False"/>
+      <depends_on name="setuptools" optional="False"/>
     </module>
 
     <module name="pygccxml-1.6.2">
@@ -688,6 +690,7 @@
       <build type="python" objdir="yes">
       </build>
       <depends_on name="gccxml-ns3" optional="False"/>
+      <depends_on name="setuptools" optional="False"/>
     </module>
 
     <module name="python-dev">
@@ -723,6 +726,19 @@
         <attribute name="name_yum" value="pygoocanvas"/>
         <attribute name="name_port" value="pygoocanvas"/>
         <attribute name="more_information" value="The pygoocanvas is not installed, try to install it."/>
+      </source>
+      <build type="none" objdir="no">
+      </build>
+    </module>
+
+    <module name="setuptools">
+      <source type="system_dependency">
+        <attribute name="dependency_test" value="easy_install"/>
+        <attribute name="try_to_install" value="False"/>
+        <attribute name="name_apt-get" value="python-setuptools"/>
+        <attribute name="name_yum" value="python-setuptools"/>
+        <attribute name="name_port" value="py-setuptools"/>
+        <attribute name="more_information" value="The python-setuptools package is not installed, try to install it."/>
       </source>
       <build type="none" objdir="no">
       </build>
