@@ -737,23 +737,34 @@ class Bake:
             if module._source.name() == 'none':
                 return True  
 
-            dependencyExists = None
+            dependencyExists = False
             if isinstance(module._source, SystemDependency):  
-                dependencTest = module._source.attribute('dependency_test').value
                 
                 sys.stdout.write (" >> Searching for system dependency " + module.name() + " - ")
                 sys.stdout.flush()
-                if(dependencTest):
-                    # tests if the dependency exists or not        
-                    dependencyExists = module._source._check_dependency_expression(env, dependencTest) 
-                    # if the dependency exists there is nothing else to do
-                    if(dependencyExists) :
-                        env.start_source(module.name(), ".")
-                        module.printResult(env, "Search", module.OK)
-                        env.end_source()
-                        return True
+                # We support one of the following three attributes:
+                # file_test, executable_test, and dependency_test (deprecated)
+                if (module._source.attribute('file_test').value is not None):
+                    dependencyExists = module._source._check_file_expression (
+                      module._source.attribute('file_test').value)
+                elif (module._source.attribute('executable_test').value is not None):
+                    dependencyExists = module._source._check_executable_expression (
+                      module._source.attribute('executable_test').value)
+                # XXX Deprecated attribute; will be removed in future
+                elif (module._source.attribute('dependency_test').value is not None):
+                    dependencyExists = module._source._check_dependency_expression(env,
+                      module._source.attribute('dependency_test').value)
+
+                
+                # if the dependency exists there is nothing else to do
+                if (dependencyExists) :
+                    env.start_source(module.name(), ".")
+                    module.printResult(env, "Search", module.OK)
+                    env.end_source()
+                    return True
 
             if not dependencyExists:
+                # Dependency did not exist
                 targetDir=''
                 if module._source.attribute('module_directory') and not module._source.attribute('module_directory').value.strip() =='':
                     targetDir=' (target directory:%s)'%module._source.attribute('module_directory').value
@@ -1164,37 +1175,44 @@ class Bake:
         
         for this_key in depend_keys:
             sysDep=systemDependencies[this_key]
+            dependencyExists = False
         
-            dependencTest = sysDep.attribute('dependency_test').value
-        
-            # If a test for dependencies exists for this module
-            if(dependencTest):
+            # We support one of the following three attributes:
+            # file_test, executable_test, and dependency_test (deprecated)
+            if (sysDep.attribute('file_test').value is not None):
+                dependencyExists = sysDep._check_file_expression ( 
+                  sysDep.attribute('file_test').value)
+            elif (sysDep.attribute('executable_test').value is not None):
+                dependencyExists = sysDep._check_executable_expression ( 
+                  sysDep.attribute('executable_test').value)
+            # XXX Deprecated attribute; will be removed in future
+            elif (sysDep.attribute('dependency_test').value is not None):
+                dependencyExists = sysDep._check_dependency_expression(env, 
+                  sysDep.attribute('dependency_test').value)
 
-                # tests if the dependency exists or not        
-                dependencyExists = sysDep._check_dependency_expression(env, dependencTest) 
-                if not dependencyExists:
-                    sys.stdout.write(" > " + this_key + " - ")
-                    ColorTool.cPrintln(ColorTool.FAIL, "Missing")
-                    print("   >> " + sysDep.attribute('more_information').value)
-                    command = sysDep._get_command(distribution)
-                    command = command.strip()
-                    if not command == '':
-                        installerName = sysDep.attribute('name_' + command.split()[0]).value
+            if not dependencyExists:
+                sys.stdout.write(" > " + this_key + " - ")
+                ColorTool.cPrintln(ColorTool.FAIL, "Missing")
+                print("   >> " + sysDep.attribute('more_information').value)
+                command = sysDep._get_command(distribution)
+                command = command.strip()
+                if not command == '':
+                    installerName = sysDep.attribute('name_' + command.split()[0]).value
             
-                        # if didn't find the specific installer name uses the default one
-                        if(not installerName):
-                            installerName = this_key
-                        
-                        print('   >> Try: "sudo ' + command + ' ' + 
-                              installerName + '", if you have sudo rights.')
+                    # if didn't find the specific installer name uses the default one
+                    if(not installerName):
+                        installerName = this_key
+                      
+                    print('   >> Try: "sudo ' + command + ' ' + 
+                          installerName + '", if you have sudo rights.')
 
-                    missing = True
-                else:
-                    sys.stdout.write(" > " + this_key + " - ")
-                    ColorTool.cPrintln(ColorTool.OK, "OK")
+                missing = True
+            else:
+                sys.stdout.write(" > " + this_key + " - ")
+                ColorTool.cPrintln(ColorTool.OK, "OK")
                 
-                returnValue= returnValue + this_key
-        
+            returnValue= returnValue + this_key
+
         # if there is a missing dependency the system error level is set to 1 
         if missing:
             sys.exit(1)

@@ -129,8 +129,6 @@ class ModuleSource(ModuleAttributeBase):
         if(not valueToTest):
             return True
         
-        import re  
-           
         stringToChange = valueToTest
         
         ### Clean expression
@@ -160,6 +158,72 @@ class ModuleSource(ModuleAttributeBase):
                
         # Evaluate if all the programs exist
         returnValue = eval(stringToChange)
+        return returnValue     
+
+    def _split_path_expression(self, inputString):
+        """Split and clean the path expression"""
+        if not inputString:
+            return set([])
+
+        ### Clean expression
+        # elements to ignore
+        # XXX the 'not', 'and', and 'if' separators are being treated
+        # as 'or'; also, there should be some string checking for validity
+        lib_var = [r'\b(or)\b', r'\b(not)\b', r'\b(and)\b',r'\b(if)\b']
+        
+        inputString = re.sub(r'(\(|\))',' ',inputString)
+        for element in lib_var :
+            inputString = re.sub(element,'',inputString) 
+        
+        inputString = re.sub(' +',' ', inputString)
+        
+        # split the command names
+        if re.search(' ', inputString):
+            elementsToChange = inputString.split()
+        else :
+            elementsToChange = [inputString]
+        
+        # add the call to the function that verifies if the program exist
+        elementsSet = set([])
+        for element in elementsToChange:
+            elementsSet.add(element) 
+
+        return elementsSet
+
+    def _check_file_expression(self, valueToTest):
+        """Verifies if the system has the requested file or symbolic link"""
+        
+        returnValue = False
+        # if there is no test to do, return true
+        if(not valueToTest):
+            return True
+
+        # The expression may contain a list of 'or' separated paths to check
+        # Split them into a set 
+        elementsSet = self._split_path_expression (valueToTest)
+        
+        for e in elementsSet:
+           if (os.path.isfile (e) or os.path.islink(e)):
+               returnValue = True
+               break
+        return returnValue     
+
+    def _check_executable_expression(self, valueToTest):
+        """Verifies if the system has the requested executable"""
+        
+        returnValue = False
+        # if there is no test to do, return true
+        if(not valueToTest):
+            return True
+
+        # The expression may contain a list of 'or' separated paths to check
+        # Split them into a set 
+        elementsSet = self._split_path_expression (valueToTest)
+        
+        for e in elementsSet:
+           if (os.path.exists (e) and os.access (e, os.X_OK)):
+               returnValue = True
+               break
         return returnValue     
 
 class NoneModuleSource(ModuleSource):
@@ -407,34 +471,42 @@ class ArchiveModuleSource(ModuleSource):
         
         
 class SystemDependency(ModuleSource):
-    """Handles the system dependencies for a given module, if the m/home/dcamara/workspaceodule 
-    is missing, and it is a supported box, try to install the missing module 
-    using one of the default tools  i.e. yum apt-get.
+    """Handles the system dependencies for a given module.  If a system
+       dependency is not met, advise the user on how to install the
+       missing dependency, if possible.  Dependencies may be expressed
+       by requesting bake to check for a specific file (such as a library 
+       or header file) in one or more locations, or checking for an 
+       executable program in one or more locations.
     """
     
     def __init__(self):
         """ Specific attributes definition."""
 
         ModuleSource.__init__(self)
-        self.add_attribute('dependency_test', None, 'The name of the installer',
+        self.add_attribute('dependency_test', None, 
+                           '(DEPRECATED) The name of the dependency',
+                           mandatory=False)
+        self.add_attribute('file_test', None, 'System file to try to locate',
+                           mandatory=False)
+        self.add_attribute('executable_test', None, 'Executable to try to locate',
                            mandatory=False)
         self.add_attribute('try_to_install', 'false', 
-                           'If should try to install or not',
+                           '(DEPRECATED) If should try to install or not',
                            mandatory=True)
         self.add_attribute('sudoer_install', None, 
-                           'Try to install the dependency as sudoer',
+                           '(DEPRECATED) Try to install the dependency as sudoer',
                            mandatory=False)
         self.add_attribute('name_yum', None, 
-                           'The name of the module to install with  yum',
+                           'The package name of the module, for RPMs',
                            mandatory=False)
         self.add_attribute('name_apt-get', None, 
-                           'The name of the module to install with  apt-get',
+                           'The package name of the module, for use with apt-get ',
                            mandatory=False)
         self.add_attribute('name_yast', None, 
-                           'The name of the module to install with  yast',
+                           'The package name of the module, for use with yast',
                            mandatory=False)
         self.add_attribute('name_port', None, 
-                           'The name of the module to install with  ports (Mac OS)',
+                           'The package name of the module, for use with port (Mac OS)',
                            mandatory=False)
         self.add_attribute('more_information', None, 
                            'Gives users a better hint of where to search for the module' ,

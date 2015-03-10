@@ -181,19 +181,56 @@ System dependencies
 
 Some modules may be dependent on third party packages. Such dependencies are expressed
 as SystemDependencies, by default, such dependencies, if not installed in the machine
-will show up as failures during the download process. It is possible to use the
-default system package management tool to try to install automatically such dependencies.
-To do so you should call bake.py with the --sudo option, if the user has sudo rights
-bake will try to install the system dependencies automatically in your system.
-Use this carefully, if you have no idea what a package management system is or
-what sudo is, call **bake.py show**, and give the list of missing system dependencies
-to your  system adminstrator.
+will show up as failures during the download process. 
 
+The typical way to express a system dependency is to check for the existence
+of a file such as an executable or a header file in a well-known system
+place.  If the paths searched for the dependency do not include the
+actual path, a false negative result may occur.  There exist other 
+more platform-specific ways to check for system dependencies, such as
+pkg-config or using the system package manager, or performing a 
+configuration check by trying to compile a small test program, but bake does 
+not presently support such additional checking.
+
+The following snippet shows an example in which a ``file_test`` may be 
+expressed, asking bake to check for the presence of a library at the
+path location ``/usr/lib/debug/lib64/ld-linux-x86-64.so.2.debug``.
 
 ::
-   
- > bake.py deploy --sudo
 
+   <module name="libc-debug">
+      <source type="system_dependency">
+        <attribute name="file_test" value="/usr/lib/debug/lib64/ld-linux-x86-64.so.2.debug"/>
+        <attribute name="name_apt-get" value="libc6-dbg"/>
+        <attribute name="name_yum" value="glibc-debuginfo"/>
+        <attribute name="more_information" value="Didn't find:   libc debug package; please install it."/>
+      </source>
+      <depends_on name="libc" optional="False"/>
+      <build type="none" objdir="no">
+      </build>
+    </module>
+
+This states that libc-debug depends on a mandatory ``libc`` module, and has
+no ``build type``; it must be installed on the system, usually by a package
+manager.  Two source attributes, ``name_apt-get`` and ``name_yum``, provide
+hints as to the names of packages that could be installed if the dependency
+check fails.  The mandatory ``more_information`` attribute provides
+additional hints to the user should the check fail.
+
+The ``file_test`` and ``executable_test`` attributes may specify more than 
+one possible paths to check, with possible values separated by the ``or`` 
+keyword such as:
+
+::
+
+        <attribute name="file_test" value="/usr/lib/debug/lib64/ld-linux-x86-64.so.2.debug or /usr/local/lib/debug/lib64/ld-linux-x86-64.so.2.debug"/>
+
+Presently, ``file_test`` and ``executable_test`` do not support wildcard
+characters for path values.
+
+A deprecated source attribute called ``dependency_test`` exists, which is 
+similar to ``executable_test``, but doesn't distinguish between header files,
+libraries, and executables.
 
 Configuration
 **************
