@@ -924,6 +924,7 @@
     <module name="libc">
       <source type="system_dependency">
         <attribute name="file_test" value="/usr/lib/ld-linux.so.2"/>
+        <attribute name="file_test" value="/usr/lib/ld-linux.so.2 or /lib/ld-linux.so.2"/>
         <attribute name="name_apt-get" value="libc6"/>
         <attribute name="name_yum" value="glibc"/>
         <attribute name="more_information" value="Didn't find:   libc package; please install it."/>
@@ -934,7 +935,7 @@
 
     <module name="libc-debug">
       <source type="system_dependency">
-        <attribute name="file_test" value="/usr/lib/debug/lib64/ld-linux-x86-64.so.2.debug"/>
+        <attribute name="file_test" value="/usr/lib/debug/lib64/ld-linux-x86-64.so.2.debug or /usr/lib/debug/lib/x86_64-linux-gnu/ld-2.19.so or /usr/lib/debug/lib/x86_64-linux-gnu/ld-2.18.so or /usr/lib/debug/lib/x86_64-linux-gnu/ld-2.17.so or /usr/lib/debug/lib/x86_64-linux-gnu/ld-2.16.so or /usr/lib/debug/lib/x86_64-linux-gnu/ld-2.15.so"/>
         <attribute name="name_apt-get" value="libc6-dbg"/>
         <attribute name="name_yum" value="glibc-debuginfo"/>
         <attribute name="more_information" value="Didn't find:   libc debug package; please install it."/>
