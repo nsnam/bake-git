@@ -492,7 +492,7 @@ class SystemDependency(ModuleSource):
                            mandatory=False)
         self.add_attribute('try_to_install', 'false', 
                            '(DEPRECATED) If should try to install or not',
-                           mandatory=True)
+                           mandatory=False)
         self.add_attribute('sudoer_install', None, 
                            '(DEPRECATED) Try to install the dependency as sudoer',
                            mandatory=False)
