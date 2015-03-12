@@ -654,7 +654,10 @@
 
     <module name="pygccxml">
       <source type="archive">
+<!-- This may be enabled when bug 2059 is fixed
 	<attribute name="url" value="https://pypi.python.org/packages/source/p/pygccxml/pygccxml-v1.6.2.tar.gz"/>
+-->
+	<attribute name="url" value="http://downloads.sourceforge.net/project/pygccxml/pygccxml/pygccxml-1.0/pygccxml-1.0.0.zip"/>
       </source>
       <build type="python" objdir="yes">
       </build>
