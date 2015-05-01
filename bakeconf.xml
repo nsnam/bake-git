@@ -1025,6 +1025,18 @@
       <depends_on name="g++" optional="False"/>
     </module>
 
+   <module name="netanim-3.106">
+      <source type="mercurial">
+        <attribute name="url" value="http://code.nsnam.org/netanim"/>
+        <attribute name="revision" value="1b553275ffe6"/>
+      </source>
+      <build type="make" objdir="no">
+        <attribute name="pre_installation" value="cd $SRCDIR;qmake NetAnim.pro or cd $SRCDIR;qmake-qt4 NetAnim.pro or cd $SRCDIR;qmake -spec macx-g++ NetAnim.pro"/>
+      </build>
+      <depends_on name="qt4" optional="False"/>
+      <depends_on name="g++" optional="False"/>
+    </module>
+
   <module name="ns-3-allinone">
       <source type="none"/>
       <depends_on name="netanim" optional="True"/>
