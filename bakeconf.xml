@@ -698,7 +698,7 @@
 
     <module name="pygraphviz">
       <source type="system_dependency">
-        <attribute name="dependency_test" value="(_gv.so or _graphviz.so)"/>
+        <attribute name="dependency_test" value="(_gv.so or _graphviz.so or _graphviz.x86_64-linux-gnu.so)"/>
         <attribute name="name_apt-get" value="python-pygraphviz"/>
         <attribute name="name_yum" value="graphviz-python"/>
         <attribute name="name_yum" value="py27-pygraphviz"/> 
