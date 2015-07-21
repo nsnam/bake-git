@@ -439,7 +439,7 @@
        <depends_on name="libsysfs-dev" optional="False"/>
        <!-- note: iputils does not have 'make install' -->
        <build type="inline"  classname="IputilsModuleBuild">
-         <attribute name="patch" value="$SRCDIR/../ns-3-dce/myscripts/ns-3-dce-quagga/utils/iputils-ping6.patch"/>
+         <attribute name="patch" value="$SRCDIR/../ns-3-dce/utils/iputils-ping6.patch"/>
          <attribute name="supported_os" value="linux;linux2"/>
          <code>class IputilsModuleBuild(InlineModuleBuild):
     def __init__(self):
