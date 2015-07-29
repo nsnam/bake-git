@@ -743,17 +743,14 @@
     </module>
 
     <module name="pybindgen">
-      <source type="bazaar">
-	<attribute name="url" value="https://launchpad.net/pybindgen"/>
-<!--	<attribute name="revision" value="revno:825"/>
--->
+      <source type="git">
+	<attribute name="url" value="https://github.com/gjcarneiro/pybindgen.git"/>
       </source>
-      <build type="waf" objdir="yes">
-	<attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR"/>
-	<attribute name="build_arguments" value="--generate-version"/>
+      <build type="python" objdir="yes">
       </build>
       <depends_on name="pygccxml" optional="True"/>
       <depends_on name="python-dev" optional="True"/>
+      <depends_on name="setuptools" optional="False"/>
     </module>
 
     <module name="pybindgen-0.16.0.825">
