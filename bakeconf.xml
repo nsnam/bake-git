@@ -1037,7 +1037,7 @@
    <module name="netanim-3.106">
       <source type="mercurial">
         <attribute name="url" value="http://code.nsnam.org/netanim"/>
-        <attribute name="revision" value="1b553275ffe6"/>
+        <attribute name="revision" value="986cb092c312"/>
       </source>
       <build type="make" objdir="no">
         <attribute name="pre_installation" value="cd $SRCDIR;qmake NetAnim.pro or cd $SRCDIR;qmake-qt4 NetAnim.pro or cd $SRCDIR;qmake -spec macx-g++ NetAnim.pro"/>
@@ -1186,7 +1186,7 @@
 
     <module name="ns-3.24">
       <source type="mercurial">
-	<attribute name="url" value="http://code.nsnam.org/ns-3-dev"/>
+	<attribute name="url" value="http://code.nsnam.org/ns-3.24"/>
       </source>
       <depends_on name="netanim-3.106" optional="True"/>
       <depends_on name="pybindgen-0.17.0.post41+ngd10fa60" optional="True"/>
