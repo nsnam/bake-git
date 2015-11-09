@@ -482,7 +482,7 @@
 
      <module name="umip">
        <source type="git">
-         <attribute name="url" value="git://git.umip.org/umip.git"/>
+         <attribute name="url" value="git://github.com/direct-code-execution/umip.git"/>
          <attribute name="revision" value="v1.0"/>
        </source>
        <build type="autotools" objdir="no">
