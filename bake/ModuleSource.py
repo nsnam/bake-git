@@ -521,12 +521,12 @@ class SystemDependency(ModuleSource):
         """
         
         distributions = [
-            ['debian', 'apt-get -y install '],
-            ['ubuntu', 'apt-get -y install '],
-            ['linuxmint', 'apt-get -y install '],
-            ['fedora', 'yum -y install '],
-            ['redhat', 'yum -y install '],
-            ['centos', 'yum -y install '],
+            ['debian', 'apt-get install '],
+            ['ubuntu', 'apt-get install '],
+            ['linuxmint', 'apt-get install '],
+            ['fedora', 'yum install '],
+            ['redhat', 'yum install '],
+            ['centos', 'yum install '],
             ['suse', 'yast --install '],
             ['darwin', 'port install '],
             ]
