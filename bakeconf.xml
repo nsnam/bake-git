@@ -926,7 +926,7 @@
       <source type="system_dependency">
 	<attribute name="dependency_test" value="qobject.h and qapplication.h and (qmake or qmake-qt4)"/>
 	<attribute name="name_yum" value="qt4-devel"/>
-	<attribute name="name_apt-get" value="qt4-dev-tools"/>
+	<attribute name="name_apt-get" value="qt4-dev-tools libqt4-dev"/>
 	<attribute name="more_information" value="Didn't find:   QT 4, download and install it from http://qt.nokia.com/downloads/"/>
       </source>
       <build type="none" objdir="no">
