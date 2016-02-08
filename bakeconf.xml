@@ -862,8 +862,13 @@
                 directory=env.srcdir )
         srcLib = os.path.join(env.srcdir, 'lib')
         files = os.listdir(srcLib)
+        env._logger.commands.write("LibDir: " + srcLib +"\n")
         destination = os.path.join(env.installdir, 'lib')
+        env._logger.commands.write("DstDir: " + destination +"\n")
+        if not os.path.exists(destination):
+            os.makedirs(destination)
         for file in files:
+             env._logger.commands.write(file + "->" + destination +"\n")
              try:
                  shutil.copy2(os.path.join(srcLib, file), destination)
              except Exception as e:
