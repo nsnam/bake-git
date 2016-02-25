@@ -53,7 +53,7 @@ class CycleDetected:
     def __init__(self):
         return
 
-class DependencyUnmet:
+class DependencyUnmet(Exception):
     def __init__(self, failed, method=''):
         self._failed = failed
         self._method = method
@@ -97,7 +97,7 @@ class Target:
     def src(self):
         return self._src
     def is_src_optional(self,src):
-        assert self._optional.has_key(src)
+        assert src in self._optional
         return self._optional[src]
     def context(self):
         return self._context
@@ -125,7 +125,7 @@ class Dependencies:
         if isinstance(dst,list):
             return [self.add_dst(d,context) for d in dst]
         # the dependency is already recorded. nothing to do.
-        if self._targets.has_key(dst):
+        if dst in self._targets:
             return
         # update dependency information
         target = Target(dst, context)
@@ -139,7 +139,7 @@ class Dependencies:
         # if the dependence is in fact for a list of dependencies
         if isinstance(src,list):
             return [self.add_dep(s,dst) for s in src]
-        assert self._targets.has_key(dst)
+        assert dst in self._targets
         # the dependency is already recorded. nothing to do.
         target = self._targets[dst]
         if src in target.src ():
@@ -148,7 +148,7 @@ class Dependencies:
         # record new dependency
         target = self._targets[dst]
         target.add_src(src, optional)
-        if not self._sources.has_key(src):
+        if not src in self._sources:
             self._sources[src] = [target]
         elif target not in self._sources[src]:
             self._sources[src].append(target)
@@ -221,7 +221,7 @@ class Dependencies:
             i = workqueue.pop()
             if i not in deps:
                 deps.append(i)
-            if self._sources.has_key(i.dst()):
+            if i.dst() in self._sources:
                 workqueue.extend(self._sources[i.dst()])
         return deps
 
@@ -233,7 +233,7 @@ class Dependencies:
         # XXX: should detect cycles here.
         workqueue = [self._targets[target] 
                      for target in targets 
-                        if self._targets.has_key(target)]
+                        if target in self._targets]
         
         deps = []
         while len(workqueue) > 0:
@@ -242,19 +242,19 @@ class Dependencies:
                 deps.append(i)
 
             for src in i.src():
-                if self._targets.has_key(src):
+                if src in self._targets:
                     workqueue.append(self._targets[src])
         return deps
 
     def _is_leaf(self, target):
         """ Verifies if the target is independent of any module."""
         
-        assert self._targets.has_key(target.dst())
+        assert target.dst() in self._targets
         # a 'leaf' is a target which either has
         # no source or whose sources are not
         # targets themselves.
         for src in target.src():
-            if self._targets.has_key (src):
+            if src in self._targets:
                 return False
         return True
 
@@ -282,7 +282,7 @@ class Dependencies:
         # priority.
         while len(workqueue) > 0:
             source = workqueue.pop()
-            if not self._sources.has_key (source.dst()):
+            if not source.dst() in self._sources:
                 continue
             for dst in self._sources[source.dst()]:
                 if dst not in to_resolve:
@@ -294,20 +294,39 @@ class Dependencies:
         # we want to find the list of targets for each priority
         prio_inverted = dict()
         for target in to_resolve:
-            if prio_inverted.has_key(prio[target]):
+            if prio[target] in prio_inverted:
                 prio_inverted[prio[target]].append(target)
             else:
                 prio_inverted[prio[target]] = [target]
-                
+               
         # generate a sorted list of targets, lowest-priority first
         sorted_targets = []
         for key in sorted(prio_inverted.keys()):
-            sorted_targets.extend(sorted(prio_inverted[key], self._cmp))
+            sorted_targets.extend(sorted(prio_inverted[key], key=self.cmp_to_key(self._cmp)))
         # convert the list of targets into a list of steps
         return sorted_targets
+    def cmp_to_key(self, mycmp):
+        'Convert a cmp= function into a key= function'
+        class K(object):
+            def __init__(self, obj, *args):
+                self.obj = obj
+            def __lt__(self, other):
+                return mycmp(self.obj, other.obj) < 0
+            def __gt__(self, other):
+                return mycmp(self.obj, other.obj) > 0
+            def __eq__(self, other):
+                return mycmp(self.obj, other.obj) == 0
+            def __le__(self, other):
+                return mycmp(self.obj, other.obj) <= 0
+            def __ge__(self, other):
+                return mycmp(self.obj, other.obj) >= 0
+            def __ne__(self, other):
+                return mycmp(self.obj, other.obj) != 0
+        return K
+
 
     def _cmp(self, a, b):
-        return cmp(a.dst(), b.dst());
+        return (id(b.dst())-id(a.dst()));
 
     def _is_clean(self,targets):
         """ Returns true if the target is clean, resolved, and False if it 
@@ -315,7 +334,7 @@ class Dependencies:
         """
 
         for target in targets:
-            if self._targets.has_key (target):
+            if target in self._targets:
                 if self._targets[target].is_dirty():
                     return False
         return True
@@ -341,7 +360,7 @@ class Dependencies:
                     success = i.context()()
                 except TaskError as e:
                     success = False
-                    print ("  > Error: " + e._reason)
+                    print("  > Error: " + e._reason)
 #                except SystemExit as e:
 #                    print(sys.exc_info())
 #
@@ -351,7 +370,7 @@ class Dependencies:
                     success = False
                     import sys
                     er = sys.exc_info()[1]
-                    print ("  > Error: " + str(er))
+                    print("  > Error: " + str(er))
                     from bake.ModuleEnvironment import ModuleEnvironment
                     if ModuleEnvironment._stopOnError:
                         er = sys.exc_info()[1]
@@ -362,7 +381,7 @@ class Dependencies:
                     success = callback(i.dst(), i.context())
                 except TaskError as e:
                     success = False
-                    print ("  > Error: " + e._reason)
+                    print("  > Error: " + e._reason)
                     from bake.ModuleEnvironment import ModuleEnvironment
                     if ModuleEnvironment._stopOnError:
                         er = sys.exc_info()[1]
@@ -371,13 +390,13 @@ class Dependencies:
                     success = False
                     import sys
                     er = sys.exc_info()[1]
-                    print ("  > Unexpected error: " + str(er))
+                    print("  > Unexpected error: " + str(er))
                     from bake.ModuleEnvironment import ModuleEnvironment
                     if ModuleEnvironment._stopOnError:
                         er = sys.exc_info()[1]
                         sys.exit(1)
             if not success:
-                if not self._sources.has_key(i.dst()):
+                if not i.dst() in self._sources:
                     raise DependencyUnmet(i.dst())
                 else:
                     for j in self._sources[i.dst()]:
@@ -393,7 +412,7 @@ class Dependencies:
                             
                             if not self.dependencies[i.dst()._name].moduleProblem:
                                 
-                                print (' > Problem: Optional dependency,'
+                                print(' > Problem: Optional dependency,'
                                              ' module "%s" %s\n'
                                              '   This may reduce the  '
                                              'functionality of the final build. \n'

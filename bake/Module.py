@@ -98,7 +98,7 @@ class Module:
             color=colorTool.FAIL
             
         if env._logger._verbose > 0:
-            print
+            print()
             colorTool.cPrintln(color, " >> " + operation + " " + 
                                     self._name + " - " +resultStr)
         else:
@@ -490,7 +490,6 @@ class Module:
         srcDirTmp = self._name
         if self._source.attribute('module_directory').value :
             srcDirTmp = self._source.attribute('module_directory').value
-
         env.start_source(self._name, srcDirTmp)
         retval = self._source.check_version(env)
         env.end_source()

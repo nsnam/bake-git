@@ -24,14 +24,20 @@
  the handled source code repository tools. It is this class that defines how 
  a download of a zip file, or a mercurial repository will be made.  
 ''' 
+import urllib
+try:
+    from urllib.parse import urlparse
+    from urllib.request import urlretrieve
+except ImportError:
+    from urlparse import urlparse
+    from urllib import urlretrieve
 import bake.Utils
 from bake.Exceptions import TaskError
 from bake.Utils import ModuleAttributeBase
 import os
-import urlparse
 import re
 import platform
-import commands
+import subprocess
 from datetime import date
 
 class ModuleSource(ModuleAttributeBase):
@@ -117,7 +123,7 @@ class ModuleSource(ModuleAttributeBase):
         else:
             distribution = osName
         
-        if tools.has_key(distribution):
+        if distribution in tools:
             return tools[distribution]
         else :
             return ''
@@ -299,7 +305,6 @@ class BazaarModuleSource(ModuleSource):
         
     def check_version(self, env):
         """ Checks if the tool is available and with the needed version."""
-        
         return env.check_program('bzr', version_arg='--version',
                                  version_regexp='(\d+)\.(\d+)',
                                  version_required=(2, 1))
@@ -341,7 +346,6 @@ class MercurialModuleSource(ModuleSource):
         
     def check_version(self, env):
         """ Checks if the tool is available and with the needed version."""
-
         return env.check_program('hg')
 
 
@@ -422,16 +426,14 @@ class ArchiveModuleSource(ModuleSource):
     def download(self, env):
         """Downloads the specific file."""
         
-        import urllib
-        import urlparse
-        import os
+
          
         url_local = self.attribute('url').value
        
-        filename = os.path.basename(urlparse.urlparse(url_local).path)
+        filename = os.path.basename(urlparse(url_local).path)
         tmpfile = os.path.join(env.srcrepo, filename)
         try:
-            urllib.urlretrieve(url_local, filename=tmpfile)
+            urlretrieve(url_local, filename=tmpfile)
         except IOError as e:
             raise TaskError('Download problem for module: %s, URL: %s, Error: %s' 
                             % (env._module_name,self.attribute('url').value, e))
@@ -443,10 +445,10 @@ class ArchiveModuleSource(ModuleSource):
         pass
 
     def check_version(self, env):
+
         """Verifies if the right program exists in the system to handle the
          given compressed source file.
          """
-        
         extensions = [
             ['tar', 'tar'],
             ['tar.gz', 'tar'],
@@ -460,7 +462,7 @@ class ArchiveModuleSource(ModuleSource):
             ['Z', 'uncompress']
             ]
         try:
-            filename = os.path.basename(urlparse.urlparse(self.attribute('url').value).path)
+            filename = os.path.basename(urlparse(self.attribute('url').value).path)
         except AttributeError as e:
             return False
 
@@ -911,5 +913,4 @@ class GitModuleSource(ModuleSource):
 
     def check_version(self, env):
         """ Checks if the tool is available and with the needed version."""
-
         return env.check_program('git')

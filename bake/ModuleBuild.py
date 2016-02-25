@@ -28,7 +28,12 @@
 import bake.Utils
 import os
 import platform
-import commands
+import subprocess
+try:
+    import commands
+    from commands import getstatusoutput, getoutput
+except ImportError:
+    from subprocess import getstatusoutput, getoutput
 import re
 import sys
 import shlex
@@ -133,11 +138,11 @@ class ModuleBuild(ModuleAttributeBase):
             for comandToExecute in commandList :
                 try:
                     env._logger.commands.write("    > " +env.replace_variables(comandToExecute)+ '\n');
-                    resultStatus = commands.getstatusoutput(env.replace_variables(comandToExecute))
+                    resultStatus = getstatusoutput(env.replace_variables(comandToExecute))
                     if(resultStatus[0] == 0) :
                         return True
                 except Exception as e:
-                    print ("   > Error executing pre installation : " + e + "\n")
+                    print ("   > Error executing pre installation : " + str(e) + "\n")
 
         return False
     
@@ -147,7 +152,7 @@ class ModuleBuild(ModuleAttributeBase):
         if self.attribute('post_installation').value != '':
             try:
                 env._logger.commands.write(" > " + env.replace_variables(self.attribute('post_installation').value))
-                var = commands.getoutput(env.replace_variables(self.attribute('post_installation').value))
+                var = getoutput(env.replace_variables(self.attribute('post_installation').value))
                 
                 if env.debug:
                     print("  -> " +  var)
@@ -173,7 +178,7 @@ class ModuleBuild(ModuleAttributeBase):
 
             try:
                 env._logger.commands.write('cd ' + env.srcdir + '; patch -p1 < ' + item + '\n')
-                status = commands.getstatusoutput('cd ' + env.srcdir + '; patch -p1 < ' + item) 
+                status = getstatusoutput('cd ' + env.srcdir + '; patch -p1 < ' + item) 
             except:
                 raise TaskError('Patch error: %s, in: %s' % (item, env._module_name))
             
@@ -389,7 +394,7 @@ class WafModuleBuild(ModuleBuild):
         """ Searches for the waf version, it should be bigger than 1.6.0."""
         
         return env.check_program(self._binary(env.srcdir), version_arg='--version',
-                                 version_regexp='(\d+)\.(\d+)\.(\d+)',
+                                 version_regexp=b'(\d+)\.(\d+)\.(\d+)',
                                  version_required=(1, 6, 0))
         
     def build(self, env, jobs):
@@ -470,7 +475,7 @@ class WafModuleBuild(ModuleBuild):
         
         for path in [os.path.join(env.srcdir, 'waf'), 'waf']:
             if env.check_program(path, version_arg='--version',
-                                 version_regexp='(\d+)\.(\d+)\.(\d+)',
+                                 version_regexp=b'(\d+)\.(\d+)\.(\d+)',
                                  version_required=(1, 5, 9)):
                 return True
             
@@ -596,12 +601,12 @@ class Cmake(ModuleBuild):
         """ Verifies if CMake and Make are available and their versions."""
 
         if not env.check_program('cmake', version_arg='--version',
-                                 version_regexp='(\d+)\.(\d+)\.(\d+)',
+                                 version_regexp=b'(\d+)\.(\d+)\.(\d+)',
                                  version_required=(2, 8, 2)):
             return False
         
         if not env.check_program('make', version_arg='--version',
-                                 version_regexp='(\d+)\.(\d+)',
+                                 version_regexp=b'(\d+)\.(\d+)',
                                  version_required=(3, 80)):
             return False
         
@@ -707,7 +712,7 @@ class Make(ModuleBuild):
                 return True
 
         if not env.check_program('make', version_arg='--version',
-                                 version_regexp='(\d+)\.(\d+)',
+                                 version_regexp=b'(\d+)\.(\d+)',
                                  version_required=(3, 80)):
             return False
         return True
@@ -821,12 +826,12 @@ class Autotools(ModuleBuild):
         """ Verifies if Autoreconf and Make are available and their versions."""
 
         if not env.check_program('autoreconf', version_arg='--version',
-                                 version_regexp='(\d+)\.(\d+)',
+                                 version_regexp=b'(\d+)\.(\d+)',
                                  version_required=(2, 13)):
             return False
         
         if not env.check_program('make', version_arg='--version',
-                                 version_regexp='(\d+)\.(\d+)',
+                                 version_regexp=b'(\d+)\.(\d+)',
                                  version_required=(3, 80)):
             return False
         

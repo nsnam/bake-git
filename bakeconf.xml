@@ -907,8 +907,8 @@
         env._logger.commands.write("LibDir: " + srcLib +"\n")
         destination = os.path.join(env.installdir, 'lib')
         env._logger.commands.write("DstDir: " + destination +"\n")
-	if not os.path.exists(destination):
-    		os.makedirs(destination)
+        if not os.path.exists(destination):
+            os.makedirs(destination)
         files = os.listdir(srcLib)
         env._logger.commands.write("Files:"+str(files)+"\n")
         for file in files:

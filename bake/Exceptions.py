@@ -23,7 +23,7 @@
  This file stores the Exceptions raised by Bake.
 ''' 
 
-class TaskError:
+class TaskError(Exception):
     """ Error found during the execution of the required options. """
     
     def __init__(self, reason = ''):
@@ -33,7 +33,7 @@ class TaskError:
     def reason(self):
         return self._reason
 
-class MetadataError:
+class MetadataError(Exception):
     """ Error reading the configuration. """
     
     def __init__(self, reason = ''):
@@ -42,7 +42,7 @@ class MetadataError:
     def reason(self):
         return self._reason
 
-class NotImplemented:
+class NotImplemented(Exception):
     """ A not yet implemented option was met. """
     
     def __init__(self):

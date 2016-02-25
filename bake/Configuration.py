@@ -197,7 +197,7 @@ class Configuration:
         # get list of names in <attribute name="" value=""> tags
         attributes_present = [child.get('name') for child in node.findall('attribute')]
         # get list of names in <type_string name="value"> attributes
-        attributes_present = attributes_present + node.attrib.keys()
+        attributes_present = attributes_present + list(node.attrib)
         
         for attribute in attribute_base.attributes():
             if attribute.is_mandatory and not attribute.name in attributes_present:
@@ -252,7 +252,7 @@ class Configuration:
                 
             classname = node.get('classname')
             import codeop
-            exec code_node.text in globals(), locals()
+            exec(code_node.text, globals(), locals())
             obj = eval(classname + '()')
             obj.__hidden_source_code = code_node.text
         else:

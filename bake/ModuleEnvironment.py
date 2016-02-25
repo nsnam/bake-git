@@ -148,7 +148,7 @@ class ModuleEnvironment:
                     'FreeBSD' : 'LD_LIBRARY_PATH',
                     'Darwin' : 'DYLD_LIBRARY_PATH',
                     'Windows' : 'PATH'}
-        if not lib_var.has_key(platform.system()):
+        if not platform.system() in lib_var:
             sys.stderr('Error: Unsupported platform. Send email to ' 
                        'bake_support@inria.fr (%s)' % platform.system())
             sys.exit(1)
@@ -179,7 +179,7 @@ class ModuleEnvironment:
     def _append_path(self, d, name, value, sep):
         ''' Append the variable to the system in use configuration. '''
         
-        if not d.has_key(name):
+        if not name in d:
             d[name] = value
         else:
             d[name] = d[name] + sep + value
@@ -403,7 +403,7 @@ class ModuleEnvironment:
         fout = open(fileName, "w")
         fout.write(script)
         fout.close()
-        os.chmod(fileName, 0755)
+        os.chmod(fileName, 0o755)
         
         return script
         
@@ -510,7 +510,7 @@ class ModuleEnvironment:
             stdout = sys.stdout
             stderr = sys.stderr      
                   
-        tmp = dict(os.environ.items() + env.items())
+        tmp = dict(list(os.environ.items()) + list(env.items()))
         
         # sets the library and binary paths 
         tmp = self.append_to_path(tmp)

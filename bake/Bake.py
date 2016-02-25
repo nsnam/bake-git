@@ -773,12 +773,12 @@ class Bake:
                     sys.stdout.write (" >> Downloading " + module.name() + targetDir + " - ")
                 sys.stdout.flush()
                 if env._logger._verbose > 0:
-                    print
+                    print()
 
                 env._sudoEnabled=options.call_with_sudo
                 ModuleEnvironment._stopOnError=options.stopOnError
                 valueToReturn=module.check_source_version(env)
-            
+
             
                 if valueToReturn: 
                     return module.download(env, options.force_download)
@@ -823,7 +823,7 @@ class Bake:
                 sys.stdout.write (" >> Updating " + module.name() + targetDir + " - ")
             sys.stdout.flush()
             if env._logger._verbose > 0:
-                print
+                print()
                 
             return module.update(env)
 
@@ -1016,12 +1016,12 @@ class Bake:
             else:
                 colorTool.cPrintln(colorTool.WARNING, " > " + element[1] + 
                                  " - is missing")
-        print
+        print ('\n')
         colorTool.cPrint(colorTool.OK, " > Path searched for tools:")
         for item in env.path_list():
             sys.stdout.write (' ' + item)
             sys.stdout.flush()
-        print
+        print ('\n')
           
     def _get_dummy_env(self, options):
         """ Returns a dummy environment just for verifying the user's system configuration. """
@@ -1230,7 +1230,7 @@ class Bake:
         padding = padding + ' '
         
         # to avoid loops
-        if has_passed.has_key(key):
+        if key in has_passed:
             sys.stdout.write(padding)
             ColorTool.cPrintln(ColorTool.FAIL, "> Cyclic Dependency")
             return "> Cyclic Dependency."
@@ -1249,7 +1249,7 @@ class Bake:
             print (padding + '|')
             optional=""
             color=ColorTool.FAIL
-            if depen.has_key(this_key) and isinstance(depen[this_key],bool)>0:
+            if this_key in depen and isinstance(depen[this_key],bool)>0:
                 if depen[this_key]:
                     optional = " (optional)"
                     color=ColorTool.OK

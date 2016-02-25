@@ -189,7 +189,7 @@ class ModuleAttributeBase(object):
     def add_attribute(self, name, value, help, mandatory = False):
         """ Creates a new attribute attached to this one."""
        
-        assert not self._attributes.has_key(name)
+        assert not name in self._attributes
         self._attributes[name] = ModuleAttribute(name, value, help, mandatory)
         
     def attributes(self):
@@ -200,7 +200,7 @@ class ModuleAttributeBase(object):
     def attribute(self, name):
         """ Returns a specific attribute."""
         
-        if not self._attributes.has_key(name):
+        if not name in self._attributes:
             return None
         else:
             return self._attributes[name]
