@@ -579,6 +579,17 @@
       </build>
     </module>
 
+    <module name="click-ns-3.25">
+      <source type="git">
+        <attribute name="url" value="git://github.com/kohler/click.git"/>
+        <attribute name="revision" value="5399eabf704f041c9cd8fc5d932c1e77bc9526de"/>
+      </source>
+      <build type="autotools" objdir="yes">
+        <attribute name="configure_arguments" value="../configure --prefix=$INSTALLDIR --exec-prefix=$INSTALLDIR -enable-userlevel --disable-linuxmodule --enable-nsclick --enable-wifi"/>
+        <attribute name="post_installation" value="mkdir $INSTALLDIR/lib; cp -r $OBJDIR/include $INSTALLDIR/lib/."/> 
+      </build>
+    </module>
+
     <module name="click-2.0.1">
       <source type="git">
         <attribute name="url" value="git://github.com/kohler/click.git"/>
@@ -744,6 +755,19 @@
     <module name="pybindgen">
       <source type="git">
         <attribute name="url" value="https://github.com/gjcarneiro/pybindgen.git"/>
+      </source>
+      <build type="python" objdir="yes">
+      </build>
+      <depends_on name="pygccxml" optional="True"/>
+      <depends_on name="python-dev" optional="True"/>
+      <depends_on name="setuptools" optional="False"/>
+    </module>
+
+    <module name="pybindgen-0.17.0.post49+ng0e4e3bc">
+      <source type="git">
+        <attribute name="url" value="https://github.com/gjcarneiro/pybindgen.git"/>
+        <attribute name="module_directory" value="pybindgen"/>
+        <attribute name="revision" value="0e4e3bc0"/>
       </source>
       <build type="python" objdir="yes">
       </build>
@@ -1201,6 +1225,18 @@
       </build>
     </module>
 
+    <module name="ns-3.25">
+      <source type="mercurial">
+        <attribute name="url" value="http://code.nsnam.org/ns-3-dev"/>
+      </source>
+      <depends_on name="netanim-3.106" optional="True"/>
+      <depends_on name="pybindgen-0.17.0.post49+ng0e4e3bc" optional="True"/>
+      <depends_on name="pyviz-prerequisites" optional="True"/>
+      <build type="waf" objdir="yes">
+        <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
+      </build>
+    </module>
+
     <module name="ns-allinone-3.18">
       <source type="none"/>
       <depends_on name="netanim-3.103" optional="True"/>
@@ -1315,6 +1351,21 @@
       <depends_on name="gccxml-ns3" optional="True"/>
       <depends_on name="BRITE" optional="True"/>
       <depends_on name="ns-3.24" optional="False"/>
+      <build type="none"/>
+    </module>
+
+    <module name="ns-allinone-3.25">
+      <source type="none"/>
+      <depends_on name="netanim-3.106" optional="True"/>
+      <depends_on name="nsc-0.5.3" optional="True"/>
+      <depends_on name="pybindgen-0.17.0.post49+ng0e4e3bc" optional="True"/>
+      <depends_on name="pyviz-prerequisites" optional="True"/>
+      <depends_on name="click-ns-3.25" optional="True"/>
+      <depends_on name="openflow-ns-3.17" optional="True"/>
+      <depends_on name="pygccxml-1.0.0" optional="True"/>
+      <depends_on name="gccxml-ns3" optional="True"/>
+      <depends_on name="BRITE" optional="True"/>
+      <depends_on name="ns-3.25" optional="False"/>
       <build type="none"/>
     </module>
 
