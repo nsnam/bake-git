@@ -1027,7 +1027,7 @@
       <depends_on name="g++" optional="False"/>
     </module>
 
-   <module name="netanim-3.103">
+    <module name="netanim-3.103">
       <source type="mercurial">
         <attribute name="url" value="http://code.nsnam.org/jabraham3/netanim-3.103"/>
         <attribute name="revision" value="f33a02df3740"/>
@@ -1039,7 +1039,7 @@
       <depends_on name="g++" optional="False"/>
     </module>
 
-   <module name="netanim-3.104">
+    <module name="netanim-3.104">
       <source type="mercurial">
         <attribute name="url" value="http://code.nsnam.org/jabraham3/netanim-3.104"/>
         <attribute name="revision" value="a22e3de633ef"/>
@@ -1051,7 +1051,7 @@
       <depends_on name="g++" optional="False"/>
     </module>
 
-   <module name="netanim-3.105">
+    <module name="netanim-3.105">
       <source type="mercurial">
         <attribute name="url" value="http://code.nsnam.org/netanim"/>
         <attribute name="revision" value="c9866156ebf3"/>
@@ -1063,10 +1063,22 @@
       <depends_on name="g++" optional="False"/>
     </module>
 
-   <module name="netanim-3.106">
+    <module name="netanim-3.106">
       <source type="mercurial">
         <attribute name="url" value="http://code.nsnam.org/netanim"/>
         <attribute name="revision" value="986cb092c312"/>
+      </source>
+      <build type="make" objdir="no">
+        <attribute name="pre_installation" value="cd $SRCDIR;qmake NetAnim.pro or cd $SRCDIR;qmake-qt4 NetAnim.pro or cd $SRCDIR;qmake -spec macx-g++ NetAnim.pro"/>
+      </build>
+      <depends_on name="qt4" optional="False"/>
+      <depends_on name="g++" optional="False"/>
+    </module>
+
+    <module name="netanim-3.107">
+      <source type="mercurial">
+        <attribute name="url" value="http://code.nsnam.org/netanim"/>
+        <attribute name="revision" value="002086a646c6"/>
       </source>
       <build type="make" objdir="no">
         <attribute name="pre_installation" value="cd $SRCDIR;qmake NetAnim.pro or cd $SRCDIR;qmake-qt4 NetAnim.pro or cd $SRCDIR;qmake -spec macx-g++ NetAnim.pro"/>
@@ -1229,7 +1241,7 @@
       <source type="mercurial">
         <attribute name="url" value="http://code.nsnam.org/ns-3-dev"/>
       </source>
-      <depends_on name="netanim-3.106" optional="True"/>
+      <depends_on name="netanim-3.107" optional="True"/>
       <depends_on name="pybindgen-0.17.0.post49+ng0e4e3bc" optional="True"/>
       <depends_on name="pyviz-prerequisites" optional="True"/>
       <build type="waf" objdir="yes">
@@ -1356,7 +1368,7 @@
 
     <module name="ns-allinone-3.25">
       <source type="none"/>
-      <depends_on name="netanim-3.106" optional="True"/>
+      <depends_on name="netanim-3.107" optional="True"/>
       <depends_on name="nsc-0.5.3" optional="True"/>
       <depends_on name="pybindgen-0.17.0.post49+ng0e4e3bc" optional="True"/>
       <depends_on name="pyviz-prerequisites" optional="True"/>
