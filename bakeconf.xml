@@ -653,6 +653,17 @@
         <depends_on name="libxml2-dev" optional="False"/>
     </module>
 
+    <module name="openflow-ns-3.25">
+      <source type="mercurial">
+        <attribute name="url" value="http://code.nsnam.org/openflow"/>
+        <attribute name="revision" value="4db95a8ea718"/>
+      </source>
+      <build type="waf" objdir="yes">
+        <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR"/>
+      </build>
+        <depends_on name="libxml2-dev" optional="False"/>
+    </module>
+
     <module name="gccxml-ns3">
       <source type="git">
         <attribute name="url" value="git://github.com/gccxml/gccxml.git"/>
@@ -1373,7 +1384,7 @@
       <depends_on name="pybindgen-0.17.0.post49+ng0e4e3bc" optional="True"/>
       <depends_on name="pyviz-prerequisites" optional="True"/>
       <depends_on name="click-ns-3.25" optional="True"/>
-      <depends_on name="openflow-ns-3.17" optional="True"/>
+      <depends_on name="openflow-ns-3.25" optional="True"/>
       <depends_on name="pygccxml-1.0.0" optional="True"/>
       <depends_on name="gccxml-ns3" optional="True"/>
       <depends_on name="BRITE" optional="True"/>
