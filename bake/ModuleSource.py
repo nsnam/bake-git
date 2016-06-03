@@ -38,6 +38,11 @@ import os
 import re
 import platform
 import subprocess
+try:
+    import commands
+    from commands import getoutput
+except ImportError:
+    from subprocess import getoutput
 from datetime import date
 
 class ModuleSource(ModuleAttributeBase):
@@ -92,7 +97,7 @@ class ModuleSource(ModuleAttributeBase):
         if self.attribute('post_download').value != '':
             try:
                 env._logger.commands.write(" > " + env.replace_variables(self.attribute('post_download').value))
-                var = commands.getoutput(env.replace_variables(self.attribute('post_download').value))
+                var = getoutput(env.replace_variables(self.attribute('post_download').value))
                 
                 if env.debug:
                     print("  -> " +  var)
