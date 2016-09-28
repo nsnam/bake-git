@@ -774,6 +774,19 @@
       <depends_on name="setuptools" optional="False"/>
     </module>
 
+    <module name="pybindgen-0.17.0.post57+nga6376f2">
+      <source type="git">
+        <attribute name="url" value="https://github.com/gjcarneiro/pybindgen.git"/>
+        <attribute name="module_directory" value="pybindgen"/>
+        <attribute name="revision" value="a6376f2"/>
+      </source>
+      <build type="python" objdir="yes">
+      </build>
+      <depends_on name="pygccxml" optional="True"/>
+      <depends_on name="python-dev" optional="True"/>
+      <depends_on name="setuptools" optional="False"/>
+    </module>
+
     <module name="pybindgen-0.17.0.post49+ng0e4e3bc">
       <source type="git">
         <attribute name="url" value="https://github.com/gjcarneiro/pybindgen.git"/>
@@ -1260,6 +1273,18 @@
       </build>
     </module>
 
+    <module name="ns-3.26">
+      <source type="mercurial">
+        <attribute name="url" value="http://code.nsnam.org/ns-3.26"/>
+      </source>
+      <depends_on name="netanim-3.107" optional="True"/>
+      <depends_on name="pybindgen-0.17.0.post57+nga6376f2" optional="True"/>
+      <depends_on name="pyviz-prerequisites" optional="True"/>
+      <build type="waf" objdir="yes">
+        <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
+      </build>
+    </module>
+
     <module name="ns-allinone-3.18">
       <source type="none"/>
       <depends_on name="netanim-3.103" optional="True"/>
@@ -1389,6 +1414,21 @@
       <depends_on name="gccxml-ns3" optional="True"/>
       <depends_on name="BRITE" optional="True"/>
       <depends_on name="ns-3.25" optional="False"/>
+      <build type="none"/>
+    </module>
+
+    <module name="ns-allinone-3.26">
+      <source type="none"/>
+      <depends_on name="netanim-3.107" optional="True"/>
+      <depends_on name="nsc-0.5.3" optional="True"/>
+      <depends_on name="pybindgen-0.17.0.post57+nga6376f2" optional="True"/>
+      <depends_on name="pyviz-prerequisites" optional="True"/>
+      <depends_on name="click-ns-3.25" optional="True"/>
+      <depends_on name="openflow-ns-3.25" optional="True"/>
+      <depends_on name="pygccxml-1.0.0" optional="True"/>
+      <depends_on name="gccxml-ns3" optional="True"/>
+      <depends_on name="BRITE" optional="True"/>
+      <depends_on name="ns-3.26" optional="False"/>
       <build type="none"/>
     </module>
 
