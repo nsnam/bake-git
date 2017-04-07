@@ -85,6 +85,7 @@ class Configuration:
         self._enabled = []
         self._disabled = []
         self._modules = []
+        self._configured = []
         self._installdir = None
         self._objdir = None
         self._sourcedir = None
@@ -318,6 +319,9 @@ class Configuration:
         modules = et.findall('modules/module')
         for module_node in modules:
             name = module_node.get('name')
+            mtype = module_node.get('type')
+            min_ver = module_node.get('min_version')
+            max_ver = module_node.get('max_version')
             installed = self._read_installed(module_node)
 
             source_node = module_node.find('source')
@@ -333,7 +337,7 @@ class Configuration:
             for dep_node in module_node.findall('depends_on'):
                 dependencies.append(ModuleDependency(dep_node.get('name'),
                                                      bool(dep_node.get('optional', '').upper()=='TRUE')))
-            module = Module(name, source, build, dependencies=dependencies,
+            module = Module(name, source, build, mtype, min_ver, max_ver, dependencies=dependencies,
                             built_once=bool(module_node.get('built_once', '').upper()=='TRUE'),
                             installed=installed)
             self._modules.append(module)
@@ -346,7 +350,10 @@ class Configuration:
         
         for module in self._modules:
             module_attrs = {'name' : module.name()}
-            
+            if module.mtype():
+                module_attrs['type'] = module.mtype()
+            if module.minver():
+                module_attrs['min_version'] = module.minver()
             if module.is_built_once():
                 module_attrs['built_once'] = 'True'
             module_node = ET.Element('module', module_attrs)
@@ -441,6 +448,7 @@ class Configuration:
         # read which modules are enabled
         modules = root.findall('enabled')
         for module in modules:
+            self._configured.append(self.lookup(module.get('name')))
             enabled = self.lookup(module.get('name'))
             self.enable(enabled)
 
@@ -499,7 +507,7 @@ class Configuration:
         
         if module in self._disabled:
             self._disabled.remove(module)
-        else:
+        elif module not in self._enabled:
             self._enabled.append(module)
  
     def disable(self, module):
@@ -528,3 +536,6 @@ class Configuration:
 
     def modules(self):
         return self._modules
+
+    def configured(self):
+        return self._configured

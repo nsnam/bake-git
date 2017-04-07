@@ -46,6 +46,7 @@ from bake.Utils import ColorTool
 from bake.Exceptions import TaskError 
 from bake.ModuleSource import SystemDependency 
 from bake.ModuleBuild import NoneModuleBuild
+from bake.Module import ModuleDependency
 
 def signal_handler(signal, frame):
     """ Handles Ctrl+C keyboard interruptions """
@@ -89,7 +90,7 @@ class Bake:
         
         parser = OptionParser(usage='usage: %prog fix-config [options]')
         self._enable_disable_options(parser)
-        parser.add_option("-c", "--conffile", action="store", type="string",
+        parser.add_option("-f", "--conffile", action="store", type="string",
                           dest="bakeconf", default="bakeconf.xml",
                           help="The Bake meta-data configuration from where to"
                           " get the updated modules file to use. Default: %default.")
@@ -117,6 +118,14 @@ class Bake:
 
         config = self.check_configuration_file(config, True)
 
+        contribconf = []
+        try:
+            for cfile in os.listdir("contrib"):
+                if cfile.endswith(".xml"):
+                    contribconf.append("contrib/"+cfile)
+        except Exception as e:
+            True
+
         # Stores the present configuration         
         old_config = Configuration(config)
         old_config.read()
@@ -133,6 +142,12 @@ class Bake:
             new_config.read_metadata(options.bakeconf)
         except Exception as e:
             self._error('Problem reading Configuration file "%s" \n Error: %s'  % (options.bakeconf, str(e)))
+
+        for cconf in contribconf:
+            try:
+                new_config.read_metadata(cconf)
+            except Exception as e:
+                self._error('Problem reading Configuration file "%s" \n Error: %s'  % (cconf, str(e)))
         
         # Checks if the directories where set and if so set the new config file
         # with the new parameters, or let the old ones
@@ -207,13 +222,33 @@ class Bake:
                           dest="enable_minimal", default=None,
                           help="Disable all non-mandatory dependencies.")
 
+    def resolve_contrib_dependencies (self, module, fmod, configuration):
+        """ Handles the contrib type dependencies"""
+        for dep in module.dependencies ():
+            dep_mod = configuration.lookup (dep.name())
+            if dep_mod.mtype() == "ns-contrib":
+                dep_mod.get_source().attribute("module_directory").value = fmod+'/contrib/'+dep_mod.get_source().attribute("module_directory").value
+                dep_mod.addDependencies(ModuleDependency(fmod, False))
+                self.resolve_contrib_dependencies (dep_mod, fmod, configuration)
+
     def _enable(self, enable, configuration):
         """ Handles the --enable option, setting defined modules as enable."""
-        
         for module_name in enable:
             module = configuration.lookup(module_name)
             if not module:
                 self._error('Module "%s" not found' % module_name)
+            if module.mtype() == "ns-contrib":
+                found=0
+                fmod = None
+                for mod in enable:
+                    if configuration.lookup(mod).mtype() == "ns" and ((mod>=module.minver() and (mod<=module.maxver() or module.maxver() == None)) or (mod == "ns-3-dev" and module.maxver() == None)):
+                        found+= 1
+                        fmod = mod
+                if not found==1:
+                    self._error('Module "%s" has unmet dependency: %s' % (module_name, module.minver()))
+                module.get_source().attribute("module_directory").value = fmod+'/contrib/'+module.get_source().attribute("module_directory").value
+                module.addDependencies(ModuleDependency(fmod, False))
+                self.resolve_contrib_dependencies (module, fmod, configuration)
             configuration.enable(module)
 
     def _disable(self, disable, configuration):
@@ -224,6 +259,11 @@ class Bake:
             if not module:
                 self._error('Module "%s" not found' % module_name)
             configuration.disable(module)
+            if module.mtype() == "ns":
+                enabled_list = configuration.enabled()
+                for mod in enabled_list:
+                    if mod.mtype() == "ns-contrib":
+                        configuration.disable(mod)
 
     def _variables_process(self, items, configuration, is_append):
         """ Handles the defined configured variables ."""
@@ -257,12 +297,16 @@ class Bake:
         
         # enables/disables the explicit enable/disable modules passed as argument
         self._enable(options.enable, configuration)
+        for mod in options.disable:
+            if not mod in options.enable:
+                self._error('Module "%s" not enabled' % mod)
         self._disable(options.disable, configuration)
         
         # if the option -a is used, meaning all the modules should be enabled
         if options.enable_all:
             for module in configuration.modules():
                 configuration.enable(module)
+            
                 
         # if the option -m is used, meaning the minimum configuration should be used
         # it disables all the non mandatory dependencies
@@ -382,6 +426,54 @@ class Bake:
         configuration.append(lastConfig)
         self.save_resource_file(configuration, fileName)
 
+    def _list(self, config, args):
+        """ Handles the list option for %prog """
+        
+        # sets the options the parser should recognize for the configuration
+        parser = OptionParser(usage='usage: %prog list [options]')
+        parser.add_option("-f", "--conffile", action="store", type="string",
+                          dest="bakeconf", default="bakeconf.xml",
+                          help="The Bake meta-data configuration file to use. "
+                          "Default: %default.")
+        parser.add_option("-c", "--contrib", action="store_true",
+                          dest="contrib", default="False",
+                          help="Show only contrib modules.")
+        (options, args_left) = parser.parse_args(args)
+        listconf = Configuration(config)
+        contrib_list = []
+        module_list = []
+
+        contribconf = []
+        try:
+            for cfile in os.listdir("contrib"):
+                if cfile.endswith(".xml"):
+                    contribconf.append("contrib/"+cfile)
+        except Exception as e:
+            True
+
+        try:
+            listconf.read_metadata(options.bakeconf)
+        except Exception as e:
+            self._error('Problem reading Configuration file "%s" \n Error: %s'  % (options.bakeconf, str(e)))
+
+        for cconf in contribconf:
+            try:
+                listconf.read_metadata(cconf)
+            except Exception as e:
+                self._error('Problem reading Configuration file "%s" \n Error: %s'  % (cconf, str(e)))
+
+        for mod in listconf.modules():
+            if mod.mtype() == "ns-contrib":
+                contrib_list.append(mod.name())
+            elif not options.contrib == True:
+                module_list.append(mod.name())
+
+        contrib_list.sort()
+        module_list.sort()
+        for m in module_list:
+            print("module: "+m)
+        for c in contrib_list:
+            print("contrib: "+c)
         
     def _configure(self, config, args):
         """ Handles the configuration option for %prog """
@@ -389,7 +481,7 @@ class Bake:
         # sets the options the parser should recognize for the configuration
         parser = OptionParser(usage='usage: %prog configure [options]')
         self._enable_disable_options(parser)
-        parser.add_option("-c", "--conffile", action="store", type="string",
+        parser.add_option("-f", "--conffile", action="store", type="string",
                           dest="bakeconf", default="bakeconf.xml",
                           help="The Bake meta-data configuration file to use. "
                           "Default: %default.")
@@ -432,18 +524,44 @@ class Bake:
                           default=0, help='Increase the log verbosity level')
         parser.add_option('-q', '--quiet', action='count', dest='quiet', 
                           default=0, help='Increase the log quietness level')
+        parser.add_option("-c", "--clean", action="store_true",
+                          dest="remove", default=False,
+                          help="Remove all enabled modules")
 
         # sets the configuration values got from the line command
         (options, args_left) = parser.parse_args(args)
-
         if options.bakeconf == "bakeconf.xml":
             options.bakeconf = self.check_configuration_file(options.bakeconf, False);
 
+        contribconf = []
+        try:
+            for cfile in os.listdir("contrib"):
+                if cfile.endswith(".xml"):
+                    contribconf.append("contrib/"+cfile)
+        except Exception as e:
+            True
+
         configuration = Configuration(config)
+
+        if not options.remove:
+            try:
+                configuration.read()
+                for m in  configuration.enabled():
+                    if m.name() not in options.enable:
+                        options.enable.append(m.name())
+            except Exception as e:
+                True
+       
         try:
             configuration.read_metadata(options.bakeconf)
         except Exception as e:
             self._error('Problem reading Configuration file "%s" \n Error: %s'  % (options.bakeconf, str(e)))
+
+        for cconf in contribconf:
+            try:
+                configuration.read_metadata(cconf)
+            except Exception as e:
+                self._error('Problem reading Configuration file "%s" \n Error: %s'  % (cconf, str(e)))
                    
         configuration.set_sourcedir(options.sourcedir)
         configuration.set_objdir(options.objdir)
@@ -490,9 +608,9 @@ class Bake:
                     self._error('--predefined: "%s" not found.' % p)
                     
         # Registers the modules are that enabled/disabled 
-        # handles the -a, -m, --disable, --enable tags            
+        # handles the -a, -m, --disable, --enable tags           
         self._parse_enable_disable(options, configuration)
-        
+
         # handles the set command line option, to overwrite the specific 
         # module setting with the new specified value
         for variable in options.set:
@@ -509,7 +627,7 @@ class Bake:
                 module.get_build().attribute(name).value = current_value + ' ' + value
         configuration.write()
         
-        if not configuration._enabled and not options.append :
+        if not configuration._enabled and not options.append and not options.remove:
             env =  self._get_dummy_env(options)
             env._logger.commands.write(' > No module enabled: Bake configuration requires at least one module to be enabled'
                                        ' (enable, predefined), or appended.\n'
@@ -1116,7 +1234,10 @@ class Bake:
         if not state:
             return
         for mod in state:
-            print('module: %s (%s)' % (mod.name(), label))
+            if mod.mtype():
+                print('module %s: %s (%s)' % (mod.mtype(), mod.name(), label))
+            else:
+                print('module: %s (%s)' % (mod.name(), label))
             dependencies = mod.dependencies()
             
             # Stores the system dependencies
@@ -1127,13 +1248,13 @@ class Bake:
             if not mod.name() in depen:
                 depen[mod.name()] = dict()
             
-            if dependencies:
+            if dependencies and not options.brief == True:
                 print('  depends on:')
                 for dependsOn in mod.dependencies():
                     print('     %s (optional:%s)' % 
                           (dependsOn.name(), dependsOn.is_optional())) 
                     depen[mod.name()][dependsOn.name()]=  dependsOn.is_optional()
-            else:
+            elif not options.brief == True:
                 print('  No dependencies!')
                 
             
@@ -1306,6 +1427,12 @@ class Bake:
         parser.add_option('--showSystemDep', action='store_true', dest='showSystemDep', 
                           default=True,
                           help='Shows the system dependency of the enabled/disabled modules')
+        parser.add_option('-b', '--brief', action='store_true', dest='brief', 
+                          default=False,
+                          help='Show only the module name')
+        parser.add_option('-c', '--configured', action='store_true', dest='configured', 
+                          default=False,
+                          help='Show only the configured module')
         (options, args_left) = parser.parse_args(args)
         # adds a default value so that show will show something even if there is
         # no option 
@@ -1313,7 +1440,7 @@ class Bake:
             options.enabled = True
             options.showSystemDep = True
         else:
-            if not options.disabled and not options.enabled:
+            if not options.disabled and not options.enabled and not options.configured:
                 options.enabled=True
 
         config= self.check_configuration_file(config, True);
@@ -1327,8 +1454,7 @@ class Bake:
                   "   Call bake with -f [full path configuration file name].\n")
             return
 #            configuration = Configuration(config)
-#            configuration.read_metadata(config)
-            
+#            configuration.read_metadata(config)       
         if options.all:
             options.enabled = True
             options.disabled = True
@@ -1355,6 +1481,9 @@ class Bake:
 
         if options.enabled:
             self.show_module(enabled, options, config, 'enabled')
+
+        if options.configured:
+            self.show_module(configuration.configured(), options, config, 'configured')
 
         if options.disabled:
             self.show_module(disabled, options, config, 'disabled')
@@ -1484,6 +1613,7 @@ To get more help about each command, try:
                 ['show', self._show],
                 ['show-builtin', self._show_builtin],
                 ['check', self._check],
+                ['list', self._list],
                ]
         recognizedCommand = False
         

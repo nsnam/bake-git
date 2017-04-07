@@ -57,15 +57,21 @@ class Module:
     def __init__(self, name, 
                  source,
                  build,
+                 mtype,
+                 min_ver,
+                 max_ver,
                  dependencies = [],
                  built_once = False,
                  installed = []):
         self._name = name
+        self._type = mtype
         self._dependencies = copy.copy(dependencies)
         self._source = source
         self._build = build
         self._built_once = built_once
         self._installed = installed
+        self._minVersion = min_ver
+        self._maxVersion = max_ver
 
 
     @property
@@ -556,3 +562,14 @@ class Module:
         return self._name
     def dependencies(self):
         return self._dependencies
+    def mtype(self):
+        return self._type
+    def minver(self):
+        return self._minVersion
+    def maxver(self):
+        return self._maxVersion
+    def addDependencies(self, depend):
+        for d in self._dependencies:
+            if d.name() == depend.name():
+                return
+        self._dependencies.append(depend)        
