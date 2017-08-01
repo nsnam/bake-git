@@ -988,7 +988,6 @@
   
     <module name="libc">
       <source type="system_dependency">
-        <attribute name="file_test" value="/usr/lib/ld-linux.so.2"/>
         <attribute name="file_test" value="/usr/lib/ld-linux.so.2 or /lib/ld-linux.so.2"/>
         <attribute name="name_apt-get" value="libc6"/>
         <attribute name="name_yum" value="glibc"/>
