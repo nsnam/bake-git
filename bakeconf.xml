@@ -603,6 +603,17 @@
       </build>
     </module>
 
+    <module name="clang-dev">
+      <source type="system_dependency">
+        <attribute name="dependency_test" value="ia32intrin.h"/>
+        <attribute name="name_yum" value="libclang-devel"/>
+        <attribute name="name_apt-get" value="libclang-dev"/>
+        <attribute name="more_information" value="Didn't find:   the clang-dev library, try to install it!"/>
+      </source>
+      <build type="none" objdir="no">
+      </build>
+    </module>
+
     <module name="libxml2-dev">
       <source type="system_dependency">
         <attribute name="dependency_test" value="xmlIO.h"/>
@@ -673,32 +684,41 @@
       </build>
     </module>
 
+    <module name="castxml">
+      <source type="git">
+        <attribute name="url" value="https://github.com/CastXML/CastXML.git"/>
+      </source>
+      <build type="cmake" objdir="yes">
+      </build>
+      <depends_on name="clang-dev" optional="False"/>
+    </module>
+
     <module name="pygccxml">
-      <source type="archive">
-<!-- This may be enabled when bug 2059 is fixed
-        <attribute name="url" value="https://pypi.python.org/packages/source/p/pygccxml/pygccxml-v1.6.2.tar.gz"/>
--->
-        <attribute name="url" value="http://downloads.sourceforge.net/project/pygccxml/pygccxml/pygccxml-1.0/pygccxml-1.0.0.zip"/>
+      <source type="git">
+        <attribute name="url" value="https://github.com/gccxml/pygccxml.git"/>
       </source>
       <build type="python" objdir="yes">
+        <attribute name="pre_installation" value="mkdir $INSTALLDIR"/>
       </build>
-      <depends_on name="gccxml-ns3" optional="False"/>
+      <depends_on name="castxml" optional="False"/>
+      <depends_on name="setuptools" optional="False"/>
+    </module>
+
+    <module name="pygccxml-1.9.1">
+      <source type="archive">
+        <attribute name="url" value="https://github.com/gccxml/pygccxml/archive/v1.9.1.tar.gz"/>
+        <attribute name="extract_directory" value="pygccxml-1.9.1"/>
+      </source>
+      <build type="python" objdir="yes">
+        <attribute name="pre_installation" value="mkdir $INSTALLDIR"/>
+      </build>
+      <depends_on name="castxml" optional="False"/>
       <depends_on name="setuptools" optional="False"/>
     </module>
 
     <module name="pygccxml-1.0.0">
       <source type="archive">
         <attribute name="url" value="http://downloads.sourceforge.net/project/pygccxml/pygccxml/pygccxml-1.0/pygccxml-1.0.0.zip"/>
-      </source>
-      <build type="python" objdir="yes">
-      </build>
-      <depends_on name="gccxml-ns3" optional="False"/>
-      <depends_on name="setuptools" optional="False"/>
-    </module>
-
-    <module name="pygccxml-1.6.2">
-      <source type="archive">
-        <attribute name="url" value="https://pypi.python.org/packages/source/p/pygccxml/pygccxml-v1.6.2.tar.gz"/>
       </source>
       <build type="python" objdir="yes">
       </build>
@@ -766,6 +786,19 @@
     <module name="pybindgen">
       <source type="git">
         <attribute name="url" value="https://github.com/gjcarneiro/pybindgen.git"/>
+      </source>
+      <build type="python" objdir="yes">
+      </build>
+      <depends_on name="pygccxml" optional="True"/>
+      <depends_on name="python-dev" optional="True"/>
+      <depends_on name="setuptools" optional="False"/>
+    </module>
+
+    <module name="pybindgen-0.17.0.post58+ngcf00cc0">
+      <source type="git">
+        <attribute name="url" value="https://github.com/gjcarneiro/pybindgen.git"/>
+        <attribute name="module_directory" value="pybindgen"/>
+        <attribute name="revision" value="cf00cc0"/>
       </source>
       <build type="python" objdir="yes">
       </build>
@@ -1284,6 +1317,18 @@
       </build>
     </module>
 
+    <module name="ns-3.27">
+      <source type="mercurial">
+        <attribute name="url" value="http://code.nsnam.org/ns-3-dev"/>
+      </source>
+      <depends_on name="netanim-3.107" optional="True"/>
+      <depends_on name="pybindgen-0.17.0.post58+ngcf00cc0" optional="True"/>
+      <depends_on name="pyviz-prerequisites" optional="True"/>
+      <build type="waf" objdir="yes">
+        <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
+      </build>
+    </module>
+
     <module name="ns-allinone-3.18">
       <source type="none"/>
       <depends_on name="netanim-3.103" optional="True"/>
@@ -1428,6 +1473,20 @@
       <depends_on name="gccxml-ns3" optional="True"/>
       <depends_on name="BRITE" optional="True"/>
       <depends_on name="ns-3.26" optional="False"/>
+      <build type="none"/>
+    </module>
+
+    <module name="ns-allinone-3.27">
+      <source type="none"/>
+      <depends_on name="netanim-3.107" optional="True"/>
+      <depends_on name="nsc-0.5.3" optional="True"/>
+      <depends_on name="pybindgen-0.17.0.post58+ngcf00cc0" optional="True"/>
+      <depends_on name="pyviz-prerequisites" optional="True"/>
+      <depends_on name="click-ns-3.25" optional="True"/>
+      <depends_on name="openflow-ns-3.25" optional="True"/>
+      <depends_on name="pygccxml-1.9.1" optional="True"/>
+      <depends_on name="BRITE" optional="True"/>
+      <depends_on name="ns-3.27" optional="False"/>
       <build type="none"/>
     </module>
 
