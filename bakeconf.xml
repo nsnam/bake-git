@@ -689,6 +689,7 @@
         <attribute name="url" value="https://github.com/CastXML/CastXML.git"/>
       </source>
       <build type="cmake" objdir="yes">
+        <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/bin"/>
       </build>
       <depends_on name="clang-dev" optional="False"/>
     </module>
@@ -788,6 +789,20 @@
         <attribute name="url" value="https://github.com/gjcarneiro/pybindgen.git"/>
       </source>
       <build type="python" objdir="yes">
+      </build>
+      <depends_on name="pygccxml" optional="True"/>
+      <depends_on name="python-dev" optional="True"/>
+      <depends_on name="setuptools" optional="False"/>
+    </module>
+
+    <module name="pybindgen-ns3.27-castxml">
+      <source type="git">
+        <attribute name="url" value="https://github.com/adeepkit01/pybindgen.git"/>
+        <attribute name="module_directory" value="pybindgen"/>
+        <attribute name="revision" value="3eade768"/>
+      </source>
+      <build type="python" objdir="yes">
+        <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/lib"/>
       </build>
       <depends_on name="pygccxml" optional="True"/>
       <depends_on name="python-dev" optional="True"/>
@@ -1322,7 +1337,7 @@
         <attribute name="url" value="http://code.nsnam.org/ns-3-dev"/>
       </source>
       <depends_on name="netanim-3.107" optional="True"/>
-      <depends_on name="pybindgen-0.17.0.post58+ngcf00cc0" optional="True"/>
+      <depends_on name="pybindgen-ns3.27-castxml" optional="True"/>
       <depends_on name="pyviz-prerequisites" optional="True"/>
       <build type="waf" objdir="yes">
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
@@ -1480,7 +1495,7 @@
       <source type="none"/>
       <depends_on name="netanim-3.107" optional="True"/>
       <depends_on name="nsc-0.5.3" optional="True"/>
-      <depends_on name="pybindgen-0.17.0.post58+ngcf00cc0" optional="True"/>
+      <depends_on name="pybindgen-ns3.27-castxml" optional="True"/>
       <depends_on name="pyviz-prerequisites" optional="True"/>
       <depends_on name="click-ns-3.25" optional="True"/>
       <depends_on name="openflow-ns-3.25" optional="True"/>
