@@ -1161,7 +1161,7 @@
     <module name="netanim-3.108">
       <source type="mercurial">
         <attribute name="url" value="http://code.nsnam.org/netanim"/>
-        <attribute name="revision" value="a1237f276ab7"/>
+        <attribute name="revision" value="netanim-3.108"/>
       </source>
       <build type="make" objdir="no">
         <attribute name="pre_installation" value="cd $SRCDIR;qmake NetAnim.pro or cd $SRCDIR;qmake-qt4 NetAnim.pro or cd $SRCDIR;qmake-qt5 NetAnim.pro or cd $SRCDIR;qmake -spec macx-g++ NetAnim.pro"/>
@@ -1344,7 +1344,7 @@
       </build>
     </module>
 
-    <module name="ns-3.27">
+    <module name="ns-3.27" type="ns">
       <source type="mercurial">
         <attribute name="url" value="http://code.nsnam.org/ns-3-dev"/>
       </source>
