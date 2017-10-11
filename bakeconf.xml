@@ -1346,7 +1346,7 @@
 
     <module name="ns-3.27" type="ns">
       <source type="mercurial">
-        <attribute name="url" value="http://code.nsnam.org/ns-3-dev"/>
+        <attribute name="url" value="http://code.nsnam.org/ns-3.27"/>
       </source>
       <depends_on name="netanim-3.108" optional="True"/>
       <depends_on name="pybindgen-ns3.27-castxml" optional="True"/>
