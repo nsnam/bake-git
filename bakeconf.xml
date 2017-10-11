@@ -1022,6 +1022,17 @@
       </build>
     </module>
 
+    <module name="qt">
+      <source type="system_dependency">
+        <attribute name="dependency_test" value="qobject.h and qapplication.h and (qmake or qmake-qt4 or qmake-qt5)"/>
+        <attribute name="name_yum" value="qt5-devel"/>
+        <attribute name="name_apt-get" value="qt5-dev-tools libqt5-dev"/>
+        <attribute name="more_information" value="Didn't find: Qt (version 4 or 5); install it from packages, or download from https://info.qt.io/download-qt-for-application-development"/>
+      </source>
+      <build type="none" objdir="no">
+      </build>
+    </module>
+  
 
     <module name="qt4">
       <source type="system_dependency">
@@ -1092,9 +1103,9 @@
         <attribute name="url" value="http://code.nsnam.org/netanim"/>
       </source>
       <build type="make" objdir="no">
-        <attribute name="pre_installation" value="cd $SRCDIR;qmake NetAnim.pro or cd $SRCDIR;qmake-qt4 NetAnim.pro or cd $SRCDIR;qmake -spec macx-g++ NetAnim.pro"/>
+        <attribute name="pre_installation" value="cd $SRCDIR;qmake NetAnim.pro or cd $SRCDIR;qmake-qt5 NetAnim.pro or cd $SRCDIR;qmake-qt4 NetAnim.pro"/>
       </build>
-      <depends_on name="qt4" optional="False"/>
+      <depends_on name="qt" optional="False"/>
       <depends_on name="g++" optional="False"/>
     </module>
 
@@ -1164,9 +1175,9 @@
         <attribute name="revision" value="netanim-3.108"/>
       </source>
       <build type="make" objdir="no">
-        <attribute name="pre_installation" value="cd $SRCDIR;qmake NetAnim.pro or cd $SRCDIR;qmake-qt4 NetAnim.pro or cd $SRCDIR;qmake-qt5 NetAnim.pro or cd $SRCDIR;qmake -spec macx-g++ NetAnim.pro"/>
+        <attribute name="pre_installation" value="cd $SRCDIR;qmake NetAnim.pro or cd $SRCDIR;qmake-qt5 NetAnim.pro or cd $SRCDIR;qmake-qt4 NetAnim.pro"/>
       </build>
-      <depends_on name="qt4" optional="False"/>
+      <depends_on name="qt" optional="False"/>
       <depends_on name="g++" optional="False"/>
     </module>
 
