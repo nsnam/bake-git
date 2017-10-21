@@ -1189,7 +1189,7 @@
       <depends_on name="pyviz-prerequisites" optional="True"/>
       <depends_on name="click-dev" optional="True"/>
       <depends_on name="openflow-dev" optional="True"/>
-      <depends_on name="pygccxml-1.0.0" optional="True"/>
+      <depends_on name="pygccxml-1.9.1" optional="True"/>
       <depends_on name="gccxml-ns3" optional="True"/>
       <depends_on name="BRITE" optional="True"/>
       <depends_on name="ns-3-dev" optional="False"/>
