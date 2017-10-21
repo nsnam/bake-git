@@ -786,7 +786,10 @@
 
     <module name="pybindgen">
       <source type="git">
+        <!-- temporarily redirect target until castxmlparser.xml is upstreamed
         <attribute name="url" value="https://github.com/gjcarneiro/pybindgen.git"/>
+        -->
+        <attribute name="url" value="https://github.com/adeepkit01/pybindgen.git"/>
       </source>
       <build type="python" objdir="yes">
       </build>
