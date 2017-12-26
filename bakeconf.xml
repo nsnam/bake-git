@@ -168,8 +168,8 @@
 
     <module name="ccnx">
       <source type="archive">
-        <attribute name="url" value="http://www.ccnx.org/releases/ccnx-0.6.2.tar.gz"/>
-        <attribute name="extract_directory" value="ccnx-0.6.2"/>
+        <attribute name="url" value="https://github.com/ProjectCCNx/ccnx/archive/ccnx-0.6.2.tar.gz"/>
+        <attribute name="extract_directory" value="ccnx-ccnx-0.6.2"/>
       </source>
       <depends_on name="libpcap-dev" optional="False"/>
       <depends_on name="libexpat-dev" optional="False"/>
