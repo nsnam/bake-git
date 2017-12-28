@@ -36,12 +36,12 @@
         <attribute name="module_directory" value="ns-3-dce"/>
       </source>
       <depends_on name="dce-meta-dev" optional="False"/>
-      <depends_on name="net-next-sim-3.7.0" optional="False"/>
-      <depends_on name="iproute-2.6.38-fix-01" optional="False"/>
+      <depends_on name="net-next-nuse-4.4.0" optional="False"/>
+      <depends_on name="iproute2-4.4.0" optional="False"/>
       <depends_on name="lksctp-dev" optional="True"/>
       <build type="waf" objdir="yes" sourcedir="ns-3-dce">
         <attribute name="supported_os" value="linux;linux2"/>
-        <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --with-libaspect=$INSTALLDIR --enable-kernel-stack=$SRCDIR/../net-next-sim-3.7.0/arch"/>
+        <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --with-libaspect=$INSTALLDIR --enable-kernel-stack=$SRCDIR/../net-next-nuse-4.4.0/arch"/>
       </build>
     </module>
 
@@ -295,6 +295,26 @@
       </build>
      </module>
 
+     <module name="iproute2-4.4.0">
+       <source type="git">
+         <attribute name="url" value="https://git.kernel.org/pub/scm/linux/kernel/git/shemminger/iproute2.git"/>
+         <attribute name="revision" value="v4.4.0"/>
+         <attribute name="module_directory" value="iproute2-4.4.0"/>
+       </source>
+       <depends_on name="libdb-dev" optional="False"/>
+       <depends_on name="bison" optional="False"/>
+       <depends_on name="flex" optional="False"/>
+       <depends_on name="libssl-dev" optional="False"/>
+       <build type="make" objdir="yes">
+         <attribute name="supported_os" value="linux;linux2"/>
+         <attribute name="pre_installation" value="$SRCDIR/configure"/>
+         <attribute name="LDFLAGS" value="-pie"/>
+         <attribute name="ignore_predefined_flags" value="True"/>
+         <attribute name="install_arguments" value="DESTDIR=$INSTALLDIR" />
+         <attribute name="build_arguments" value="DEFINES+=-I$SRCDIR/../../../../../../arch/lib/include/ DEFINES+=-I$SRCDIR/../../../../../../arch/lib/include/generated/ DEFINES+=-I$SRCDIR/../../../../../../include/uapi/ DEFINES+=-I$SRCDIR/../../../../../../include CCOPTS+=-fpic CCOPTS+=-D_GNU_SOURCE CCOPTS+=-O0 CCOPTS+=-U_FORTIFY_SOURCE CCOPTS+=-g CCOPTS+=-DUINT16_MAX=65535 LDFLAGS=-pie LDFLAGS+=-rdynamic"/>
+       </build>
+     </module>
+
     <module name="ns-3-dev">
       <source type="mercurial">
         <attribute name="url" value="http://code.nsnam.org/ns-3-dev"/>
@@ -352,6 +372,22 @@
          <attribute name="build_arguments" value="library ARCH=sim"/>
          <attribute name="no_installation" value="True"/>
          <attribute name="post_installation" value="mkdir -p $INSTALLDIR/bin_dce; cd $INSTALLDIR/bin_dce; cp $SRCDIR/libsim-linux3.7.0.so ./; ln -s -f libsim-linux3.7.0.so liblinux.so"/>
+       </build>
+     </module>
+
+     <module name="net-next-nuse-4.4.0">
+       <source type="git">
+         <attribute name="url" value="https://github.com/libos-nuse/net-next-nuse.git"/>
+         <attribute name="module_directory" value="net-next-nuse-4.4.0"/>
+         <attribute name="revision" value="libos-v4.4"/>
+         <attribute name="fetch_option" value=""/>
+       </source>
+       <build type="make" objdir="no">
+         <attribute name="supported_os" value="linux;linux2"/>
+         <attribute name="configure_arguments" value="defconfig ARCH=lib"/>
+         <attribute name="build_arguments" value="library ARCH=lib"/>
+         <attribute name="no_installation" value="True"/>
+         <attribute name="post_installation" value="mkdir -p $INSTALLDIR/bin_dce; cd $INSTALLDIR/bin_dce; cp $SRCDIR/arch/lib/tools/libsim-linux-4.4.0.so ./; ln -s -f libsim-linux-4.4.0.so liblinux.so"/>
        </build>
      </module>
 
