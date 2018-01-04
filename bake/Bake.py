@@ -759,7 +759,7 @@ class Bake:
         return parser
 
 
-    def createEnvirornment(self, config, options, directory=None):
+    def createEnvironment(self, config, options, directory=None):
         """ Auxiliary function to create an instance of the module environment"""
          
         configuration = self._read_config(config, directory)
@@ -784,7 +784,7 @@ class Bake:
     def _do_operation(self, config, options, functor, directory=None):
         """Applies the function, passed as parameter, over the options."""
         
-        configuration, env = self.createEnvirornment(config, options, directory)
+        configuration, env = self.createEnvironment(config, options, directory)
         must_disable = []
         if options.one != '':
             if options.all or options.start != '' or options.after != '':
@@ -1030,7 +1030,7 @@ class Bake:
         env = self._do_operation(config, options, _do_build)
         
         if not options.no_environment_file:
-            env.create_environement_file(options.environment_file_identification)
+            env.create_environment_file(options.environment_file_identification)
 
     def _clean(self, config, args):
         """Handles the clean command line option."""

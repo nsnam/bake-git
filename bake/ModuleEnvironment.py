@@ -368,7 +368,7 @@ class ModuleEnvironment:
         for element in libpaths :
             self._variables.add(self.replace_variables(element))
             
-    def create_environement_file(self, fileName):
+    def create_environment_file(self, fileName):
         ''' Creates the set environment file to help users to call the Bake 
         built modules.
         '''
