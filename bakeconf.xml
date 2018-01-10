@@ -503,8 +503,8 @@
 
      <!-- umip related modules -->
      <module name="dce-umip-dev">
-       <source type="mercurial">
-        <attribute name="url" value="http://code.nsnam.org/thehajime/ns-3-dce-umip"/>
+       <source type="git">
+        <attribute name="url" value="git://github.com/direct-code-execution/ns-3-dce-umip"/>
         <attribute name="module_directory" value="ns-3-dce/myscripts/ns-3-dce-umip/"/>
        </source>
        <depends_on name="dce-quagga-dev" optional="False"/>
@@ -532,8 +532,8 @@
 
     <!-- quagga related modules -->
     <module name="dce-quagga-dev">
-      <source type="mercurial">
-        <attribute name="url" value="http://code.nsnam.org/thehajime/ns-3-dce-quagga"/>
+      <source type="git">
+        <attribute name="url" value="git://github.com/direct-code-execution/ns-3-dce-quagga"/>
         <attribute name="module_directory" value="ns-3-dce/myscripts/ns-3-dce-quagga/"/>
       </source>
        <depends_on name="dce-meta-dev" optional="False"/>
