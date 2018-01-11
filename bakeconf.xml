@@ -188,7 +188,7 @@
       <build type="make" objdir="yes">
         <attribute name="pre_installation" value="cd $SRCDIR;./configure --prefix=$INSTALLDIR"/>
         <attribute name="patch" value="$SRCDIR/../ns-3-dce/utils/iperf_4_dce.patch"/>
-        <attribute name="build_arguments" value="LDFLAGS=-pie LDFLAGS+=-rdynamic"/>
+        <attribute name="build_arguments" value="CFLAGS=-fPIC CFLAGS+=-U_FORTIFY_SOURCE CXXFLAGS=-fPIC CXXFLAGS+=-U_FORTIFY_SOURCE LDFLAGS=-pie LDFLAGS+=-rdynamic"/>
       </build>
      </module>
 
