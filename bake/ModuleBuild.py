@@ -294,7 +294,7 @@ class PythonModuleBuild(ModuleBuild):
 #            self.threat_patch(env)
        
         # TODO: Add the options, there is no space for the configure_arguments
-        env.run(['python', os.path.join(env.srcdir, 'setup.py'), 'build',
+        env.run([sys.executable, os.path.join(env.srcdir, 'setup.py'), 'build',
                   '--build-base=' + env.objdir], directory=env.srcdir)
         
         if self.attribute('no_installation').value != True:
@@ -302,8 +302,8 @@ class PythonModuleBuild(ModuleBuild):
             if(env.sudoEnabled):
                 sudoOp = ['sudo']
                 
-            env.run(sudoOp + ['python', os.path.join(env.srcdir, 'setup.py'), 'install', 
-                              '--install-base=' + env.installdir, 
+            env.run(sudoOp + [sys.executable, os.path.join(env.srcdir, 'setup.py'), 'install',
+                              '--install-base=' + env.installdir,
                               '--install-purelib=' + env.installdir + '/lib',
 #                             --install-platlib=' + env.installdir + '/lib.$PLAT,
                               '--install-scripts=' + env.installdir + '/scripts',
@@ -317,7 +317,7 @@ class PythonModuleBuild(ModuleBuild):
         to remove the older code.
         """
         
-        env.run(['python', os.path.join(env.srcdir, 'setup.py'), 'clean',
+        env.run([sys.executable, os.path.join(env.srcdir, 'setup.py'), 'clean',
                  '--build-base=' + env.objdir],
                 directory=env.srcdir)
 
@@ -326,14 +326,14 @@ class PythonModuleBuild(ModuleBuild):
         to remove the older code.
         """
         
-        env.run(['python', os.path.join(env.srcdir, 'setup.py'), 'distclean'],
+        env.run([sys.executable, os.path.join(env.srcdir, 'setup.py'), 'distclean'],
                 directory=env.srcdir)
         
     def check_version(self, env):
         """Verifies only if python exists in the machine."""
         
         try: 
-            env.run(['python', '--version'])
+            env.run([sys.executable, '--version'])
         except TaskError as e:
             return False
             
@@ -370,7 +370,7 @@ class WafModuleBuild(ModuleBuild):
             waf_binary = os.path.join(srcdir, 'waf')
         else:
             waf_binary = 'waf'
-        return waf_binary
+        return [sys.executable, waf_binary]
     
     def _env(self, objdir):
         """ Verifies if the main environment variables where defined and 
@@ -390,13 +390,6 @@ class WafModuleBuild(ModuleBuild):
 #        env['WAFLOCK'] = '.lock-waf_%s_build'%sys.platform #'.lock-%s' % os.path.basename(objdir)
         return env
     
-    def _is_1_6_x(self, env):
-        """ Searches for the waf version, it should be bigger than 1.6.0."""
-        
-        return env.check_program(self._binary(env.srcdir), version_arg='--version',
-                                 version_regexp=b'(\d+)\.(\d+)\.(\d+)',
-                                 version_required=(1, 6, 0))
-        
     def build(self, env, jobs):
         """ Specific build implementation method. In order: 
         1. It apply possible patches, 
@@ -413,14 +406,9 @@ class WafModuleBuild(ModuleBuild):
             extra_configure_options = [env.replace_variables(tmp) for tmp in
                                        bake.Utils.split_args(env.replace_variables(self.attribute('configure_arguments').value))]
             
-            if self._is_1_6_x(env):
-                env.run([self._binary(env.srcdir)] + extra_configure_options,
-                        directory=env.srcdir,
-                        env=self._env(env.objdir))
-            else:
-                env.run([self._binary(env.srcdir)] + extra_configure_options,
-                        directory=env.srcdir,
-                        env=self._env(env.objdir))
+            env.run(self._binary(env.srcdir) + extra_configure_options,
+                    directory=env.srcdir,
+                    env=self._env(env.objdir))
 
         extra_build_options = []
         if self.attribute('build_arguments').value != '':
@@ -430,7 +418,7 @@ class WafModuleBuild(ModuleBuild):
         if not jobs == -1:
             jobsrt = ['-j', str(jobs)]
             
-        env.run([self._binary(env.srcdir)] + extra_build_options + jobsrt,
+        env.run(self._binary(env.srcdir) + extra_build_options + jobsrt,
                 directory=env.srcdir,
                 env=self._env(env.objdir))
         
@@ -442,7 +430,7 @@ class WafModuleBuild(ModuleBuild):
 
             try :
                 options = bake.Utils.split_args(env.replace_variables(self.attribute('install_arguments').value))
-                env.run(sudoOp + [self._binary(env.srcdir), 'install'] + options,
+                env.run(sudoOp + self._binary(env.srcdir) + ['install'] + options,
                 directory=env.srcdir,
                 env=self._env(env.objdir))
             except TaskError as e:
@@ -450,13 +438,12 @@ class WafModuleBuild(ModuleBuild):
                       ' install  %s: Verify if you have the required rights. Original'
                       ' message: %s' % (env._module_name, e._reason))
        
-        
     def clean(self, env):
         """ Call waf with the clean option to remove the results of the 
         last build.
         """
 
-        env.run([self._binary(env.srcdir), '-k', 'clean'],
+        env.run(self._binary(env.srcdir) + ['-k', 'clean'],
                 directory=env.srcdir,
                 env=self._env(env.objdir))
             
@@ -465,10 +452,9 @@ class WafModuleBuild(ModuleBuild):
         last build.
         """
 
-        env.run([self._binary(env.srcdir), '-k', 'distclean'],
+        env.run(self._binary(env.srcdir) + ['-k', 'distclean'],
                 directory=env.srcdir,
                 env=self._env(env.objdir))
-            
             
     def check_version(self, env):
         """ Verifies the waf version."""
