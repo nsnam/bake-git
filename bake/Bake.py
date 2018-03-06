@@ -241,7 +241,7 @@ class Bake:
                 found=0
                 fmod = None
                 for mod in enable:
-                    if configuration.lookup(mod).mtype() == "ns" and ((mod>=module.minver() and (mod<=module.maxver() or module.maxver() == None)) or (mod == "ns-3-dev" and module.maxver() == None)):
+                    if configuration.lookup(mod).mtype() == "ns" and ((mod>=module.minver() and (module.maxver() is None or mod<=module.maxver())) or (mod == "ns-3-dev" and module.maxver() is None)):
                         found+= 1
                         fmod = mod
                 if not found==1:
