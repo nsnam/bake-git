@@ -977,7 +977,7 @@
 
     <module name="nsc-dev">
       <source type="mercurial">
-        <attribute name="url" value="https://secure.wand.net.nz/mercurial/nsc"/>
+        <attribute name="url" value="https://code.nsnam.org/index.cgi/nsc"/>
       </source>
       <!-- problem: scons has no generic command-line support for builddir and installdir -->
       <build type="inline"  classname="NscModuleBuild">
@@ -1019,7 +1019,7 @@
     
    <module name="nsc-0.5.3">
       <source type="mercurial">
-        <attribute name="url" value="https://secure.wand.net.nz/mercurial/nsc"/>
+        <attribute name="url" value="https://code.nsnam.org/index.cgi/nsc"/>
         <attribute name="revision" value="08c391d0660a"/>
       </source>
       <!-- problem: scons has no generic command-line support for builddir and installdir -->
