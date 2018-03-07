@@ -571,7 +571,7 @@
        <source type="archive">
         <!-- some of mirror sever of gnu.org isn't available.. -->
         <!-- attribute name="url" value="http://download.savannah.gnu.org/releases/quagga/quagga-0.99.20.tar.gz"/ -->
-        <attribute name="url" value="http://pkgs.fedoraproject.org/lookaside/pkgs/quagga/quagga-0.99.20.tar.gz/64cc29394eb8a4e24649d19dac868f64/quagga-0.99.20.tar.gz"/>
+	<attribute name="url" value="https://src.fedoraproject.org/repo/pkgs/quagga/quagga-0.99.20.tar.gz/64cc29394eb8a4e24649d19dac868f64/quagga-0.99.20.tar.gz"/>
         <attribute name="extract_directory" value="quagga-0.99.20"/>
        </source>
        <depends_on name="indent" optional="False"/>
