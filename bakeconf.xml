@@ -822,10 +822,7 @@
 
     <module name="pybindgen">
       <source type="git">
-        <!-- temporarily redirect target until castxmlparser.xml is upstreamed
         <attribute name="url" value="https://github.com/gjcarneiro/pybindgen.git"/>
-        -->
-        <attribute name="url" value="https://github.com/adeepkit01/pybindgen.git"/>
       </source>
       <build type="python" objdir="yes">
       </build>
@@ -836,6 +833,7 @@
 
     <module name="pybindgen-ns3.27-castxml">
       <source type="git">
+        <!-- ns-3.27 and ns-3.28 releases used an alternative pybindgen repo-->
         <attribute name="url" value="https://github.com/adeepkit01/pybindgen.git"/>
         <attribute name="module_directory" value="pybindgen"/>
         <attribute name="revision" value="3eade768"/>
