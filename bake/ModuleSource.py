@@ -867,9 +867,10 @@ class GitModuleSource(ModuleSource):
         ModuleSource.__init__(self)
         self.add_attribute('url', '', 'Url to clone the source tree from.',
                            mandatory=True)
-        self.add_attribute('revision', 'refs/remotes/origin/master',
+        self.add_attribute('revision', '',
                            "Revision to checkout. Defaults to origin/master"
                            " reference.")
+        self.add_attribute('branch', '', 'Branch to checkout.')
         self.add_attribute('fetch_option', '', 'Options to add git fetch command.')
     @classmethod
     def name(cls):
@@ -886,6 +887,8 @@ class GitModuleSource(ModuleSource):
             raise TaskError('Attribute type error, expected String, Error: %s' % e1)
         except OSError as e2:
             raise TaskError('Could not create temporary file, Error: %s' % e2)
+
+        checkedOut = False
             
         env.run(['git', 'init'], directory=tempdir)
         env.run(['git', 'remote', 'add', 'origin', self.attribute('url').value],
@@ -895,8 +898,20 @@ class GitModuleSource(ModuleSource):
                     directory=tempdir)
         else:
             env.run(['git', 'fetch'], directory=tempdir)
-        env.run(['git', 'checkout', self.attribute('revision').value],
-                directory=tempdir)
+
+        if self.attribute('branch').value is not '':
+            env.run(['git', 'checkout', self.attribute('branch').value],
+                    directory=tempdir)
+            checkedOut = True
+        
+        if self.attribute('revision').value is not '':
+            env.run(['git', 'checkout', self.attribute('revision').value],
+                    directory=tempdir)
+            checkedOut = True
+
+        if not checkedOut:
+            env.run(['git', 'pull', 'origin', 'master'], directory=tempdir)
+
         os.rename(tempdir, env.srcdir)
 
     def update(self, env):
