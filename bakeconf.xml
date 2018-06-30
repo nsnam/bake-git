@@ -382,6 +382,7 @@
          <attribute name="revision" value="libos-v4.4"/>
          <attribute name="fetch_option" value=""/>
        </source>
+       <depends_on name="bc" optional="False"/>
        <build type="make" objdir="no">
          <attribute name="supported_os" value="linux;linux2"/>
          <attribute name="configure_arguments" value="defconfig ARCH=lib"/>
@@ -645,6 +646,18 @@
         <attribute name="name_yum" value="libclang-devel"/>
         <attribute name="name_apt-get" value="libclang-dev"/>
         <attribute name="more_information" value="Didn't find:   the clang-dev library, try to install it!"/>
+      </source>
+      <build type="none" objdir="no">
+      </build>
+    </module>
+
+    <module name="bc">
+      <source type="system_dependency">
+        <attribute name="dependency_test" value="bc"/>
+        <attribute name="name_yum" value="bc"/>
+        <attribute name="name_yast" value="bc"/>
+        <attribute name="name_apt-get" value="bc"/>
+        <attribute name="more_information" value="Didn't find: the bc calculator language, try to install it!"/>
       </source>
       <build type="none" objdir="no">
       </build>
