@@ -1108,18 +1108,18 @@ class Bake:
         checkPrograms = [['python', 'Python'],
                          ['g++', 'GNU C++ compiler'],
                          ['hg', 'Mercurial'],
-                         ['cvs', 'CVS'],
-                         ['git', 'GIT'],
-                         ['bzr', 'Bazaar'],
+                         # ['cvs', 'CVS'],
+                         ['git', 'Git'],
+                         # ['bzr', 'Bazaar'],
                          ['tar', 'Tar tool'],
                          ['unzip', 'Unzip tool'],
-                         ['unrar', 'Unrar tool'],
-                         ['7z', '7z  data compression utility'],
-                         ['unxz', 'XZ data compression utility'],
+                         # ['unrar', 'Unrar tool'],
+                         # ['7z', '7z  data compression utility'],
+                         # ['unxz', 'XZ data compression utility'],
                          ['make', 'Make'],
                          ['cmake', 'cMake'],
                          ['patch', 'patch tool'],
-                         ['autoreconf', 'autoreconf tool']
+                         # ['autoreconf', 'autoreconf tool']
                          ]
         parser = self._option_parser('build')
         (options, args_left) = parser.parse_args(args)
