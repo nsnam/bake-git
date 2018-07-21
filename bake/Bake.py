@@ -1106,7 +1106,6 @@ class Bake:
         """Handles the check command line option."""
         
         checkPrograms = [['python', 'Python'],
-                         ['g++', 'GNU C++ compiler'],
                          ['hg', 'Mercurial'],
                          # ['cvs', 'CVS'],
                          ['git', 'Git'],
@@ -1121,6 +1120,10 @@ class Bake:
                          ['patch', 'patch tool'],
                          # ['autoreconf', 'autoreconf tool']
                          ]
+        if sys.platform == 'darwin':
+            checkPrograms.insert(1,['clang++', 'Clang C++ compiler'])
+        else:
+            checkPrograms.insert(1,['g++', 'GNU C++ compiler'])
         parser = self._option_parser('build')
         (options, args_left) = parser.parse_args(args)
         def _do_env_check(configuration, module, env):
