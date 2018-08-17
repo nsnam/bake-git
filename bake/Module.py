@@ -364,8 +364,6 @@ class Module:
             if self._source.attribute('module_directory').value :
                 srcDirTmp = self._source.attribute('module_directory').value
             
-            env.start_build(self._name, srcDirTmp,self._build.supports_objdir)
-
             if self._build.attribute('pre_installation').value != '':
                 self._build.perform_pre_installation(env)
             if self._build.attribute('patch').value != '':
