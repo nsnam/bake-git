@@ -811,6 +811,40 @@
       </build>
     </module>
 
+    <module name="pygobject">
+      <source type="system_dependency">
+        <attribute name="dependency_test" value="_gi.x86_64-linux-gnu.so or _gi.so"/>
+        <attribute name="name_apt-get" value="python-gi"/>
+        <attribute name="name_yum" value="pygobject3-devel"/>
+        <attribute name="more_information" value="Python gobject components missing from system."/>
+      </source>
+      <build type="none" objdir="no">
+      </build>
+    </module>
+
+    <module name="gi-cairo">
+      <source type="system_dependency">
+        <attribute name="dependency_test" value="_gi_cairo.x86_64-linux-gnu.so or _gi_cairo.so"/>
+        <attribute name="name_apt-get" value="python-gi-cairo"/>
+        <attribute name="name_yum" value="pygobject3-devel"/>
+        <attribute name="more_information" value="Python gobject components missing from system."/>
+      </source>
+      <build type="none" objdir="no">
+      </build>
+    </module>
+
+    <module name="libgoocanvas2">
+      <source type="system_dependency">
+        <attribute name="dependency_test" value="libgoocanvas-2.0.so.9 or libgoocanvas-2.0.so"/>
+        <attribute name="name_apt-get" value="gir1.2-goocanvas-2.0"/>
+        <attribute name="name_yum" value="goocanvas2-devel"/>
+        <attribute name="more_information" value="GooCanvas2 support missing from system."/>
+      </source>
+      <build type="none" objdir="no">
+      </build>
+    </module>
+
+
     <module name="setuptools">
       <source type="system_dependency">
         <attribute name="dependency_test" value="easy_install"/>
@@ -833,13 +867,24 @@
       </build>
     </module>
 
+    <module name="pyviz-gtk3-prerequisites">
+      <source type="none">
+      </source>
+      <depends_on name="python-dev" optional="True"/>
+      <depends_on name="pygraphviz" optional="True"/>
+      <depends_on name="pygobject" optional="True"/>
+      <depends_on name="gi-cairo" optional="True"/>
+      <depends_on name="libgoocanvas2" optional="True"/>
+      <build type="none" objdir="no">
+      </build>
+    </module>
+
     <module name="pybindgen">
       <source type="git">
         <attribute name="url" value="https://github.com/gjcarneiro/pybindgen.git"/>
       </source>
       <build type="python" objdir="yes">
       </build>
-      <depends_on name="pygccxml" optional="True"/>
       <depends_on name="python-dev" optional="True"/>
       <depends_on name="setuptools" optional="False"/>
     </module>
@@ -867,7 +912,6 @@
       </source>
       <build type="python" objdir="yes">
       </build>
-      <depends_on name="pygccxml" optional="True"/>
       <depends_on name="python-dev" optional="True"/>
       <depends_on name="setuptools" optional="False"/>
     </module>
@@ -1235,11 +1279,12 @@
       <source type="none"/>
       <depends_on name="netanim" optional="True"/>
       <depends_on name="nsc-dev" optional="True"/>
+      <depends_on name="castxml" optional="True"/>
+      <depends_on name="pygccxml" optional="True"/>
       <depends_on name="pybindgen" optional="True"/>
-      <depends_on name="pyviz-prerequisites" optional="True"/>
+      <depends_on name="pyviz-gtk3-prerequisites" optional="True"/>
       <depends_on name="click-dev" optional="True"/>
       <depends_on name="openflow-dev" optional="True"/>
-      <depends_on name="castxml" optional="True"/>
       <depends_on name="BRITE" optional="True"/>
       <depends_on name="ns-3-dev" optional="False"/>
       <build type="none"/>
@@ -1443,6 +1488,19 @@
       </build>
     </module>
 
+    <module name="ns-3.29" type="ns">
+      <source type="mercurial">
+        <attribute name="url" value="http://code.nsnam.org/ns-3-dev"/>
+        <!-- Will update to ns-3.29 once the repository is finalized -->
+      </source>
+      <depends_on name="netanim-3.108" optional="True"/>
+      <depends_on name="pybindgen-0.17.0.post58+ngcf00cc0" optional="True"/>
+      <depends_on name="pyviz-gtk3-prerequisites" optional="True"/>
+      <build type="waf" objdir="yes">
+        <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
+      </build>
+    </module>
+
     <module name="ns-allinone-3.18">
       <source type="none"/>
       <depends_on name="netanim-3.103" optional="True"/>
@@ -1615,6 +1673,22 @@
       <depends_on name="pygccxml-1.9.1" optional="True"/>
       <depends_on name="BRITE" optional="True"/>
       <depends_on name="ns-3.28" optional="False"/>
+      <build type="none"/>
+    </module>
+
+    <module name="ns-allinone-3.29">
+      <source type="none"/>
+      <depends_on name="netanim-3.108" optional="True"/>
+      <depends_on name="nsc-0.5.3" optional="True"/>
+      <depends_on name="castxml" optional="True"/>
+      <depends_on name="pybindgen-0.17.0.post58+ngcf00cc0" optional="True"/>
+      <depends_on name="pygccxml-1.9.1" optional="True"/>
+      <depends_on name="pyviz-gtk3-prerequisites" optional="True"/>
+      <depends_on name="click-ns-3.25" optional="True"/>
+      <depends_on name="openflow-ns-3.25" optional="True"/>
+      <depends_on name="pygccxml-1.9.1" optional="True"/>
+      <depends_on name="BRITE" optional="True"/>
+      <depends_on name="ns-3.29" optional="False"/>
       <build type="none"/>
     </module>
 
