@@ -266,7 +266,7 @@ class ModuleEnvironment:
             index=program.find(".so") + program.find(".a")
             if index>0 :
                 toFindIn=['/usr/lib','/usr/lib64','/usr/lib32','/usr/local/lib',
-                     '/lib','/opt/local/lib','/opt/local/Library']
+                     '/lib','/opt/local/lib','/opt/local/Library', '/usr/local/opt']
                 for libpath in self._libpaths:
                     toFindIn.append(libpath)
                 stdLibs = []
@@ -280,25 +280,21 @@ class ModuleEnvironment:
                 tofindIn=toFindIn+stdLibs+[self._lib_path()]
 
             elif program.endswith(".h"):
-                toFindIn=['/usr/include', '/usr/local/include', '/usr/lib','/opt/local/include']  
+                toFindIn=['/usr/include', '/usr/local/include', '/usr/lib','/opt/local/include', '/usr/local/opt']  
                  
             if toFindIn : 
                 for eachdir in toFindIn:
-                    for dirname, dirnames, filenames in os.walk(eachdir):
-#                        print (dirname)
-                    # print path to all filenames.
-                        for filename in filenames:
-                            if filename==name:
-                                return os.path.join(dirname, filename)
-#
-#
-#
-#
-#                for path in (stdLibs + tmp + 
-#                             [self._lib_path()]):
-#                    lib_file = os.path.join(path, program)
-#                    if os.path.exists(lib_file):
-#                        return lib_file
+                    if sys.platform == "darwin":
+                        # enable symlink walking for MacOS only (bug 2975)
+                        for dirname, dirnames, filenames in os.walk(eachdir, True, None, True):
+                            for filename in filenames:
+                                if filename==name:
+                                    return os.path.join(dirname, filename)
+                    else:
+                        for dirname, dirnames, filenames in os.walk(eachdir):
+                            for filename in filenames:
+                                if filename==name:
+                                    return os.path.join(dirname, filename)
              
         return None
 
