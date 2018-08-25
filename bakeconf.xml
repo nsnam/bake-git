@@ -1284,7 +1284,7 @@
       </source>
       <depends_on name="netanim" optional="True"/>
       <depends_on name="pybindgen" optional="True"/>
-      <depends_on name="pyviz-prerequisites" optional="True"/>
+      <depends_on name="pyviz-gtk3-prerequisites" optional="True"/>
       <build type="waf" objdir="yes">
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
       </build>
