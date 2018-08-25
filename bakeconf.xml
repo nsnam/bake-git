@@ -315,18 +315,6 @@
        </build>
      </module>
 
-    <module name="ns-3-dev">
-      <source type="mercurial">
-        <attribute name="url" value="http://code.nsnam.org/ns-3-dev"/>
-      </source>
-      <depends_on name="netanim" optional="True"/>
-      <depends_on name="pybindgen" optional="True"/>
-      <depends_on name="pyviz-prerequisites" optional="True"/>
-      <build type="waf" objdir="yes">
-        <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-tests"/>
-      </build>
-    </module>
-
      <module name="net-next-sim-2.6.36">
        <source type="git">
          <attribute name="url" value="https://github.com/direct-code-execution/net-next-sim.git"/>
