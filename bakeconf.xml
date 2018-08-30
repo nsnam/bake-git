@@ -1478,8 +1478,8 @@
 
     <module name="ns-3.29" type="ns">
       <source type="mercurial">
-        <attribute name="url" value="http://code.nsnam.org/ns-3-dev"/>
-        <!-- Will update to ns-3.29 once the repository is finalized -->
+        <attribute name="url" value="http://code.nsnam.org/ns-3.29"/>
+        <attribute name="revision" value="ns-3.29"/>
       </source>
       <depends_on name="netanim-3.108" optional="True"/>
       <depends_on name="pybindgen-0.17.0.post58+ngcf00cc0" optional="True"/>
