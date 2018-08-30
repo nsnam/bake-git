@@ -1267,7 +1267,6 @@
   <module name="ns-3-allinone">
       <source type="none"/>
       <depends_on name="netanim" optional="True"/>
-      <depends_on name="nsc-dev" optional="True"/>
       <depends_on name="castxml" optional="True"/>
       <depends_on name="pygccxml" optional="True"/>
       <depends_on name="pybindgen" optional="True"/>
@@ -1668,7 +1667,6 @@
     <module name="ns-allinone-3.29">
       <source type="none"/>
       <depends_on name="netanim-3.108" optional="True"/>
-      <depends_on name="nsc-0.5.3" optional="True"/>
       <depends_on name="castxml" optional="True"/>
       <depends_on name="pybindgen-0.17.0.post58+ngcf00cc0" optional="True"/>
       <depends_on name="pygccxml-1.9.1" optional="True"/>
