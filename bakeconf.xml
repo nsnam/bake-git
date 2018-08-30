@@ -729,6 +729,7 @@
         <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/bin"/>
       </build>
       <depends_on name="clang-dev" optional="False"/>
+      <depends_on name="automake" optional="False"/>
     </module>
 
     <module name="pygccxml">
