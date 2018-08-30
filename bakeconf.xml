@@ -722,6 +722,17 @@
     </module>
 
     <module name="castxml">
+      <source type="system_dependency">
+        <attribute name="dependency_test" value="castxml"/>
+        <attribute name="name_apt-get" value="castxml"/>
+        <attribute name="name_yum" value="castxml"/>
+        <attribute name="more_information" value="Didn't find:   Castxml package; please install it."/>
+      </source>
+      <build type="none" objdir="no">
+      </build>
+    </module>
+
+    <module name="castxml-dev">
       <source type="git">
         <attribute name="url" value="https://github.com/CastXML/CastXML.git"/>
       </source>
