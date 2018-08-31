@@ -752,6 +752,7 @@
       </build>
       <depends_on name="castxml" optional="False"/>
       <depends_on name="setuptools" optional="False"/>
+      <depends_on name="cxxfilt" optional="False"/>
     </module>
 
     <module name="pygccxml-1.9.1">
@@ -764,6 +765,7 @@
       </build>
       <depends_on name="castxml" optional="False"/>
       <depends_on name="setuptools" optional="False"/>
+      <depends_on name="cxxfilt" optional="False"/>
     </module>
 
     <module name="pygccxml-1.0.0">
@@ -852,6 +854,15 @@
         <attribute name="name_yum" value="python-setuptools"/>
         <attribute name="name_port" value="py-setuptools"/>
         <attribute name="more_information" value="The python-setuptools package is not installed, try to install it."/>
+      </source>
+      <build type="none" objdir="no">
+      </build>
+    </module>
+
+    <module name="cxxfilt">
+      <source type="system_dependency">
+        <attribute name="import_test" value="cxxfilt"/>
+        <attribute name="more_information" value="The python cxxfilt package is not installed, try to install it using 'pip install cxxfilt'."/>
       </source>
       <build type="none" objdir="no">
       </build>
