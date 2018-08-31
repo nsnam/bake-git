@@ -1332,8 +1332,9 @@ class Bake:
                     if(not installerName):
                         installerName = this_key
                       
-                    print('   >> Try: "sudo ' + command + ' ' + 
-                          installerName + '", if you have sudo rights.')
+                    if (sysDep.attribute('import_test').value is None):
+                        print('   >> Try: "sudo ' + command + ' ' + 
+                              installerName + '", if you have sudo rights.')
 
                 missing = True
             else:
