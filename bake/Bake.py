@@ -872,7 +872,9 @@ class Bake:
                 elif (module._source.attribute('dependency_test').value is not None):
                     dependencyExists = module._source._check_dependency_expression(env,
                       module._source.attribute('dependency_test').value)
-
+                elif (module._source.attribute('import_test').value is not None):
+                    dependencyExists = module._source._check_import(
+                      module._source.attribute('import_test').value)
                 
                 # if the dependency exists there is nothing else to do
                 if (dependencyExists) :
@@ -1313,6 +1315,9 @@ class Bake:
             elif (sysDep.attribute('dependency_test').value is not None):
                 dependencyExists = sysDep._check_dependency_expression(env, 
                   sysDep.attribute('dependency_test').value)
+            elif (sysDep.attribute('import_test').value is not None):
+                dependencyExists = sysDep._check_import(
+                  sysDep.attribute('import_test').value)
 
             if not dependencyExists:
                 sys.stdout.write(" > " + this_key + " - ")

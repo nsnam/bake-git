@@ -38,6 +38,7 @@ import os
 import re
 import platform
 import subprocess
+import importlib
 try:
     import commands
     from commands import getoutput
@@ -236,6 +237,15 @@ class ModuleSource(ModuleAttributeBase):
                returnValue = True
                break
         return returnValue     
+
+    def _check_import(self, valueToTest):
+        """Verifies if the system has the requested python import"""
+
+        try:
+            importlib.import_module(valueToTest, package=None)
+        except ImportError:
+            return False
+        return True
 
 class NoneModuleSource(ModuleSource):
     """ This class defines an empty source, i.e. no source code fetching is 
@@ -496,6 +506,8 @@ class SystemDependency(ModuleSource):
         self.add_attribute('file_test', None, 'System file to try to locate',
                            mandatory=False)
         self.add_attribute('executable_test', None, 'Executable to try to locate',
+                           mandatory=False)
+        self.add_attribute('import_test', None, 'Python import to try',
                            mandatory=False)
         self.add_attribute('try_to_install', 'false', 
                            '(DEPRECATED) If should try to install or not',
