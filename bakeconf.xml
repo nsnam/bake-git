@@ -847,7 +847,7 @@
 
     <module name="setuptools">
       <source type="system_dependency">
-        <attribute name="dependency_test" value="easy_install"/>
+        <attribute name="import_test" value="setuptools"/>
         <attribute name="name_apt-get" value="python-setuptools"/>
         <attribute name="name_yum" value="python-setuptools"/>
         <attribute name="name_port" value="py-setuptools"/>
