@@ -630,10 +630,21 @@
 
     <module name="clang-dev">
       <source type="system_dependency">
-        <attribute name="dependency_test" value="ia32intrin.h"/>
+        <attribute name="dependency_test" value="ARCMT.h"/>
         <attribute name="name_yum" value="libclang-devel"/>
         <attribute name="name_apt-get" value="libclang-dev"/>
         <attribute name="more_information" value="Didn't find:   the clang-dev library, try to install it!"/>
+      </source>
+      <build type="none" objdir="no">
+      </build>
+    </module>
+
+    <module name="llvm-dev">
+      <source type="system_dependency">
+        <attribute name="dependency_test" value="LinkAllIR.h"/>
+        <attribute name="name_yum" value="llvm-devel"/>
+        <attribute name="name_apt-get" value="llvm-dev"/>
+        <attribute name="more_information" value="Didn't find:   the LLVM development libraries, try to install it!"/>
       </source>
       <build type="none" objdir="no">
       </build>
@@ -722,17 +733,6 @@
     </module>
 
     <module name="castxml">
-      <source type="system_dependency">
-        <attribute name="dependency_test" value="castxml"/>
-        <attribute name="name_apt-get" value="castxml"/>
-        <attribute name="name_yum" value="castxml"/>
-        <attribute name="more_information" value="Didn't find:   Castxml package; please install it."/>
-      </source>
-      <build type="none" objdir="no">
-      </build>
-    </module>
-
-    <module name="castxml-dev">
       <source type="git">
         <attribute name="url" value="https://github.com/CastXML/CastXML.git"/>
       </source>
@@ -740,7 +740,21 @@
         <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/bin"/>
       </build>
       <depends_on name="clang-dev" optional="False"/>
-      <depends_on name="automake" optional="False"/>
+      <depends_on name="llvm-dev" optional="False"/>
+      <depends_on name="cmake" optional="False"/>
+    </module>
+
+    <module name="castxml-0.1+git98a626ec">
+      <source type="git">
+        <attribute name="url" value="https://github.com/CastXML/CastXML.git"/>
+        <attribute name="revision" value="98a626ecb1aa522ca4f2575aeddc4ca3bb8c76db"/>
+      </source>
+      <build type="cmake" objdir="yes">
+        <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/bin"/>
+      </build>
+      <depends_on name="clang-dev" optional="False"/>
+      <depends_on name="llvm-dev" optional="False"/>
+      <depends_on name="cmake" optional="False"/>
     </module>
 
     <module name="pygccxml">
@@ -763,7 +777,7 @@
       <build type="python" objdir="yes">
         <attribute name="pre_installation" value="mkdir $INSTALLDIR"/>
       </build>
-      <depends_on name="castxml" optional="False"/>
+      <depends_on name="castxml-0.1+git98a626ec" optional="False"/>
       <depends_on name="setuptools" optional="False"/>
       <depends_on name="cxxfilt" optional="False"/>
     </module>
@@ -1691,7 +1705,7 @@
     <module name="ns-allinone-3.29">
       <source type="none"/>
       <depends_on name="netanim-3.108" optional="True"/>
-      <depends_on name="castxml" optional="True"/>
+      <depends_on name="castxml-0.1+git98a626ec" optional="True"/>
       <depends_on name="pybindgen-0.17.0.post58+ngcf00cc0" optional="True"/>
       <depends_on name="pygccxml-1.9.1" optional="True"/>
       <depends_on name="pyviz-gtk3-prerequisites" optional="True"/>
