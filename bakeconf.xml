@@ -929,6 +929,18 @@
       <depends_on name="setuptools" optional="False"/>
     </module>
 
+    <module name="pybindgen-0.19.0.post4+ng823d8b2">
+      <source type="git">
+        <attribute name="url" value="https://github.com/gjcarneiro/pybindgen.git"/>
+        <attribute name="module_directory" value="pybindgen"/>
+        <attribute name="revision" value="823d8b2"/>
+      </source>
+      <build type="python" objdir="yes">
+      </build>
+      <depends_on name="python-dev" optional="True"/>
+      <depends_on name="setuptools" optional="False"/>
+    </module>
+
     <module name="pybindgen-0.17.0.post58+ngcf00cc0">
       <source type="git">
         <attribute name="url" value="https://github.com/gjcarneiro/pybindgen.git"/>
@@ -1706,7 +1718,7 @@
       <source type="none"/>
       <depends_on name="netanim-3.108" optional="True"/>
       <depends_on name="castxml-0.1+git98a626ec" optional="True"/>
-      <depends_on name="pybindgen-0.17.0.post58+ngcf00cc0" optional="True"/>
+      <depends_on name="pybindgen-0.19.0.post4+ng823d8b2" optional="True"/>
       <depends_on name="pygccxml-1.9.1" optional="True"/>
       <depends_on name="pyviz-gtk3-prerequisites" optional="True"/>
       <depends_on name="click-ns-3.25" optional="True"/>
