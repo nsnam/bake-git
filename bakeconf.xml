@@ -1532,7 +1532,7 @@
         <attribute name="revision" value="ns-3.29"/>
       </source>
       <depends_on name="netanim-3.108" optional="True"/>
-      <depends_on name="pybindgen-0.17.0.post58+ngcf00cc0" optional="True"/>
+      <depends_on name="pybindgen-0.19.0.post4+ng823d8b2" optional="True"/>
       <depends_on name="pyviz-gtk3-prerequisites" optional="True"/>
       <build type="waf" objdir="yes">
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
@@ -1718,7 +1718,6 @@
       <source type="none"/>
       <depends_on name="netanim-3.108" optional="True"/>
       <depends_on name="castxml-0.1+git98a626ec" optional="True"/>
-      <depends_on name="pybindgen-0.19.0.post4+ng823d8b2" optional="True"/>
       <depends_on name="pygccxml-1.9.1" optional="True"/>
       <depends_on name="pyviz-gtk3-prerequisites" optional="True"/>
       <depends_on name="click-ns-3.25" optional="True"/>
