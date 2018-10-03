@@ -401,8 +401,8 @@ class ArchiveModuleSource(ModuleSource):
             ['tar.bz2', ['tar', 'jxf']],
             ['zip', ['unzip']],
             ['rar', ['unrar', 'e']],
-            ['xz', ['unxz']],
             ['tar.xz', ['tar', 'Jxf']],
+            ['xz', ['unxz']],
             ['7z', ['7z', 'x']],
             ['tgz', ['tar', 'xzvf']],
             ['tbz2', ['tar', 'jxf']]
