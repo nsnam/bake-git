@@ -376,8 +376,11 @@ class ModuleEnvironment:
                  "fi \n\n"
 
         self._binpaths.add(self._bin_path())
-        self._libpaths.add(self._lib_path())
-        
+        if os.path.isdir(self._lib_path()):
+            self._libpaths.add(self._lib_path())
+        if os.path.isdir(self._lib_path()+'64'):
+            self._libpaths.add(self._lib_path()+'64')
+
         if len(self._libpaths) > 0:
             script = script + self.add_onPath("LD_LIBRARY_PATH", self._libpaths) + "\n"
             
