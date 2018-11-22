@@ -290,9 +290,6 @@ class PythonModuleBuild(ModuleBuild):
         """ Specific build implementation method. Basically call the setup.py 
         program passed as parameter."""
         
-#        if self.attribute('patch').value != '':
-#            self.threat_patch(env)
-       
         # TODO: Add the options, there is no space for the configure_arguments
         env.run([sys.executable, os.path.join(env.srcdir, 'setup.py'), 'build',
                   '--build-base=' + env.objdir], directory=env.srcdir)
@@ -392,14 +389,10 @@ class WafModuleBuild(ModuleBuild):
     
     def build(self, env, jobs):
         """ Specific build implementation method. In order: 
-        1. It apply possible patches, 
-        2. Call waf configuration, if the configuration is set, 
-        3. Call waf with the set build arguments, 
-        4. Call waf with the install parameter. 
+        1. Call waf configuration, if the configuration is set, 
+        2. Call waf with the set build arguments, 
+        3. Call waf with the install parameter. 
         """
-        
-#        if self.attribute('patch').value != '':
-#            self.threat_patch(env)
         
         extra_configure_options = []
         if self.attribute('configure_arguments').value != '':
@@ -514,14 +507,10 @@ class Cmake(ModuleBuild):
     def build(self, env, jobs):
         """ Specific build implementation method. In order: 
         1. Call cmake to create the make files
-        2. It apply possible patches, 
-        3. Call make to build the code, 
-        4. Call make with the set build arguments 
-        5. Call make with the install parameters. 
+        2. Call make to build the code, 
+        3. Call make with the set build arguments 
+        4. Call make with the install parameters. 
         """
-
-#        if self.attribute('patch').value != '':
-#            self.threat_patch(env)
 
         options = []
         if self.attribute('cmake_arguments').value != '':
@@ -621,15 +610,11 @@ class Make(ModuleBuild):
     
     def build(self, env, jobs):
         """ Specific build implementation method. In order: 
-        1. It apply possible patches, 
-        2. Call make configure, if the configurations are available, 
-        3. Call make with the set build arguments 
-        4. Call make with the install arguments.
+        1. Call make configure, if the configurations are available, 
+        2. Call make with the set build arguments 
+        3. Call make with the install arguments.
         """
 
-#        if self.attribute('patch').value != '':
-#            self.threat_patch(env)
-    
         # if the object directory does not exist, it should create it, to
         # avoid build error, since the make does not create the directory
         # it also makes it orthogonal to waf, that creates the target object dir
@@ -739,15 +724,11 @@ class Autotools(ModuleBuild):
     
     def build(self, env, jobs):
         """ Specific build implementation method. In order: 
-        1. It apply possible patches, 
-        2. Call autoreconf, if on maintainer mode
+        1. Call autoreconf, if on maintainer mode
         2. Call make configure, if the configure arguments are available, 
         3. Call make to perform the build 
         4. Call make with the install arguments.
         """
-
-#        if self.attribute('patch').value != '':
-#            self.threat_patch(env)
 
         if self.attribute('maintainer').value != 'no':
             env.run(['autoreconf', '--install'],
