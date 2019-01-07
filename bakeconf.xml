@@ -935,6 +935,7 @@
         <attribute name="revision" value="823d8b2"/>
       </source>
       <build type="python" objdir="yes">
+        <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/lib"/>
       </build>
       <depends_on name="python-dev" optional="True"/>
       <depends_on name="setuptools" optional="False"/>
@@ -947,6 +948,7 @@
         <attribute name="revision" value="cf00cc0"/>
       </source>
       <build type="python" objdir="yes">
+        <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/lib"/>
       </build>
       <depends_on name="python-dev" optional="True"/>
       <depends_on name="setuptools" optional="False"/>
@@ -959,6 +961,7 @@
         <attribute name="revision" value="a6376f2"/>
       </source>
       <build type="python" objdir="yes">
+        <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/lib"/>
       </build>
       <depends_on name="pygccxml" optional="True"/>
       <depends_on name="python-dev" optional="True"/>
@@ -972,6 +975,7 @@
         <attribute name="revision" value="0e4e3bc0"/>
       </source>
       <build type="python" objdir="yes">
+        <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/lib"/>
       </build>
       <depends_on name="pygccxml" optional="True"/>
       <depends_on name="python-dev" optional="True"/>
