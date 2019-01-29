@@ -50,7 +50,7 @@ class MetadataFile:
 
     def h(self):
         import hashlib
-        m = hashlib.md5()
+        m = hashlib.sha256()
         try:
             f = open(self._filename)
             m.update(f.read())
