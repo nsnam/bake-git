@@ -30,14 +30,14 @@ def collect_source(source):
 
 def calculate_hash(sources):
     import hashlib
-    m = hashlib.md5()
+    m = hashlib.sha256()
     for source in sources:
         f = open(source, 'r')
         for line in f:
             m.update(line)
         f.close()
-    md5hash = m.hexdigest()
-    return md5hash
+    sha256hash = m.hexdigest()
+    return sha256hash
 
 def generate_zip(sources):
     import zipfile
@@ -55,7 +55,7 @@ def generate_binary(source_dir, output):
     import base64
     import StringIO
     sources = collect_source(source_dir)
-    sources_md5 = calculate_hash(sources)
+    sources_sha256 = calculate_hash(sources)
     zipfile = generate_zip(sources)
     zipdata = StringIO.StringIO()
     base64.encode(open(zipfile, 'r'), zipdata)
@@ -63,7 +63,7 @@ def generate_binary(source_dir, output):
     f = open(output, 'w')
     f.write("""#!/usr/bin/env python
 sources = [%s]
-sources_md5 = "%s"
+sources_sha256 = "%s"
 zipdata = \"\"\"%s\"\"\"
 
 def decompress(output):
@@ -79,7 +79,7 @@ def decompress(output):
 
 import os
 import sys
-pathname = os.path.join('.bake', sources_md5)
+pathname = os.path.join('.bake', sources_sha256)
 if not os.path.exists(pathname):
     os.makedirs(pathname)
     decompress(pathname)
@@ -91,7 +91,7 @@ sys.path.append(pathname)
 import %s as source
 source.main(sys.argv)
 
-""" % (','.join(["'%s'" % source for source in sources]), sources_md5, zipdata.getvalue(),
+""" % (','.join(["'%s'" % source for source in sources]), sources_sha256, zipdata.getvalue(),
        source_dir))
     f.close()
 
