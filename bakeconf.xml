@@ -1332,8 +1332,8 @@
   </module>
 
   <module name="ns-3-dev">
-      <source type="mercurial">
-        <attribute name="url" value="http://code.nsnam.org/ns-3-dev"/>
+      <source type="git">
+        <attribute name="url" value="https://gitlab.com/nsnam/ns-3-dev.git"/>
       </source>
       <depends_on name="netanim" optional="True"/>
       <depends_on name="pybindgen" optional="True"/>
