@@ -17,7 +17,7 @@
 # Authors: Daniel Camara  <daniel.camara@inria.fr>
 #          Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
 ###############################################################################
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 def collect_source(source):
     import os
@@ -61,7 +61,7 @@ def generate_binary(source_dir, output):
     base64.encode(open(zipfile, 'r'), zipdata)
     
     f = open(output, 'w')
-    f.write("""#!/usr/bin/env python
+    f.write("""#!/usr/bin/env python3
 sources = [%s]
 sources_sha256 = "%s"
 zipdata = \"\"\"%s\"\"\"
