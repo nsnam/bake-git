@@ -1786,6 +1786,20 @@
       <build type="none"/>
     </module>
 
+    <module name="ns-allinone-3.28.1">
+      <source type="none"/>
+      <depends_on name="netanim-3.108" optional="True"/>
+      <depends_on name="nsc-0.5.3" optional="True"/>
+      <depends_on name="pybindgen-ns3.27-castxml" optional="True"/>
+      <depends_on name="pyviz-prerequisites" optional="True"/>
+      <depends_on name="click-ns-3.25" optional="True"/>
+      <depends_on name="openflow-ns-3.25" optional="True"/>
+      <depends_on name="pygccxml-1.9.1" optional="True"/>
+      <depends_on name="BRITE" optional="True"/>
+      <depends_on name="ns-3.28.1" optional="False"/>
+      <build type="none"/>
+    </module>
+
     <module name="ns-allinone-3.29">
       <source type="none"/>
       <depends_on name="netanim-3.108" optional="True"/>
@@ -1828,20 +1842,6 @@
       <depends_on name="ns-3.30.1" optional="False"/>
       <!-- Workaround (bug 1947) until click dependency found in 'bake show'-->
       <depends_on name="automake" optional="False"/>
-      <build type="none"/>
-    </module>
-
-    <module name="ns-allinone-3.28.1">
-      <source type="none"/>
-      <depends_on name="netanim-3.108" optional="True"/>
-      <depends_on name="nsc-0.5.3" optional="True"/>
-      <depends_on name="pybindgen-ns3.27-castxml" optional="True"/>
-      <depends_on name="pyviz-prerequisites" optional="True"/>
-      <depends_on name="click-ns-3.25" optional="True"/>
-      <depends_on name="openflow-ns-3.25" optional="True"/>
-      <depends_on name="pygccxml-1.9.1" optional="True"/>
-      <depends_on name="BRITE" optional="True"/>
-      <depends_on name="ns-3.28.1" optional="False"/>
       <build type="none"/>
     </module>
 
