@@ -227,7 +227,9 @@ class Bake:
         for dep in module.dependencies ():
             dep_mod = configuration.lookup (dep.name())
             if dep_mod.mtype() == "ns-contrib":
-                dep_mod.get_source().attribute("module_directory").value = fmod+'/contrib/'+dep_mod.get_source().attribute("module_directory").value
+                # Do not prepend contrib prefix to user supplied contrib name more than once
+                if not(module.get_source().attribute("module_directory").value.startswith(fmod + '/contrib')):
+                    dep_mod.get_source().attribute("module_directory").value = fmod+'/contrib/'+dep_mod.get_source().attribute("module_directory").value
                 dep_mod.addDependencies(ModuleDependency(fmod, False))
                 self.resolve_contrib_dependencies (dep_mod, fmod, configuration)
 
@@ -246,7 +248,11 @@ class Bake:
                         fmod = mod
                 if not found==1:
                     self._error('Module "%s" has unmet dependency: %s' % (module_name, module.minver()))
-                module.get_source().attribute("module_directory").value = fmod+'/contrib/'+module.get_source().attribute("module_directory").value
+
+                # Do not prepend contrib prefix to user supplied contrib name more than once
+                if not(module.get_source().attribute("module_directory").value.startswith(fmod + '/contrib')):
+                    module.get_source().attribute("module_directory").value = fmod+'/contrib/'+module.get_source().attribute("module_directory").value
+                    
                 module.addDependencies(ModuleDependency(fmod, False))
                 self.resolve_contrib_dependencies (module, fmod, configuration)
             configuration.enable(module)
