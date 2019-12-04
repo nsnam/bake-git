@@ -1,5 +1,6 @@
 ###############################################################################
 # Copyright (c) 2013 INRIA
+# Copyright (c) 2019 Mishal Shah (added search, getconf, install options)
 # 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 as
@@ -16,6 +17,7 @@
 #
 # Authors: Daniel Camara  <daniel.camara@inria.fr>
 #          Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
+#          Mishal Shah <shahmishal1998@gmail.com>
 ###############################################################################
 ''' 
  Bake.py
@@ -35,6 +37,7 @@ import os
 import platform
 import signal
 import copy
+import requests
 import bake.Utils
 from bake.Configuration import Configuration
 from bake.ModuleEnvironment import ModuleEnvironment
@@ -47,6 +50,9 @@ from bake.Exceptions import TaskError
 from bake.ModuleSource import SystemDependency 
 from bake.ModuleBuild import NoneModuleBuild
 from bake.Module import ModuleDependency
+from bake.ModuleAppStore  import BaseClient
+from bake.Constants import *
+
 
 def signal_handler(signal, frame):
     """ Handles Ctrl+C keyboard interruptions """
@@ -835,6 +841,54 @@ class Bake:
             self._iterate(configuration, _iterator, configuration.enabled())
         return env
 
+    def _get_enabled_ns(self, config):
+        """ returns the enabled ns versions"""
+        config = self.check_configuration_file(config, True);
+
+        import os
+        if os.path.isfile(config):
+            configuration = self._read_config(config)
+        else:
+            print(" > Couldn't find the " + config + " configuration file. \n"
+                  "   Call bake with -f [full path configuration file name].\n")
+            return
+   
+        enabled = []
+        def _iterator(module):
+            if module.mtype()=="ns":
+                enabled.append(module.name())
+            return True
+
+        self._iterate(configuration, _iterator, configuration.enabled())
+
+        return enabled
+
+    def _search(self, config, args):
+        """Handles the search command line option"""
+        parser = self._option_parser('search')
+
+        (options, args_left) = parser.parse_args(args)
+
+        ns_enabled = self._get_enabled_ns(config)
+
+        logger = StdoutModuleLogger()
+        webclient = BaseClient(logger, SEARCH_API)
+        # lists all the apps from the AppStore
+        if len(args_left) == 0:
+            response = webclient.search_api()
+            for app in response:
+                sys.stdout.write(app['name'] + " (" + app['app_type'] + ") - " + app['abstract'] + "\n")
+                sys.stdout.flush()
+        # lists the apps matching the substring from the AppStore
+        elif len(args_left) == 1:
+            response = webclient.search_api(args_left[0], ns_enabled)
+            for app in response:
+                sys.stdout.write(app['app']['name'] + " (" + app['version'] + ") - " + app['app']['abstract'] + "\n")
+                sys.stdout.flush()
+        else:
+            self._error("Please provide only one parameter to search for an app")
+
+    
     def _deploy(self, config, args):
         """Handles the deploy command line option."""
 
@@ -843,8 +897,68 @@ class Bake:
         returnValue = self._download(config, args);
         if not returnValue:
             return self._build(config, args)
-        
 
+
+    def _getconf(self, config, args):
+        """Handles the getconf command line option"""
+        parser = self._option_parser('getconf')
+        (options, args_left) = parser.parse_args(args)
+
+        ns_enabled = self._get_enabled_ns(config)
+
+        logger = StdoutModuleLogger()
+        webclient = BaseClient(logger, INSTALL_API, "http://localhost:8000")
+
+        if len(args_left) == 1 and ns_enabled is not None:
+            argument_module = args_left[0]
+            if len(argument_module.split("=="))==2:
+                sys.stdout.write("Collecting " + argument_module + "\n")
+                module_name, version = argument_module.split("==")[0], argument_module.split("==")[1]
+                response, bakefile_obj = webclient.install_api(module_name, version, ns=ns_enabled)
+            elif len(argument_module.split("="))==2:
+                self._error('Invalid requirement: %s \n\
+                = is not a valid operator. Did you mean == ?'  % args_left[0])
+            elif len(argument_module.split("=="))==1:
+                sys.stdout.write("Collecting " + argument_module + "\n")
+                module_name = args_left[0]
+                response, bakefile_obj = webclient.install_api(module_name, ns=ns_enabled)
+
+            # Create contrib directory if it does not exist
+            try:
+                os.mkdir('contrib')
+            except:
+                pass
+            # download the bakeconf xml file in contrib directory
+            with open("contrib/" + response['name'] + "-" + response['version'] + ".xml", 'wb') as f:
+                f.write(bakefile_obj.content)
+
+            return response
+        else:
+            self._error("ns not configured")
+
+
+    def _install(self, config, args):
+        """Handles the install command line option"""
+        parser = self._option_parser('install')
+        (options, args_left) = parser.parse_args(args)
+        res = self._getconf(config, args)
+        # Take an input of modules to enable/disable/enable-minimal
+        arguments_for_configure = []
+        arguments_for_configure.append("-e")
+        arguments_for_configure.append("ns-" + res['ns'])
+        arguments_for_configure.append("-e")
+        arguments_for_configure.append(res['name'])
+
+        ## Ask if the non-mandatory dependecies are to be disabled
+        enable_minimal = raw_input("Disable all non-mandatory dependencies? (Y/n): ")
+        if enable_minimal.lower() == 'y':
+            arguments_for_configure.append("-m")
+
+        configureResult = self._configure(config, arguments_for_configure)
+        if not configureResult:
+            self._deploy(config, [])
+
+    
     def _download(self, config, args):
         """Handles the download command line option."""
 
@@ -855,7 +969,6 @@ class Bake:
 
         
         (options, args_left) = parser.parse_args(args)
-#        downloadTool2 = self._check_source_version(config, options)
         def _do_download(configuration, module, env):
             
             if module._source.name() == 'none':
@@ -1414,10 +1527,6 @@ class Bake:
         """Handles the show command line option."""
         
         parser = OptionParser(usage='usage: %prog show [options]')
-#        parser.add_option("-c", "--conffile", action="store", type="string",
-#                          dest="bakeconf", default=None,
-#                          help="The Bake meta-data configuration file to use if a Bake file is "
-#                          "not specified. Default: %default.")
         parser.add_option('-a', '--all', action='store_true', dest='all', 
                           default=False,
                           help='Display all known information about current configuration')
@@ -1468,8 +1577,6 @@ class Bake:
             print(" > Couldn't find the " + config + " configuration file. \n"
                   "   Call bake with -f [full path configuration file name].\n")
             return
-#            configuration = Configuration(config)
-#            configuration.read_metadata(config)       
         if options.all:
             options.enabled = True
             options.disabled = True
@@ -1560,6 +1667,9 @@ class Bake:
   configure    : Setup the build configuration (source, build, install directory,
                  and per-module build options) from the module descriptions
   fix-config   : Update the build configuration from a newer module description
+  search       : Search for modules from the AppStore
+  getconf      : Downloads the bakefile for the module
+  install      : Download and build the module
   download     : Download all modules enabled during configure
   update       : Update the source tree of all modules enabled during configure
   build        : Build all modules enabled during configure
@@ -1594,9 +1704,6 @@ To get more help about each command, try:
         if options.version:
             self._print_version()
         
-#        if options.config_file == "bakefile.xml":
-#            options.config_file = self.check_configuration_file(options.config_file, False)
-
 
         Bake.main_options = options
         
@@ -1617,6 +1724,9 @@ To get more help about each command, try:
         ops = [ ['deploy', self._deploy],
                 ['configure', self._configure],
                 ['fix-config', self._fix_config],
+                ['search', self._search],
+                ['getconf', self._getconf],
+                ['install', self._install],
                 ['download', self._download],
                 ['update', self._update],
                 ['build', self._build],
