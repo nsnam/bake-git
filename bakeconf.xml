@@ -771,6 +771,7 @@
     <module name="pygccxml">
       <source type="git">
         <attribute name="url" value="https://github.com/gccxml/pygccxml.git"/>
+        <attribute name="branch" value="develop"/>
       </source>
       <build type="python" objdir="yes">
         <attribute name="pre_installation" value="mkdir $INSTALLDIR"/>
