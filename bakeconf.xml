@@ -1275,8 +1275,8 @@
     </module>
 
     <module name="netanim">
-      <source type="mercurial">
-        <attribute name="url" value="http://code.nsnam.org/netanim"/>
+      <source type="git">
+        <attribute name="url" value="https://gitlab.com/nsnam/netanim.git"/>
       </source>
       <build type="make" objdir="no">
         <attribute name="pre_installation" value="cd $SRCDIR;qmake NetAnim.pro or cd $SRCDIR;qmake-qt5 NetAnim.pro or cd $SRCDIR;qmake-qt4 NetAnim.pro"/>
@@ -1310,9 +1310,9 @@
     </module>
 
     <module name="netanim-3.105">
-      <source type="mercurial">
-        <attribute name="url" value="http://code.nsnam.org/netanim"/>
-        <attribute name="revision" value="c9866156ebf3"/>
+      <source type="git">
+        <attribute name="url" value="https://gitlab.com/nsnam/netanim.git"/>
+        <attribute name="revision" value="netanim-3.105"/>
       </source>
       <build type="make" objdir="no">
         <attribute name="pre_installation" value="cd $SRCDIR;qmake NetAnim.pro or cd $SRCDIR;qmake-qt4 NetAnim.pro or cd $SRCDIR;qmake -spec macx-g++ NetAnim.pro"/>
@@ -1322,9 +1322,9 @@
     </module>
 
     <module name="netanim-3.106">
-      <source type="mercurial">
-        <attribute name="url" value="http://code.nsnam.org/netanim"/>
-        <attribute name="revision" value="986cb092c312"/>
+      <source type="git">
+        <attribute name="url" value="https://gitlab.com/nsnam/netanim.git"/>
+        <attribute name="revision" value="netanim-3.106"/>
       </source>
       <build type="make" objdir="no">
         <attribute name="pre_installation" value="cd $SRCDIR;qmake NetAnim.pro or cd $SRCDIR;qmake-qt4 NetAnim.pro or cd $SRCDIR;qmake -spec macx-g++ NetAnim.pro"/>
@@ -1334,9 +1334,9 @@
     </module>
 
     <module name="netanim-3.107">
-      <source type="mercurial">
-        <attribute name="url" value="http://code.nsnam.org/netanim"/>
-        <attribute name="revision" value="12ffeb1076cf"/>
+      <source type="git">
+        <attribute name="url" value="https://gitlab.com/nsnam/netanim.git"/>
+        <attribute name="revision" value="netanim-3.107"/>
       </source>
       <build type="make" objdir="no">
         <attribute name="pre_installation" value="cd $SRCDIR;qmake NetAnim.pro or cd $SRCDIR;qmake-qt4 NetAnim.pro or cd $SRCDIR;qmake -spec macx-g++ NetAnim.pro"/>
@@ -1346,8 +1346,8 @@
     </module>
 
     <module name="netanim-3.108">
-      <source type="mercurial">
-        <attribute name="url" value="http://code.nsnam.org/netanim"/>
+      <source type="git">
+        <attribute name="url" value="https://gitlab.com/nsnam/netanim.git"/>
         <attribute name="revision" value="netanim-3.108"/>
       </source>
       <build type="make" objdir="no">
