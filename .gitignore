@@ -1,9 +1,10 @@
-~$
+*~
 ^examples/.*/source/.*
-bakefile.xml$
-.pyc$
+bakefile.xml
+/bake/*.pyc
 source/*
 build/*
 contrib/*
 ^bakeSetEnv.sh
 ^.pydevproject
+Config
