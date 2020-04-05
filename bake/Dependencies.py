@@ -36,18 +36,8 @@
 
 import copy
 import sys
-try: 
-    from bake.Exceptions import TaskError 
-    from bake.ModuleSource import SystemDependency
-except ImportError:
-    # This try/except is designed to gracefully detect and exit if python3
-    # is used; once python3 is supported, this can be removed
-    import os
-    if sys.version_info.major == 3:
-            print(">>> Python version 3 detected, but not yet supported; please run bake with python2")
-    else:
-            print(">>> Unknown import error in Dependencies.py, exiting...")
-    sys.exit(1)
+from bake.Exceptions import TaskError 
+from bake.ModuleSource import SystemDependency
 
 class CycleDetected:
     def __init__(self):
