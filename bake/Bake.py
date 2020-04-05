@@ -1226,7 +1226,7 @@ class Bake:
     def _check(self, config, args):
         """Handles the check command line option."""
         
-        checkPrograms = [['python', 'Python'],
+        checkPrograms = [['python3', 'Python3'],
                          ['hg', 'Mercurial'],
                          # ['cvs', 'CVS'],
                          ['git', 'Git'],

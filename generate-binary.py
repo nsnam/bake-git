@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 ###############################################################################
 # Copyright (c) 2013 INRIA
 # 
@@ -17,7 +18,6 @@
 # Authors: Daniel Camara  <daniel.camara@inria.fr>
 #          Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
 ###############################################################################
-#!/usr/bin/env python
 
 def collect_source(source):
     import os
@@ -34,7 +34,7 @@ def calculate_hash(sources):
     for source in sources:
         f = open(source, 'r')
         for line in f:
-            m.update(line)
+            m.update(line.encode())
         f.close()
     sha256hash = m.hexdigest()
     return sha256hash
@@ -53,25 +53,22 @@ def generate_zip(sources):
 
 def generate_binary(source_dir, output):
     import base64
-    import StringIO
     sources = collect_source(source_dir)
     sources_sha256 = calculate_hash(sources)
     zipfile = generate_zip(sources)
-    zipdata = StringIO.StringIO()
-    base64.encode(open(zipfile, 'r'), zipdata)
+    with open(zipfile, "rb") as f:
+        zipdata = base64.b64encode(f.read()).decode()
     
     f = open(output, 'w')
-    f.write("""#!/usr/bin/env python
+    f.write("""#!/usr/bin/env python3
 sources = [%s]
 sources_sha256 = "%s"
 zipdata = \"\"\"%s\"\"\"
 
 def decompress(output):
-    import StringIO
     import zipfile
     import base64
-    decoded = StringIO.StringIO()
-    base64.decode(StringIO.StringIO(zipdata), decoded)
+    decoded = base64.b64decode(zipdata).encode()
     f = zipfile.ZipFile(decoded, 'r')
     f.extractall(pathname)
     f.close()
@@ -91,7 +88,7 @@ sys.path.append(pathname)
 import %s as source
 source.main(sys.argv)
 
-""" % (','.join(["'%s'" % source for source in sources]), sources_sha256, zipdata.getvalue(),
+""" % (','.join(["'%s'" % source for source in sources]), sources_sha256, zipdata,
        source_dir))
     f.close()
 
@@ -99,7 +96,7 @@ if __name__ == '__main__':
     import optparse
     parser = optparse.OptionParser()
     parser.add_option('-s', '--source', dest='source', type='string', action='store', default='bake',
-                      help='Source directory to embedd')
+                      help='Source directory to embed')
     parser.add_option('-o', '--output', dest='output', type='string', action='store', default='bake.binary',
                       help='Executable to generate')
     (options, args) = parser.parse_args()
