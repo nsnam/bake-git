@@ -27,6 +27,7 @@
 
 import bake.Utils
 import os
+import distro
 import platform
 import subprocess
 try:
@@ -106,7 +107,7 @@ class ModuleBuild(ModuleAttributeBase):
         
         osName = platform.system().lower()
         
-        if len(supportedOs) is 0 :
+        if len(supportedOs) == 0 :
             elements = []
         else :
             elements = supportedOs.strip().split(';')
@@ -119,7 +120,7 @@ class ModuleBuild(ModuleAttributeBase):
             if(osName.startswith(especification[0].lower())):
                 # if we need to go into a distribuition of the OS e.g. Debian/Fedora
                 if(len(especification)>1):
-                    (distname,version,id)=platform.linux_distribution()
+                    (distname,version,id)=distro.linux_distribution()
                     for providedName in especification:
                         if distname.lower() == providedName.lower():
                             supportedOS = True

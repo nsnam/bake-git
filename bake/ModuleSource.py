@@ -37,6 +37,7 @@ from bake.Utils import ModuleAttributeBase
 import os
 import re
 import platform
+import distro
 import subprocess
 import importlib
 try:
@@ -121,7 +122,7 @@ class ModuleSource(ModuleAttributeBase):
             
         osName = platform.system().lower()
         if osName.startswith('linux'):
-            (distribution, version, version_id) = platform.linux_distribution()
+            (distribution, version, version_id) = distro.linux_distribution()
             if not distribution:
                 distribution = osName
             else:
@@ -557,7 +558,6 @@ class SystemDependency(ModuleSource):
 
     def remove(self, env):
         """ Removes the the present version of the dependency."""
-        import platform 
         
         # if the download is dependent of the machine's architecture 
         osName = platform.system().lower()
@@ -567,7 +567,7 @@ class SystemDependency(ModuleSource):
                             (osName, env._module_name, 
                              self.attribute('error_message').value))
         
-        (distribution, version, version_id) = platform.linux_distribution()
+        (distribution, version, version_id) = distro.linux_distribution()
 
         if not distribution:
             distribution = 'darwin' # osName
@@ -666,7 +666,7 @@ class SystemDependency(ModuleSource):
         osName = platform.system().lower().strip()
         if((osName.startswith('linux') or osName.startswith('darwin')) and 
            selfInstalation == 'true'):
-            (distribution, version, version_id) = platform.linux_distribution()
+            (distribution, version, version_id) = distro.linux_distribution()
             
             if not distribution:
                 distribution = osName.split()[0] # osName
@@ -778,9 +778,8 @@ class SystemDependency(ModuleSource):
 #            ['darwin', 'port'],
 #            ]
 #
-#        import platform 
         
-#        (distribution, version, version_id) = platform.linux_distribution()
+#        (distribution, version, version_id) = distro.linux_distribution()
 #        if not distribution:
 #            distribution = 'darwin' # osName
 #        else:
@@ -905,18 +904,18 @@ class GitModuleSource(ModuleSource):
         env.run(['git', 'init'], directory=tempdir)
         env.run(['git', 'remote', 'add', 'origin', self.attribute('url').value],
                 directory=tempdir)
-        if self.attribute('fetch_option').value is not '':
+        if self.attribute('fetch_option').value != '':
             env.run(['git', 'fetch', self.attribute('fetch_option').value],
                     directory=tempdir)
         else:
             env.run(['git', 'fetch'], directory=tempdir)
 
-        if self.attribute('branch').value is not '':
+        if self.attribute('branch').value != '':
             env.run(['git', 'checkout', self.attribute('branch').value],
                     directory=tempdir)
             checkedOut = True
         
-        if self.attribute('revision').value is not '':
+        if self.attribute('revision').value != '':
             env.run(['git', 'checkout', self.attribute('revision').value],
                     directory=tempdir)
             checkedOut = True

@@ -34,7 +34,7 @@ except ImportError:
  from xml.parsers.expat import ExpatError as ParseError
 import sys
 import os
-import platform
+import distro
 import signal
 import copy
 import requests
@@ -1399,7 +1399,7 @@ class Bake:
         
         print ("\n-- System Dependencies --")
         
-        (distribution, version, version_id) = platform.linux_distribution()
+        (distribution, version, version_id) = distro.linux_distribution()
 
         if not distribution:
             distribution = 'darwin' # osName

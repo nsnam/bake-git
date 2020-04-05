@@ -171,8 +171,9 @@ class Module:
         if self._build.attribute('supported_os').value :
             if not self._build.check_os(self._build.attribute('supported_os').value) : 
                 import platform
+                import distro
                 osName = platform.system().lower()
-                (distname,version,ids)=platform.linux_distribution()
+                (distname,version,ids)=distro.linux_distribution()
                 print('    Downloading, but this module works only on \"%s\"' 
                       ' platform(s), %s is not supported for %s %s %s %s' % 
                       (self._build.attribute('supported_os').value, 
@@ -396,8 +397,9 @@ class Module:
         if self._build.attribute('supported_os').value :
             if not self._build.check_os(self._build.attribute('supported_os').value) : 
                 import platform
+                import distro
                 osName = platform.system().lower()
-                (distname,version,ids)=platform.linux_distribution()
+                (distname,version,ids)=distro.linux_distribution()
                 self.printResult(env, "Building", self.FAIL)
                 print('    This module works only on \"%s\"' 
                       ' platform(s), %s is not supported for %s %s %s %s' % 
@@ -473,10 +475,10 @@ class Module:
         """ Checks if the source code is not already available. """
         
         srcDirTmp = self._name
-        if self._source.name() is 'system_dependency' :
+        if self._source.name() == 'system_dependency' :
             return True
         
-        if self._source.name() is 'none' :
+        if self._source.name() == 'none' :
             return True
 
         if self._source.attribute('module_directory').value :
