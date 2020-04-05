@@ -820,7 +820,7 @@
 
     <module name="python-dev">
       <source type="system_dependency">
-        <attribute name="dependency_test" value="Python.h"/>
+        <attribute name="dependency_test" value="python2-config"/>
         <attribute name="name_apt-get" value="python-dev"/>
         <attribute name="name_yum" value="python-devel"/>
         <attribute name="more_information" value="The python-dev is not installed, try to install it."/>
@@ -829,12 +829,22 @@
       </build>
     </module>
 
+    <module name="python3-dev">
+      <source type="system_dependency">
+        <attribute name="dependency_test" value="python3-config"/>
+        <attribute name="name_apt-get" value="python3-dev"/>
+        <attribute name="name_yum" value="python3-devel"/>
+        <attribute name="more_information" value="The python3-dev is not installed, try to install it."/>
+      </source>
+      <build type="none" objdir="no">
+      </build>
+    </module>
+
     <module name="pygraphviz">
       <source type="system_dependency">
         <attribute name="dependency_test" value="(_gv.so or _graphviz.so or _graphviz.x86_64-linux-gnu.so)"/>
-        <attribute name="name_apt-get" value="python-pygraphviz"/>
-        <attribute name="name_yum" value="graphviz-python"/>
-        <attribute name="name_yum" value="py27-pygraphviz"/> 
+        <attribute name="name_apt-get" value="python3-pygraphviz"/>
+        <attribute name="name_yum" value="python3-pygraphviz"/>
         <attribute name="more_information" value="The pygraphviz is not installed, try to install it."/>
       </source>
       <build type="none" objdir="no">
@@ -856,9 +866,20 @@
     <module name="pygobject">
       <source type="system_dependency">
         <attribute name="dependency_test" value="_gi.x86_64-linux-gnu.so or _gi.so"/>
-        <attribute name="name_apt-get" value="python-gi"/>
+        <attribute name="name_apt-get" value="python3-gi"/>
         <attribute name="name_yum" value="pygobject3-devel"/>
         <attribute name="more_information" value="Python gobject components missing from system."/>
+      </source>
+      <build type="none" objdir="no">
+      </build>
+    </module>
+
+    <module name="gir-bindings">
+      <source type="system_dependency">
+	      <attribute name="file_test" value="/usr/lib/x86_64-linux-gnu/girepository-1.0/Gtk-3.0.typelib or /usr/lib64/girepository-1.0/Gtk-3.0.typelib"/>
+	<attribute name="name_apt-get" value="gir1.2-gtk-3.0"/>
+	<attribute name="name_yum" value="gtk3"/>
+        <attribute name="more_information" value="GTK+3 gir bindings missing from system."/>
       </source>
       <build type="none" objdir="no">
       </build>
@@ -867,7 +888,7 @@
     <module name="gi-cairo">
       <source type="system_dependency">
         <attribute name="dependency_test" value="_gi_cairo.x86_64-linux-gnu.so or _gi_cairo.so"/>
-        <attribute name="name_apt-get" value="python-gi-cairo"/>
+        <attribute name="name_apt-get" value="python3-gi-cairo"/>
         <attribute name="name_yum" value="pygobject3-devel"/>
         <attribute name="more_information" value="Python gobject components missing from system."/>
       </source>
@@ -886,6 +907,16 @@
       </build>
     </module>
 
+    <module name="python3-setuptools">
+      <source type="system_dependency">
+        <attribute name="import_test" value="setuptools"/>
+        <attribute name="name_apt-get" value="python3-setuptools"/>
+        <attribute name="name_yum" value="python3-setuptools"/>
+        <attribute name="more_information" value="The python3-setuptools package is not installed, try to install it."/>
+      </source>
+      <build type="none" objdir="no">
+      </build>
+    </module>
 
     <module name="setuptools">
       <source type="system_dependency">
@@ -921,11 +952,11 @@
     <module name="pyviz-gtk3-prerequisites">
       <source type="none">
       </source>
-      <depends_on name="python-dev" optional="True"/>
+      <depends_on name="python3-dev" optional="True"/>
       <depends_on name="pygraphviz" optional="True"/>
       <depends_on name="pygobject" optional="True"/>
       <depends_on name="gi-cairo" optional="True"/>
-      <depends_on name="libgoocanvas2" optional="True"/>
+      <depends_on name="gir-bindings" optional="True"/>
       <build type="none" objdir="no">
       </build>
     </module>
@@ -937,8 +968,8 @@
       <build type="python" objdir="yes">
         <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/lib"/>
       </build>
-      <depends_on name="python-dev" optional="True"/>
-      <depends_on name="setuptools" optional="False"/>
+      <depends_on name="python3-dev" optional="True"/>
+      <depends_on name="python3-setuptools" optional="False"/>
     </module>
 
     <module name="pybindgen-ns3.27-castxml">
