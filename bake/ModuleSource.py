@@ -37,7 +37,12 @@ from bake.Utils import ModuleAttributeBase
 import os
 import re
 import platform
-import distro
+try:
+    import distro
+except ImportError:
+    import sys
+    print(">>> Error: missing Python 'distro' package; please install")
+    sys.exit(1)
 import subprocess
 import importlib
 try:
