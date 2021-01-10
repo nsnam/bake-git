@@ -768,6 +768,21 @@
       <depends_on name="cmake" optional="False"/>
     </module>
 
+    <module name="castxml-0.3.6">
+      <source type="git">
+        <!-- not using 'archive' release because it untars to CastXML-0.3.6 -->
+        <attribute name="url" value="https://github.com/CastXML/CastXML.git"/>
+        <attribute name="revision" value="902ac163"/>
+        <attribute name="module_directory" value="castxml-0.3.6"/>
+      </source>
+      <build type="cmake" objdir="yes">
+        <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/bin"/>
+      </build>
+      <depends_on name="clang-dev" optional="False"/>
+      <depends_on name="llvm-dev" optional="False"/>
+      <depends_on name="cmake" optional="False"/>
+    </module>
+
     <module name="pygccxml">
       <source type="git">
         <attribute name="url" value="https://github.com/gccxml/pygccxml.git"/>
@@ -804,6 +819,19 @@
         <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/lib; cd $SRCDIR; rm -rf issue-106.patch; echo 'diff --git a/pygccxml/declarations/calldef.py b/pygccxml/declarations/calldef.py' >> issue-106.patch; echo '--- a/pygccxml/declarations/calldef.py' >> issue-106.patch; echo '+++ b/pygccxml/declarations/calldef.py' >> issue-106.patch; echo '@@ -85,6 +85,12 @@ class argument_t(object):' >> issue-106.patch; echo '     def __lt__(self, other):' >> issue-106.patch; echo '         if not isinstance(other, self.__class__):' >> issue-106.patch; echo '             return self.__class__.__name__ &lt; other.__class__.__name__' >> issue-106.patch; echo '+        # See https://github.com/gccxml/pygccxml/issues/106' >> issue-106.patch; echo '+        if other.default_value == None:' >> issue-106.patch; echo '+            return False' >> issue-106.patch; echo '+        if self.default_value == None:' >> issue-106.patch; echo '+            return self.name &lt; other.name \' >> issue-106.patch; echo '+                and self.decl_type &lt; other.decl_type' >> issue-106.patch; echo '         return self.name &lt; other.name \' >> issue-106.patch; echo '             and self.default_value &lt; other.default_value \' >> issue-106.patch; echo '             and self.decl_type &lt; other.decl_type' >> issue-106.patch; patch -p1 -i issue-106.patch"/>
       </build>
       <depends_on name="castxml-0.2" optional="False"/>
+      <depends_on name="setuptools" optional="False"/>
+      <depends_on name="cxxfilt" optional="False"/>
+    </module>
+
+    <module name="pygccxml-2.0.1">
+      <source type="archive">
+        <attribute name="url" value="https://github.com/gccxml/pygccxml/archive/v2.0.1.tar.gz"/>
+        <attribute name="extract_directory" value="pygccxml-2.0.1"/>
+      </source>
+      <build type="python" objdir="yes">
+        <attribute name="pre_installation" value="mkdir $INSTALLDIR"/>
+      </build>
+      <depends_on name="castxml-0.3.6" optional="False"/>
       <depends_on name="setuptools" optional="False"/>
       <depends_on name="cxxfilt" optional="False"/>
     </module>
@@ -983,6 +1011,20 @@
         <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/lib"/>
       </build>
       <depends_on name="pygccxml-1.9.1" optional="True"/>
+      <depends_on name="python-dev" optional="True"/>
+      <depends_on name="setuptools" optional="False"/>
+    </module>
+
+    <module name="pybindgen-0.21.0.post15+nga587377">
+      <source type="git">
+        <attribute name="url" value="https://github.com/gjcarneiro/pybindgen.git"/>
+        <attribute name="module_directory" value="pybindgen"/>
+        <attribute name="revision" value="a587377"/>
+      </source>
+      <build type="python" objdir="yes">
+        <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/lib"/>
+      </build>
+      <depends_on name="pygccxml-2.0.1" optional="True"/>
       <depends_on name="python-dev" optional="True"/>
       <depends_on name="setuptools" optional="False"/>
     </module>
@@ -1684,6 +1726,20 @@
       </build>
     </module>
 
+    <module name="ns-3.33" type="ns">
+      <source type="git">
+        <attribute name="url" value="https://gitlab.com/nsnam/ns-3-dev.git"/>
+        <attribute name="module_directory" value="ns-3.33"/>
+        <attribute name="revision" value="ns-3.33"/>
+      </source>
+      <depends_on name="netanim-3.108" optional="True"/>
+      <depends_on name="pybindgen-0.21.0.post15+nga587377" optional="True"/>
+      <depends_on name="pyviz-gtk3-prerequisites" optional="True"/>
+      <build type="waf" objdir="yes">
+        <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
+      </build>
+    </module>
+
     <module name="ns-allinone-3.18">
       <source type="none"/>
       <depends_on name="netanim-3.103" optional="True"/>
@@ -1903,6 +1959,21 @@
       <build type="none"/>
     </module>
 
+    <module name="ns-allinone-3.30.1">
+      <source type="none"/>
+      <depends_on name="netanim-3.108" optional="True"/>
+      <depends_on name="castxml-0.2" optional="True"/>
+      <depends_on name="pygccxml-1.9.1+git2b1efbb9+patch" optional="True"/>
+      <depends_on name="pyviz-gtk3-prerequisites" optional="True"/>
+      <depends_on name="click-ns-3.25" optional="True"/>
+      <depends_on name="openflow-ns-3.25" optional="True"/>
+      <depends_on name="BRITE" optional="True"/>
+      <depends_on name="ns-3.30.1" optional="False"/>
+      <!-- Workaround (bug 1947) until click dependency found in 'bake show'-->
+      <depends_on name="automake" optional="False"/>
+      <build type="none"/>
+    </module>
+
     <module name="ns-allinone-3.31">
       <source type="none"/>
       <depends_on name="netanim-3.108" optional="True"/>
@@ -1933,17 +2004,17 @@
       <build type="none"/>
     </module>
 
-    <module name="ns-allinone-3.30.1">
+    <module name="ns-allinone-3.33">
       <source type="none"/>
       <depends_on name="netanim-3.108" optional="True"/>
-      <depends_on name="castxml-0.2" optional="True"/>
-      <depends_on name="pygccxml-1.9.1+git2b1efbb9+patch" optional="True"/>
+      <depends_on name="castxml-0.3.6" optional="True"/>
+      <depends_on name="pygccxml-2.0.1" optional="True"/>
       <depends_on name="pyviz-gtk3-prerequisites" optional="True"/>
       <depends_on name="click-ns-3.25" optional="True"/>
-      <depends_on name="openflow-ns-3.25" optional="True"/>
+      <depends_on name="openflow-dev" optional="True"/>
       <depends_on name="BRITE" optional="True"/>
-      <depends_on name="ns-3.30.1" optional="False"/>
-      <!-- Workaround (bug 1947) until click dependency found in 'bake show'-->
+      <depends_on name="ns-3.33" optional="False"/>
+      <!-- Workaround (bake issue #10: https://gitlab.com/nsnam/bake/-/issues/10) until click dependency is found in 'bake show'-->
       <depends_on name="automake" optional="False"/>
       <build type="none"/>
     </module>
