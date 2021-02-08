@@ -178,21 +178,30 @@ class ModuleBuild(ModuleAttributeBase):
                                 ' %s, in: %s' % (item, env._module_name))
 
             try:
-                env._logger.commands.write('cd ' + env.srcdir + '; patch -p1 < ' + item + '\n')
-                status = getstatusoutput('cd ' + env.srcdir + '; patch -p1 < ' + item) 
+                #check if patch has already been applied :
+                env._logger.commands.write('cd ' + env.srcdir + '; patch -p1 -R --dry-run < ' + item + '\n')
+                status = getstatusoutput('cd ' + env.srcdir + '; patch -p1 -R --dry-run < ' + item + '\n')
+
+                if status[0] != 0:
+                    try:
+                        env._logger.commands.write('cd ' + env.srcdir + '; patch -p1 < ' + item + '\n')
+                        status = getstatusoutput('cd ' + env.srcdir + '; patch -p1 < ' + item)
+
+                    except:
+                        raise TaskError('Patch error: %s, in: %s' % (item, env._module_name))
+            
+                    # if there were an error
+                    if status[0] != 0:
+                        if status[0] == 256:
+                            env._logger.commands.write(' > Patch problem: Ignoring'
+                                                        ' patch, either the patch file'
+                                                        ' does not exist or it was '
+                                                        'already applied!\n')
+                        else:
+                            raise TaskError('Patch error %s: %s, in: %s' % 
+                                            (status[0], item, env._module_name))
             except:
                 raise TaskError('Patch error: %s, in: %s' % (item, env._module_name))
-            
-            # if there were an error
-            if status[0] != 0:
-                if status[0] == 256:
-                    env._logger.commands.write(' > Patch problem: Ignoring'
-                                               ' patch, either the patch file'
-                                               ' does not exist or it was '
-                                               'already applied!\n')
-                else:
-                    raise TaskError('Patch error %s: %s, in: %s' % 
-                                    (status[0], item, env._module_name))
 
     # Threats the parameter variables
     def threat_variables(self, env):
