@@ -1024,7 +1024,6 @@
       <build type="python" objdir="yes">
         <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/lib"/>
       </build>
-      <depends_on name="pygccxml-2.0.1" optional="True"/>
       <depends_on name="python-dev" optional="True"/>
       <depends_on name="setuptools" optional="False"/>
     </module>
