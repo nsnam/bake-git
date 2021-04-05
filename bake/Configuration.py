@@ -334,9 +334,9 @@ class Configuration:
 #            self._read_libpath(build_node, build)
 
             dependencies = []
-            for dep_node in module_node.findall('depends_on'):
-                dependencies.append(ModuleDependency(dep_node.get('name'),
-                                                     bool(dep_node.get('optional', '').upper()=='TRUE')))
+            for dep_node in module_node.findall('depends_on'):                                                        
+                dependencies.append(self._create_obj_from_node(dep_node,ModuleDependency,'depends_on',name))
+                            
             module = Module(name, source, build, mtype, min_ver, max_ver, dependencies=dependencies,
                             built_once=bool(module_node.get('built_once', '').upper()=='TRUE'),
                             installed=installed)
@@ -371,13 +371,8 @@ class Configuration:
             
             # handles the dependencies for the module and register them 
             # into module node
-            for dependency in module.dependencies():
-                attrs = {'name' : dependency.name() }
-                if dependency.is_optional():
-                    attrs['optional'] = 'True'
-                else:
-                    attrs['optional'] = 'False'
-                dep_node = ET.Element('depends_on', attrs)
+            for dependency in module.dependencies():                           
+                dep_node = self._create_node_from_obj(dependency, 'depends_on')                                
                 module_node.append(dep_node)
             modules_node.append(module_node)
 

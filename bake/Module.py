@@ -34,20 +34,78 @@ import shutil
 from bake.FilesystemMonitor import FilesystemMonitor
 from bake.Exceptions import TaskError
 from bake.Utils import ColorTool
+from bake.Exceptions import NotImplemented
 from bake.ModuleSource import SystemDependency
+from bake.Utils import ModuleAttributeBase
 
-class ModuleDependency:
+class ModuleDependency(ModuleAttributeBase):
     """ Dependency information. """
-    
-    def __init__(self, name, optional = False):
-        self._name = name
-        self._optional = optional
+    instances = []
+    def __init__(self):
+
+        ModuleAttributeBase.__init__(self)
+
+        self.add_attribute('name', '', 'Name of the Module', mandatory=True)
+        self.add_attribute('optional', 'False', 'Name of the Module', mandatory=True)        
         
+        self.__class__.instances.append(self)        
+        
+    @classmethod
+    def subclasses(self):
+        return ModuleDependency.__subclasses__()
+
     def name(self):
         return self._name
+
+    @classmethod
+    def name(cls):
+        return 'default'
+        
+    @property
+    def _name(self):
+        return self.attribute('name').value
+
+    @property
+    def _optional(self):
+        return self.is_optional()
     
+    @classmethod
+    def create(cls, build_type):                
+        for subclass in ModuleDependency.subclasses():
+            if subclass.name() == build_type:
+                instance = subclass()
+                return instance
+        
+        return ModuleDependency()
+
     def is_optional(self):
-        return self._optional
+        return bool(self.attribute('optional').value.upper() == "TRUE")
+    
+    def configure_arguments(self):        
+        raise NotImplemented()
+    
+    @classmethod
+    def lookup_obj(cl,name):
+        for instance in cl.instances:
+            if instance._name == name:
+                return instance
+        
+        return None
+
+class WafModuleDependency(ModuleDependency):
+
+    def __init__(self):        
+
+        ModuleDependency.__init__(self)
+        self.add_attribute('configure_arguments', '', 'Arguments to pass to'
+                           ' "waf configure"')
+    
+    @classmethod
+    def name(cls):
+        return 'waf'
+
+    def configure_arguments(self):          
+        return self.attribute('configure_arguments').value
 
 class Module:
     followOptional = None

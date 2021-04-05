@@ -46,6 +46,7 @@ from optparse import OptionParser
 from bake.Dependencies import Dependencies, DependencyUnmet
 from bake.Exceptions import MetadataError
 from bake.Utils import ColorTool
+from bake.Utils import ModuleAttribute, ModuleAttribute
 from bake.Exceptions import TaskError 
 from bake.ModuleSource import SystemDependency 
 from bake.ModuleBuild import NoneModuleBuild
@@ -679,14 +680,14 @@ class Bake:
             deps.add_dst(m, wrapper.function)
         # Review the dependencies of all the configured modules
         for m in configuration.modules():
-            for dependency in m.dependencies():
-                src = configuration.lookup (dependency.name())
+            for dependency in m.dependencies():                
+                src = configuration.lookup (dependency._name)
                 
                 # verifies if the dependency really exists in the configuration
                 # if not we could have a problem of a corrupt, or badly 
                 # configured xml file, e.g. misspelled module name  
                 if src is None:
-                    self._error('Dependency "%s" not found' % dependency.name())
+                    self._error('Dependency "%s" not found' % dependency._name)
                  
                 if not src in configuration.disabled():
                     # if it is set to add even the optional modules, or the 

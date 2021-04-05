@@ -41,6 +41,7 @@ import shlex
 from bake.Utils import ModuleAttributeBase
 from bake.Exceptions import NotImplemented
 from bake.Exceptions import TaskError 
+from bake.Module import ModuleDependency
 
 class ModuleBuild(ModuleAttributeBase):
     """ Generic build, to be extended by the specialized classes, 
@@ -76,7 +77,7 @@ class ModuleBuild(ModuleAttributeBase):
                            ' system variable on the format VARIABLE1=value1'
                            ';VARIABLE2=value2', mandatory=False)
         # self.add_attribute('condition_to_build', '', 'Condition that, if '
-        # 'existent, should be true for allowing the instalation')
+        # 'existent, should be true for allowing the instalation')        
 
     @classmethod
     def subclasses(self):
@@ -405,9 +406,27 @@ class WafModuleBuild(ModuleBuild):
         """
         
         extra_configure_options = []
-        if self.attribute('configure_arguments').value != '':
+
+        """ 
+        Check if default configure arguments have been already 
+        defined while adding the current module as a dependency.
+        """
+
+        configure_arguments = None
+
+        if self.attribute('configure_arguments').value != '' :
+            configure_arguments = self.attribute('configure_arguments').value
+
+        mod_dep = ModuleDependency.lookup_obj(env._module_name)
+
+        if mod_dep != None:                
+            if mod_dep.__class__.name() == 'waf':
+                if mod_dep.configure_arguments() != "" :
+                    configure_arguments = mod_dep.configure_arguments()
+
+        if configure_arguments != None:
             extra_configure_options = [env.replace_variables(tmp) for tmp in
-                                       bake.Utils.split_args(env.replace_variables(self.attribute('configure_arguments').value))]
+                                       bake.Utils.split_args(env.replace_variables(configure_arguments))]
             
             env.run(self._binary(env.srcdir) + extra_configure_options,
                     directory=env.srcdir,
