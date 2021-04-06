@@ -46,7 +46,6 @@ from optparse import OptionParser
 from bake.Dependencies import Dependencies, DependencyUnmet
 from bake.Exceptions import MetadataError
 from bake.Utils import ColorTool
-from bake.Utils import ModuleAttribute, ModuleAttribute
 from bake.Exceptions import TaskError 
 from bake.ModuleSource import SystemDependency 
 from bake.ModuleBuild import NoneModuleBuild
