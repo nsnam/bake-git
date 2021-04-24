@@ -430,6 +430,7 @@
       </source>
       <build type="make" objdir="yes">
         <attribute name="pre_installation" value="cd $SRCDIR; CFLAGS='-fPIC -g' LDFLAGS='-pie -rdynamic' ./configure --disable-opie --disable-digest --disable-ntlm --disable-largefile --disable-threads --disable-nls --disable-rpath --disable-iri --without-ssl --without-zlib --without-libiconv-prefix --without-libintl-prefix --without-libpth-prefix --without-included-regex --prefix=$INSTALLDIR"/>
+        <attribute name="post_installation" value="mv $INSTALLDIR/bin/wget $INSTALLDIR/bin_dce"/> 
       </build>
      </module>
 
