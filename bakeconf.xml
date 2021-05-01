@@ -871,7 +871,7 @@
 
     <module name="pygraphviz">
       <source type="system_dependency">
-        <attribute name="dependency_test" value="(_gv.so or _graphviz.so or _graphviz.x86_64-linux-gnu.so)"/>
+        <attribute name="dependency_test" value="(_gv.so or _graphviz.so or _graphviz.x86_64-linux-gnu.so or _graphviz.cpython-38-x86_64-linux-gnu.so or _graphviz.cpython-39-x86_64-linux-gnu.so)"/>
         <attribute name="name_apt-get" value="python3-pygraphviz"/>
         <attribute name="name_yum" value="python3-pygraphviz"/>
         <attribute name="more_information" value="The pygraphviz is not installed, try to install it."/>
@@ -894,7 +894,7 @@
 
     <module name="pygobject">
       <source type="system_dependency">
-        <attribute name="dependency_test" value="_gi.x86_64-linux-gnu.so or _gi.so"/>
+        <attribute name="dependency_test" value="_gi.x86_64-linux-gnu.so or _gi.cpython-38-x86_64-linux-gnu.so or _gi.cpython-39-x86_64-linux-gnu.so or _gi.so"/>
         <attribute name="name_apt-get" value="python3-gi"/>
         <attribute name="name_yum" value="pygobject3-devel"/>
         <attribute name="more_information" value="Python gobject components missing from system."/>
@@ -916,7 +916,7 @@
 
     <module name="gi-cairo">
       <source type="system_dependency">
-        <attribute name="dependency_test" value="_gi_cairo.x86_64-linux-gnu.so or _gi_cairo.so"/>
+        <attribute name="dependency_test" value="_gi_cairo.x86_64-linux-gnu.so or _gi_cairo.cpython-38-x86_64-linux-gnu.so or _gi_cairo.cpython-39-x86_64-linux-gnu.so or  _gi_cairo.so"/>
         <attribute name="name_apt-get" value="python3-gi-cairo"/>
         <attribute name="name_yum" value="pygobject3-devel"/>
         <attribute name="more_information" value="Python gobject components missing from system."/>
