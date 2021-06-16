@@ -784,6 +784,21 @@
       <depends_on name="cmake" optional="False"/>
     </module>
 
+    <module name="castxml-0.4.3">
+      <source type="git">
+        <!-- not using 'archive' release because it untars to CastXML-0.4.3 -->
+        <attribute name="url" value="https://github.com/CastXML/CastXML.git"/>
+        <attribute name="revision" value="v0.4.3"/>
+       <attribute name="module_directory" value="castxml-0.4.3"/>
+      </source>
+      <build type="cmake" objdir="yes">
+        <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/bin"/>
+      </build>
+      <depends_on name="clang-dev" optional="False"/>
+      <depends_on name="llvm-dev" optional="False"/>
+      <depends_on name="cmake" optional="False"/>
+    </module>
+
     <module name="pygccxml">
       <source type="git">
         <attribute name="url" value="https://github.com/gccxml/pygccxml.git"/>
