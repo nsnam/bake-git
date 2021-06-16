@@ -1331,8 +1331,8 @@
     </module>
 
     <module name="elf-loader">
-      <source type="mercurial">
-        <attribute name="url" value="http://code.nsnam.org/thehajime/elf-loader"/>
+      <source type="git">
+        <attribute name="url" value="https://gitlab.com/nsnam/elf-loader"/>
       </source>
       <depends_on name="libc-debug" optional="False"/>
       <build type="make" objdir="no">
