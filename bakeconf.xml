@@ -812,6 +812,16 @@
       <depends_on name="cxxfilt" optional="False"/>
     </module>
 
+    <module name="pygccxml-1.0.0">
+      <source type="archive">
+        <attribute name="url" value="http://downloads.sourceforge.net/project/pygccxml/pygccxml/pygccxml-1.0/pygccxml-1.0.0.zip"/>
+      </source>
+      <build type="python" objdir="yes">
+      </build>
+      <depends_on name="gccxml-ns3" optional="False"/>
+      <depends_on name="setuptools" optional="False"/>
+    </module>
+
     <module name="pygccxml-1.9.1">
       <source type="archive">
         <attribute name="url" value="https://github.com/gccxml/pygccxml/archive/v1.9.1.tar.gz"/>
@@ -852,14 +862,17 @@
       <depends_on name="cxxfilt" optional="False"/>
     </module>
 
-    <module name="pygccxml-1.0.0">
+    <module name="pygccxml-2.2.1">
       <source type="archive">
-        <attribute name="url" value="http://downloads.sourceforge.net/project/pygccxml/pygccxml/pygccxml-1.0/pygccxml-1.0.0.zip"/>
+        <attribute name="url" value="https://github.com/CastXML/pygccxml/archive/refs/tags/v2.2.1.tar.gz"/>
+        <attribute name="extract_directory" value="pygccxml-2.2.1"/>
       </source>
       <build type="python" objdir="yes">
+        <attribute name="pre_installation" value="mkdir $INSTALLDIR"/>
       </build>
-      <depends_on name="gccxml-ns3" optional="False"/>
+      <depends_on name="castxml-0.4.3" optional="False"/>
       <depends_on name="setuptools" optional="False"/>
+      <depends_on name="cxxfilt" optional="False"/>
     </module>
 
     <module name="python-dev">
