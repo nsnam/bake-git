@@ -41,12 +41,12 @@ from bake.Utils import ModuleAttributeBase
 class ModuleDependency(ModuleAttributeBase):
     """ Dependency information. """
     instances = []
-    def __init__(self):
+    def __init__(self, name = '' , optional = False):
 
         ModuleAttributeBase.__init__(self)
 
-        self.add_attribute('name', '', 'Name of the Module', mandatory=True)
-        self.add_attribute('optional', 'False', 'Name of the Module', mandatory=True)        
+        self.add_attribute('name', name, 'Name of the Module', mandatory=True)
+        self.add_attribute('optional', str(optional), 'Whether module is optional', mandatory=True)        
         
         self.__class__.instances.append(self)        
         

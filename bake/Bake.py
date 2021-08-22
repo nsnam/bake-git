@@ -231,7 +231,7 @@ class Bake:
     def resolve_contrib_dependencies (self, module, fmod, configuration):
         """ Handles the contrib type dependencies"""
         for dep in module.dependencies ():
-            dep_mod = configuration.lookup (dep.name())
+            dep_mod = configuration.lookup (dep._name)
             if dep_mod.mtype() == "ns-contrib":
                 # Do not prepend contrib prefix to user supplied contrib name more than once
                 if not(module.get_source().attribute("module_directory").value.startswith(fmod + '/contrib')):
