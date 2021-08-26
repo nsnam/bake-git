@@ -1376,8 +1376,8 @@ class Bake:
                 print('  depends on:')
                 for dependsOn in mod.dependencies():
                     print('     %s (optional:%s)' % 
-                          (dependsOn.name(), dependsOn.is_optional())) 
-                    depen[mod.name()][dependsOn.name()]=  dependsOn.is_optional()
+                          (dependsOn._name, dependsOn.is_optional())) 
+                    depen[mod.name()][dependsOn._name]=  dependsOn.is_optional()
             elif not options.brief == True:
                 print('  No dependencies!')
                 
