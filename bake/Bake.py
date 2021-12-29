@@ -1227,19 +1227,12 @@ class Bake:
         """Handles the check command line option."""
         
         checkPrograms = [['python3', 'Python3'],
-                         ['hg', 'Mercurial'],
-                         # ['cvs', 'CVS'],
                          ['git', 'Git'],
-                         # ['bzr', 'Bazaar'],
                          ['tar', 'Tar tool'],
                          ['unzip', 'Unzip tool'],
-                         # ['unrar', 'Unrar tool'],
-                         # ['7z', '7z  data compression utility'],
-                         # ['unxz', 'XZ data compression utility'],
                          ['make', 'Make'],
-                         ['cmake', 'cMake'],
+                         ['cmake', 'CMake'],
                          ['patch', 'patch tool'],
-                         # ['autoreconf', 'autoreconf tool']
                          ]
         if sys.platform == 'darwin':
             checkPrograms.insert(1,['clang++', 'Clang C++ compiler'])
