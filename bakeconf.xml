@@ -1053,7 +1053,7 @@
       <build type="python" objdir="yes">
         <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/lib"/>
       </build>
-      <depends_on name="python-dev" optional="True"/>
+      <depends_on name="python3-dev" optional="True"/>
       <depends_on name="setuptools" optional="False"/>
     </module>
 
@@ -1066,7 +1066,7 @@
       <build type="python" objdir="yes">
         <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/lib"/>
       </build>
-      <depends_on name="python-dev" optional="True"/>
+      <depends_on name="python3-dev" optional="True"/>
       <depends_on name="setuptools" optional="False"/>
     </module>
 
@@ -1079,7 +1079,7 @@
       <build type="python" objdir="yes">
         <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/lib"/>
       </build>
-      <depends_on name="python-dev" optional="True"/>
+      <depends_on name="python3-dev" optional="True"/>
       <depends_on name="setuptools" optional="False"/>
     </module>
 
@@ -1092,7 +1092,7 @@
       <build type="python" objdir="yes">
         <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/lib"/>
       </build>
-      <depends_on name="python-dev" optional="True"/>
+      <depends_on name="python3-dev" optional="True"/>
       <depends_on name="setuptools" optional="False"/>
     </module>
 
