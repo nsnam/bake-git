@@ -684,6 +684,7 @@
         <attribute name="post_installation" value="mkdir $INSTALLDIR/lib; mv $INSTALLDIR/libTmp/* $INSTALLDIR/lib/.; rm -rf $INSTALLDIR/libTmp" />
       </build>
         <depends_on name="libxml2-dev" optional="False"/>
+      <depends_on name="mercurial" optional="False"/>
     </module>
 
     <module name="openflow-dev">
@@ -694,6 +695,7 @@
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR"/>
       </build>
         <depends_on name="libxml2-dev" optional="False"/>
+        <depends_on name="mercurial" optional="False"/>
     </module>
 
     <module name="openflow-ns-3.17">
@@ -705,6 +707,7 @@
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR"/>
       </build>
         <depends_on name="libxml2-dev" optional="False"/>
+        <depends_on name="mercurial" optional="False"/>
     </module>
 
     <module name="openflow-ns-3.25">
@@ -716,6 +719,7 @@
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR"/>
       </build>
         <depends_on name="libxml2-dev" optional="False"/>
+        <depends_on name="mercurial" optional="False"/>
     </module>
 
     <module name="gccxml-ns3">
@@ -1319,6 +1323,7 @@
       <build type="make" objdir="no">
         <attribute name="install_arguments" value="PREFIX=$INSTALLDIR"/>
       </build>
+      <depends_on name="mercurial" optional="False"/>
     </module>
 
     <module name="BRITE">
@@ -1329,6 +1334,7 @@
         <attribute name="no_installation" value="True"/>
         <attribute name="supported_os" value="linux;linux2;darwin"/>
       </build>
+      <depends_on name="mercurial" optional="False"/>
     </module>
 
     <module name="netanim">
@@ -1416,6 +1422,7 @@
       <build type="waf" objdir="yes">
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
       </build>
+      <depends_on name="mercurial" optional="False"/>
     </module>
 
     <module name="ns-3.25">
@@ -1428,6 +1435,7 @@
       <build type="waf" objdir="yes">
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
       </build>
+      <depends_on name="mercurial" optional="False"/>
     </module>
 
     <module name="ns-3.26">
@@ -1440,6 +1448,7 @@
       <build type="waf" objdir="yes">
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
       </build>
+      <depends_on name="mercurial" optional="False"/>
     </module>
 
     <module name="ns-3.27" type="ns">
@@ -1452,6 +1461,7 @@
       <build type="waf" objdir="yes">
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
       </build>
+      <depends_on name="mercurial" optional="False"/>
     </module>
 
     <module name="ns-3.28" type="ns">
@@ -1465,6 +1475,7 @@
       <build type="waf" objdir="yes">
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
       </build>
+      <depends_on name="mercurial" optional="False"/>
     </module>
 
     <module name="ns-3.28.1" type="ns">
@@ -1479,6 +1490,7 @@
       <build type="waf" objdir="yes">
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
       </build>
+      <depends_on name="mercurial" optional="False"/>
     </module>
 
     <module name="ns-3.29" type="ns">
@@ -1492,6 +1504,7 @@
       <build type="waf" objdir="yes">
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
       </build>
+      <depends_on name="mercurial" optional="False"/>
     </module>
 
     <module name="ns-3.30" type="ns">
@@ -1811,6 +1824,7 @@
       <depends_on name="wget" optional="True"/>
       <depends_on name="thttpd" optional="True"/>
       <depends_on name="bash" optional="True"/>
+      <depends_on name="mercurial" optional="False"/>
       <build type="none">
       </build>
     </module>
@@ -1826,6 +1840,7 @@
         <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="configure_arguments" value="configure --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --prefix=$INSTALLDIR"/>
       </build>
+      <depends_on name="mercurial" optional="False"/>
     </module>
 
     <module name="dce-linux-1.7">
@@ -1841,6 +1856,7 @@
         <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../net-next-sim-2.6.36/arch"/>
       </build>
+      <depends_on name="mercurial" optional="False"/>
     </module>
 
     <module name="dce-freebsd-1.7">
@@ -1855,6 +1871,7 @@
         <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --with-libaspect=$INSTALLDIR --enable-kernel-stack=$SRCDIR/../freebsd-sim/sys"/>
       </build>
+      <depends_on name="mercurial" optional="False"/>
     </module>
 
     <module name="dce-quagga-1.7">
@@ -1869,6 +1886,7 @@
       <build type="none">
         <attribute name="supported_os" value="linux;linux2"/>
       </build>
+      <depends_on name="mercurial" optional="False"/>
     </module>
 
     <module name="dce-umip-1.7">
@@ -1884,6 +1902,7 @@
       <build type="none">
         <attribute name="supported_os" value="linux;linux2"/>
       </build>
+      <depends_on name="mercurial" optional="False"/>
     </module>
 
     <!-- dce-1.8 -->
@@ -1902,6 +1921,7 @@
       <depends_on name="bash" optional="True"/>
       <build type="none">
       </build>
+      <depends_on name="mercurial" optional="False"/>
     </module>
 
     <module name="dce-ns3-1.8">
@@ -1915,6 +1935,7 @@
         <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="configure_arguments" value="configure --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --prefix=$INSTALLDIR"/>
       </build>
+      <depends_on name="mercurial" optional="False"/>
     </module>
 
     <module name="dce-linux-1.8">
@@ -1930,6 +1951,7 @@
         <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../net-next-sim-2.6.36/arch"/>
       </build>
+      <depends_on name="mercurial" optional="False"/>
     </module>
 
     <module name="dce-freebsd-1.8">
@@ -1944,6 +1966,7 @@
         <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --with-libaspect=$INSTALLDIR --enable-kernel-stack=$SRCDIR/../freebsd-sim/sys"/>
       </build>
+      <depends_on name="mercurial" optional="False"/>
     </module>
 
     <module name="dce-quagga-1.8">
@@ -1973,6 +1996,7 @@
       <build type="none">
         <attribute name="supported_os" value="linux;linux2"/>
       </build>
+      <depends_on name="mercurial" optional="False"/>
     </module>
 
     <!-- dce-1.9 -->
@@ -1991,6 +2015,7 @@
       <depends_on name="bash" optional="True"/>
       <build type="none">
       </build>
+      <depends_on name="mercurial" optional="False"/>
     </module>
 
     <module name="dce-ns3-1.9">
@@ -2004,6 +2029,7 @@
         <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="configure_arguments" value="configure --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --prefix=$INSTALLDIR"/>
       </build>
+      <depends_on name="mercurial" optional="False"/>
     </module>
 
     <module name="dce-linux-1.9">
@@ -2019,6 +2045,7 @@
         <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../net-next-sim-2.6.36/arch"/>
       </build>
+      <depends_on name="mercurial" optional="False"/>
     </module>
 
     <module name="dce-freebsd-1.9">
@@ -2033,6 +2060,7 @@
         <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --with-libaspect=$INSTALLDIR --enable-kernel-stack=$SRCDIR/../freebsd-sim/sys"/>
       </build>
+      <depends_on name="mercurial" optional="False"/>
     </module>
 
     <module name="dce-quagga-1.9">
@@ -2047,6 +2075,7 @@
       <build type="none">
         <attribute name="supported_os" value="linux;linux2"/>
       </build>
+      <depends_on name="mercurial" optional="False"/>
     </module>
 
     <module name="dce-umip-1.9">
@@ -2062,6 +2091,7 @@
       <build type="none">
         <attribute name="supported_os" value="linux;linux2"/>
       </build>
+      <depends_on name="mercurial" optional="False"/>
     </module>
 
     <!-- dce-1.10 -->
@@ -2338,7 +2368,6 @@
   </modules>
  
   <predefined name="set-bake-env">
-      <enable name="mercurial"/>
       <enable name="make"/>
       <enable name="patch"/>
       <enable name="tar"/>
