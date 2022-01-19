@@ -39,7 +39,7 @@
       <depends_on name="net-next-nuse-4.4.0" optional="False"/>
       <depends_on name="iproute2-4.4.0" optional="False"/>
       <depends_on name="lksctp-dev" optional="True"/>
-      <build type="waf" objdir="yes" sourcedir="ns-3-dce">
+      <build type="waf" objdir="build" sourcedir="ns-3-dce">
         <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --with-libaspect=$INSTALLDIR --enable-kernel-stack=$SRCDIR/../net-next-nuse-4.4.0/arch"/>
       </build>
@@ -55,7 +55,7 @@
       <depends_on name="iproute-2.6.38-fix-01" optional="False"/>
       <depends_on name="dce-quagga-dev" optional="False"/>
       <depends_on name="dce-umip-dev" optional="False"/>
-      <build type="waf" objdir="yes" sourcedir="ns-3-dce">
+      <build type="waf" objdir="build" sourcedir="ns-3-dce">
         <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --with-libaspect=$INSTALLDIR --enable-kernel-stack=$SRCDIR/../net-next-sim-2.6.36/arch --enable-gcov"/>
       </build>
@@ -68,7 +68,7 @@
       </source>
       <depends_on name="dce-meta-dev" optional="False"/>
       <depends_on name="iproute-2.6.38-fix-01" optional="False"/>
-      <build type="waf" objdir="yes" sourcedir="ns-3-dce">
+      <build type="waf" objdir="build" sourcedir="ns-3-dce">
         <attribute name="supported_os" value="linux;linux2"/>
         <!-- assume the bake.py build is executed under arch/sim/test/buildtop/ -->
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --with-libaspect=$INSTALLDIR --enable-kernel-stack=$SRCDIR/../../../../../"/>
@@ -82,7 +82,7 @@
         <attribute name="module_directory" value="mptcp"/>
         <attribute name="revision" value="mptcp_v0.86"/>
       </source>
-      <build type="make" objdir="no">
+      <build type="make">
         <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="pre_installation" value="cd $SRCDIR;git remote add dce git://github.com/direct-code-execution/net-next-sim.git; git fetch dce; git merge dce/sim-ns3-3.5.0-branch; echo 'CONFIG_MPTCP=y' >> arch/sim/defconfig; sed 's/CONFIG_SYN_COOKIES=y/\#CONFIG_SYN_COOKIES=y/' arch/sim/defconfig >a; mv a arch/sim/defconfig"/>
         <attribute name="configure_arguments" value="defconfig ARCH=sim"/>
@@ -98,7 +98,7 @@
         <attribute name="module_directory" value="mptcp"/>
         <attribute name="revision" value="mptcp_v0.87"/>
       </source>
-      <build type="make" objdir="no">
+      <build type="make">
         <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="pre_installation" value="cd $SRCDIR;git remote add dce git://github.com/direct-code-execution/net-next-sim.git; git fetch dce; git merge dce/sim-ns3-3.10.0-branch; echo 'CONFIG_MPTCP=y' >> arch/sim/defconfig; sed 's/CONFIG_SYN_COOKIES=y/\#CONFIG_SYN_COOKIES=y/' arch/sim/defconfig >a; mv a arch/sim/defconfig"/>
         <attribute name="configure_arguments" value="defconfig ARCH=sim"/>
@@ -118,7 +118,7 @@
       <depends_on name="bison" optional="False"/>
       <depends_on name="flex" optional="False"/>
       <depends_on name="libssl-dev" optional="False"/>
-      <build type="make" objdir="yes">
+      <build type="make">
         <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="patch" value="$SRCDIR/../ns-3-dce/utils/iproute-mptcp.patch"/>
         <attribute name="pre_installation" value="$SRCDIR/configure"/>
@@ -136,7 +136,7 @@
         <attribute name="name_yum" value="libpcap-devel"/>
         <attribute name="more_information" value="Didn't find:   libpcap-dev package; please install it."/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -147,7 +147,7 @@
         <attribute name="name_yum" value="expat-devel"/>
         <attribute name="more_information" value="Didn't find:   libexpat-dev package; please install it."/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -158,7 +158,7 @@
       </source>
       <depends_on name="libpcap-dev" optional="False"/>
       <depends_on name="libexpat-dev" optional="False"/>
-      <build type="make" objdir="yes">
+      <build type="make" objdir="objdir">
         <attribute name="pre_installation" value="cd $SRCDIR;INSTALL_BASE=$INSTALLDIR ./configure;mkdir $INSTALLDIR/include;mkdir $INSTALLDIR/lib;mkdir $INSTALLDIR/bin"/>
         <attribute name="build_arguments" value="MORE_LDLIBS=-pie COPT+=-rdynamic"/>
         <attribute name="new_variable" value="INSTALL_BASE=$INSTALLDIR" />
@@ -170,7 +170,7 @@
         <attribute name="url" value="http://sourceforge.net/projects/iperf/files/iperf-2.0.5.tar.gz"/>
         <attribute name="extract_directory" value="iperf-2.0.5"/>
       </source>
-      <build type="make" objdir="yes">
+      <build type="make" objdir="objdir">
         <attribute name="pre_installation" value="cd $SRCDIR;./configure --prefix=$INSTALLDIR"/>
         <attribute name="patch" value="$SRCDIR/../ns-3-dce/utils/iperf_4_dce.patch"/>
         <attribute name="build_arguments" value="CFLAGS=-fPIC CFLAGS+=-U_FORTIFY_SOURCE CXXFLAGS=-fPIC CXXFLAGS+=-U_FORTIFY_SOURCE LDFLAGS=-pie LDFLAGS+=-rdynamic"/>
@@ -184,7 +184,7 @@
         <attribute name="name_yum" value="db4-devel"/>
         <attribute name="more_information" value="Didn't find:   libdb-dev package; please install it."/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -195,7 +195,7 @@
         <attribute name="name_yum" value="bison"/>
         <attribute name="more_information" value="The bison tool is not installed, try to install them (bison)"/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -206,7 +206,7 @@
         <attribute name="name_yum" value="flex"/>
         <attribute name="more_information" value="The flex tool is not installed, try to install them (flex)"/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -217,7 +217,7 @@
         <attribute name="name_yum" value="libsysfs-devel"/>
         <attribute name="more_information" value="Didn't find:   libsysfs-dev package; please install it."/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -228,7 +228,7 @@
         <attribute name="name_yum" value="openssl-devel"/>
         <attribute name="more_information" value="Didn't find:   libssl-dev package; please install it."/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -239,7 +239,7 @@
         <attribute name="name_yum" value="lksctp-tools-devel"/>
         <attribute name="more_information" value="Didn't find:   lksctp-dev package; please install it."/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -251,7 +251,7 @@
       <depends_on name="bison" optional="False"/>
       <depends_on name="flex" optional="False"/>
       <depends_on name="libssl-dev" optional="False"/>
-      <build type="make" objdir="yes">
+      <build type="make" objdir="objdir">
         <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="pre_installation" value="$SRCDIR/configure"/>
         <attribute name="LDFLAGS" value="-pie"/>
@@ -269,7 +269,7 @@
       <depends_on name="bison" optional="False"/>
       <depends_on name="flex" optional="False"/>
       <depends_on name="libssl-dev" optional="False"/>
-      <build type="make" objdir="yes">
+      <build type="make" objdir="objdir">
         <attribute name="patch" value="$SRCDIR/../ns-3-dce/utils/iproute-2.6.38-fix-01.patch"/>
         <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="pre_installation" value="$SRCDIR/configure"/>
@@ -290,7 +290,7 @@
        <depends_on name="bison" optional="False"/>
        <depends_on name="flex" optional="False"/>
        <depends_on name="libssl-dev" optional="False"/>
-       <build type="make" objdir="yes">
+       <build type="make" objdir="objdir">
          <attribute name="supported_os" value="linux;linux2"/>
          <attribute name="pre_installation" value="$SRCDIR/configure"/>
          <attribute name="LDFLAGS" value="-pie"/>
@@ -307,7 +307,7 @@
          <attribute name="revision" value="sim-ns3-2.6.36-branch"/>
          <attribute name="fetch_option" value="--depth=1"/>
        </source>
-       <build type="make" objdir="no">
+       <build type="make">
          <attribute name="supported_os" value="linux;linux2"/>
          <attribute name="configure_arguments" value="defconfig ARCH=sim"/>
          <attribute name="build_arguments" value="library ARCH=sim"/>
@@ -323,7 +323,7 @@
          <attribute name="revision" value="sim-ns3-3.4.0-branch"/>
          <attribute name="fetch_option" value="--depth=1"/>
        </source>
-       <build type="make" objdir="no">
+       <build type="make">
          <attribute name="supported_os" value="linux;linux2"/>
          <attribute name="configure_arguments" value="defconfig ARCH=sim"/>
          <attribute name="build_arguments" value="library ARCH=sim"/>
@@ -339,7 +339,7 @@
          <attribute name="revision" value="sim-ns3-3.7.0-branch"/>
          <attribute name="fetch_option" value="--depth=1"/>
        </source>
-       <build type="make" objdir="no">
+       <build type="make">
          <attribute name="supported_os" value="linux;linux2"/>
          <attribute name="configure_arguments" value="defconfig ARCH=sim"/>
          <attribute name="build_arguments" value="library ARCH=sim"/>
@@ -356,7 +356,7 @@
          <attribute name="fetch_option" value=""/>
        </source>
        <depends_on name="bc" optional="False"/>
-       <build type="make" objdir="no">
+       <build type="make">
          <attribute name="supported_os" value="linux;linux2"/>
          <attribute name="configure_arguments" value="defconfig ARCH=lib"/>
          <attribute name="build_arguments" value="library ARCH=lib"/>
@@ -372,7 +372,7 @@
        </source>
        <depends_on name="dce-meta-dev" optional="False"/>
        <depends_on name="freebsd-sim-10.0.0" optional="False"/>
-       <build type="waf" objdir="yes" sourcedir="ns-3-dce">
+       <build type="waf" objdir="build" sourcedir="ns-3-dce">
          <attribute name="supported_os" value="linux;linux2"/>
          <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --with-libaspect=$INSTALLDIR --enable-kernel-stack=$SRCDIR/../freebsd-sim/sys"/>
        </build>
@@ -385,7 +385,7 @@
          <attribute name="revision" value="sim-ns3-dev-branch"/>
          <attribute name="fetch_option" value="--depth=1"/>
        </source>
-       <build type="make" objdir="no">
+       <build type="make">
          <attribute name="supported_os" value="linux;linux2"/>
          <attribute name="build_arguments" value="buildkernel -C sys/sim"/>
          <attribute name="no_installation" value="True"/>
@@ -400,7 +400,7 @@
          <attribute name="revision" value="sim-ns3-10.0.0"/>
          <attribute name="fetch_option" value="--depth=1"/>
        </source>
-       <build type="make" objdir="no">
+       <build type="make">
          <attribute name="supported_os" value="linux;linux2"/>
          <attribute name="build_arguments" value="buildkernel -C sys/sim"/>
          <attribute name="no_installation" value="True"/>
@@ -413,7 +413,7 @@
         <attribute name="url" value="http://ftp.gnu.org/gnu/wget/wget-1.15.tar.gz"/>
         <attribute name="extract_directory" value="wget-1.15"/>
       </source>
-      <build type="make" objdir="yes">
+      <build type="make" objdir="objdir">
         <attribute name="pre_installation" value="cd $SRCDIR; CFLAGS='-fPIC -g' LDFLAGS='-pie -rdynamic' ./configure --disable-opie --disable-digest --disable-ntlm --disable-largefile --disable-threads --disable-nls --disable-rpath --disable-iri --without-ssl --without-zlib --without-libiconv-prefix --without-libintl-prefix --without-libpth-prefix --without-included-regex --prefix=$INSTALLDIR"/>
         <attribute name="post_installation" value="mv $INSTALLDIR/bin/wget $INSTALLDIR/bin_dce"/> 
       </build>
@@ -424,7 +424,7 @@
         <attribute name="url" value="http://www.acme.com/software/thttpd/thttpd-2.25b.tar.gz"/>
         <attribute name="extract_directory" value="thttpd-2.25b"/>
       </source>
-      <build type="make" objdir="yes">/"
+      <build type="make" objdir="objdir">/"
         <attribute name="pre_installation" value="cd $SRCDIR; sed &quot;s/rm conftest.c/rm -f conftests.c/&quot; configure >a; mv a configure; chmod 755 configure;./configure --prefix=$INSTALLDIR"/>
         <attribute name="patch" value="$SRCDIR/../ns-3-dce/utils/dce-thttpd.patch"/>
          <attribute name="install_arguments" value="-n" />
@@ -438,7 +438,7 @@
         <attribute name="url" value="http://ftp.gnu.org/gnu/bash/bash-4.1.tar.gz"/>
         <attribute name="extract_directory" value="bash-4.1"/>
       </source>
-      <build type="make" objdir="yes">
+      <build type="make" objdir="objdir">
         <attribute name="pre_installation" value="cd $SRCDIR; CFLAGS='-g -fPIC' LDFLAGS='-pie -rdynamic' CFLAGS_FOR_BUILD='-g -fPIC' ./configure --without-bash-malloc --prefix=$INSTALLDIR"/>
       </build>
      </module>
@@ -494,7 +494,7 @@
          <attribute name="url" value="git://github.com/direct-code-execution/umip.git"/>
          <attribute name="revision" value="v1.0"/>
        </source>
-       <build type="autotools" objdir="no">
+       <build type="autotools">
          <attribute name="supported_os" value="linux;linux2"/>
          <attribute name="maintainer" value="yes" />
          <attribute name="configure_arguments" value="./configure CFLAGS='-fPIC -g'  LDFLAGS='-pie -rdynamic' --prefix=$INSTALLDIR --enable-vt --with-builtin-crypto"/>
@@ -525,7 +525,7 @@
         <attribute name="name_yum" value="indent"/>
         <attribute name="more_information" value="The indent tool is not installed, try to install them (indent)"/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -536,7 +536,7 @@
         <attribute name="name_yum" value="gawk"/>
         <attribute name="more_information" value="The gawk is not installed, try to install them (gawk)"/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -549,7 +549,7 @@
        </source>
        <depends_on name="indent" optional="False"/>
        <depends_on name="gawk" optional="False"/>
-       <build type="make" objdir="yes">
+       <build type="make" objdir="objdir">
          <attribute name="pre_installation" value="cd $SRCDIR; CFLAGS='-fPIC -g' LDFLAGS='-pie -rdynamic' ./configure --disable-shared --enable-static --disable-user --disable-group --disable-capabilities --prefix=$INSTALLDIR"/>
          <attribute name="install_arguments" value="-n" />
          <attribute name="post_installation" value="cd $SRCDIR; mkdir $INSTALLDIR/bin_dce; /bin/cp zebra/zebra $INSTALLDIR/bin_dce;/bin/cp ripd/ripd $INSTALLDIR/bin_dce;/bin/cp ripngd/ripngd $INSTALLDIR/bin_dce;/bin/cp ospfd/ospfd $INSTALLDIR/bin_dce;/bin/cp ospf6d/ospf6d $INSTALLDIR/bin_dce;/bin/cp bgpd/bgpd $INSTALLDIR/bin_dce"/>
@@ -560,7 +560,7 @@
       <source type="git">
         <attribute name="url" value="git://github.com/kohler/click.git"/>
       </source>
-      <build type="autotools" objdir="yes">
+      <build type="autotools" objdir="objdir">
         <attribute name="configure_arguments" value="../configure --prefix=$INSTALLDIR --exec-prefix=$INSTALLDIR -enable-userlevel --disable-linuxmodule --enable-nsclick --enable-wifi"/>
         <attribute name="post_installation" value="mkdir $INSTALLDIR/lib; cp -r $OBJDIR/include $INSTALLDIR/lib/."/> 
       </build>
@@ -571,7 +571,7 @@
         <attribute name="url" value="git://github.com/kohler/click.git"/>
         <attribute name="revision" value="056d2c0a75baaf196fca2622ff9eb80f28038bc0"/>
       </source>
-      <build type="autotools" objdir="yes">
+      <build type="autotools" objdir="objdir">
         <attribute name="configure_arguments" value="../configure --prefix=$INSTALLDIR --exec-prefix=$INSTALLDIR -enable-userlevel --disable-linuxmodule --enable-nsclick --enable-wifi"/>
         <attribute name="post_installation" value="mkdir $INSTALLDIR/lib; cp -r $OBJDIR/include $INSTALLDIR/lib/."/> 
       </build>
@@ -582,7 +582,7 @@
         <attribute name="url" value="git://github.com/kohler/click.git"/>
         <attribute name="revision" value="0ac37dc30b0386f3c3d2d990f3d855b8887b4a13"/>
       </source>
-      <build type="autotools" objdir="yes">
+      <build type="autotools" objdir="objdir">
         <attribute name="configure_arguments" value="../configure --prefix=$INSTALLDIR --exec-prefix=$INSTALLDIR -enable-userlevel --disable-linuxmodule --enable-nsclick --enable-wifi"/>
         <attribute name="post_installation" value="mkdir $INSTALLDIR/lib; cp -r $OBJDIR/include $INSTALLDIR/lib/."/> 
       </build>
@@ -593,7 +593,7 @@
         <attribute name="url" value="git://github.com/kohler/click.git"/>
         <attribute name="revision" value="5399eabf704f041c9cd8fc5d932c1e77bc9526de"/>
       </source>
-      <build type="autotools" objdir="yes">
+      <build type="autotools" objdir="objdir">
         <attribute name="configure_arguments" value="../configure --prefix=$INSTALLDIR --exec-prefix=$INSTALLDIR -enable-userlevel --disable-linuxmodule --enable-nsclick --enable-wifi"/>
         <attribute name="post_installation" value="mkdir $INSTALLDIR/lib; cp -r $OBJDIR/include $INSTALLDIR/lib/."/> 
       </build>
@@ -604,7 +604,7 @@
         <attribute name="url" value="git://github.com/kohler/click.git"/>
         <attribute name="revision" value="593d10826cf5f945a78307d095ffb0897de515de"/>
       </source>
-      <build type="autotools" objdir="yes">
+      <build type="autotools" objdir="objdir">
         <attribute name="configure_arguments" value="../configure --prefix=$INSTALLDIR --exec-prefix=$INSTALLDIR -enable-userlevel --disable-linuxmodule --enable-nsclick --enable-wifi"/>
         <attribute name="post_installation" value="mkdir $INSTALLDIR/lib; cp -r $OBJDIR/include $INSTALLDIR/lib/."/> 
       </build>
@@ -616,7 +616,7 @@
         <attribute name="revision" value="8847f68461856418c409f4de4165412b3ec2cade"/>
 
       </source>
-      <build type="autotools" objdir="yes">
+      <build type="autotools" objdir="objdir">
         <attribute name="configure_arguments" value="../configure -enable-userlevel --disable-linuxmodule --enable-nsclick --enable-wifi"/>
         <!--        <attribute name="post_installation" value="mkdir $INSTALLDIR/lib; cp -r $OBJDIR/include $INSTALLDIR/lib/.; cp -r $SRCDIR/include $INSTALLDIR/lib"/> 
         --> 
@@ -630,7 +630,7 @@
         <attribute name="name_apt-get" value="libclang-dev"/>
         <attribute name="more_information" value="Didn't find:   the clang-dev library, try to install it!"/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -641,7 +641,7 @@
         <attribute name="name_apt-get" value="llvm-dev"/>
         <attribute name="more_information" value="Didn't find:   the LLVM development libraries, try to install it!"/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -653,7 +653,7 @@
         <attribute name="name_apt-get" value="bc"/>
         <attribute name="more_information" value="Didn't find: the bc calculator language, try to install it!"/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -665,7 +665,7 @@
         <attribute name="name_apt-get" value="libxml2-dev"/>
         <attribute name="more_information" value="Didn't find:   the libxml2-dev library, try to install it!"/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -673,7 +673,7 @@
       <source type="mercurial">
         <attribute name="url" value="https://code.nsnam.org/jpelkey3/openflow"/>
       </source>
-      <build type="waf" objdir="yes">
+      <build type="waf" objdir="objdir">
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR"/>
         <attribute name="no_installation" value="True"/>
 
@@ -691,7 +691,7 @@
       <source type="mercurial">
         <attribute name="url" value="https://code.nsnam.org/openflow"/>
       </source>
-      <build type="waf" objdir="yes">
+      <build type="waf" objdir="objdir">
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR"/>
       </build>
         <depends_on name="libxml2-dev" optional="False"/>
@@ -703,7 +703,7 @@
         <attribute name="url" value="https://code.nsnam.org/openflow"/>
         <attribute name="revision" value="bb2869a6bbe1"/>
       </source>
-      <build type="waf" objdir="yes">
+      <build type="waf" objdir="objdir">
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR"/>
       </build>
         <depends_on name="libxml2-dev" optional="False"/>
@@ -715,7 +715,7 @@
         <attribute name="url" value="https://code.nsnam.org/openflow"/>
         <attribute name="revision" value="4db95a8ea718"/>
       </source>
-      <build type="waf" objdir="yes">
+      <build type="waf" objdir="objdir">
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR"/>
       </build>
         <depends_on name="libxml2-dev" optional="False"/>
@@ -727,7 +727,7 @@
         <attribute name="url" value="git://github.com/gccxml/gccxml.git"/>
         <attribute name="module_directory" value="gccxml"/>
       </source>
-      <build type="cmake" objdir="yes">
+      <build type="cmake" objdir="objdir">
       </build>
     </module>
 
@@ -735,7 +735,7 @@
       <source type="git">
         <attribute name="url" value="https://github.com/CastXML/CastXML.git"/>
       </source>
-      <build type="cmake" objdir="yes">
+      <build type="cmake" objdir="objdir">
         <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/bin"/>
       </build>
       <depends_on name="clang-dev" optional="False"/>
@@ -748,7 +748,7 @@
         <attribute name="url" value="https://github.com/CastXML/CastXML.git"/>
         <attribute name="revision" value="98a626ecb1aa522ca4f2575aeddc4ca3bb8c76db"/>
       </source>
-      <build type="cmake" objdir="yes">
+      <build type="cmake" objdir="objdir">
         <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/bin"/>
       </build>
       <depends_on name="clang-dev" optional="False"/>
@@ -761,7 +761,7 @@
         <attribute name="url" value="https://github.com/CastXML/CastXML.git"/>
         <attribute name="revision" value="5ba47e3"/>
       </source>
-      <build type="cmake" objdir="yes">
+      <build type="cmake" objdir="objdir">
         <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/bin"/>
       </build>
       <depends_on name="clang-dev" optional="False"/>
@@ -776,7 +776,7 @@
         <attribute name="revision" value="902ac163"/>
         <attribute name="module_directory" value="castxml-0.3.6"/>
       </source>
-      <build type="cmake" objdir="yes">
+      <build type="cmake" objdir="objdir">
         <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/bin"/>
       </build>
       <depends_on name="clang-dev" optional="False"/>
@@ -791,7 +791,7 @@
         <attribute name="revision" value="v0.4.3"/>
        <attribute name="module_directory" value="castxml-0.4.3"/>
       </source>
-      <build type="cmake" objdir="yes">
+      <build type="cmake" objdir="objdir">
         <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/bin"/>
       </build>
       <depends_on name="clang-dev" optional="False"/>
@@ -804,7 +804,7 @@
         <attribute name="url" value="https://github.com/gccxml/pygccxml.git"/>
         <attribute name="branch" value="develop"/>
       </source>
-      <build type="python" objdir="yes">
+      <build type="python" objdir="objdir">
         <attribute name="pre_installation" value="mkdir $INSTALLDIR"/>
       </build>
       <depends_on name="castxml" optional="False"/>
@@ -816,7 +816,7 @@
       <source type="archive">
         <attribute name="url" value="http://downloads.sourceforge.net/project/pygccxml/pygccxml/pygccxml-1.0/pygccxml-1.0.0.zip"/>
       </source>
-      <build type="python" objdir="yes">
+      <build type="python" objdir="objdir">
       </build>
       <depends_on name="gccxml-ns3" optional="False"/>
       <depends_on name="setuptools" optional="False"/>
@@ -827,7 +827,7 @@
         <attribute name="url" value="https://github.com/gccxml/pygccxml/archive/v1.9.1.tar.gz"/>
         <attribute name="extract_directory" value="pygccxml-1.9.1"/>
       </source>
-      <build type="python" objdir="yes">
+      <build type="python" objdir="objdir">
         <attribute name="pre_installation" value="mkdir $INSTALLDIR"/>
       </build>
       <depends_on name="castxml-0.1+git98a626ec" optional="False"/>
@@ -841,7 +841,7 @@
         <attribute name="module_directory" value="pygccxml-1.9.1+git2b1efbb9+patch"/>
         <attribute name="revision" value="develop"/>
        </source>
-      <build type="python" objdir="yes">
+      <build type="python" objdir="objdir">
         <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/lib; cd $SRCDIR; rm -rf issue-106.patch; echo 'diff --git a/pygccxml/declarations/calldef.py b/pygccxml/declarations/calldef.py' >> issue-106.patch; echo '--- a/pygccxml/declarations/calldef.py' >> issue-106.patch; echo '+++ b/pygccxml/declarations/calldef.py' >> issue-106.patch; echo '@@ -85,6 +85,12 @@ class argument_t(object):' >> issue-106.patch; echo '     def __lt__(self, other):' >> issue-106.patch; echo '         if not isinstance(other, self.__class__):' >> issue-106.patch; echo '             return self.__class__.__name__ &lt; other.__class__.__name__' >> issue-106.patch; echo '+        # See https://github.com/gccxml/pygccxml/issues/106' >> issue-106.patch; echo '+        if other.default_value == None:' >> issue-106.patch; echo '+            return False' >> issue-106.patch; echo '+        if self.default_value == None:' >> issue-106.patch; echo '+            return self.name &lt; other.name \' >> issue-106.patch; echo '+                and self.decl_type &lt; other.decl_type' >> issue-106.patch; echo '         return self.name &lt; other.name \' >> issue-106.patch; echo '             and self.default_value &lt; other.default_value \' >> issue-106.patch; echo '             and self.decl_type &lt; other.decl_type' >> issue-106.patch; patch -p1 -i issue-106.patch"/>
       </build>
       <depends_on name="castxml-0.2" optional="False"/>
@@ -854,7 +854,7 @@
         <attribute name="url" value="https://github.com/gccxml/pygccxml/archive/v2.0.1.tar.gz"/>
         <attribute name="extract_directory" value="pygccxml-2.0.1"/>
       </source>
-      <build type="python" objdir="yes">
+      <build type="python" objdir="objdir">
         <attribute name="pre_installation" value="mkdir $INSTALLDIR"/>
       </build>
       <depends_on name="castxml-0.3.6" optional="False"/>
@@ -867,7 +867,7 @@
         <attribute name="url" value="https://github.com/CastXML/pygccxml/archive/refs/tags/v2.2.1.tar.gz"/>
         <attribute name="extract_directory" value="pygccxml-2.2.1"/>
       </source>
-      <build type="python" objdir="yes">
+      <build type="python" objdir="objdir">
         <attribute name="pre_installation" value="mkdir $INSTALLDIR"/>
       </build>
       <depends_on name="castxml-0.4.3" optional="False"/>
@@ -882,7 +882,7 @@
         <attribute name="name_yum" value="python-devel"/>
         <attribute name="more_information" value="The python-dev is not installed, try to install it."/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -893,7 +893,7 @@
         <attribute name="name_yum" value="python3-devel"/>
         <attribute name="more_information" value="The python3-dev is not installed, try to install it."/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -904,7 +904,7 @@
         <attribute name="name_yum" value="python3-pygraphviz"/>
         <attribute name="more_information" value="The pygraphviz is not installed, try to install it."/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -916,7 +916,7 @@
         <attribute name="name_port" value="pygoocanvas"/>
         <attribute name="more_information" value="The pygoocanvas is not installed, try to install it."/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -927,7 +927,7 @@
         <attribute name="name_yum" value="pygobject3-devel"/>
         <attribute name="more_information" value="Python gobject components missing from system."/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -938,7 +938,7 @@
 	<attribute name="name_yum" value="gtk3"/>
         <attribute name="more_information" value="GTK+3 gir bindings missing from system."/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -949,7 +949,7 @@
         <attribute name="name_yum" value="pygobject3-devel"/>
         <attribute name="more_information" value="Python gobject components missing from system."/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -960,7 +960,7 @@
         <attribute name="name_yum" value="goocanvas2-devel"/>
         <attribute name="more_information" value="GooCanvas2 support missing from system."/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -971,7 +971,7 @@
         <attribute name="name_yum" value="python3-setuptools"/>
         <attribute name="more_information" value="The python3-setuptools package is not installed, try to install it."/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -983,7 +983,7 @@
         <attribute name="name_port" value="py-setuptools"/>
         <attribute name="more_information" value="The python-setuptools package is not installed, try to install it."/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -992,7 +992,7 @@
         <attribute name="import_test" value="cxxfilt"/>
         <attribute name="more_information" value="The python cxxfilt package is not installed, try to install it using 'pip install cxxfilt'."/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -1002,7 +1002,7 @@
       <depends_on name="python-dev" optional="True"/>
       <depends_on name="pygraphviz" optional="True"/>
       <depends_on name="pygoocanvas" optional="True"/>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -1014,7 +1014,7 @@
       <depends_on name="pygobject" optional="True"/>
       <depends_on name="gi-cairo" optional="True"/>
       <depends_on name="gir-bindings" optional="True"/>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -1022,7 +1022,7 @@
       <source type="git">
         <attribute name="url" value="https://github.com/gjcarneiro/pybindgen.git"/>
       </source>
-      <build type="python" objdir="yes">
+      <build type="python" objdir="objdir">
         <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/lib"/>
       </build>
       <depends_on name="python3-dev" optional="True"/>
@@ -1036,7 +1036,7 @@
         <attribute name="module_directory" value="pybindgen"/>
         <attribute name="revision" value="3eade768"/>
       </source>
-      <build type="python" objdir="yes">
+      <build type="python" objdir="objdir">
         <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/lib"/>
       </build>
       <depends_on name="pygccxml-1.9.1" optional="True"/>
@@ -1050,7 +1050,7 @@
         <attribute name="module_directory" value="pybindgen"/>
         <attribute name="revision" value="0.22.0"/>
       </source>
-      <build type="python" objdir="yes">
+      <build type="python" objdir="objdir">
         <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/lib"/>
       </build>
       <depends_on name="python3-dev" optional="True"/>
@@ -1063,7 +1063,7 @@
         <attribute name="module_directory" value="pybindgen"/>
         <attribute name="revision" value="a587377"/>
       </source>
-      <build type="python" objdir="yes">
+      <build type="python" objdir="objdir">
         <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/lib"/>
       </build>
       <depends_on name="python3-dev" optional="True"/>
@@ -1076,7 +1076,7 @@
         <attribute name="module_directory" value="pybindgen"/>
         <attribute name="revision" value="0.21.0"/>
       </source>
-      <build type="python" objdir="yes">
+      <build type="python" objdir="objdir">
         <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/lib"/>
       </build>
       <depends_on name="python3-dev" optional="True"/>
@@ -1089,7 +1089,7 @@
         <attribute name="module_directory" value="pybindgen"/>
         <attribute name="revision" value="0.20.0"/>
       </source>
-      <build type="python" objdir="yes">
+      <build type="python" objdir="objdir">
         <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/lib"/>
       </build>
       <depends_on name="python3-dev" optional="True"/>
@@ -1102,7 +1102,7 @@
         <attribute name="module_directory" value="pybindgen"/>
         <attribute name="revision" value="823d8b2"/>
       </source>
-      <build type="python" objdir="yes">
+      <build type="python" objdir="objdir">
         <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/lib"/>
       </build>
       <depends_on name="python-dev" optional="True"/>
@@ -1115,7 +1115,7 @@
         <attribute name="module_directory" value="pybindgen"/>
         <attribute name="revision" value="cf00cc0"/>
       </source>
-      <build type="python" objdir="yes">
+      <build type="python" objdir="objdir">
         <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/lib"/>
       </build>
       <depends_on name="python-dev" optional="True"/>
@@ -1128,7 +1128,7 @@
         <attribute name="module_directory" value="pybindgen"/>
         <attribute name="revision" value="a6376f2"/>
       </source>
-      <build type="python" objdir="yes">
+      <build type="python" objdir="objdir">
         <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/lib"/>
       </build>
       <depends_on name="pygccxml" optional="True"/>
@@ -1142,7 +1142,7 @@
         <attribute name="module_directory" value="pybindgen"/>
         <attribute name="revision" value="0e4e3bc0"/>
       </source>
-      <build type="python" objdir="yes">
+      <build type="python" objdir="objdir">
         <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/lib"/>
       </build>
       <depends_on name="pygccxml" optional="True"/>
@@ -1156,7 +1156,7 @@
         <attribute name="module_directory" value="pybindgen"/>
         <attribute name="revision" value="d10fa606"/>
       </source>
-      <build type="python" objdir="yes">
+      <build type="python" objdir="objdir">
         <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/lib"/>
       </build>
       <depends_on name="pygccxml" optional="True"/>
@@ -1169,7 +1169,7 @@
         <attribute name="dependency_test" value="g\+\+"/>
         <attribute name="more_information" value="g++ is not installed, try to install it or talk to your system administrator"/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -1266,7 +1266,7 @@
         <attribute name="name_apt-get" value="qt5-dev-tools libqt5-dev"/>
         <attribute name="more_information" value="Didn't find: Qt (version 4 or 5); install it from packages, or download from https://info.qt.io/download-qt-for-application-development"/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
   
@@ -1278,7 +1278,7 @@
         <attribute name="name_apt-get" value="qt4-dev-tools libqt4-dev"/>
         <attribute name="more_information" value="Didn't find:   QT 4, download and install it from http://qt.nokia.com/downloads/"/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
   
@@ -1289,7 +1289,7 @@
         <attribute name="name_yum" value="glibc"/>
         <attribute name="more_information" value="Didn't find:   libc package; please install it."/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -1301,7 +1301,7 @@
         <attribute name="more_information" value="Didn't find:   libc debug package; please install it."/>
       </source>
       <depends_on name="libc" optional="False"/>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -1310,7 +1310,7 @@
         <attribute name="url" value="https://gitlab.com/nsnam/elf-loader"/>
       </source>
       <depends_on name="libc-debug" optional="False"/>
-      <build type="make" objdir="no">
+      <build type="make">
         <attribute name="configure_arguments" value="vdl-config.h"/>
         <attribute name="install_arguments" value="PREFIX=$INSTALLDIR"/>
       </build>
@@ -1320,7 +1320,7 @@
       <source type="mercurial">
         <attribute name="url" value="https://code.nsnam.org/thehajime/libaspect"/>
       </source>
-      <build type="make" objdir="no">
+      <build type="make">
         <attribute name="install_arguments" value="PREFIX=$INSTALLDIR"/>
       </build>
       <depends_on name="mercurial" optional="False"/>
@@ -1330,7 +1330,7 @@
       <source type="mercurial">
         <attribute name="url" value="https://code.nsnam.org/BRITE"/>
       </source>
-      <build type="make" objdir="no">
+      <build type="make">
         <attribute name="no_installation" value="True"/>
         <attribute name="supported_os" value="linux;linux2;darwin"/>
       </build>
@@ -1341,7 +1341,7 @@
       <source type="git">
         <attribute name="url" value="https://gitlab.com/nsnam/netanim.git"/>
       </source>
-      <build type="make" objdir="no">
+      <build type="make">
         <attribute name="pre_installation" value="cd $SRCDIR;qmake NetAnim.pro or cd $SRCDIR;qmake-qt5 NetAnim.pro or cd $SRCDIR;qmake-qt4 NetAnim.pro"/>
       </build>
       <depends_on name="qt" optional="False"/>
@@ -1353,7 +1353,7 @@
         <attribute name="url" value="https://gitlab.com/nsnam/netanim.git"/>
         <attribute name="revision" value="netanim-3.106"/>
       </source>
-      <build type="make" objdir="no">
+      <build type="make">
         <attribute name="pre_installation" value="cd $SRCDIR;qmake NetAnim.pro or cd $SRCDIR;qmake-qt4 NetAnim.pro or cd $SRCDIR;qmake -spec macx-g++ NetAnim.pro"/>
       </build>
       <depends_on name="qt4" optional="False"/>
@@ -1365,7 +1365,7 @@
         <attribute name="url" value="https://gitlab.com/nsnam/netanim.git"/>
         <attribute name="revision" value="netanim-3.107"/>
       </source>
-      <build type="make" objdir="no">
+      <build type="make">
         <attribute name="pre_installation" value="cd $SRCDIR;qmake NetAnim.pro or cd $SRCDIR;qmake-qt4 NetAnim.pro or cd $SRCDIR;qmake -spec macx-g++ NetAnim.pro"/>
       </build>
       <depends_on name="qt4" optional="False"/>
@@ -1377,7 +1377,7 @@
         <attribute name="url" value="https://gitlab.com/nsnam/netanim.git"/>
         <attribute name="revision" value="netanim-3.108"/>
       </source>
-      <build type="make" objdir="no">
+      <build type="make">
         <attribute name="pre_installation" value="cd $SRCDIR;qmake NetAnim.pro or cd $SRCDIR;qmake-qt5 NetAnim.pro or cd $SRCDIR;qmake-qt4 NetAnim.pro"/>
       </build>
       <depends_on name="qt" optional="False"/>
@@ -1419,7 +1419,7 @@
       <depends_on name="netanim-3.106" optional="True"/>
       <depends_on name="pybindgen-0.17.0.post41+ngd10fa60" optional="True"/>
       <depends_on name="pyviz-prerequisites" optional="True"/>
-      <build type="waf" objdir="yes">
+      <build type="waf" objdir="objdir">
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
       </build>
       <depends_on name="mercurial" optional="False"/>
@@ -1432,7 +1432,7 @@
       <depends_on name="netanim-3.107" optional="True"/>
       <depends_on name="pybindgen-0.17.0.post49+ng0e4e3bc" optional="True"/>
       <depends_on name="pyviz-prerequisites" optional="True"/>
-      <build type="waf" objdir="yes">
+      <build type="waf" objdir="objdir">
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
       </build>
       <depends_on name="mercurial" optional="False"/>
@@ -1445,7 +1445,7 @@
       <depends_on name="netanim-3.107" optional="True"/>
       <depends_on name="pybindgen-0.17.0.post57+nga6376f2" optional="True"/>
       <depends_on name="pyviz-prerequisites" optional="True"/>
-      <build type="waf" objdir="yes">
+      <build type="waf" objdir="objdir">
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
       </build>
       <depends_on name="mercurial" optional="False"/>
@@ -1458,7 +1458,7 @@
       <depends_on name="netanim-3.108" optional="True"/>
       <depends_on name="pybindgen-ns3.27-castxml" optional="True"/>
       <depends_on name="pyviz-prerequisites" optional="True"/>
-      <build type="waf" objdir="yes">
+      <build type="waf" objdir="objdir">
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
       </build>
       <depends_on name="mercurial" optional="False"/>
@@ -1472,7 +1472,7 @@
       <depends_on name="netanim-3.108" optional="True"/>
       <depends_on name="pybindgen-ns3.27-castxml" optional="True"/>
       <depends_on name="pyviz-prerequisites" optional="True"/>
-      <build type="waf" objdir="yes">
+      <build type="waf" objdir="objdir">
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
       </build>
       <depends_on name="mercurial" optional="False"/>
@@ -1487,7 +1487,7 @@
       <depends_on name="netanim-3.108" optional="True"/>
       <depends_on name="pybindgen-ns3.27-castxml" optional="True"/>
       <depends_on name="pyviz-prerequisites" optional="True"/>
-      <build type="waf" objdir="yes">
+      <build type="waf" objdir="objdir">
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
       </build>
       <depends_on name="mercurial" optional="False"/>
@@ -1501,7 +1501,7 @@
       <depends_on name="netanim-3.108" optional="True"/>
       <depends_on name="pybindgen-0.19.0.post4+ng823d8b2" optional="True"/>
       <depends_on name="pyviz-gtk3-prerequisites" optional="True"/>
-      <build type="waf" objdir="yes">
+      <build type="waf" objdir="objdir">
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
       </build>
       <depends_on name="mercurial" optional="False"/>
@@ -1516,7 +1516,7 @@
       <depends_on name="netanim-3.108" optional="True"/>
       <depends_on name="pybindgen-0.20.0" optional="True"/>
       <depends_on name="pyviz-gtk3-prerequisites" optional="True"/>
-      <build type="waf" objdir="yes">
+      <build type="waf" objdir="objdir">
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
       </build>
     </module>
@@ -1530,7 +1530,7 @@
       <depends_on name="netanim-3.108" optional="True"/>
       <depends_on name="pybindgen-0.20.0" optional="True"/>
       <depends_on name="pyviz-gtk3-prerequisites" optional="True"/>
-      <build type="waf" objdir="yes">
+      <build type="waf" objdir="objdir">
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
       </build>
     </module>
@@ -1544,7 +1544,7 @@
       <depends_on name="netanim-3.108" optional="True"/>
       <depends_on name="pybindgen-0.21.0" optional="True"/>
       <depends_on name="pyviz-gtk3-prerequisites" optional="True"/>
-      <build type="waf" objdir="yes">
+      <build type="waf" objdir="objdir">
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
       </build>
     </module>
@@ -1558,7 +1558,7 @@
       <depends_on name="netanim-3.108" optional="True"/>
       <depends_on name="pybindgen-0.21.0" optional="True"/>
       <depends_on name="pyviz-gtk3-prerequisites" optional="True"/>
-      <build type="waf" objdir="yes">
+      <build type="waf" objdir="objdir">
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
       </build>
     </module>
@@ -1572,7 +1572,7 @@
       <depends_on name="netanim-3.108" optional="True"/>
       <depends_on name="pybindgen-0.21.0.post15+nga587377" optional="True"/>
       <depends_on name="pyviz-gtk3-prerequisites" optional="True"/>
-      <build type="waf" objdir="yes">
+      <build type="waf" objdir="objdir">
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
       </build>
     </module>
@@ -1586,7 +1586,7 @@
       <depends_on name="netanim-3.108" optional="True"/>
       <depends_on name="pybindgen-0.22.0" optional="True"/>
       <depends_on name="pyviz-gtk3-prerequisites" optional="True"/>
-      <build type="waf" objdir="yes">
+      <build type="waf" objdir="objdir">
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
       </build>
     </module>
@@ -1600,7 +1600,7 @@
       <depends_on name="netanim-3.108" optional="True"/>
       <depends_on name="pybindgen-0.22.0" optional="True"/>
       <depends_on name="pyviz-gtk3-prerequisites" optional="True"/>
-      <build type="waf" objdir="yes">
+      <build type="waf">
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
       </build>
     </module>
@@ -1836,7 +1836,7 @@
         <attribute name="revision" value="dce-1.7"/>
       </source>
       <depends_on name="dce-meta-1.7" optional="False"/>
-      <build type="waf" objdir="yes" sourcedir="ns-3-dce">
+      <build type="waf" objdir="objdir" sourcedir="ns-3-dce">
         <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="configure_arguments" value="configure --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --prefix=$INSTALLDIR"/>
       </build>
@@ -1852,7 +1852,7 @@
       <depends_on name="dce-meta-1.7" optional="False"/>
       <depends_on name="net-next-sim-2.6.36" optional="False"/>
       <depends_on name="iproute-2.6.38-fix-01" optional="False"/>
-      <build type="waf" objdir="yes" sourcedir="ns-3-dce">
+      <build type="waf" objdir="objdir" sourcedir="ns-3-dce">
         <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../net-next-sim-2.6.36/arch"/>
       </build>
@@ -1867,7 +1867,7 @@
       </source>
       <depends_on name="dce-meta-1.7" optional="False"/>
       <depends_on name="freebsd-sim-10.0.0" optional="False"/>
-      <build type="waf" objdir="yes" sourcedir="ns-3-dce">
+      <build type="waf" objdir="objdir" sourcedir="ns-3-dce">
         <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --with-libaspect=$INSTALLDIR --enable-kernel-stack=$SRCDIR/../freebsd-sim/sys"/>
       </build>
@@ -1931,7 +1931,7 @@
         <attribute name="revision" value="dce-1.8"/>
       </source>
       <depends_on name="dce-meta-1.8" optional="False"/>
-      <build type="waf" objdir="yes" sourcedir="ns-3-dce">
+      <build type="waf" objdir="objdir" sourcedir="ns-3-dce">
         <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="configure_arguments" value="configure --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --prefix=$INSTALLDIR"/>
       </build>
@@ -1947,7 +1947,7 @@
       <depends_on name="dce-meta-1.8" optional="False"/>
       <depends_on name="net-next-sim-2.6.36" optional="False"/>
       <depends_on name="iproute-2.6.38-fix-01" optional="False"/>
-      <build type="waf" objdir="yes" sourcedir="ns-3-dce">
+      <build type="waf" objdir="objdir" sourcedir="ns-3-dce">
         <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../net-next-sim-2.6.36/arch"/>
       </build>
@@ -1962,7 +1962,7 @@
       </source>
       <depends_on name="dce-meta-1.8" optional="False"/>
       <depends_on name="freebsd-sim-10.0.0" optional="False"/>
-      <build type="waf" objdir="yes" sourcedir="ns-3-dce">
+      <build type="waf" objdir="objdir" sourcedir="ns-3-dce">
         <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --with-libaspect=$INSTALLDIR --enable-kernel-stack=$SRCDIR/../freebsd-sim/sys"/>
       </build>
@@ -2025,7 +2025,7 @@
         <attribute name="revision" value="dce-1.9"/>
       </source>
       <depends_on name="dce-meta-1.9" optional="False"/>
-      <build type="waf" objdir="yes" sourcedir="ns-3-dce">
+      <build type="waf" objdir="objdir" sourcedir="ns-3-dce">
         <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="configure_arguments" value="configure --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --prefix=$INSTALLDIR"/>
       </build>
@@ -2041,7 +2041,7 @@
       <depends_on name="dce-meta-1.9" optional="False"/>
       <depends_on name="net-next-sim-2.6.36" optional="False"/>
       <depends_on name="iproute-2.6.38-fix-01" optional="False"/>
-      <build type="waf" objdir="yes" sourcedir="ns-3-dce">
+      <build type="waf" objdir="objdir" sourcedir="ns-3-dce">
         <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --enable-kernel-stack=$SRCDIR/../net-next-sim-2.6.36/arch"/>
       </build>
@@ -2056,7 +2056,7 @@
       </source>
       <depends_on name="dce-meta-1.9" optional="False"/>
       <depends_on name="freebsd-sim-10.0.0" optional="False"/>
-      <build type="waf" objdir="yes" sourcedir="ns-3-dce">
+      <build type="waf" objdir="objdir" sourcedir="ns-3-dce">
         <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --with-libaspect=$INSTALLDIR --enable-kernel-stack=$SRCDIR/../freebsd-sim/sys"/>
       </build>
@@ -2136,7 +2136,7 @@
       <depends_on name="net-next-nuse-4.4.0" optional="False"/>
       <depends_on name="iproute2-4.4.0" optional="False"/>
       <depends_on name="lksctp-dev" optional="True"/>
-      <build type="waf" objdir="yes" sourcedir="ns-3-dce">
+      <build type="waf" objdir="objdir" sourcedir="ns-3-dce">
         <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --with-libaspect=$INSTALLDIR --enable-kernel-stack=$SRCDIR/../net-next-nuse-4.4.0/arch"/>
       </build>
@@ -2150,7 +2150,7 @@
       </source>
       <depends_on name="dce-meta-1.10" optional="False"/>
       <depends_on name="freebsd-sim-10.0.0" optional="False"/>
-      <build type="waf" objdir="yes" sourcedir="ns-3-dce">
+      <build type="waf" objdir="objdir" sourcedir="ns-3-dce">
         <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --with-libaspect=$INSTALLDIR --enable-kernel-stack=$SRCDIR/../freebsd-sim/sys"/>
       </build>
@@ -2241,7 +2241,7 @@
       <depends_on name="net-next-nuse-4.4.0" optional="False"/>
       <depends_on name="iproute2-4.4.0" optional="False"/>
       <depends_on name="lksctp-dev" optional="True"/>
-      <build type="waf" objdir="yes" sourcedir="ns-3-dce">
+      <build type="waf" objdir="objdir" sourcedir="ns-3-dce">
         <attribute name="supported_os" value="linux;linux2"/>
         <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --with-ns3=$INSTALLDIR --with-elf-loader=$INSTALLDIR/lib --with-libaspect=$INSTALLDIR --enable-kernel-stack=$SRCDIR/../net-next-nuse-4.4.0/arch --disable-python"/>
       </build>
@@ -2270,7 +2270,7 @@
         <attribute name="name_yum" value="mercurial"/>
         <attribute name="more_information" value="Didn't find:   Mercurial package; please install it."/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -2281,7 +2281,7 @@
         <attribute name="name_yum" value="rar"/>
         <attribute name="more_information" value="Didn't find:   make - Utility for Directing compilation.; please install it."/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -2292,7 +2292,7 @@
         <attribute name="name_yum" value="patch"/>
         <attribute name="more_information" value="Didn't find:   patch - Apply a diff file to an original; please install it."/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -2303,7 +2303,7 @@
         <attribute name="name_yum" value="tar"/>
         <attribute name="more_information" value="Didn't find:   tar - GNU version of the tar archiving utility; please install it."/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -2314,7 +2314,7 @@
         <attribute name="name_yum" value="git"/>
         <attribute name="more_information" value="Didn't find:   git - fast, scalable, distributed revision control system; please install it."/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -2325,7 +2325,7 @@
         <attribute name="name_yum" value="cmake"/>
         <attribute name="more_information" value="Didn't find:   git - fast, scalable, distributed revision control system; please install it."/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -2336,7 +2336,7 @@
         <attribute name="name_yum" value="autoconf automake"/>
         <attribute name="more_information" value="Didn't find:   autoconf and automake - automatic configure and Makefile script builders; please install it."/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -2348,7 +2348,7 @@
         <attribute name="name_yum" value="python-sphinx"/>
         <attribute name="more_information" value="Didn't find:   python-sphinx - documentation generator for Python projects; please install it, if you think you will gennerate the documentation."/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
@@ -2359,7 +2359,7 @@
         <attribute name="name_yum" value="python-pygments"/>
         <attribute name="more_information" value="Didn't find:   python-pygments - syntax highlighting package written in Python; please install it, if you think you will gennerate the documentation."/>
       </source>
-      <build type="none" objdir="no">
+      <build type="none">
       </build>
     </module>
 
