@@ -1403,6 +1403,7 @@
   <module name="ns-3-dev">
       <source type="git">
         <attribute name="url" value="https://gitlab.com/nsnam/ns-3-dev.git"/>
+        <attribute name="branch" value="master"/>
       </source>
       <depends_on name="netanim" optional="True"/>
       <depends_on name="pybindgen" optional="True"/>
@@ -1511,6 +1512,7 @@
       <source type="git">
         <attribute name="url" value="https://gitlab.com/nsnam/ns-3-dev.git"/>
         <attribute name="module_directory" value="ns-3.30"/>
+        <attribute name="branch" value="master"/>
         <attribute name="revision" value="ns-3.30"/>
       </source>
       <depends_on name="netanim-3.108" optional="True"/>
@@ -1525,6 +1527,7 @@
       <source type="git">
         <attribute name="url" value="https://gitlab.com/nsnam/ns-3-dev.git"/>
         <attribute name="module_directory" value="ns-3.30.1"/>
+        <attribute name="branch" value="master"/>
         <attribute name="revision" value="ns-3.30.1"/>
       </source>
       <depends_on name="netanim-3.108" optional="True"/>
@@ -1539,6 +1542,7 @@
       <source type="git">
         <attribute name="url" value="https://gitlab.com/nsnam/ns-3-dev.git"/>
         <attribute name="module_directory" value="ns-3.31"/>
+        <attribute name="branch" value="master"/>
         <attribute name="revision" value="ns-3.31"/>
       </source>
       <depends_on name="netanim-3.108" optional="True"/>
@@ -1553,6 +1557,7 @@
       <source type="git">
         <attribute name="url" value="https://gitlab.com/nsnam/ns-3-dev.git"/>
         <attribute name="module_directory" value="ns-3.32"/>
+        <attribute name="branch" value="master"/>
         <attribute name="revision" value="ns-3.32"/>
       </source>
       <depends_on name="netanim-3.108" optional="True"/>
@@ -1567,6 +1572,7 @@
       <source type="git">
         <attribute name="url" value="https://gitlab.com/nsnam/ns-3-dev.git"/>
         <attribute name="module_directory" value="ns-3.33"/>
+        <attribute name="branch" value="master"/>
         <attribute name="revision" value="ns-3.33"/>
       </source>
       <depends_on name="netanim-3.108" optional="True"/>
@@ -1581,6 +1587,7 @@
       <source type="git">
         <attribute name="url" value="https://gitlab.com/nsnam/ns-3-dev.git"/>
         <attribute name="module_directory" value="ns-3.34"/>
+        <attribute name="branch" value="master"/>
         <attribute name="revision" value="ns-3.34"/>
       </source>
       <depends_on name="netanim-3.108" optional="True"/>
@@ -1595,6 +1602,7 @@
       <source type="git">
         <attribute name="url" value="https://gitlab.com/nsnam/ns-3-dev.git"/>
         <attribute name="module_directory" value="ns-3.35"/>
+        <attribute name="branch" value="master"/>
         <attribute name="revision" value="ns-3.35"/>
       </source>
       <depends_on name="netanim-3.108" optional="True"/>
