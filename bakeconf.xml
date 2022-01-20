@@ -1408,8 +1408,11 @@
       <depends_on name="netanim" optional="True"/>
       <depends_on name="pybindgen" optional="True"/>
       <depends_on name="pyviz-gtk3-prerequisites" optional="True"/>
-      <build type="waf" objdir="yes">
-        <attribute name="configure_arguments" value="configure --prefix=$INSTALLDIR --enable-examples --enable-tests"/>
+      <depends_on name="cmake" optional="False"/>
+      <build type="cmake" objdir="cmake_cache">
+        <!-- Note: -DCMAKE_INSTALL_PREFIX:PATH=$INSTALLDIR is added internally by bake -->
+        <!-- Note: bake uses the default cmake generator (Unix Makefiles) -->
+        <attribute name="configure_arguments" value="-DCMAKE_BUILD_TYPE=debug -DNS3_NATIVE_OPTIMIZATIONS=OFF -DNS3_EXAMPLES=ON -DNS3_TESTS=ON"/>
       </build>
   </module>
 
