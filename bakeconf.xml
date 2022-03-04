@@ -1331,7 +1331,7 @@
         <attribute name="url" value="https://code.nsnam.org/BRITE"/>
       </source>
       <build type="make">
-        <attribute name="no_installation" value="True"/>
+        <attribute name="install_arguments" value="PREFIX=$INSTALLDIR"/>
         <attribute name="supported_os" value="linux;linux2;darwin"/>
       </build>
       <depends_on name="mercurial" optional="False"/>
