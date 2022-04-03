@@ -1044,6 +1044,19 @@
       <depends_on name="setuptools" optional="False"/>
     </module>
 
+    <module name="pybindgen-0.22.1">
+      <source type="git">
+        <attribute name="url" value="https://github.com/gjcarneiro/pybindgen.git"/>
+        <attribute name="module_directory" value="pybindgen"/>
+        <attribute name="revision" value="0.22.1"/>
+      </source>
+      <build type="python" objdir="objdir">
+        <attribute name="pre_installation" value="mkdir -p $INSTALLDIR/lib"/>
+      </build>
+      <depends_on name="python3-dev" optional="True"/>
+      <depends_on name="setuptools" optional="False"/>
+    </module>
+
     <module name="pybindgen-0.22.0">
       <source type="git">
         <attribute name="url" value="https://github.com/gjcarneiro/pybindgen.git"/>
