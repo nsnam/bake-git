@@ -1629,6 +1629,23 @@
       </build>
     </module>
 
+    <module name="ns-3.36" type="ns">
+      <source type="git">
+        <attribute name="url" value="https://gitlab.com/nsnam/ns-3-dev.git"/>
+        <attribute name="module_directory" value="ns-3.36"/>
+        <attribute name="branch" value="master"/>
+        <attribute name="revision" value="ns-3.36"/>
+      </source>
+      <depends_on name="netanim-3.108" optional="True"/>
+      <depends_on name="pybindgen-0.22.1" optional="True"/>
+      <depends_on name="pyviz-gtk3-prerequisites" optional="True"/>
+      <build type="cmake" objdir="cmake_cache">
+        <!-- Note: -DCMAKE_INSTALL_PREFIX:PATH=$INSTALLDIR is added internally by bake -->
+        <!-- Note: bake uses the default cmake generator (Unix Makefiles) -->
+        <attribute name="configure_arguments" value="-DCMAKE_BUILD_TYPE=default -DNS3_NATIVE_OPTIMIZATIONS=OFF -DNS3_EXAMPLES=ON -DNS3_TESTS=ON -DNS3_ASSERT=ON -DNS3_LOG=ON -DNS3_WARNINGS_AS_ERRORS=OFF"/>
+      </build>
+    </module>
+
     <module name="ns-allinone-3.24">
       <source type="none"/>
       <depends_on name="netanim-3.106" optional="True"/>
@@ -1829,6 +1846,20 @@
       <depends_on name="openflow-dev" optional="True"/>
       <depends_on name="BRITE" optional="True"/>
       <depends_on name="ns-3.35" optional="False"/>
+      <!-- Workaround (bake issue #10: https://gitlab.com/nsnam/bake/-/issues/10) until click dependency is found in 'bake show'-->
+      <depends_on name="automake" optional="False"/>
+      <build type="none"/>
+    </module>
+
+    <module name="ns-allinone-3.36">
+      <source type="none"/>
+      <depends_on name="netanim-3.108" optional="True"/>
+      <depends_on name="pygccxml-2.2.1" optional="True"/>
+      <depends_on name="pyviz-gtk3-prerequisites" optional="True"/>
+      <depends_on name="click-ns-3.34" optional="True"/>
+      <depends_on name="openflow-dev" optional="True"/>
+      <depends_on name="BRITE" optional="True"/>
+      <depends_on name="ns-3.36" optional="False"/>
       <!-- Workaround (bake issue #10: https://gitlab.com/nsnam/bake/-/issues/10) until click dependency is found in 'bake show'-->
       <depends_on name="automake" optional="False"/>
       <build type="none"/>
